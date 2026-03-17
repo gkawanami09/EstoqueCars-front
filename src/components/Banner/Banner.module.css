@@ -1,10 +1,10 @@
 .banner{
     padding-left: 20px !important;
-    padding-right: 20px !important;
     background-image: linear-gradient(to top, #FAFAFA, #EDEDED);
     display: flex;
     min-height: 500px;
     align-items: center;
+    justify-content: space-between;
 }
 .banner img {
     width: 100%;
@@ -52,4 +52,5 @@ span {
 section img{
     width: 100%;
     height: auto;
+    border-bottom: 1px solid var(--cinza-fundo);
 }
