@@ -4,7 +4,7 @@ function Header() {
     return(
         <header className={css.container}>
             <div>
-                <img src="/img/Logo.png" alt="Logo" />
+                <img src="/Logo.png" alt="Logo" />
             </div>
             <nav>
                 <a href="#Carros">Carros</a>

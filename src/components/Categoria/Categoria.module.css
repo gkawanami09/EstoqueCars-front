@@ -12,7 +12,7 @@
     padding-top: 60px;
 }
 
-.section div {
+.titulo {
     display: flex;
     flex-direction: column;
     gap: 10px;
@@ -24,11 +24,10 @@
     font-weight: bold;
 }
 
-.principal {
-    border: 1px solid var(--cinza-fundo);
-    width: 214px;
-    height: 256px;
-    border-radius: 15px;
-    box-shadow: 0 18px 30px rgba(0, 0, 0, 0.12),
-                0 8px 12px rgba(0, 0, 0, 0.08);
+.carros {
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: center;
 }

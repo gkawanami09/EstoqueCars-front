@@ -10,10 +10,10 @@ function Banner() {
                     <Link className={css.button} to="/carros">Ver Carros</Link>
                 </div>
                 <div>
-                    <img src="/img/carro-banner.png" alt="Banner" />
+                    <img src="/carro-banner.png" alt="Banner" />
                 </div>
             </div>
-            <img src="/img/marcas.png" alt="marcas banner" />
+            <img src="/marcas.png" alt="marcas banner" />
         </section>
     )
 }
