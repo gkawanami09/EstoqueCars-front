@@ -49,8 +49,8 @@
     font-weight: bold;
     color: var(--cinza-fundo);
     background-color: var(--preto);
-    padding: 5px;
-    border-radius: 5px;
+    padding: 5px 15px;
+    border-radius: 15px;
 }
 
 .principal:hover .quantidade {

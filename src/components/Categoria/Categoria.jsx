@@ -1,12 +1,12 @@
 import css from './Categoria.module.css'
 import CardCategoria from '../CardCategoria/CardCategoria'
 
-function Categoria() {
+function Categoria({ subtitulo, titulo }) {
     return(
         <section className={css.section}>
             <div className={css.titulo}>
-                <h3>Escolha o seu estilo de carro</h3>
-                <h2><span>Categorias</span> em Alta</h2>
+                <h3>{subtitulo}</h3>
+                <h2><span>{titulo}</span> em Alta</h2>
             </div>
             <div className={css.carros}>
                 <CardCategoria imgSrc="/sedan.png" alt="sedan" categoria="Sedan" quantidade="10" />
