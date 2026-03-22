@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom'
 import css from './Header.module.css'
+import ButtonLink from '../ButtonLink/ButtonLink'
+
 function Header() {
     return(
         <header className={css.container}>
@@ -14,7 +16,7 @@ function Header() {
             </nav>
             <div className={css.buttons}>
                 <Link className={css.Link} to='/cadastro'>Cadastro</Link>
-                <Link className={css.button} to='/Entrar'>Entrar</Link>
+                <ButtonLink buttonTo='/login' buttonNome='Entrar'/>
             </div>
         </header>
     )
