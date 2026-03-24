@@ -1,0 +1,15 @@
+.fundo {
+    background-color: var(--cinza-escuro-card);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 155px;
+    width: 185px;
+    border-radius: 15px;
+}
+
+.contexto {
+    color: var(--cinza-fundo)
+}
