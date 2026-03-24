@@ -7,7 +7,9 @@ function Banner({ span1, titulo, span2, subtitulo, buttonTo, buttonNome }) {
                 <div className={css.texto}>
                     <h1>A <span>{span1}</span> {titulo} <span>{span2}</span></h1>
                     <h2>{subtitulo}</h2>
-                    <ButtonLink className={css.button} buttonTo={buttonTo} buttonNome={buttonNome} />
+                    <div>
+                        <ButtonLink buttonTo={buttonTo} buttonNome={buttonNome} />
+                    </div>
                 </div>
                 <div>
                     <img src="/carro-banner.png" alt="Banner" />
