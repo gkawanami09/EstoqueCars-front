@@ -7,9 +7,10 @@
 .section {
     display: flex;
     flex-direction: column;
-    gap: 20px;
+    gap: 60px;
     align-items: center;
     padding-top: 60px;
+    padding-bottom: 60px;
 }
 
 .titulo {
@@ -22,4 +23,12 @@
 .section div h2 {
     font-size: 40px;
     font-weight: bold;
+}
+
+.cards{
+    display: flex;
+    max-width: 100vw;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 30px;
 }
