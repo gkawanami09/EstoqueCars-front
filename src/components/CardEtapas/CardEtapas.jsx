@@ -1,15 +1,34 @@
-function CardEtapas({titulo, conteudo, imagem, alt}) {
-    return (
-        <div>
-            <div>
-                <h4>{titulo}</h4>
-                <p>{conteudo}</p>
+import css from './CardEtapas.module.css'
+
+function CardEtapas({titulo, conteudo, imagem, alt, direcao="esquerda"}) {
+
+    if (direcao == "direita") {
+        return (
+            <div className={css.fundo}>
+                <div>
+                    <img src={"/ImgEtapas/" + imagem + ".png"} alt={alt} />
+                </div>
+                <div className={css.conteudoDireita
+                }>
+                    <h4>{titulo}</h4>
+                    <p>{conteudo}</p>
+                </div>
             </div>
-            <div>
-                <img src={"/ImgEtapas/" + imagem + ".png"} alt={alt} />
+        )
+    } else if (direcao == "esquerda") {
+        return (
+            <div className={css.fundo}>
+                <div className={css.conteudoEsquerda}>
+                    <h4>{titulo}</h4>
+                    <p>{conteudo}</p>
+                </div>
+                <div>
+                    <img src={"/ImgEtapas/" + imagem + ".png"} alt={alt} />
+                </div>
             </div>
-        </div>
-    )
+        )
+    }
+
 }
 
 export default CardEtapas
