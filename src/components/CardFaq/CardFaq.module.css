@@ -1,0 +1,18 @@
+.cards {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cards div p {
+    font-size: 16px;
+    font-weight: bold;
+}
+
+.resposta {
+    width: 1140px;
+    height: auto;
+    border: solid 1px var(--cinza-escuro-card);
+    border-radius: 10px;
+    padding: 10px;
+}
