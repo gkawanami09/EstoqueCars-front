@@ -1,0 +1,31 @@
+.card {
+    background-color: var(--cinza-escuro-card);
+    display: flex;
+    justify-content: space-between;
+    color: var(--cinza-fundo);
+    padding: 20px;
+    border-radius: 15px;
+    width: 360px;
+    height: auto;
+}
+
+.conteudo {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.titulo {
+    font-weight: bold;
+}
+
+.cardGrande {
+    background-color: var(--cinza-escuro-card);
+    display: flex;
+    justify-content: space-between;
+    color: var(--cinza-fundo);
+    padding: 20px;
+    border-radius: 15px;
+    width: 360px;
+    height: 200px;
+}
