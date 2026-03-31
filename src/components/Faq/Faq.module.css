@@ -1,0 +1,28 @@
+.section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 30px;
+}
+
+.texto h3 {
+    color: var(--cinza-escuro);
+    font-size: 16px;
+    font-weight: medium;
+}
+
+.texto h2 {
+    font-weight: bold;
+    font-size: 40px;
+}
+.texto {
+    text-align: center;
+    padding-top: 60px;
+}
+
+.cards {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
