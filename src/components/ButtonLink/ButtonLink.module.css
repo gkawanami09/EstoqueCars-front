@@ -1,13 +1,35 @@
 .button {
-    background-color: var(--preto);
-    color: #fff;
     padding: 5px 15px;
     border: none;
     border-radius: 10px;
     width: auto;
     text-align: center;
+    display: inline-block;
 }
 
-.button:hover{
+.preto {
+    background-color: var(--preto);
+    color: #fff;
+}
+
+.preto:hover {
     background-color: var(--vermelho);
+}
+
+.vermelho {
+    background-color: var(--vermelho);
+    color: #fff;
+}
+
+.vermelho:hover {
+    background-color: #d93a3a;
+}
+
+.branco {
+    background-color: #ffffff;
+    color: #000000;
+}
+
+.branco:hover {
+    background-color: #e6e6e6;
 }
