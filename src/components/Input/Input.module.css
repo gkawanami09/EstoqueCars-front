@@ -1,0 +1,46 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.label {
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+}
+.input_box {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 0 15px;
+    height: 48px;
+    background-color: #fff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.input_box:focus-within {
+    border-color: #000;
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+}
+.icone {
+    width: 18px;
+    height: 18px;
+    margin-right: 12px;
+    object-fit: contain;
+    opacity: 0.6;
+}
+.input_field {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 15px;
+    color: #1a1a1a;
+    height: 100%;
+}
+.input_field::placeholder {
+    color: #bbb;
+    letter-spacing: 2px;
+}
