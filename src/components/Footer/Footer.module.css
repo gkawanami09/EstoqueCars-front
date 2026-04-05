@@ -5,6 +5,10 @@
     margin-top: 60px;
 }
 
+.sem_margem_topo {
+    margin-top: 0;
+}
+
 .conteudo {
     display: flex;
     align-items: center;
@@ -22,9 +26,12 @@
 }
 
 .logo {
-    width: 140px;
-    height: auto;
+    width: 160px;
+    height: 52px;
     display: block;
+    max-width: 100%;
+    object-fit: contain;
+    object-position: left center;
 }
 
 .endereco p {

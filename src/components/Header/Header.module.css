@@ -7,8 +7,19 @@
     padding-right: 20px !important;
     min-height: 70px;
 }
-.container img {
-    width: 100px;
+
+.logoBox {
+    display: flex;
+    align-items: center;
+    height: 44px;
+}
+
+.logo {
+    width: 130px;
+    height: 44px;
+    display: block;
+    object-fit: contain;
+    object-position: left center;
 }
 nav {
     display: flex;

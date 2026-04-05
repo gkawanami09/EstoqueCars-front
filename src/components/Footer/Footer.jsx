@@ -1,9 +1,13 @@
 import css from './Footer.module.css'
 import ButtonLink from '../ButtonLink/ButtonLink'
+import { useLocation } from 'react-router-dom'
 
 function Footer() {
+    const location = useLocation()
+    const semMargemTopo = location.pathname === '/cadastro' || location.pathname === '/login'
+
     return (
-        <footer className={css.footer}>
+        <footer className={`${css.footer} ${semMargemTopo ? css.sem_margem_topo : ''}`}>
             <div className={css.conteudo}>
                 <div className={css.esquerda}>
                     <img className={css.logo} src="/ImgFooter/logo.png" alt="Estoque Cars" />

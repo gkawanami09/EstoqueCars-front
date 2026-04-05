@@ -5,9 +5,11 @@ import ButtonLink from '../ButtonLink/ButtonLink'
 function Header() {
     return(
         <header className={css.container}>
-            <div>
-                <img src="/Logo.png" alt="Logo" />
-            </div>
+            <Link className={css.logoBox} to="/">
+                <div>
+                    <img className={css.logo} src="/Logo.png" alt="Logo" />
+                </div>
+            </Link>
             <nav>
                 <a href="#Carros">Carros</a>
                 <a href="#Servicos">Serviços</a>
