@@ -11,8 +11,6 @@ import Footer from "../components/Footer/Footer"
 function Home() {
     return(
         <>
-            <Header />
-
             <Banner span1="Maior Garagem" titulo="de Carros Usados do" span2="Senai" subtitulo="Nossa equipe oferece uma ampla seleção de carros a pronta entrega." buttonTo="/carros" buttonNome="ver carros"/>
 
             <Categoria subtitulo="Escolha o seu estilo de carro" titulo="Categorias"/>
@@ -26,8 +24,6 @@ function Home() {
             <Faq span="Dúvidas" titulo="Frequentes" subtitulo="FAQ"/>
 
             <Contato />
-
-            <Footer />
         </>
     )
 }

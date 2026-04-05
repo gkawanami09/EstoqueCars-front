@@ -1,8 +1,8 @@
-.section {
-    padding-top: 60px;
+﻿.section {
     display: flex;
     flex-direction: column;
     align-items: center;
+    padding-top: 60px;
 }
 
 .texto {
@@ -12,7 +12,7 @@
 .texto h3 {
     color: var(--cinza-escuro);
     font-size: 16px;
-    font-weight: medium;
+    font-weight: 500;
 }
 
 .texto h2 {
@@ -22,4 +22,69 @@
 
 .cards {
     padding-top: 50px;
+    width: min(100%, 1100px);
+}
+
+.timeline {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 36px 1fr;
+    column-gap: 12px;
+    row-gap: 44px;
+    align-items: center;
+    padding: 8px 0;
+}
+
+.timeline::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 2px;
+    background-color: #D6D6D6;
+}
+
+.dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: #F7F7F7;
+    border: 2px solid #CFCFCF;
+    justify-self: center;
+    z-index: 1;
+}
+
+.itemLeft {
+    grid-column: 1;
+    justify-self: end;
+}
+
+.itemRight {
+    grid-column: 3;
+    justify-self: start;
+}
+
+.spacer {
+    grid-column: auto;
+}
+
+@media (max-width: 900px) {
+    .timeline {
+        grid-template-columns: 1fr;
+        row-gap: 28px;
+    }
+
+    .timeline::before,
+    .dot,
+    .spacer {
+        display: none;
+    }
+
+    .itemLeft,
+    .itemRight {
+        grid-column: 1;
+        justify-self: center;
+    }
 }
