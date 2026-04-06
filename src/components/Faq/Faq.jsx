@@ -1,9 +1,9 @@
-import CardFaq from "../CardFaq/CardFaq"
+﻿import CardFaq from "../CardFaq/CardFaq"
 import css from "./Faq.module.css"
 
 function Faq({ span, titulo, subtitulo }) {
     return (
-        <section className={css.section}>
+        <section id="Duvidas" className={css.section}>
             <div className={css.texto}>
                 <h3>{subtitulo}</h3>
                 <h2><span>{span}</span> {titulo}</h2>

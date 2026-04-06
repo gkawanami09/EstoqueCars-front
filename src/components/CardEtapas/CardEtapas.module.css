@@ -62,3 +62,39 @@
     line-height: 1.35;
     max-width: 220px;
 }
+
+@media (max-width: 900px) {
+    .fundo,
+    .fundoEsquerda,
+    .fundoDireita {
+        justify-content: center;
+        width: min(100%, 320px);
+    }
+
+    .icone {
+        display: none;
+    }
+
+    .conteudoEsquerda,
+    .conteudoDireita {
+        align-items: center;
+        text-align: center;
+    }
+}
+
+@media (max-width: 425px) {
+    .fundo {
+        width: min(100%, 300px);
+    }
+
+    .conteudoEsquerda h4,
+    .conteudoDireita h4 {
+        font-size: 14px;
+    }
+
+    .conteudoEsquerda p,
+    .conteudoDireita p {
+        font-size: 12px;
+        max-width: 260px;
+    }
+}

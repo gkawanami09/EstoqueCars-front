@@ -35,3 +35,87 @@
     flex-direction: column;
     gap: 30px;
 }
+
+@media (max-width: 1024px) {
+    .fundo {
+        height: auto;
+        padding: 30px 24px;
+        gap: 22px;
+    }
+
+    .fundo > div:first-child img {
+        width: 320px;
+        height: auto;
+    }
+
+    .texto h3 {
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 768px) {
+    .fundo {
+        width: 100%;
+        max-width: 736px;
+        margin: 0 auto;
+        border-radius: 8px;
+        flex-direction: column;
+        align-items: center;
+        padding: 22px 14px 16px;
+        gap: 18px;
+    }
+
+    .fundo > div:first-child img {
+        width: 250px;
+    }
+
+    .conteudo {
+        max-width: none;
+        width: 100%;
+        gap: 18px;
+    }
+
+    .texto {
+        align-items: center;
+        text-align: center;
+        gap: 12px;
+    }
+
+    .texto h3 {
+        font-size: 22px;
+        line-height: 1.35;
+    }
+
+    .texto p {
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+    .cards {
+        width: 100%;
+        justify-content: space-between;
+        gap: 10px;
+    }
+}
+
+@media (max-width: 425px) {
+    .fundo {
+        width: 100%;
+        max-width: 409px;
+        padding: 20px 10px 14px;
+    }
+
+    .fundo > div:first-child img {
+        width: 220px;
+    }
+
+    .texto h3 {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 375px) {
+    .cards {
+        gap: 8px;
+    }
+}

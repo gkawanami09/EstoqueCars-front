@@ -1,10 +1,14 @@
-import css from './Footer.module.css'
+﻿import css from './Footer.module.css'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import { useLocation } from 'react-router-dom'
 
 function Footer() {
     const location = useLocation()
-    const semMargemTopo = location.pathname === '/cadastro' || location.pathname === '/login'
+    const semMargemTopo =
+        location.pathname === '/cadastro' ||
+        location.pathname === '/login' ||
+        location.pathname === '/CodigoRecupera' ||
+        location.pathname === '/confirmar-email'
 
     return (
         <footer className={`${css.footer} ${semMargemTopo ? css.sem_margem_topo : ''}`}>
@@ -21,10 +25,10 @@ function Footer() {
 
                 <div className={css.centro}>
                     <nav className={css.menu}>
-                        <a href="#Carros">Carros</a>
-                        <a href="#Servicos">Serviços</a>
-                        <a href="#Duvidas">Dúvidas</a>
-                        <a href="#Contato">Contato</a>
+                        <a href="/#Carros">Carros</a>
+                        <a href="/#Servicos">Serviços</a>
+                        <a href="/#Duvidas">Dúvidas</a>
+                        <a href="/#Contato">Contato</a>
                     </nav>
                     <div className={css.linha}></div>
                     <div className={css.redes}>

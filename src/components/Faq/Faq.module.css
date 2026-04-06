@@ -26,3 +26,22 @@
     align-items: center;
     gap: 15px;
 }
+
+@media (max-width: 768px) {
+    .section {
+        gap: 18px;
+    }
+
+    .texto {
+        padding-top: 40px;
+    }
+
+    .texto h2 {
+        font-size: 22px;
+    }
+
+    .cards {
+        width: 100%;
+        padding: 0 14px;
+    }
+}

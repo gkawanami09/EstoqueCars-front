@@ -13,3 +13,34 @@
 .contexto {
     color: var(--cinza-fundo)
 }
+
+@media (max-width: 768px) {
+    .fundo {
+        width: 32%;
+        min-height: 110px;
+        height: auto;
+        padding: 10px 6px;
+        border-radius: 10px;
+    }
+
+    .fundo img {
+        width: 20px;
+        height: 20px;
+    }
+
+    .contexto {
+        font-size: 12px;
+        line-height: 1.35;
+    }
+}
+
+@media (max-width: 425px) {
+    .fundo {
+        min-height: 78px;
+        padding: 8px 4px;
+    }
+
+    .contexto {
+        font-size: 8px;
+    }
+}

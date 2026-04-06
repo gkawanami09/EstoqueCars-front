@@ -1,4 +1,4 @@
-import css from "./Cadastro.module.css";
+﻿import css from "./Cadastro.module.css";
 import Input from "../components/Input/Input.jsx";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";

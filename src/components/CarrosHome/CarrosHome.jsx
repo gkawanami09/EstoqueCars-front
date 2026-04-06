@@ -1,10 +1,10 @@
-import css from "./CarrosHome.module.css"
+﻿import css from "./CarrosHome.module.css"
 import CardCarrosHome from "../CardCarrosHome/CardCarrosHome"
 import ButtonLink from "../ButtonLink/ButtonLink"
 
 function CarrosHome({subtitulo, titulo, span}) {
     return (
-        <section className={css.section}>
+        <section id="Carros" className={css.section}>
             <div className={css.titulo}>
                 <h3>{subtitulo}</h3>
                 <h2>{titulo}<span>{span}</span></h2>

@@ -32,3 +32,37 @@
     justify-content: center;
     gap: 30px;
 }
+
+.section > a {
+    padding: 9px 22px;
+    border-radius: 8px;
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding-top: 18px;
+        padding-bottom: 32px;
+        gap: 20px;
+    }
+
+    .titulo {
+        display: flex;
+        gap: 8px;
+    }
+
+    .cards {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        width: 100%;
+        max-width: 340px;
+    }
+
+    .cards > div:nth-child(n + 4) {
+        display: none;
+    }
+
+    .section > a {
+        font-size: 14px;
+    }
+}

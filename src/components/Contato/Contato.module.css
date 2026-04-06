@@ -1,3 +1,26 @@
+.secao {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 40px;
+}
+
+.texto {
+    text-align: center;
+    margin-bottom: 24px;
+}
+
+.texto h3 {
+    color: var(--cinza-escuro);
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.texto h2 {
+    font-size: 40px;
+    font-weight: 700;
+}
+
 .cards {
     display:flex;
     align-items: center;
@@ -27,4 +50,65 @@
     height: 100%;
     border: 0;
     display: block;
+}
+
+@media (max-width: 1024px) {
+    .cards {
+        width: 100%;
+        max-width: 760px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+            "grande pequeno"
+            "mapa mapa";
+        gap: 10px;
+        align-items: stretch;
+        padding: 24px 10px 36px;
+    }
+
+    .cards > div:first-child {
+        grid-area: grande;
+        width: 100%;
+        display: block;
+    }
+
+    .pequeno {
+        grid-area: pequeno;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .mapa {
+        grid-area: mapa;
+        width: 100%;
+        height: 180px;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .secao {
+        padding-top: 34px;
+    }
+
+    .texto h2 {
+        font-size: 22px;
+    }
+
+    .cards {
+        padding: 20px 10px 28px;
+        max-width: 620px;
+    }
+}
+
+@media (max-width: 425px) {
+    .cards {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "grande"
+            "pequeno"
+            "mapa";
+        max-width: 360px;
+        padding: 20px 8px 24px;
+    }
 }

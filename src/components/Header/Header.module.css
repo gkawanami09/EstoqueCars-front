@@ -1,11 +1,11 @@
-.container {
-    background-color: #EDEDED;
+﻿.container {
+    background-color: #ededed;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-left: 20px !important;
-    padding-right: 20px !important;
+    padding: 0 20px;
     min-height: 70px;
+    position: relative;
 }
 
 .logoBox {
@@ -21,44 +21,186 @@
     object-fit: contain;
     object-position: left center;
 }
-nav {
+
+.navDesktop {
     display: flex;
     gap: 20px;
 }
-nav a {
+
+.navDesktop a {
     color: var(--preto);
     font-size: 14px;
     font-weight: bold;
 }
 
-nav a:hover {
+.navDesktop a:hover {
     color: var(--vermelho);
 }
 
-div a {
-    color: var(--preto);
-    margin-left: 20px;
-}
-
-.button {
-    background-color: var(--preto);
-    color: #fff;
-    padding: 5px 15px;
-    border: none;
-    border-radius: 10px;
-}
-
-.button:hover {
-    background-color: var(--vermelho);
-}
-
-.buttons{
+.buttonsDesktop {
     display: flex;
     gap: 20px;
-    justify-content: center;
-    text-align: center;
+    align-items: center;
 }
 
-.Link {
-    align-self: center;
+.linkCadastro {
+    color: var(--preto);
+}
+
+.menuBotao {
+    display: none;
+    border: none;
+    background: transparent;
+    font-size: 34px;
+    line-height: 1;
+    cursor: pointer;
+    color: #111;
+    padding: 0;
+}
+
+.menuMobile {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .container {
+        min-height: 64px;
+    }
+
+    .logo {
+        width: 114px;
+        height: 40px;
+    }
+
+    .navDesktop {
+        gap: 16px;
+    }
+
+    .buttonsDesktop {
+        gap: 12px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        min-height: 66px;
+        padding: 0 14px;
+    }
+
+    .logo {
+        width: 76px;
+        height: 28px;
+    }
+
+    .navDesktop,
+    .buttonsDesktop {
+        display: none;
+    }
+
+    .menuBotao {
+        display: block;
+    }
+
+    .menuMobile {
+        display: flex;
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 138px;
+        background: #070707;
+        border-bottom-left-radius: 8px;
+        padding: 12px 12px 14px;
+        flex-direction: column;
+        gap: 11px;
+        z-index: 20;
+    }
+
+    .fecharMenu {
+        align-self: flex-end;
+        border: none;
+        background: transparent;
+        color: #ffffff;
+        font-size: 30px;
+        line-height: 1;
+        cursor: pointer;
+        padding: 0;
+        margin-bottom: 2px;
+    }
+
+    .menuMobile a {
+        color: #ffffff;
+        font-size: 14px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .botaoEntrarMobile,
+    .botaoCadastroMobile {
+        border-radius: 6px;
+        height: 34px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-size: 13px;
+        font-weight: 700;
+        margin-top: 2px;
+    }
+
+    .botaoEntrarMobile {
+        background: #ff3b3b;
+        color: #ffffff;
+    }
+
+    .botaoCadastroMobile {
+        background: #ffffff;
+        color: #111111;
+    }
+
+    .menuMobile .botaoCadastroMobile {
+        color: #111111;
+    }
+}
+
+@media (max-width: 425px) {
+    .container {
+        min-height: 62px;
+        padding: 0 12px;
+    }
+
+    .menuMobile {
+        width: 128px;
+    }
+}
+
+@media (max-width: 375px) {
+    .container {
+        min-height: 58px;
+        padding: 0 10px;
+    }
+
+    .logo {
+        width: 70px;
+        height: 24px;
+    }
+
+    .menuBotao {
+        font-size: 32px;
+    }
+}
+
+@media (max-width: 320px) {
+    .container {
+        min-height: 56px;
+        padding: 0 8px;
+    }
+
+    .menuMobile {
+        width: 122px;
+        padding: 10px;
+        gap: 10px;
+    }
+
+    .menuMobile a {
+        font-size: 13px;
+    }
 }

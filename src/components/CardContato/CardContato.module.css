@@ -29,3 +29,54 @@
     width: 360px;
     height: 200px;
 }
+
+@media (max-width: 1024px) {
+    .card,
+    .cardGrande {
+        width: 100%;
+        min-width: 0;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .card {
+        width: 100%;
+        border-radius: 8px;
+        padding: 12px;
+    }
+
+    .cardGrande {
+        width: 100%;
+        border-radius: 10px;
+        padding: 12px;
+    }
+
+    .cardGrande {
+        height: auto;
+        min-height: 132px;
+    }
+
+    .conteudo {
+        gap: 8px;
+    }
+
+    .card p,
+    .cardGrande p {
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 320px) {
+    .card,
+    .cardGrande {
+        width: 100%;
+        min-width: 0;
+        border-radius: 8px;
+        padding: 10px;
+    }
+
+    .cardGrande {
+        min-height: 0;
+    }
+}
