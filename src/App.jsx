@@ -14,7 +14,7 @@ import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute'
 function App({ API }) {
   return (
       <BrowserRouter>
-        <Header />
+        <Header API={API} />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/cadastro" element={<Cadastro API={API}/>} />
@@ -32,7 +32,7 @@ function App({ API }) {
 
             <Route path="*" element={<Erro404 />} />
           </Routes>
-        <Footer />
+        <Footer API={API} />
       </BrowserRouter>
   )
 }

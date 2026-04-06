@@ -8,10 +8,37 @@ function Cadastro({ API }) {
     const [email, setEmail] = useState("");
     const [telefone, setTelefone] = useState("");
     const [cpf, setCpf] = useState("");
+    const [foto, setFoto] = useState(null);
+    const [inputFoto, setInputFoto] = useState(0);
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [erro, setErro] = useState("");
     const navigate = useNavigate();
+
+    function selecionarFoto(e) {
+        const arquivo = e.target.files?.[0];
+
+        if (!arquivo) {
+            setFoto(null);
+            return;
+        }
+
+        const tiposPermitidos = ["image/png", "image/jpeg"];
+        if (!tiposPermitidos.includes(arquivo.type)) {
+            setErro("Aceitamos apenas arquivos png e jpeg.");
+            setFoto(null);
+            e.target.value = "";
+            return;
+        }
+
+        setErro("");
+        setFoto(arquivo);
+    }
+
+    function removerFoto() {
+        setFoto(null);
+        setInputFoto((valorAtual) => valorAtual + 1);
+    }
 
     async function cadastrar(e) {
         e.preventDefault();
@@ -29,6 +56,11 @@ function Cadastro({ API }) {
             return;
         }
 
+        if (cpf.length !== 11) {
+            setErro("CPF deve ter exatamente 11 números.");
+            return;
+        }
+
         if (senha !== confirmarSenha) {
             setErro("As senhas não coincidem.");
             return;
@@ -40,6 +72,9 @@ function Cadastro({ API }) {
         formData.append("telefone", telefone);
         formData.append("cpf", cpf);
         formData.append("senha", senha);
+        if (foto) {
+            formData.append("foto_perfil", foto);
+        }
 
         const retorno = await fetch(`${API}/criar_usuario`, {
             method: "POST",
@@ -73,6 +108,34 @@ function Cadastro({ API }) {
                         {erro && <p className={css.erro_api}>{erro}</p>}
                     </div>
 
+                    <div className={css.area_upload}>
+                        <label className={css.botao_upload} htmlFor="arquivo_foto">
+                            Escolha o arquivo
+                        </label>
+                        <span className={css.texto_upload}>Aceitamos apenas arquivos png e jpeg</span>
+                        <input
+                            key={inputFoto}
+                            id="arquivo_foto"
+                            className={css.input_file_escondido}
+                            type="file"
+                            accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                            onChange={selecionarFoto}
+                        />
+                    </div>
+
+                    {foto && (
+                        <div className={css.area_preview_foto}>
+                            <span className={css.nome_arquivo}>Arquivo selecionado: {foto.name}</span>
+                            <button
+                                type="button"
+                                className={css.botao_remover_foto}
+                                onClick={removerFoto}
+                            >
+                                Remover foto
+                            </button>
+                        </div>
+                    )}
+
                     <div className={css.campo_inteiro}>
                         <Input
                             label="Nome"
@@ -100,11 +163,14 @@ function Cadastro({ API }) {
                     <div className={css.campo_metade}>
                         <Input
                             label="Telefone"
-                            type="tel"
+                            type="text"
                             img="/ImgCadastro/telefone.png"
                             alt="icone"
                             value={telefone}
-                            onChange={(e) => setTelefone(e.target.value)}
+                            onChange={(e) => setTelefone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                            inputMode="numeric"
+                            maxLength={11}
+                            minLength={11}
                             required={true}
                         />
                     </div>
@@ -116,7 +182,11 @@ function Cadastro({ API }) {
                             img="/ImgCadastro/cadeado.png"
                             alt="icone"
                             value={cpf}
-                            onChange={(e) => setCpf(e.target.value)}
+                            onChange={(e) => setCpf(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                            inputMode="numeric"
+                            maxLength={11}
+                            minLength={11}
+                            pattern="[0-9]{11}"
                             required={true}
                         />
                     </div>

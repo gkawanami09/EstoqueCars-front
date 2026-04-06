@@ -53,13 +53,17 @@
 .cabecalho_form,
 .campo_inteiro,
 .campo_metade,
-.area_botao {
+.area_botao,
+.area_upload,
+.area_preview_foto {
     min-width: 0;
 }
 
 /* Elementos que ocupam a largura total (2 colunas) */
 .cabecalho_form,
 .campo_inteiro,
+.area_upload,
+.area_preview_foto,
 .area_botao {
     grid-column: 1 / -1;
 }
@@ -122,7 +126,75 @@
     transform: translateY(-2px);
 }
 
-/* --- ESTILOS DA FOTO DE PERFIL --- */
+/* Área de anexo de imagem */
+.area_upload {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.botao_upload {
+    width: 140px;
+    height: 40px;
+    border: 3px solid #d8d8d8;
+    border-radius: 10px;
+    background-color: #f2f2f2;
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: filter 0.2s ease;
+}
+
+.botao_upload:hover {
+    filter: brightness(0.98);
+}
+
+.texto_upload {
+    color: #ff4d4f;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.input_file_escondido {
+    display: none;
+}
+
+.area_preview_foto {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nome_arquivo {
+    flex: 1;
+    min-width: 0;
+    font-size: 13px;
+    color: #4d4d4d;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.botao_remover_foto {
+    border: 1px solid #d8d8d8;
+    border-radius: 8px;
+    background-color: #fff;
+    color: #444;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 10px;
+    cursor: pointer;
+}
+
+.botao_remover_foto:hover {
+    background-color: #f5f5f5;
+}
+
+/* Legado da área de foto antiga */
 .area_foto_perfil {
     grid-column: 1 / -1;
     display: flex;
@@ -157,10 +229,6 @@
     font-size: 14px;
     color: var(--cor-texto-de-destaque, #ff3b3b);
     font-weight: bold;
-}
-
-.input_file_escondido {
-    display: none;
 }
 
 @media (max-width: 1024px) {
@@ -218,6 +286,20 @@
         margin-bottom: 16px;
     }
 
+    .area_upload {
+        gap: 12px;
+    }
+
+    .botao_upload {
+        width: 140px;
+        height: 40px;
+        font-size: 14px;
+    }
+
+    .texto_upload {
+        font-size: 14px;
+    }
+
     .campo_inteiro {
         grid-column: 1 / -1;
     }
@@ -257,9 +339,32 @@
         row-gap: 10px;
     }
 
+    .area_upload {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+
+    .botao_upload {
+        width: 140px;
+        height: 38px;
+        font-size: 13px;
+        border-width: 3px;
+        border-radius: 10px;
+    }
+
+    .texto_upload {
+        font-size: 13px;
+    }
+
     .campo_inteiro :global(.label),
     .campo_metade :global(.label) {
         font-size: 13px;
+    }
+
+    .area_preview_foto {
+        flex-wrap: wrap;
+        gap: 8px;
     }
 
     .campo_inteiro :global(.input_box),

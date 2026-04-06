@@ -1,14 +1,27 @@
 ﻿import css from './Footer.module.css'
 import ButtonLink from '../ButtonLink/ButtonLink'
-import { useLocation } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 
-function Footer() {
+function Footer({ API }) {
     const location = useLocation()
+    const navigate = useNavigate()
+    const usuarioLogado = !3
+    !localStorage.getItem('usuario_logado')
+
     const semMargemTopo =
         location.pathname === '/cadastro' ||
         location.pathname === '/login' ||
         location.pathname === '/CodigoRecupera' ||
         location.pathname === '/confirmar-email'
+
+    async function sair() {
+        await fetch(`${API}/logout`, {
+            method: 'POST',
+            credentials: 'include'
+        })
+        localStorage.removeItem('usuario_logado')
+        navigate('/login')
+    }
 
     return (
         <footer className={`${css.footer} ${semMargemTopo ? css.sem_margem_topo : ''}`}>
@@ -42,8 +55,16 @@ function Footer() {
                 <div className={css.direita}>
                     <div className={css.divisoria}></div>
                     <div className={css.acoes}>
-                        <ButtonLink className={css.botao} buttonTo="/login" buttonNome="Entrar" variant="vermelho"/>
-                        <ButtonLink className={css.botao} buttonTo="/cadastro" buttonNome="Cadastrar" variant="branco"/>
+                        {usuarioLogado ? (
+                            <button className={`${css.botao} ${css.botaoLogout}`} type="button" onClick={sair}>
+                                Logout
+                            </button>
+                        ) : (
+                            <>
+                                <ButtonLink className={css.botao} buttonTo="/login" buttonNome="Entrar" variant="vermelho"/>
+                                <ButtonLink className={css.botao} buttonTo="/cadastro" buttonNome="Cadastrar" variant="branco"/>
+                            </>
+                        )}
                     </div>
                 </div>
             </div>

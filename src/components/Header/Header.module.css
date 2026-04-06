@@ -47,6 +47,22 @@
     color: var(--preto);
 }
 
+.botaoLogoutDesktop {
+    border: none;
+    background: #ff3b3b;
+    color: #ffffff;
+    height: 36px;
+    padding: 0 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.botaoLogoutDesktop:hover {
+    opacity: 0.9;
+}
+
 .menuBotao {
     display: none;
     border: none;
@@ -135,7 +151,8 @@
     }
 
     .botaoEntrarMobile,
-    .botaoCadastroMobile {
+    .botaoCadastroMobile,
+    .botaoLogoutMobile {
         border-radius: 6px;
         height: 34px;
         display: flex;
@@ -154,6 +171,13 @@
     .botaoCadastroMobile {
         background: #ffffff;
         color: #111111;
+    }
+
+    .botaoLogoutMobile {
+        border: none;
+        background: #ff3b3b;
+        color: #ffffff;
+        cursor: pointer;
     }
 
     .menuMobile .botaoCadastroMobile {

@@ -1,10 +1,12 @@
-﻿import { Link } from 'react-router-dom'
+﻿import { Link, useNavigate } from 'react-router-dom'
 import css from './Header.module.css'
 import ButtonLink from '../ButtonLink/ButtonLink'
 import { useState } from 'react'
 
-function Header() {
+function Header({ API }) {
     const [menuAberto, setMenuAberto] = useState(false)
+    const navigate = useNavigate()
+    const usuarioLogado = !!localStorage.getItem('usuario_logado')
 
     function toggleMenu() {
         setMenuAberto(!menuAberto)
@@ -12,6 +14,16 @@ function Header() {
 
     function fecharMenu() {
         setMenuAberto(false)
+    }
+
+    async function sair() {
+        await fetch(`${API}/logout`, {
+            method: 'POST',
+            credentials: 'include'
+        })
+        localStorage.removeItem('usuario_logado')
+        fecharMenu()
+        navigate('/login')
     }
 
     return(
@@ -30,12 +42,18 @@ function Header() {
             </nav>
 
             <div className={css.buttonsDesktop}>
-                <Link className={css.linkCadastro} to='/cadastro'>Cadastro</Link>
-                <ButtonLink buttonTo='/login' buttonNome='Entrar'/>
+                {usuarioLogado ? (
+                    <button className={css.botaoLogoutDesktop} type="button" onClick={sair}>Logout</button>
+                ) : (
+                    <>
+                        <Link className={css.linkCadastro} to='/cadastro'>Cadastro</Link>
+                        <ButtonLink buttonTo='/login' buttonNome='Entrar'/>
+                    </>
+                )}
             </div>
 
             <button className={css.menuBotao} type="button" onClick={toggleMenu} aria-label="Abrir menu">
-                {menuAberto ? "×" : "☰"}
+                {menuAberto ? '×' : '☰'}
             </button>
 
             {menuAberto && (
@@ -49,8 +67,14 @@ function Header() {
                     <a href="/#Duvidas" onClick={fecharMenu}>Dúvidas</a>
                     <a href="/#Contato" onClick={fecharMenu}>Contato</a>
 
-                    <Link className={css.botaoEntrarMobile} to="/login" onClick={fecharMenu}>Entrar</Link>
-                    <Link className={css.botaoCadastroMobile} to="/cadastro" onClick={fecharMenu}>Cadastrar</Link>
+                    {usuarioLogado ? (
+                        <button className={css.botaoLogoutMobile} type="button" onClick={sair}>Logout</button>
+                    ) : (
+                        <>
+                            <Link className={css.botaoEntrarMobile} to="/login" onClick={fecharMenu}>Entrar</Link>
+                            <Link className={css.botaoCadastroMobile} to="/cadastro" onClick={fecharMenu}>Cadastrar</Link>
+                        </>
+                    )}
                 </div>
             )}
         </header>

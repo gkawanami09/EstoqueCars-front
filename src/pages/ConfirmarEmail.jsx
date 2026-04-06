@@ -6,20 +6,20 @@ function ConfirmarEmail({ API }) {
     const location = useLocation();
     const navigate = useNavigate();
 
-    const [email, setEmail] = useState(location.state?.email || "");
-    const [codigo, setCodigo] = useState("");
-    const [erro, setErro] = useState("");
-    const [sucesso, setSucesso] = useState("");
+    const [email, setEmail] = useState(location.state?.email || "")
+    const [codigo, setCodigo] = useState("")
+    const [erro, setErro] = useState("")
+    const [sucesso, setSucesso] = useState("")
 
     async function verificarCodigo(e) {
         e.preventDefault();
         setErro("");
         setSucesso("");
 
-        const codigoLimpo = codigo.replace(/\D/g, "");
+        const codigoLimpo = codigo.replace(/\D/g, "")
 
         if (!email.trim() || codigoLimpo.length !== 6) {
-            setErro("Preencha o e-mail e os 6 dígitos do código.");
+            setErro("Preencha o e-mail e os 6 dígitos do código.")
             return;
         }
 

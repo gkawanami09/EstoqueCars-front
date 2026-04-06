@@ -122,6 +122,21 @@
     min-width: 90px;
 }
 
+.botaoLogout {
+    border: none;
+    background: #ff3b3b;
+    color: #ffffff;
+    border-radius: 8px;
+    min-width: 110px;
+    height: 40px;
+    padding: 0 16px;
+    cursor: pointer;
+}
+
+.botaoLogout:hover {
+    opacity: 0.9;
+}
+
 @media (max-width: 1024px) {
     .footer {
         padding: 24px 28px;
