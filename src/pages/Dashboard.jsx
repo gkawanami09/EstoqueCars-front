@@ -4,8 +4,7 @@ import css from "./Dashboard.module.css";
 function Dashboard({ API }) {
     const navigate = useNavigate();
 
-    const usuarioSalvo = localStorage.getItem("usuario_logado");
-    const usuario = usuarioSalvo ? JSON.parse(usuarioSalvo) : null;
+    const usuario = JSON.parse(localStorage.getItem("usuario_logado") || "null");
     const nome = usuario?.nome || "Usuário";
 
     function sair() {
