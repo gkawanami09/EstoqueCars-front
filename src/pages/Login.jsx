@@ -32,7 +32,17 @@ function Login({ API }) {
             return
         }
 
-        navigate("/")
+        const nomePadrao = email.split("@")[0]
+        const nome =
+            dados.nome ||
+            dados.NOME ||
+            dados.usuario?.nome ||
+            dados.usuario?.NOME ||
+            nomePadrao
+
+        localStorage.setItem("usuario_logado", JSON.stringify({ nome, email }))
+
+        navigate("/dashboard")
     }
 
     return (
