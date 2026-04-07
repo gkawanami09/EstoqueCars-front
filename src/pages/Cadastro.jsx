@@ -108,33 +108,6 @@ function Cadastro({ API }) {
                         {erro && <p className={css.erro_api}>{erro}</p>}
                     </div>
 
-                    <div className={css.area_upload}>
-                        <label className={css.botao_upload} htmlFor="arquivo_foto">
-                            Escolha o arquivo
-                        </label>
-                        <span className={css.texto_upload}>Aceitamos apenas arquivos png e jpeg</span>
-                        <input
-                            key={inputFoto}
-                            id="arquivo_foto"
-                            className={css.input_file_escondido}
-                            type="file"
-                            accept=".png,.jpg,.jpeg,image/png,image/jpeg"
-                            onChange={selecionarFoto}
-                        />
-                    </div>
-
-                    {foto && (
-                        <div className={css.area_preview_foto}>
-                            <span className={css.nome_arquivo}>Arquivo selecionado: {foto.name}</span>
-                            <button
-                                type="button"
-                                className={css.botao_remover_foto}
-                                onClick={removerFoto}
-                            >
-                                Remover foto
-                            </button>
-                        </div>
-                    )}
 
                     <div className={css.campo_inteiro}>
                         <Input
@@ -214,6 +187,33 @@ function Cadastro({ API }) {
                             required={true}
                         />
                     </div>
+
+                    <div className={css.area_upload}>
+                        <label className={css.botao_upload} htmlFor="arquivo_foto">
+                            Escolha o arquivo
+                        </label>
+                        <span className={css.texto_upload}>Aceitamos apenas arquivos png e jpeg</span>
+                        <input
+                            key={inputFoto}
+                            id="arquivo_foto"
+                            className={css.input_file_escondido}
+                            type="file"
+                            accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                            onChange={selecionarFoto}
+                        />
+                    </div>
+                    {foto && (
+                        <div className={css.area_preview_foto}>
+                            <span className={css.nome_arquivo}>Arquivo selecionado: {foto.name}</span>
+                            <button
+                                type="button"
+                                className={css.botao_remover_foto}
+                                onClick={removerFoto}
+                            >
+                                Remover foto
+                            </button>
+                        </div>
+                    )}
 
                     <div className={css.area_botao}>
                         <button className={css.botao_criar} type="submit">
