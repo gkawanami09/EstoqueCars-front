@@ -207,10 +207,12 @@ function CodigoRecupera({ API }) {
                                 <label className={css.email_label}>Código</label>
                                 <input
                                     type="text"
-                                    inputMode="numeric"
                                     className={css.email_input}
                                     value={codigo}
-                                    onChange={(e) => setCodigo(e.target.value.replace(/\D/g, ""))}
+                                    onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                    inputMode="numeric"
+                                    maxLength={6}
+                                    minLength={6}
                                     placeholder="Digite o código"
                                 />
                             </div>
