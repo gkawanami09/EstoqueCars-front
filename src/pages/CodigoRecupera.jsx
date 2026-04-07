@@ -6,6 +6,7 @@ function CodigoRecupera({ API }) {
     const navigate = useNavigate();
 
     const [etapa, setEtapa] = useState(1);
+    const [tipo, setTipo] = useState("validarCodigo");
     const [email, setEmail] = useState("");
     const [codigo, setCodigo] = useState("");
     const [novaSenha, setNovaSenha] = useState("");
@@ -38,7 +39,49 @@ function CodigoRecupera({ API }) {
         }
 
         setSucesso(dados.mensagem || "Código enviado para seu e-mail.");
+        setTipo("validarCodigo");
+        setCodigo("");
+        setNovaSenha("");
+        setConfirmarSenha("");
         setEtapa(2);
+    }
+
+    async function validarCodigo(e) {
+        e.preventDefault();
+        setErro("");
+        setSucesso("");
+
+        const codigoLimpo = codigo.replace(/\D/g, "");
+
+        if (!email.trim() || !codigoLimpo.trim()) {
+            setErro("Preencha e-mail e código.");
+            return;
+        }
+
+        const retorno = await fetch(`${API}/recuperar_senha`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({
+                email,
+                codigo: codigoLimpo
+            })
+        });
+
+        const dados = await retorno.json();
+
+        if (!retorno.ok) {
+            setErro(dados.erro || dados.mensagem || "Não foi possível validar o código.");
+            return;
+        }
+
+        if (!dados.valido) {
+            setErro(dados.erro || dados.mensagem || "Código inválido.");
+            return;
+        }
+
+        setTipo("redefinirSenha");
+        setSucesso(dados.mensagem || "Código válido! Agora defina sua nova senha.");
     }
 
     async function redefinirSenha(e) {
@@ -91,7 +134,16 @@ function CodigoRecupera({ API }) {
         setCodigo("");
         setNovaSenha("");
         setConfirmarSenha("");
+        setTipo("validarCodigo");
         setEtapa(1);
+    }
+
+    function enviarEtapa2(e) {
+        if (tipo === "redefinirSenha") {
+            return redefinirSenha(e);
+        }
+
+        return validarCodigo(e);
     }
 
     return (
@@ -111,7 +163,9 @@ function CodigoRecupera({ API }) {
                     <p className={css.subtitulo}>
                         {etapa === 1
                             ? "Digite seu e-mail para receber o código de recuperação."
-                            : "Informe o código recebido no e-mail e defina sua nova senha."}
+                            : tipo === "validarCodigo"
+                                ? "Informe o código recebido no e-mail para validar sua identidade."
+                                : "Código validado. Agora defina sua nova senha."}
                     </p>
 
                     {etapa === 1 ? (
@@ -135,7 +189,8 @@ function CodigoRecupera({ API }) {
                             </button>
                         </form>
                     ) : (
-                        <form className={css.formulario} onSubmit={redefinirSenha}>
+                        <form className={css.formulario} onSubmit={enviarEtapa2}>
+                            {tipo !== "redefinirSenha" && (
                             <div className={css.email_area}>
                                 <label className={css.email_label}>E-mail</label>
                                 <input
@@ -146,7 +201,8 @@ function CodigoRecupera({ API }) {
                                     placeholder="exemplo@gmail.com"
                                 />
                             </div>
-
+                            )}
+                             {tipo !== "redefinirSenha" && (
                             <div className={css.email_area}>
                                 <label className={css.email_label}>Código</label>
                                 <input
@@ -158,38 +214,43 @@ function CodigoRecupera({ API }) {
                                     placeholder="Digite o código"
                                 />
                             </div>
+                             )}
 
-                            <div className={css.email_area}>
-                                <label className={css.email_label}>Nova senha</label>
-                                <input
-                                    type="password"
-                                    className={css.email_input}
-                                    value={novaSenha}
-                                    onChange={(e) => setNovaSenha(e.target.value)}
-                                    placeholder="********"
-                                />
-                            </div>
+                            {tipo === "redefinirSenha" && (
+                                <>
+                                    <div className={css.email_area}>
+                                        <label className={css.email_label}>Nova senha</label>
+                                        <input
+                                            type="password"
+                                            className={css.email_input}
+                                            value={novaSenha}
+                                            onChange={(e) => setNovaSenha(e.target.value)}
+                                            placeholder="********"
+                                        />
+                                    </div>
 
-                            <div className={css.email_area}>
-                                <label className={css.email_label}>Confirmar nova senha</label>
-                                <input
-                                    type="password"
-                                    className={css.email_input}
-                                    value={confirmarSenha}
-                                    onChange={(e) => setConfirmarSenha(e.target.value)}
-                                    placeholder="********"
-                                />
-                            </div>
+                                    <div className={css.email_area}>
+                                        <label className={css.email_label}>Confirmar nova senha</label>
+                                        <input
+                                            type="password"
+                                            className={css.email_input}
+                                            value={confirmarSenha}
+                                            onChange={(e) => setConfirmarSenha(e.target.value)}
+                                            placeholder="********"
+                                        />
+                                    </div>
 
-                            <p className={css.aviso}>
-                                A nova senha deve seguir as regras do sistema e não pode repetir suas 3 últimas senhas.
-                            </p>
+                                    <p className={css.aviso}>
+                                        A nova senha deve seguir as regras do sistema e não pode repetir suas 3 últimas senhas.
+                                    </p>
+                                </>
+                            )}
 
                             {erro && <p className={css.erro_api}>{erro}</p>}
                             {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
 
                             <button type="submit" className={css.botao_acao}>
-                                Redefinir senha
+                                {tipo === "validarCodigo" ? "Confirmar Código" : "Redefinir Senha"}
                             </button>
 
                             <button
