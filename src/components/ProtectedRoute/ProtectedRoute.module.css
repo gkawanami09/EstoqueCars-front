@@ -1,0 +1,18 @@
+﻿.layout {
+    height: 100vh;
+    display: grid;
+    grid-template-columns: 212px minmax(0, 1fr);
+    background: #100b0f;
+}
+
+.conteudo {
+    height: 100vh;
+    background: #f6f7fa;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .layout {
+        grid-template-columns: 86px minmax(0, 1fr);
+    }
+}
