@@ -1,0 +1,275 @@
+﻿.container {
+    display: grid;
+    grid-template-columns: 56fr 1px 44fr;
+    min-height: 90vh;
+    max-width: 100%;
+    margin: 0 auto;
+    background-color: #fafafa;
+}
+
+.coluna_direita {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 40px;
+    min-width: 0;
+}
+
+.coluna_esquerda {
+    display: flex;
+    justify-content: flex-start;
+    align-items: stretch;
+    overflow: hidden;
+    min-width: 0;
+}
+
+.imagem {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+}
+
+.linha_vertical {
+    background-color: #e0e0e0;
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.formulario {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 450px;
+    gap: 15px;
+}
+
+.cabecalho_form {
+    margin-bottom: 20px;
+}
+
+.titulo {
+    font-size: 36px;
+    font-weight: bold;
+    color: #1a1a1a;
+    margin-bottom: 10px;
+}
+
+.titulo span {
+    color: #ff3b3b;
+}
+
+.subtitulo {
+    color: #888;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.erro_api {
+    margin-top: 10px;
+    color: #d7263d;
+    background-color: #ffecee;
+    border: 1px solid #f5b8c0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    line-height: 1.4;
+}
+
+.campo {
+    width: 100%;
+}
+
+.area_esqueceu_senha {
+    display: flex;
+    justify-content: flex-start;
+    margin-top: -5px;
+}
+
+.link_esqueceu {
+    color: #ff3b3b;
+    text-decoration: none;
+    font-size: 13px;
+    transition: opacity 0.2s;
+}
+
+.link_esqueceu:hover {
+    text-decoration: underline;
+    opacity: 0.8;
+}
+
+.area_botao {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.botao_entrar {
+    background: #000;
+    color: white;
+    text-decoration: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 186px;
+    height: 48px;
+    border-radius: 10px;
+    font-weight: bold;
+    font-size: 15px;
+    box-shadow: 0 8px 15px -5px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.botao_entrar:hover {
+    opacity: 0.85;
+    transform: translateY(-2px);
+}
+
+@media (max-width: 1024px) {
+    .coluna_direita {
+        padding: 28px;
+    }
+
+    .titulo {
+        font-size: 32px;
+    }
+
+    .formulario {
+        max-width: 420px;
+    }
+}
+
+@media (max-width: 768px) {
+    .container {
+        grid-template-columns: 1fr;
+        min-height: auto;
+    }
+
+    .coluna_esquerda,
+    .linha_vertical {
+        display: none;
+    }
+
+    .coluna_direita {
+        padding: 34px 16px 32px;
+        align-items: flex-start;
+    }
+
+    .formulario {
+        max-width: none;
+    }
+
+    .cabecalho_form {
+        margin-bottom: 12px;
+    }
+
+    .titulo {
+        text-align: center;
+        font-size: 44px;
+        line-height: 1.1;
+        margin-bottom: 10px;
+    }
+
+    .subtitulo {
+        text-align: center;
+        font-size: 17px;
+        line-height: 1.4;
+    }
+
+    .area_esqueceu_senha {
+        margin-top: -4px;
+    }
+
+    .link_esqueceu {
+        font-size: 16px;
+    }
+
+    .area_botao {
+        margin-top: 22px;
+    }
+
+    .botao_entrar {
+        width: 220px;
+        height: 54px;
+        font-size: 24px;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 425px) {
+    .coluna_direita {
+        padding: 24px 16px 28px;
+    }
+
+    .titulo {
+        font-size: 24px;
+        line-height: 1.08;
+    }
+
+    .subtitulo {
+        font-size: 14px;
+        line-height: 1.45;
+    }
+
+    .link_esqueceu {
+        font-size: 13px;
+    }
+
+    .botao_entrar {
+        width: 186px;
+        height: 48px;
+        font-size: 15px;
+        border-radius: 10px;
+    }
+}
+
+@media (max-width: 375px) {
+    .coluna_direita {
+        padding: 22px 12px 26px;
+    }
+
+    .titulo {
+        font-size: 22px;
+    }
+
+    .subtitulo {
+        font-size: 14px;
+    }
+
+    .link_esqueceu {
+        font-size: 13px;
+    }
+
+    .botao_entrar {
+        width: 172px;
+        height: 46px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 320px) {
+    .coluna_direita {
+        padding: 20px 10px 24px;
+    }
+
+    .titulo {
+        font-size: 20px;
+    }
+
+    .subtitulo {
+        font-size: 14px;
+    }
+
+    .link_esqueceu {
+        font-size: 12px;
+    }
+
+    .botao_entrar {
+        width: 162px;
+        height: 44px;
+        font-size: 12px;
+    }
+}

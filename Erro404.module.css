@@ -1,0 +1,62 @@
+﻿.container {
+    min-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background-color: #fafafa;
+}
+
+.card {
+    width: 100%;
+    max-width: 500px;
+    background-color: #fff;
+    border: 1px solid #e4e4e4;
+    border-radius: 12px;
+    padding: 26px 20px;
+    text-align: center;
+}
+
+.codigo {
+    font-size: 64px;
+    color: #ef4444;
+    margin-bottom: 8px;
+}
+
+.titulo {
+    font-size: 28px;
+    color: #121212;
+    margin-bottom: 10px;
+}
+
+.texto {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 18px;
+}
+
+.botao {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    width: 170px;
+    height: 42px;
+    border-radius: 8px;
+    background-color: #000;
+    color: #fff;
+    font-weight: 700;
+}
+
+@media (max-width: 425px) {
+    .codigo {
+        font-size: 50px;
+    }
+
+    .titulo {
+        font-size: 22px;
+    }
+
+    .texto {
+        font-size: 13px;
+    }
+}
