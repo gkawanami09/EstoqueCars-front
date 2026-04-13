@@ -1,0 +1,253 @@
+
+.layout_minha_conta {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+}
+
+.conteudo_principal {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 40px;
+}
+
+.titulo {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #000;
+    margin: 0;
+}
+
+.destaque_vermelho {
+    color: #f25555;
+}
+
+.subtitulo {
+    font-size: 1rem;
+    color: #666;
+    margin-top: 5px !important;
+    font-weight: 600;
+}
+
+.perfil_topo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.icone_perfil_pequeno {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.nome_perfil_topo {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #000;
+}
+
+.container_cards {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.card_topo {
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 30px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    margin-top: 35px !important;
+}
+
+.info_usuario_topo {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar_grande {
+    width: 80px;
+    height: 80px;
+    background-color: #000;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.img_avatar {
+    width: 40px;
+    height: 40px;
+    filter: brightness(0) invert(1);
+}
+
+.dados_usuario h2 {
+    margin: 0 0 10px 0;
+    font-size: 1.5rem;
+    font-weight: 800;
+}
+
+.dados_usuario p {
+    margin: 5px 0;
+    color: #666;
+    font-size: 0.95rem;
+}
+
+.alterar_foto_area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+}
+
+.alterar_foto_area p {
+    color: #666;
+    font-size: 0.9rem;
+    margin: 0;
+    font-weight: 600;
+}
+
+.box_foto_placeholder {
+    width: 130px;
+    height: 120px;
+    background-color: #eee;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+
+.icone_add_foto {
+    width: 30px;
+    opacity: 0.5;
+}
+
+.cards_inferiores {
+    display: flex;
+    gap: 30px;
+}
+
+.card_form {
+    flex: 1;
+    background-color: #fff;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    display: flex;
+    flex-direction: column;
+}
+
+.titulo_card {
+    font-size: 1.8rem;
+    font-weight: 800;
+    margin-top: 0;
+    margin-bottom: 30px;
+    color: #000;
+}
+
+.grupo_input {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+}
+
+.grupo_input label {
+    font-size: 0.95rem;
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.input_padrao {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #333;
+    outline: none;
+    box-sizing: border-box;
+    font-family: inherit;
+}
+
+.input_padrao:focus {
+    border-color: #000;
+}
+
+.input_com_icone {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.icone_cadeado {
+    position: absolute;
+    right: 15px;
+    font-size: 1.2rem;
+    pointer-events: none;
+}
+
+.area_botoes {
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+    padding-top: 30px;
+}
+
+.botao_cancelar {
+    background-color: #f5f5f5;
+    color: #000;
+    border: 1px solid #ccc;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.botao_cancelar:hover {
+    background-color: #e5e5e5;
+}
+
+.botao_salvar {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.botao_salvar:hover {
+    background-color: #f25555;
+    box-shadow: 0 4px 15px rgba(242, 85, 85, 0.4);
+}
+
+.icone_add_foto {
+    height: 80px !important;
+    width: 80px !important;
+}
+
+.cadeado{
+    margin-left: -30px !important;
+}
