@@ -22,6 +22,7 @@ import DashboardAdm from "./pages/DashboardAdm.jsx";
 import DashboardAdmVeiculos from "./pages/DashboardAdmVeiculos.jsx";
 import CadastroVeiculos from "./pages/CadastroVeiculos.jsx";
 import CadastroManutencao from "./pages/CadastroManutencao.jsx";
+import CadastroEdicaoManutencao from "./pages/CadastroEdicaoManutencao.jsx";
 
 function App({ API }) {
   return (
@@ -59,6 +60,7 @@ function App({ API }) {
             <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos />} />
             <Route path="/cadastroVeiculos" element={<CadastroVeiculos/>} />
             <Route path="/cadastroManutencao" element={<CadastroManutencao/>} />
+            <Route path="/cadastroEdicaoManutencao" element={<CadastroEdicaoManutencao/>} />
           </Route>
 
         </Routes>
