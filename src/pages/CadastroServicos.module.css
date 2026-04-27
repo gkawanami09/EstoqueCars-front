@@ -1,0 +1,141 @@
+
+.container {
+    padding: 30px;
+    background: #f5f5f5;
+    min-height: 100vh;
+}
+
+.titulo {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 25px;
+    color: #1a1a1a;
+}
+
+.formulario {
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    max-width: 850px;
+    margin: 0 auto;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+}
+
+.gridSimples {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.duplo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.descricao {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: #f9f9f9;
+    font-size: 14px;
+    color: #333;
+    transition: border-color 0.2s;
+    height: 120px;
+    resize: none;
+}
+
+
+.select, .selectPequeno {
+    width: 100%;
+    padding: 6px 12px;
+    height: 38px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+    background: #f9f9f9;
+    font-size: 14px;
+    color: #333;
+    cursor: pointer;
+}
+
+.selectPequeno {
+    width: 220px;
+    font-weight: 500;
+}
+
+.select:focus, .descricao:focus {
+    outline: none;
+    border-color: #000;
+}
+
+.documento {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.anexar {
+    background: #000;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+}
+
+.anexar:hover {
+    opacity: 0.85;
+}
+
+.erro {
+    color: #e74c3c;
+    background: #fdf2f2;
+    padding: 10px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    border-left: 4px solid #e74c3c;
+}
+
+.botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 35px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+}
+
+.salvar {
+    background: #000;
+    color: #fff;
+    padding: 12px 40px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.1s;
+}
+
+.salvar:active {
+    transform: scale(0.97);
+}
+
+.cancelar {
+    background: #fff;
+    color: #555;
+    padding: 12px 40px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.cancelar:hover {
+    background: #f8f8f8;
+}
