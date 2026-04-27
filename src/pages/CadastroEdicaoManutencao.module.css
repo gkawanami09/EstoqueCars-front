@@ -1,0 +1,160 @@
+.container {
+    padding: 30px;
+    background: #f5f5f5;
+    min-height: 100vh;
+}
+
+.titulo {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.formulario {
+    background: #ededed;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+.esquerda {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.direita {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.duplo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    background: #f7f7f7;
+    box-sizing: border-box;
+}
+
+.descricao {
+    height: 80px;
+    resize: none;
+}
+
+.observacoes {
+    width: 100%;
+    margin-top: 20px;
+    height: 90px;
+    resize: none;
+}
+
+/* BLOCO DE SERVIÇO */
+.blocoServico {
+    background: #e3e3e3;
+    padding: 12px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* BOTÃO ADICIONAR */
+.adicionar {
+    background: black;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* BOTÃO REMOVER */
+.remover {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 8px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+/* RESUMO */
+.boxResumo {
+    background: #dcdcdc;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 14px;
+}
+
+/* ERRO */
+.erro {
+    color: red;
+    margin-top: 10px;
+}
+
+/* BOTÕES */
+.botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.salvar {
+    background: black;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+}
+
+.cancelar {
+    border: 1px solid #333;
+    padding: 10px 24px;
+    border-radius: 8px;
+    background: transparent;
+}
+
+/* TÍTULO DIFERENTE PRA EDIÇÃO */
+.tituloEdicao {
+    color: #2c3e50;
+}
+
+/* DESTACAR QUE ESTÁ EDITANDO */
+.formularioEdicao {
+    border: 2px solid #3498db;
+}
+
+/* BOTÃO SALVAR EM EDIÇÃO */
+.salvarEdicao {
+    background: #3498db;
+}
+
+/* INPUTS DESABILITADOS (ex: valor vindo do backend) */
+input[readonly] {
+    background: #eaeaea;
+    color: #555;
+}
+
+/* HOVER MELHORADO */
+.salvar:hover {
+    opacity: 0.9;
+}
+
+.cancelar:hover {
+    background: #f0f0f0;
+}
