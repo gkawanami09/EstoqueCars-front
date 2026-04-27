@@ -1,0 +1,88 @@
+.menu_lateral {
+    width: 250px;
+    height: 100vh;
+    background-color: #171414;
+    display: flex;
+    flex-direction: column;
+    padding: 30px 20px;
+    box-sizing: border-box;
+    position: sticky;
+    top: 0;
+}
+
+.logo_container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 50px;
+}
+
+.logo {
+    max-width: 150px;
+    height: auto;
+}
+
+.menu {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    flex: 1;
+}
+
+.menu_item {
+    background: transparent;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.1s ease;
+}
+
+.icone_img {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.menu_item:hover {
+    background-color: #f25555;
+}
+
+.menu_ativo {
+    background-color: #f25555;
+    color: #fff;
+}
+
+.menu_ativo .icone_img {
+    filter: brightness(0) invert(1);
+}
+
+.rodape_menu {
+    margin-top: auto;
+}
+
+.botao_sair {
+    background: transparent;
+    color: #fff;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    transition: all 0.1s ease;
+}
+
+.botao_sair:hover {
+    background-color: #f25555;
+}

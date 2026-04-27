@@ -1,0 +1,167 @@
+﻿/* CONTAINER */
+.container {
+    padding: 30px;
+    background: #f5f5f5;
+    min-height: 100vh;
+}
+
+/* TÍTULO */
+.titulo {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+/* CARD */
+.formulario {
+    background: #ededed;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+/* GRID PRINCIPAL (ESQUERDA / DIREITA) */
+.grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+    align-items: start;
+}
+
+/* COLUNA ESQUERDA */
+.esquerda {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* COLUNA DIREITA */
+.direita {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+/* CAMPOS LADO A LADO */
+.duplo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+/* INPUT PADRÃO */
+input, select, textarea {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #d0d0d0;
+    background: #f7f7f7;
+    box-sizing: border-box;
+}
+
+/* STATUS */
+.status {
+    color: #e74c3c;
+    font-size: 14px;
+    margin-bottom: -5px;
+}
+
+/* SELECT NORMAL */
+.select {
+    height: 42px;
+}
+
+/* SELECT PEQUENO */
+.selectPequeno {
+    width: 160px;
+}
+
+/* DESCRIÇÃO */
+.descricao {
+    height: 70px;
+    resize: none;
+}
+
+/* DOCUMENTO */
+.documento {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.anexar {
+    background: black;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+/* PREVIEW GRANDE */
+.preview {
+    width: 100%;
+    height: 220px;
+    background: #cfcfcf;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+/* LINHA DE MINIATURAS */
+.linhaFotos {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* MINIATURAS */
+.mini {
+    width: 80px;
+    height: 60px;
+    background: #cfcfcf;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+/* BOTÃO FOTO */
+.addFoto {
+    flex: 1;
+    background: black;
+    color: white;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+}
+
+/* OBSERVAÇÕES */
+.observacoes {
+    width: 100%;
+    margin-top: 20px;
+    height: 90px;
+    resize: none;
+}
+
+/* BOTÕES */
+.botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+/* BOTÃO SALVAR */
+.salvar {
+    background: black;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+}
+
+/* BOTÃO CANCELAR */
+.cancelar {
+    border: 1px solid #333;
+    padding: 10px 24px;
+    border-radius: 8px;
+    background: transparent;
+}

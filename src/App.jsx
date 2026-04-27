@@ -18,6 +18,9 @@ import CarrosCaminhonetes from "./pages/CarrosCaminhonetes.jsx";
 import CarrosSUV from "./pages/CarrosSUV.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import MinhaConta from "./pages/MinhaConta.jsx";
+import DashboardAdm from "./pages/DashboardAdm.jsx";
+import DashboardAdmVeiculos from "./pages/DashboardAdmVeiculos.jsx";
+import CadastroVeiculos from "./pages/CadastroVeiculos.jsx";
 
 function App({ API }) {
   return (
@@ -50,7 +53,10 @@ function App({ API }) {
           {/* grupo de rotas protegidas */}
           <Route element={<ProtectedRoute API={API} />}>
             <Route path="/favoritos" element={<Favoritos />} />
-            <Route path="/minha-conta" element={<MinhaConta />} />
+            <Route path="/minhaConta" element={<MinhaConta />} />
+            <Route path="/dashboardAdm" element={<DashboardAdm />} />
+            <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos />} />
+            <Route path="/cadastroVeiculos" element={<CadastroVeiculos/>} />
           </Route>
 
         </Routes>

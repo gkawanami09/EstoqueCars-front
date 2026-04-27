@@ -1,0 +1,284 @@
+
+.layout_dashboard {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f5f5f5;
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+}
+
+.conteudo_principal {
+    flex: 1;
+    padding: 40px;
+    display: flex;
+    flex-direction: column;
+}
+
+.cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.titulo_boas_vindas {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #000;
+    margin: 0;
+}
+
+.nome_adm {
+    color: #f25555;
+}
+
+.perfil_usuario {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #000;
+}
+
+.area_busca {
+    margin-bottom: 30px;
+    margin-top: 30px !important;
+}
+
+.input_busca {
+    width: 100%;
+    max-width: 100%;
+    padding: 15px 20px;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    font-size: 1rem;
+    outline: none;
+    background-color: #fff;
+    color: #333;
+}
+
+.input_busca::placeholder {
+    color: #888;
+}
+
+.secao_filtros {
+    display: flex;
+    gap: 39px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    margin-top: 30px !important;
+}
+
+.botao_filtro {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 35px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.1s ease, transform 0.1s ease;
+}
+
+.botao_filtro:hover {
+    background-color: #f25555;
+    transform: translateY(-2px);
+}
+
+.filtro_ativo {
+    background-color: #f25555;
+}
+
+.area_botao_central {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.botao_carregar_mais {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 15px 40px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.botao_carregar_mais:hover {
+    background-color: #ff4747;
+}
+
+.area_busca {
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 0 20px;
+}
+
+.icone_busca {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    margin-right: 12px !important;
+    opacity: 0.6;
+}
+
+.input_busca {
+    width: 100%;
+    padding: 15px 0;
+    border: none;
+    font-size: 1rem;
+    outline: none;
+    background-color: transparent;
+    color: #333;
+}
+
+.input_busca::placeholder {
+    color: #888;
+}
+
+.tabela_container {
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: Arial, sans-serif;
+}
+
+.tabela th {
+    text-align: left;
+    padding: 12px;
+    font-size: 14px;
+    color: #555;
+    border-bottom: 2px solid #eee;
+}
+
+.tabela td {
+    padding: 12px;
+    font-size: 14px;
+    border-bottom: 1px solid #eee;
+}
+
+.tabela tr:hover {
+    background: #f9f9f9;
+}
+
+/* Imagem do carro */
+.img_carro {
+    width: 80px;
+    height: auto;
+    border-radius: 8px;
+}
+
+/* Preço em destaque */
+.preco {
+    color: #e53935;
+    font-weight: bold;
+}
+
+/* Status verde */
+.status {
+    background: #2e7d32;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    display: inline-block;
+}
+
+/* Botão editar */
+.btn_editar {
+    background: #000;
+    color: #fff;
+    border: none;
+    padding: 6px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.2s;
+}
+
+.btn_editar:hover {
+    background: #333;
+}
+
+.tabela_container {
+    margin-top: 20px;
+    background: #fff;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tabela th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #eee;
+}
+
+.tabela td {
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+}
+
+.tabela tr:hover {
+    background: #f9f9f9;
+}
+
+.img_carro {
+    width: 80px;
+    border-radius: 6px;
+}
+
+.preco {
+    color: red;
+    font-weight: bold;
+}
+
+.status {
+    background: green;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+}
+
+.btn_editar {
+    background: black;
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn_add {
+    background-color: #000000;
+    color: #ffffff;
+    border: none;
+    width: 180px;
+    height: 50px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 8px 15px -5px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}

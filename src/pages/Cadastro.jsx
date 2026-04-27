@@ -1,9 +1,9 @@
 ﻿import css from "./Cadastro.module.css";
 import Input from "../components/Input/Input.jsx";
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import {useNavigate} from "react-router-dom";
+import {useState} from "react";
 
-function Cadastro({ API }) {
+function Cadastro({API}) {
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [telefone, setTelefone] = useState("");
@@ -89,13 +89,13 @@ function Cadastro({ API }) {
             return;
         }
 
-        navigate("/confirmar-email", { state: { email } });
+        navigate("/confirmar-email", {state: {email}});
     }
 
     return (
         <main className={css.container}>
             <div className={css.coluna_esquerda}>
-                <img className={css.imagem} src="/ImgCadastro/ImgCadastro.png" alt="Homem com carro" />
+                <img className={css.imagem} src="/ImgCadastro/ImgCadastro.png" alt="Homem com carro"/>
             </div>
 
             <div className={css.linha_vertical}></div>
