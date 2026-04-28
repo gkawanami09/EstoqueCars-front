@@ -128,3 +128,202 @@ input, select, textarea {
     border-radius: 8px;
     background: transparent;
 }
+
+@media (max-width: 1024px) {
+
+    .container {
+        padding: 20px;
+    }
+
+    .formulario {
+        padding: 20px;
+    }
+
+    .grid {
+        gap: 20px;
+    }
+
+    .titulo {
+        font-size: 22px;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .direita {
+        order: -1;
+    }
+
+    .boxResumo {
+        text-align: center;
+    }
+
+    .duplo {
+        grid-template-columns: 1fr;
+    }
+
+    .botoes {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .salvar,
+    .cancelar {
+        width: 100%;
+        max-width: 200px;
+    }
+
+    .adicionar {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 425px) {
+
+    .container {
+        padding: 15px;
+    }
+
+    .formulario {
+        padding: 15px;
+    }
+
+    .titulo {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    .blocoServico {
+        padding: 10px;
+    }
+
+    input,
+    select,
+    textarea {
+        padding: 9px;
+        font-size: 14px;
+    }
+
+    .descricao {
+        height: 70px;
+    }
+
+    .observacoes {
+        height: 80px;
+    }
+
+    .boxResumo {
+        font-size: 13px;
+        padding: 12px;
+    }
+
+    .remover {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 375px) {
+
+    .titulo {
+        font-size: 18px;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 13px;
+    }
+
+    .salvar,
+    .cancelar {
+        padding: 8px;
+        font-size: 13px;
+    }
+}
+
+
+@media (max-width: 320px) {
+
+    .container {
+        padding: 8px;
+    }
+
+    .formulario {
+        padding: 10px;
+    }
+
+    .titulo {
+        font-size: 15px;
+        text-align: center;
+    }
+
+    /* 🔥 inputs menores */
+    input,
+    select,
+    textarea {
+        padding: 7px;
+        font-size: 12px;
+        border-radius: 6px;
+    }
+
+    /* 🔥 campos duplos continuam empilhados */
+    .duplo {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    /* 🔥 bloco de serviço mais compacto */
+    .blocoServico {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    /* 🔥 textarea menor */
+    .descricao {
+        height: 60px;
+    }
+
+    .observacoes {
+        height: 70px;
+    }
+
+    /* 🔥 resumo menor */
+    .boxResumo {
+        padding: 10px;
+        font-size: 11px;
+    }
+
+    /* 🔥 BOTÕES */
+    .botoes {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .salvar,
+    .cancelar {
+        width: 100%;
+        padding: 8px;
+        font-size: 12px;
+        border-radius: 6px;
+    }
+
+    /* 🔥 botão adicionar */
+    .adicionar {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    /* 🔥 botão remover */
+    .remover {
+        padding: 6px;
+        font-size: 11px;
+    }
+}

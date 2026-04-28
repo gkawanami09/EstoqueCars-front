@@ -62,7 +62,7 @@ input, select, textarea {
     resize: none;
 }
 
-/* BLOCO DE SERVIÇO */
+
 .blocoServico {
     background: #e3e3e3;
     padding: 12px;
@@ -72,7 +72,7 @@ input, select, textarea {
     gap: 10px;
 }
 
-/* BOTÃO ADICIONAR */
+
 .adicionar {
     background: black;
     color: white;
@@ -82,7 +82,7 @@ input, select, textarea {
     cursor: pointer;
 }
 
-/* BOTÃO REMOVER */
+
 .remover {
     background: #e74c3c;
     color: white;
@@ -92,7 +92,7 @@ input, select, textarea {
     cursor: pointer;
 }
 
-/* RESUMO */
+
 .boxResumo {
     background: #dcdcdc;
     padding: 15px;
@@ -100,13 +100,12 @@ input, select, textarea {
     font-size: 14px;
 }
 
-/* ERRO */
+
 .erro {
     color: red;
     margin-top: 10px;
 }
 
-/* BOTÕES */
 .botoes {
     display: flex;
     justify-content: flex-end;
@@ -129,32 +128,178 @@ input, select, textarea {
     background: transparent;
 }
 
-/* TÍTULO DIFERENTE PRA EDIÇÃO */
+
 .tituloEdicao {
     color: #2c3e50;
 }
 
-/* DESTACAR QUE ESTÁ EDITANDO */
 .formularioEdicao {
     border: 2px solid #3498db;
 }
 
-/* BOTÃO SALVAR EM EDIÇÃO */
+
 .salvarEdicao {
     background: #3498db;
 }
 
-/* INPUTS DESABILITADOS (ex: valor vindo do backend) */
+
 input[readonly] {
     background: #eaeaea;
     color: #555;
 }
 
-/* HOVER MELHORADO */
+
 .salvar:hover {
     opacity: 0.9;
 }
 
 .cancelar:hover {
     background: #f0f0f0;
+}
+
+@media (max-width: 1024px) {
+
+    .container {
+        padding: 20px;
+    }
+
+    .formulario {
+        padding: 20px;
+    }
+
+    .titulo {
+        font-size: 22px;
+    }
+}
+
+
+@media (max-width: 768px) {
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .direita {
+        order: -1;
+    }
+
+    .duplo {
+        grid-template-columns: 1fr;
+    }
+
+    .botoes {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+
+    .salvar,
+    .cancelar {
+        width: 100%;
+        max-width: 220px;
+    }
+
+    .adicionar {
+        width: 100%;
+    }
+}
+
+
+
+@media (max-width: 425px) {
+
+    .container {
+        padding: 15px;
+    }
+
+    .formulario {
+        padding: 15px;
+    }
+
+    .titulo {
+        font-size: 20px;
+        text-align: center;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 14px;
+        padding: 9px;
+    }
+
+    .blocoServico {
+        padding: 10px;
+    }
+
+    .boxResumo {
+        text-align: center;
+    }
+
+    .remover {
+        width: 100%;
+    }
+}
+
+
+@media (max-width: 320px) {
+
+    .container {
+        padding: 8px;
+        overflow-x: hidden;
+    }
+
+    .formulario {
+        padding: 10px;
+    }
+
+    .titulo {
+        font-size: 15px;
+    }
+
+    input,
+    select,
+    textarea {
+        font-size: 12px;
+        padding: 7px;
+    }
+
+    .blocoServico {
+        padding: 8px;
+        gap: 8px;
+    }
+
+    .descricao {
+        height: 60px;
+    }
+
+    .observacoes {
+        height: 70px;
+    }
+
+    .boxResumo {
+        font-size: 11px;
+        padding: 10px;
+    }
+
+    .botoes {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .salvar,
+    .cancelar {
+        width: 100%;
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .adicionar {
+        padding: 8px;
+        font-size: 12px;
+    }
+
+    .remover {
+        padding: 6px;
+        font-size: 11px;
+    }
 }
