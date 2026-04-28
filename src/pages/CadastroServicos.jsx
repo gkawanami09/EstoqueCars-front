@@ -23,25 +23,29 @@ function CadastroServicos({ API }) {
             nomeServico,
             categoria,
             preco,
-            tempoEstimado,
             descricao,
             statusServico,
             statusDocumento
         };
 
-        const resposta = await fetch(`${API}/servicos`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(dadosServico)
-        });
+        try {
+            const resposta = await fetch(`${API}/servicos`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(dadosServico)
+            });
 
-        if (!resposta.ok) {
-            const dados = await resposta.json();
-            setErro(dados.erro || "Erro ao salvar serviço.");
-            return;
+            if (!resposta.ok) {
+                const dados = await resposta.json();
+                setErro(dados.erro || "Erro ao salvar serviço.");
+                return;
+            }
+
+            alert("Serviço cadastrado com sucesso!");
+            setErro("");
+        } catch (err) {
+            setErro("Erro de conexão com o servidor.");
         }
-
-        alert("Serviço cadastrado com sucesso!");
     }
 
     return (
@@ -49,7 +53,8 @@ function CadastroServicos({ API }) {
             <h1 className={css.titulo}>Cadastro de Serviços</h1>
 
             <form className={css.formulario} onSubmit={salvar}>
-                {erro && <p className={css.erro}>{erro}</p>}
+
+                {erro && <div className={css.erro}>{erro}</div>}
 
                 <div className={css.gridSimples}>
                     <div className={css.documento}>
@@ -89,15 +94,12 @@ function CadastroServicos({ API }) {
                         />
                     </div>
 
-
-
                     <textarea
                         className={css.descricao}
                         placeholder="Descrição detalhada do serviço..."
                         value={descricao}
                         onChange={(e) => setDescricao(e.target.value)}
                     />
-
 
                     <div className={css.documento}>
                         <select

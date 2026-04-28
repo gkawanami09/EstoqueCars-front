@@ -24,6 +24,7 @@ import CadastroVeiculos from "./pages/CadastroVeiculos.jsx";
 import CadastroServicos from "./pages/CadastroServicos.jsx";
 import CadastroManutencao from "./pages/CadastroManutencao.jsx";
 import CadastroEdicaoManutencao from "./pages/CadastroEdicaoManutencao.jsx";
+import EdicaoServicos from "./pages/EdicaoServicos.jsx";
 
 
 function App({ API }) {
@@ -68,6 +69,7 @@ function App({ API }) {
             <Route path="/cadastroEdicaoManutencao" element={<CadastroEdicaoManutencao/>} />
 
             <Route path="/CadastroServicos" element={<CadastroServicos />} />
+            <Route path="/EdicaoServicos" element={<EdicaoServicos />} />
 
           </Route>
 

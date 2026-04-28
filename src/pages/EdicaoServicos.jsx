@@ -1,10 +1,10 @@
-import css from "./CadastroServicos.module.css"; // Reaproveita o mesmo CSS
+import css from "./CadastroServicos.module.css";
 import Input from "../components/Input/Input.jsx";
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // Necessário para pegar o ID da URL
+import { useParams, useNavigate } from "react-router-dom";
 
 function EdicaoServicos({ API }) {
-    const { id } = useParams(); // Pega o ID do serviço que vem da URL (ex: /servicos/editar/1)
+    const { id } = useParams();
     const navigate = useNavigate();
 
     const [nomeServico, setNomeServico] = useState("");
@@ -16,7 +16,6 @@ function EdicaoServicos({ API }) {
     const [statusDocumento, setStatusDocumento] = useState("pendente");
     const [erro, setErro] = useState("");
 
-    // useEffect para buscar os dados atuais do serviço assim que a página carregar
     useEffect(() => {
         async function buscarDados() {
             try {
@@ -34,7 +33,7 @@ function EdicaoServicos({ API }) {
                 } else {
                     setErro("Erro ao carregar dados do serviço.");
                 }
-            } catch (err) {
+            } catch (erro) {
                 setErro("Servidor indisponível.");
             }
         }
@@ -55,7 +54,7 @@ function EdicaoServicos({ API }) {
         };
 
         const resposta = await fetch(`${API}/servicos/${id}`, {
-            method: "PUT", // Método PUT para atualização
+            method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(dadosAtualizados)
         });
@@ -67,7 +66,7 @@ function EdicaoServicos({ API }) {
         }
 
         alert("Serviço atualizado com sucesso!");
-        navigate("/servicos"); // Volta para a listagem após salvar
+        navigate("/servicos");
     }
 
     return (
@@ -75,7 +74,6 @@ function EdicaoServicos({ API }) {
             <h1 className={css.titulo}>Edição de Serviço</h1>
 
             <form className={css.formulario} onSubmit={atualizar}>
-                {erro && <p className={css.erro}>{erro}</p>}
 
                 <div className={css.gridSimples}>
                     <div className={css.documento}>
@@ -143,6 +141,8 @@ function EdicaoServicos({ API }) {
                         </button>
                     </div>
                 </div>
+
+                {erro && <p className={css.erro}>{erro}</p>}
 
                 <div className={css.botoes}>
                     <button type="submit" className={css.salvar}>Salvar Alterações</button>
