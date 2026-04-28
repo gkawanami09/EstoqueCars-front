@@ -1,11 +1,8 @@
 import css from "./MinhaConta.module.css";
-import MenuLateral from "../components/MenuLateral/MenuLateral.jsx";
 
 function MinhaConta() {
     return (
         <div className={css.layout_minha_conta}>
-
-            <MenuLateral />
 
             <main className={css.conteudo_principal}>
 

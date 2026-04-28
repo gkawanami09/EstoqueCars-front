@@ -220,3 +220,36 @@
         font-size: 15px;
     }
 }
+
+@media (max-width: 425px) {
+    .coluna_direita {
+        padding: 24px 12px;
+    }
+
+    .titulo {
+        font-size: 24px;
+        text-align: center;
+    }
+
+    .subtitulo,
+    .auxiliar {
+        font-size: 14px;
+        text-align: center;
+    }
+
+    .codigo_input_unico {
+        height: 46px;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 320px) {
+    .titulo {
+        font-size: 20px;
+    }
+
+    .subtitulo,
+    .auxiliar {
+        font-size: 12px;
+    }
+}

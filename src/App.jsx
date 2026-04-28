@@ -20,6 +20,7 @@ import Dashboard from "./pages/Dashboard.jsx";
 import MinhaConta from "./pages/MinhaConta.jsx";
 import DashboardAdm from "./pages/DashboardAdm.jsx";
 import DashboardAdmVeiculos from "./pages/DashboardAdmVeiculos.jsx";
+import DashboardAdmClientes from "./pages/DashboardAdmClientes.jsx";
 import CadastroVeiculos from "./pages/CadastroVeiculos.jsx";
 import CadastroServicos from "./pages/CadastroServicos.jsx";
 import CadastroManutencao from "./pages/CadastroManutencao.jsx";
@@ -31,9 +32,6 @@ function App({ API }) {
   return (
       <BrowserRouter>
         <Routes>
-
-          <Route path="/Dashboard" element={<Dashboard />} />
-          <Route path="/MinhaConta" element={<MinhaConta />} />
 
           <Route element={<Container API={API} />}>
             <Route path="/" element={<Home />} />
@@ -57,11 +55,15 @@ function App({ API }) {
 
           {/* grupo de rotas protegidas */}
           <Route element={<ProtectedRoute API={API} />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/Dashboard" element={<Dashboard />} />
             <Route path="/favoritos" element={<Favoritos />} />
             <Route path="/minhaConta" element={<MinhaConta />} />
             <Route path="/dashboardAdm" element={<DashboardAdm />} />
-            <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos />} />
-            <Route path="/cadastroVeiculos" element={<CadastroVeiculos/>} />
+            <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos API={API} />} />
+            <Route path="/dashboardAdmClientes" element={<DashboardAdmClientes API={API} />} />
+            <Route path="/cadastroVeiculos" element={<CadastroVeiculos API={API}/>} />
+            <Route path="/editarVeiculos/:id" element={<CadastroVeiculos API={API}/>} />
 
             <Route path="/CadastroServicos" element={<CadastroServicos />} />
 

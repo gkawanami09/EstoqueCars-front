@@ -293,3 +293,83 @@
         font-size: 1.4rem;
     }
 }
+
+@media (max-width: 768px) {
+    .container {
+        padding: 28px 14px;
+    }
+
+    .secao_destaque {
+        margin-bottom: 54px;
+    }
+
+    .cabecalho_destaque,
+    .titulo_explore,
+    .grupo_botoes_filtro {
+        margin-left: 0 !important;
+    }
+
+    .titulo_destaque {
+        font-size: 2rem;
+        line-height: 1.1;
+    }
+
+    .area_imagem_destaque {
+        min-height: 230px;
+        margin-top: 20px;
+    }
+
+    .imagem_carro_destaque {
+        width: min(88vw, 390px);
+        margin-left: 0 !important;
+    }
+
+    .circulo_preco {
+        position: static;
+        width: 150px;
+        height: 150px;
+        margin-top: -20px !important;
+    }
+
+    .titulo_explore {
+        font-size: 1.6rem;
+    }
+
+    .grupo_botoes_filtro {
+        width: 100%;
+        gap: 10px;
+    }
+
+    .botao_filtro {
+        flex: 1 1 135px;
+        padding: 11px 14px;
+    }
+
+    .card_carro {
+        padding: 28px 0;
+    }
+
+    .area_imagem_card {
+        flex: none;
+        width: 100%;
+        max-width: 320px;
+    }
+
+    .preco_carro {
+        font-size: 1.45rem;
+    }
+}
+
+@media (max-width: 425px) {
+    .titulo_destaque {
+        font-size: 1.55rem;
+    }
+
+    .botao_filtro {
+        flex-basis: 100%;
+    }
+
+    .nome_carro {
+        font-size: 1.15rem;
+    }
+}

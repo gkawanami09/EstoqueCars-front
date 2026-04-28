@@ -1,6 +1,7 @@
-﻿import css from "./Input.module.css";
+import {createElement} from "react";
+import css from "./Input.module.css";
 
-export default function Input({ label, type = "text", img, alt, ...inputProps }) {
+export default function Input({ label, type = "text", img, alt, as: InputComponent = "input", ...inputProps }) {
     const placeholder =
         type === "password" ? "********" : inputProps.placeholder || "";
 
@@ -15,12 +16,12 @@ export default function Input({ label, type = "text", img, alt, ...inputProps })
                 {img && <img src={img} alt={alt} className={css.icone} />}
 
 
-                <input
-                    className={css.input_field}
-                    type={type}
-                    placeholder={placeholder}
-                    {...inputProps}
-                />
+                {createElement(InputComponent, {
+                    className: css.input_field,
+                    type,
+                    placeholder,
+                    ...inputProps
+                })}
 
             </div>
         </div>

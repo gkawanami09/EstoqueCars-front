@@ -191,12 +191,33 @@
 
 /* Status verde */
 .status {
-    background: #2e7d32;
-    color: #fff;
-    padding: 5px 10px;
-    border-radius: 6px;
+    padding: 6px 10px;
+    border-radius: 10px;
     font-size: 12px;
-    display: inline-block;
+    font-weight: 800;
+    display: inline-flex;
+    min-width: 84px;
+    min-height: 34px;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.05;
+    white-space: normal;
+}
+
+.status_indisponivel {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status_estoque {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status_vendido {
+    background: #dcfce7;
+    color: #166534;
 }
 
 /* Botão editar */
@@ -252,14 +273,6 @@
     font-weight: bold;
 }
 
-.status {
-    background: green;
-    color: white;
-    padding: 5px 10px;
-    border-radius: 6px;
-    font-size: 12px;
-}
-
 .btn_editar {
     background: black;
     color: white;
@@ -281,4 +294,94 @@
     cursor: pointer;
     box-shadow: 0 8px 15px -5px rgba(0, 0, 0, 0.3);
     transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn_excluir {
+    background: #f25555;
+    color: #fff;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.celula_vazia {
+    text-align: center;
+}
+
+.mensagem_erro {
+    color: #d7263d;
+    background-color: #ffecee;
+    border: 1px solid #f5b8c0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
+@media (max-width: 900px) {
+    .conteudo_principal {
+        padding: 24px 16px 28px;
+    }
+
+    .cabecalho {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .titulo_boas_vindas {
+        font-size: 1.6rem;
+    }
+
+    .btn_add {
+        width: 100%;
+        max-width: 260px;
+    }
+
+    .secao_filtros {
+        gap: 10px;
+        margin-top: 18px !important;
+        margin-bottom: 24px;
+    }
+
+    .botao_filtro {
+        flex: 1 1 130px;
+        padding: 11px 14px;
+    }
+
+    .tabela_container {
+        overflow-x: auto;
+        padding: 10px;
+    }
+
+    .tabela {
+        min-width: 860px;
+    }
+}
+
+@media (max-width: 425px) {
+    .conteudo_principal {
+        padding: 16px 12px 24px;
+    }
+
+    .titulo_boas_vindas {
+        font-size: 1.35rem;
+    }
+
+    .btn_add,
+    .botao_filtro {
+        width: 100%;
+        flex-basis: 100%;
+    }
+
+    .area_busca {
+        margin-top: 18px !important;
+        padding: 0 12px;
+    }
 }

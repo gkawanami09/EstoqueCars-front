@@ -1,12 +1,9 @@
 import css from "./DashboardAdm.module.css";
-import MenuLateralAdm from "../components/MenuLateralAdm/MenuLateralAdm.jsx";
 
 function DashboardAdm() {
 
     return (
         <div className={css.layout_dashboard}>
-
-            <MenuLateralAdm />
 
             <main className={css.conteudo_principal}>
 

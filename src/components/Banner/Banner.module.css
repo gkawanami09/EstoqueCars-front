@@ -101,13 +101,13 @@ span {
     }
 
     .texto h1 {
-        font-size: 44px;
+        font-size: 24px;
     }
 }
 
 @media (max-width: 375px) {
     .texto h1 {
-        font-size: 38px;
+        font-size: 22px;
     }
 
     .banner img {
@@ -117,7 +117,7 @@ span {
 
 @media (max-width: 320px) {
     .texto h1 {
-        font-size: 32px;
+        font-size: 20px;
     }
 
     .banner img {

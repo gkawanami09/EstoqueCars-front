@@ -1,167 +1,319 @@
-﻿/* CONTAINER */
 .container {
-    padding: 30px;
-    background: #f5f5f5;
     min-height: 100vh;
+    padding: 32px;
+    background: #f5f5f5;
 }
 
-/* TÍTULO */
 .titulo {
-    font-size: 26px;
-    font-weight: 600;
-    margin-bottom: 20px;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto 22px !important;
+    color: #111;
+    font-size: 28px;
+    font-weight: 800;
+    line-height: 1.15;
 }
 
-/* CARD */
 .formulario {
-    background: #ededed;
-    padding: 25px;
+    width: 100%;
+    max-width: 1120px;
+    margin: 0 auto !important;
+    padding: 30px;
+    border: 1px solid #e1e1e1;
     border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.07);
 }
 
-/* GRID PRINCIPAL (ESQUERDA / DIREITA) */
 .grid {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 25px;
+    grid-template-columns: minmax(0, 1.8fr) minmax(280px, 0.9fr);
+    gap: 28px;
     align-items: start;
 }
 
-/* COLUNA ESQUERDA */
-.esquerda {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-/* COLUNA DIREITA */
+.esquerda,
 .direita {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 16px;
+    min-width: 0;
 }
 
-/* CAMPOS LADO A LADO */
 .duplo {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 16px;
+    align-items: end;
+}
+
+.documento {
+    display: flex;
+    align-items: center;
     gap: 12px;
 }
 
-/* INPUT PADRÃO */
-input, select, textarea {
-    width: 100%;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #d0d0d0;
-    background: #f7f7f7;
-    box-sizing: border-box;
-}
-
-/* STATUS */
-.status {
-    color: #e74c3c;
-    font-size: 14px;
-    margin-bottom: -5px;
-}
-
-/* SELECT NORMAL */
-.select {
-    height: 42px;
-}
-
-/* SELECT PEQUENO */
-.selectPequeno {
-    width: 160px;
-}
-
-/* DESCRIÇÃO */
+.select,
+.selectPequeno,
 .descricao {
-    height: 70px;
-    resize: none;
-}
-
-/* DOCUMENTO */
-.documento {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-.anexar {
-    background: black;
-    color: white;
-    padding: 10px 16px;
+    width: 100%;
+    border: 1px solid #d7d7d7;
     border-radius: 8px;
-    border: none;
+    background: #fff;
+    color: #111;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.select,
+.selectPequeno {
+    height: 48px;
+    padding: 0 14px;
     cursor: pointer;
 }
 
-/* PREVIEW GRANDE */
+.selectPequeno {
+    width: min(260px, 100%);
+}
+
+.descricao {
+    min-height: 112px;
+    padding: 14px;
+    resize: vertical;
+    line-height: 1.45;
+}
+
+.select:focus,
+.selectPequeno:focus,
+.descricao:focus {
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+}
+
+.status {
+    color: #b45309;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+}
+
 .preview {
     width: 100%;
-    height: 220px;
-    background: #cfcfcf;
-    border-radius: 12px;
+    aspect-ratio: 4 / 3;
+    min-height: 260px;
     overflow: hidden;
+    border: 1px dashed #c7c7c7;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f4f4f4, #e7e7e7);
 }
 
-/* LINHA DE MINIATURAS */
-.linhaFotos {
-    display: flex;
-    gap: 10px;
-    align-items: center;
-}
-
-/* MINIATURAS */
-.mini {
-    width: 80px;
-    height: 60px;
-    background: #cfcfcf;
-    border-radius: 8px;
+.imagemPreview {
+    width: 100%;
+    height: 100%;
     object-fit: cover;
 }
 
-/* BOTÃO FOTO */
 .addFoto {
-    flex: 1;
-    background: black;
-    color: white;
-    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
     border-radius: 8px;
+    background: #000;
+    color: #fff;
+    padding: 0 16px;
     text-align: center;
+    font-size: 14px;
+    font-weight: 800;
     cursor: pointer;
+    transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
-/* OBSERVAÇÕES */
-.observacoes {
-    width: 100%;
-    margin-top: 20px;
-    height: 90px;
-    resize: none;
+.addFoto:hover {
+    opacity: 0.86;
+    transform: translateY(-1px);
 }
 
-/* BOTÕES */
 .botoes {
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 20px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
 }
 
-/* BOTÃO SALVAR */
-.salvar {
-    background: black;
-    color: white;
-    padding: 10px 24px;
-    border-radius: 8px;
-    border: none;
-}
-
-/* BOTÃO CANCELAR */
+.salvar,
 .cancelar {
-    border: 1px solid #333;
-    padding: 10px 24px;
+    min-width: 140px;
+    height: 46px;
     border-radius: 8px;
-    background: transparent;
+    padding: 0 24px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+}
+
+.salvar {
+    border: none;
+    background: #000;
+    color: #fff;
+}
+
+.salvar:hover {
+    opacity: 0.86;
+    transform: translateY(-1px);
+}
+
+.salvar:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.cancelar {
+    border: 1px solid #d7d7d7;
+    background: #fff;
+    color: #222;
+}
+
+.cancelar:hover {
+    background: #f7f7f7;
+}
+
+.mensagem {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 18px;
+    border: 1px solid transparent;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.06);
+}
+
+.mensagem strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 4px !important;
+}
+
+.mensagem span {
+    display: block;
+    color: inherit;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.mensagem_erro {
+    color: #991b1b;
+    background: #fff1f2;
+    border-color: #fecdd3;
+}
+
+.mensagem_sucesso {
+    color: #14532d;
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+}
+
+.mensagem_fechar {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.mensagem_fechar:hover {
+    background: rgba(0, 0, 0, 0.14);
+}
+
+.anexar,
+.linhaFotos,
+.mini,
+.observacoes {
+    display: none;
+}
+
+@media (max-width: 980px) {
+    .container {
+        padding: 24px 16px;
+    }
+
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .direita {
+        order: -1;
+    }
+
+    .preview {
+        max-width: 520px;
+        min-height: 240px;
+    }
+}
+
+@media (max-width: 640px) {
+    .container {
+        padding: 18px 12px 24px;
+    }
+
+    .titulo {
+        text-align: center;
+        font-size: 23px;
+    }
+
+    .formulario {
+        padding: 18px;
+    }
+
+    .duplo {
+        grid-template-columns: 1fr;
+        gap: 14px;
+    }
+
+    .documento {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .selectPequeno {
+        width: 100%;
+    }
+
+    .preview {
+        min-height: 210px;
+    }
+
+    .botoes {
+        flex-direction: column;
+    }
+
+    .salvar,
+    .cancelar {
+        width: 100%;
+    }
+}
+
+@media (max-width: 360px) {
+    .formulario {
+        padding: 14px;
+    }
+
+    .preview {
+        min-height: 170px;
+    }
 }

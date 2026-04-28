@@ -36,8 +36,18 @@ function Login({ API }) {
         const nome =
             dados.nome ||
             nomePadrao
+        const tipoUsuario = Number(dados.tipo_usuario)
 
-        localStorage.setItem("usuario_logado", JSON.stringify({ nome, email }))
+        localStorage.setItem("usuario_logado", JSON.stringify({
+            nome,
+            email,
+            tipo_usuario: tipoUsuario
+        }))
+
+        if (tipoUsuario === 2) {
+            navigate("/dashboardAdm")
+            return
+        }
 
         navigate("/dashboard")
     }

@@ -2,6 +2,7 @@
 import Input from "../components/Input/Input.jsx";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
+import {IMaskInput} from "react-imask";
 
 function Cadastro({API}) {
     const [nome, setNome] = useState("");
@@ -137,13 +138,14 @@ function Cadastro({API}) {
                         <Input
                             label="Telefone"
                             type="text"
+                            as={IMaskInput}
+                            mask="(00) 00000-0000"
+                            unmask={true}
                             img="/ImgCadastro/telefone.png"
                             alt="icone"
                             value={telefone}
-                            onChange={(e) => setTelefone(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                            onAccept={(valor) => setTelefone(valor)}
                             inputMode="numeric"
-                            maxLength={11}
-                            minLength={11}
                             required={true}
                         />
                     </div>
@@ -152,14 +154,14 @@ function Cadastro({API}) {
                         <Input
                             label="CPF"
                             type="text"
+                            as={IMaskInput}
+                            mask="000.000.000-00"
+                            unmask={true}
                             img="/ImgCadastro/cadeado.png"
                             alt="icone"
                             value={cpf}
-                            onChange={(e) => setCpf(e.target.value.replace(/\D/g, "").slice(0, 11))}
+                            onAccept={(valor) => setCpf(valor)}
                             inputMode="numeric"
-                            maxLength={11}
-                            minLength={11}
-                            pattern="[0-9]{11}"
                             required={true}
                         />
                     </div>
