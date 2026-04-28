@@ -19,6 +19,22 @@ function DashboardAdmClientes({ API }) {
     const [formulario, setFormulario] = useState(clienteInicial);
     const [situacoes, setSituacoes] = useState({});
     const [salvando, setSalvando] = useState(false);
+    const [confirmacao, setConfirmacao] = useState({
+        aberta: false,
+        tipo: "",
+        cliente: null,
+        bloquear: false,
+        texto: ""
+    });
+
+    function cabecalhoAutorizacao() {
+        const token = localStorage.getItem("access_token");
+        if (!token) {
+            return undefined;
+        }
+
+        return { Authorization: `Bearer ${token}` };
+    }
 
     useEffect(() => {
         carregarClientes();
@@ -164,11 +180,6 @@ function DashboardAdmClientes({ API }) {
     }
 
     async function excluirCliente(cliente) {
-        const confirmou = window.confirm(`Deseja excluir ${cliente.nome}?`);
-        if (!confirmou) {
-            return;
-        }
-
         setMensagem(null);
 
         try {
@@ -202,16 +213,13 @@ function DashboardAdmClientes({ API }) {
     async function alterarBloqueio(cliente, bloquear) {
         const rota = bloquear ? "bloquear_usuario" : "desbloquear_usuario";
         const acao = bloquear ? "bloquear" : "desbloquear";
-        const confirmou = window.confirm(`Deseja ${acao} ${cliente.nome}?`);
-        if (!confirmou) {
-            return;
-        }
 
         setMensagem(null);
 
         try {
             const resposta = await fetch(`${API}/${rota}/${cliente.id_usuario}`, {
                 method: "PUT",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             const dados = await resposta.json();
@@ -237,6 +245,54 @@ function DashboardAdmClientes({ API }) {
                 tipo: "erro",
                 texto: "Nao foi possivel conectar ao servidor."
             });
+        }
+    }
+
+    function abrirConfirmacaoExclusao(cliente) {
+        setConfirmacao({
+            aberta: true,
+            tipo: "excluir",
+            cliente,
+            bloquear: false,
+            texto: `Deseja excluir ${cliente.nome}?`
+        });
+    }
+
+    function abrirConfirmacaoBloqueio(cliente, bloquear) {
+        setConfirmacao({
+            aberta: true,
+            tipo: "bloqueio",
+            cliente,
+            bloquear,
+            texto: `Deseja ${bloquear ? "bloquear" : "desbloquear"} ${cliente.nome}?`
+        });
+    }
+
+    function fecharConfirmacao() {
+        setConfirmacao({
+            aberta: false,
+            tipo: "",
+            cliente: null,
+            bloquear: false,
+            texto: ""
+        });
+    }
+
+    async function confirmarAcao() {
+        const { tipo, cliente, bloquear } = confirmacao;
+        fecharConfirmacao();
+
+        if (!cliente) {
+            return;
+        }
+
+        if (tipo === "excluir") {
+            await excluirCliente(cliente);
+            return;
+        }
+
+        if (tipo === "bloqueio") {
+            await alterarBloqueio(cliente, bloquear);
         }
     }
 
@@ -302,7 +358,15 @@ function DashboardAdmClientes({ API }) {
                             mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
                         }`}
                     >
-                        <span>{mensagem.texto}</span>
+                        <div className={css.mensagem_info}>
+                            <span className={css.mensagem_icone}>
+                                {mensagem.tipo === "sucesso" ? "✓" : "!"}
+                            </span>
+                            <div className={css.mensagem_texto}>
+                                <strong>{mensagem.tipo === "sucesso" ? "Sucesso" : "Atencao"}</strong>
+                                <span>{mensagem.texto}</span>
+                            </div>
+                        </div>
                         <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
                             x
                         </button>
@@ -360,11 +424,11 @@ function DashboardAdmClientes({ API }) {
                             <div className={css.dados_cliente}>
                                 <div>
                                     <span>Telefone</span>
-                                    <strong>{formatarTelefone(cliente.telefone)}</strong>
+                                    <strong className={css.telefone_valor}>{formatarTelefone(cliente.telefone)}</strong>
                                 </div>
                                 <div>
                                     <span>CPF</span>
-                                    <strong>{formatarCpf(cliente.cpf)}</strong>
+                                    <strong className={css.cpf_valor}>{formatarCpf(cliente.cpf)}</strong>
                                 </div>
                             </div>
 
@@ -373,13 +437,13 @@ function DashboardAdmClientes({ API }) {
                                     <img src="/Editar.png" alt="Editar o perfil" />
                                    
                                 </button>
-                                <button type="button" className={css.btn_bloquear} onClick={() => alterarBloqueio(cliente, true)}>
+                                <button type="button" className={css.btn_bloquear} onClick={() => abrirConfirmacaoBloqueio(cliente, true)}>
                                     Bloquear
                                 </button>
-                                <button type="button" className={css.btn_desbloquear} onClick={() => alterarBloqueio(cliente, false)}>
+                                <button type="button" className={css.btn_desbloquear} onClick={() => abrirConfirmacaoBloqueio(cliente, false)}>
                                     Desbloquear
                                 </button>
-                                <button type="button" className={css.btn_excluir} onClick={() => excluirCliente(cliente)}>
+                                <button type="button" className={css.btn_excluir} onClick={() => abrirConfirmacaoExclusao(cliente)}>
                                     <img src="/Exculir.png" alt="Excluir perfil" />
                                     Excluir
                                 </button>
@@ -457,6 +521,23 @@ function DashboardAdmClientes({ API }) {
                                 </button>
                             </footer>
                         </form>
+                    </div>
+                )}
+
+                {confirmacao.aberta && (
+                    <div className={css.confirm_overlay}>
+                        <div className={css.confirm_box}>
+                            <h3>Confirmar ação</h3>
+                            <p>{confirmacao.texto}</p>
+                            <div className={css.confirm_botoes}>
+                                <button type="button" className={css.confirm_ok} onClick={confirmarAcao}>
+                                    OK
+                                </button>
+                                <button type="button" className={css.confirm_cancel} onClick={fecharConfirmacao}>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </main>

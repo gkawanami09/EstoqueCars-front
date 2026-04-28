@@ -59,19 +59,17 @@ function App({ API }) {
             <Route path="/Dashboard" element={<Dashboard />} />
             <Route path="/favoritos" element={<Favoritos />} />
             <Route path="/minhaConta" element={<MinhaConta />} />
-            <Route path="/dashboardAdm" element={<DashboardAdm />} />
+            <Route path="/dashboardAdm" element={<DashboardAdm  API={API} />} />
             <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos API={API} />} />
             <Route path="/dashboardAdmClientes" element={<DashboardAdmClientes API={API} />} />
             <Route path="/cadastroVeiculos" element={<CadastroVeiculos API={API}/>} />
             <Route path="/editarVeiculos/:id" element={<CadastroVeiculos API={API}/>} />
 
-            <Route path="/CadastroServicos" element={<CadastroServicos />} />
+            <Route path="/CadastroServicos" element={<CadastroServicos API={API} />} />
 
-            <Route path="/cadastroManutencao" element={<CadastroManutencao/>} />
-            <Route path="/cadastroEdicaoManutencao" element={<CadastroEdicaoManutencao/>} />
-
-            <Route path="/CadastroServicos" element={<CadastroServicos />} />
-            <Route path="/EdicaoServicos" element={<EdicaoServicos />} />
+            <Route path="/cadastroManutencao" element={<CadastroManutencao API={API} />} />
+            <Route path="/cadastroEdicaoManutencao" element={<CadastroEdicaoManutencao API={API} />} />
+            <Route path="/EdicaoServicos" element={<EdicaoServicos API={API} />} />
 
           </Route>
 

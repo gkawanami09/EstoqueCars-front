@@ -173,6 +173,18 @@
     overflow-wrap: anywhere;
 }
 
+.telefone_valor {
+    display: inline-block;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
+.cpf_valor {
+    display: inline-block;
+    white-space: nowrap;
+    letter-spacing: 0.2px;
+}
+
 .status {
     display: inline-flex;
     align-items: center;
@@ -237,33 +249,100 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
-    border-radius: 10px;
-    padding: 12px 14px;
-    margin-bottom: 16px;
+    border-radius: 12px;
+    padding: 13px 14px;
+    margin-bottom: 18px;
     border: 1px solid transparent;
     font-size: 14px;
     font-weight: 700;
+    line-height: 1.4;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    border-left-width: 5px;
+    animation: alerta_entrada 0.22s ease-out;
+}
+
+.mensagem_info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.mensagem_icone {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+.mensagem_texto {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.mensagem_texto strong {
+    font-size: 13px;
+    line-height: 1.1;
+}
+
+.mensagem_texto span {
+    margin-top: 2px;
+    font-size: 13px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
 }
 
 .mensagem button {
     border: none;
-    border-radius: 8px;
-    background: rgba(0, 0, 0, 0.08);
-    width: 28px;
-    height: 28px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+    width: 30px;
+    height: 30px;
     cursor: pointer;
+    font-weight: 800;
+    color: #333;
+    flex-shrink: 0;
 }
 
 .mensagem_erro {
     color: #991b1b;
     background: #fff1f2;
     border-color: #fecdd3;
+    border-left-color: #dc2626;
+}
+
+.mensagem_erro .mensagem_icone {
+    color: #fff;
+    background: #dc2626;
 }
 
 .mensagem_sucesso {
     color: #14532d;
     background: #ecfdf3;
     border-color: #bbf7d0;
+    border-left-color: #16a34a;
+}
+
+.mensagem_sucesso .mensagem_icone {
+    color: #fff;
+    background: #16a34a;
+}
+
+@keyframes alerta_entrada {
+    from {
+        opacity: 0;
+        transform: translateY(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .modal_overlay {
@@ -366,6 +445,71 @@
     cursor: not-allowed;
 }
 
+.confirm_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 200;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+}
+
+.confirm_box {
+    width: min(560px, 100%);
+    border-radius: 20px;
+    padding: 22px 20px 18px;
+    background: linear-gradient(180deg, #2a2b2e 0%, #1f2024 100%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+    color: #fff;
+}
+
+.confirm_box h3 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.confirm_box p {
+    margin: 18px 0 30px;
+    font-size: 30px;
+    line-height: 1.2;
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 500;
+}
+
+.confirm_botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.confirm_ok,
+.confirm_cancel {
+    min-width: 74px;
+    height: 44px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.35);
+    padding: 0 18px;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.confirm_ok {
+    background: #f3f4f6;
+    color: #18181b;
+    border-color: #f3f4f6;
+}
+
+.confirm_cancel {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
 @media (max-width: 900px) {
     .conteudo_principal {
         padding: 24px 16px 28px;
@@ -418,5 +562,20 @@
     .btn_cancelar,
     .btn_salvar {
         width: 100%;
+    }
+
+    .confirm_box h3 {
+        font-size: 26px;
+    }
+
+    .confirm_box p {
+        font-size: 22px;
+    }
+
+    .confirm_ok,
+    .confirm_cancel {
+        font-size: 24px;
+        min-width: 68px;
+        height: 40px;
     }
 }

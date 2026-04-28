@@ -34,27 +34,38 @@ function CadastroServicos({ API }) {
             return;
         }
 
-        const dadosServico = {
-            nomeServico,
-            categoria,
-            preco: String(preco).replace(",", "."),
-            descricao,
-            statusServico,
-            statusDocumento
-        };
+        const precoNormalizado = String(preco).replace(",", ".").trim();
+        const formData = new FormData();
+        formData.append("nome_servico", nomeServico.trim());
+        formData.append("valor", precoNormalizado);
 
         setSalvando(true);
 
         try {
-            const resposta = await fetch(`${API}/servicos`, {
+            const token = localStorage.getItem("access_token");
+            const headers = token
+                ? { Authorization: `Bearer ${token}` }
+                : undefined;
+
+            const resposta = await fetch(`${API}/cadastrar_servico`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers,
                 credentials: "include",
-                body: JSON.stringify(dadosServico)
+                body: formData
             });
 
+            const textoResposta = await resposta.text();
+            let dados = {};
+
+            if (textoResposta) {
+                try {
+                    dados = JSON.parse(textoResposta);
+                } catch {
+                    dados = {};
+                }
+            }
+
             if (!resposta.ok) {
-                const dados = await resposta.json();
                 setMensagem({
                     tipo: "erro",
                     texto: dados.erro || "Nao foi possivel salvar o servico. Confira os dados e tente novamente."
@@ -64,7 +75,7 @@ function CadastroServicos({ API }) {
 
             setMensagem({
                 tipo: "sucesso",
-                texto: "Servico cadastrado com sucesso."
+                texto: dados.mensagem || "Servico cadastrado com sucesso."
             });
             limparFormulario();
         } catch {
@@ -188,11 +199,7 @@ function CadastroServicos({ API }) {
                         />
                     </label>
 
-                    <div className={css.documento}>
-                        <button type="button" className={css.anexar}>
-                            Anexar documento
-                        </button>
-                    </div>
+                
                 </div>
 
                 <div className={css.botoes}>

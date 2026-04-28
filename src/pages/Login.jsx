@@ -44,6 +44,10 @@ function Login({ API }) {
             tipo_usuario: tipoUsuario
         }))
 
+        if (dados.token) {
+            localStorage.setItem("access_token", dados.token)
+        }
+
         if (tipoUsuario === 2) {
             navigate("/dashboardAdm")
             return

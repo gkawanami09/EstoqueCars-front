@@ -150,12 +150,26 @@ function DashboardAdmVeiculos({ API }) {
                     <h1 className={css.titulo_boas_vindas}>
                         Veiculos
                     </h1>
-                    <button
-                        className={css.btn_add}
-                        onClick={() => navigate("/cadastroVeiculos")}
-                    >
-                        Cadastrar Veiculo
-                    </button>
+                    <div className={css.botoes_cabecalho}>
+                        <button
+                            className={css.btn_add}
+                            onClick={() => navigate("/cadastroVeiculos")}
+                        >
+                            Cadastrar Veículo
+                        </button>
+                        <button
+                            className={css.btn_add}
+                            onClick={() => navigate("/CadastroServicos")}
+                        >
+                            Cadastrar Serviço
+                        </button>
+                        <button
+                            className={css.btn_add}
+                            onClick={() => navigate("/CadastroManutencao")}
+                        >
+                            Cadastrar Manutenção
+                        </button>
+                    </div>
                 </header>
 
                 {erro && <p className={css.mensagem_erro}>{erro}</p>}
@@ -193,7 +207,7 @@ function DashboardAdmVeiculos({ API }) {
                             {nomeCategoria}
                         </button>
                     ))}
-                </section>
+                </section> <br />
 
                 <section className={css.tabela_container}>
                     <table className={css.tabela}>
@@ -277,3 +291,4 @@ function DashboardAdmVeiculos({ API }) {
 }
 
 export default DashboardAdmVeiculos;
+

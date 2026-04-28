@@ -20,6 +20,7 @@ function Footer({ API }) {
             credentials: 'include'
         })
         localStorage.removeItem('usuario_logado')
+        localStorage.removeItem('access_token')
         navigate('/login')
     }
 

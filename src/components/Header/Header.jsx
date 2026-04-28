@@ -22,6 +22,7 @@ function Header({ API }) {
             credentials: 'include'
         })
         localStorage.removeItem('usuario_logado')
+        localStorage.removeItem('access_token')
         fecharMenu()
         navigate('/login')
     }
