@@ -169,7 +169,7 @@ function DashboardAdmVeiculos({ API }) {
                         </button>
                         <button
                             className={css.btn_add}
-                            onClick={() => navigate("/CadastroManutencao")}
+                            onClick={() => navigate("/manutencoes")}
                         >
                             Cadastrar Manutenção
                         </button>

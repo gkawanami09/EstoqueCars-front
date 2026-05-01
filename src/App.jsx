@@ -71,6 +71,7 @@ function App({ API }) {
 
             <Route path="/CadastroServicos" element={<CadastroServicos API={API} />} />
 
+            <Route path="/manutencoes" element={<CadastroManutencao API={API} />} />
             <Route path="/cadastroManutencao" element={<CadastroManutencao API={API} />} />
             <Route path="/cadastroEdicaoManutencao" element={<CadastroEdicaoManutencao API={API} />} />
             <Route path="/EdicaoServicos" element={<EdicaoServicos API={API} />} />

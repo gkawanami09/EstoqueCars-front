@@ -1,329 +1,526 @@
 .container {
-    padding: 30px;
-    background: #f5f5f5;
     min-height: 100vh;
+    padding: 32px;
+    background: #f5f5f5;
+    color: #111;
+}
+
+.cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px !important;
 }
 
 .titulo {
-    font-size: 26px;
-    font-weight: 600;
-    margin-bottom: 20px;
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.15;
 }
 
-.formulario {
-    background: #ededed;
-    padding: 25px;
-    border-radius: 12px;
+.subtitulo {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 6px !important;
 }
 
-.grid {
+.areaFormulario {
     display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 25px;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 0.8fr);
+    gap: 18px;
     align-items: start;
 }
 
-.esquerda {
+.formulario,
+.painelHistorico,
+.buscaAvancada,
+.tabelaContainer,
+.painelItens {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
+}
+
+.formulario {
+    padding: 24px;
+}
+
+.formCabecalho,
+.painelItensCabecalho {
     display: flex;
-    flex-direction: column;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px !important;
+}
+
+.formCabecalho h2,
+.painelHistorico h2,
+.painelItensCabecalho h2 {
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.formCabecalho span,
+.painelItensCabecalho span {
+    display: block;
+    color: #666;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 5px !important;
+}
+
+.formCabecalho strong {
+    color: #f25555;
+    font-size: 22px;
+    white-space: nowrap;
+}
+
+.gridCampos,
+.buscaApi,
+.formItem {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 14px;
 }
 
-.direita {
+.campo {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 8px;
+    min-width: 0;
 }
 
-.duplo {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
+.campo span {
+    color: #333;
+    font-size: 13px;
+    font-weight: 700;
 }
 
-input, select, textarea {
+.campo input,
+.campo select,
+.buscaTexto input,
+.inputQuantidade {
     width: 100%;
-    padding: 10px;
+    height: 46px;
+    border: 1px solid #d7d7d7;
     border-radius: 8px;
-    border: 1px solid #d0d0d0;
-    background: #f7f7f7;
-    box-sizing: border-box;
-}
-
-.descricao {
-    height: 80px;
-    resize: none;
-}
-
-.observacoes {
-    width: 100%;
-    margin-top: 20px;
-    height: 90px;
-    resize: none;
-}
-
-/* BLOCO DE SERVIÇO */
-.blocoServico {
-    background: #e3e3e3;
-    padding: 12px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-/* BOTÃO ADICIONAR */
-.adicionar {
-    background: black;
-    color: white;
-    padding: 10px;
-    border-radius: 8px;
-    border: none;
-    cursor: pointer;
-}
-
-/* BOTÃO REMOVER */
-.remover {
-    background: #e74c3c;
-    color: white;
-    border: none;
-    padding: 8px;
-    border-radius: 6px;
-    cursor: pointer;
-}
-
-/* RESUMO */
-.boxResumo {
-    background: #dcdcdc;
-    padding: 15px;
-    border-radius: 10px;
+    background: #fff;
+    color: #1a1a1a;
     font-size: 14px;
+    outline: none;
+    padding: 0 13px;
 }
 
-/* ERRO */
-.erro {
-    color: red;
-    margin-top: 10px;
+.campo input:focus,
+.campo select:focus,
+.buscaTexto input:focus,
+.inputQuantidade:focus {
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
-/* BOTÕES */
-.botoes {
+.listaServicos {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px !important;
+}
+
+.linhaServico {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) 120px 130px 100px;
+    gap: 12px;
+    align-items: end;
+    padding: 14px;
+    background: #f7f7f7;
+    border: 1px solid #ebebeb;
+    border-radius: 8px;
+}
+
+.subtotalServico {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 46px;
+}
+
+.subtotalServico span {
+    color: #666;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.subtotalServico strong {
+    color: #111;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.botoesFormulario {
     display: flex;
     justify-content: flex-end;
-    gap: 12px;
-    margin-top: 20px;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px !important;
+    padding-top: 18px;
+    border-top: 1px solid #eee;
 }
 
-.salvar {
-    background: black;
-    color: white;
-    padding: 10px 24px;
+.botaoPrimario,
+.botaoSecundario,
+.botaoRemover,
+.btnDetalhes,
+.btnEditar,
+.btnExcluir {
+    min-height: 40px;
     border-radius: 8px;
     border: none;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
 }
 
-.cancelar {
-    border: 1px solid #333;
-    padding: 10px 24px;
+.botaoPrimario {
+    background: #000;
+    color: #fff;
+}
+
+.botaoSecundario {
+    background: #fff;
+    color: #222;
+    border: 1px solid #d7d7d7;
+}
+
+.botaoRemover,
+.btnExcluir {
+    background: #f25555;
+    color: #fff;
+}
+
+.btnDetalhes {
+    background: #111;
+    color: #fff;
+}
+
+.btnEditar {
+    background: #f4f4f4;
+    color: #111;
+    border: 1px solid #d7d7d7;
+}
+
+.botaoPrimario:hover,
+.botaoSecundario:hover,
+.botaoRemover:hover,
+.btnDetalhes:hover,
+.btnEditar:hover,
+.btnExcluir:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.botaoPrimario:disabled,
+.botaoSecundario:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.painelHistorico {
+    padding: 22px;
+}
+
+.painelHistorico h2 {
+    margin-bottom: 16px !important;
+}
+
+.painelHistorico .botaoPrimario {
+    width: 100%;
+    margin-top: 14px !important;
+}
+
+.listaHistorico {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 16px !important;
+}
+
+.itemHistorico {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    color: #555;
+    font-size: 13px;
+}
+
+.itemHistorico strong {
+    color: #111;
+}
+
+.mensagem {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 18px !important;
+    border: 1px solid transparent;
+}
+
+.mensagem strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 4px !important;
+}
+
+.mensagem span {
+    display: block;
+    color: inherit;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.mensagem button {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border: none;
     border-radius: 8px;
-    background: transparent;
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
 }
 
-@media (max-width: 1024px) {
-
-    .container {
-        padding: 20px;
-    }
-
-    .formulario {
-        padding: 20px;
-    }
-
-    .grid {
-        gap: 20px;
-    }
-
-    .titulo {
-        font-size: 22px;
-    }
+.mensagem_erro {
+    color: #991b1b;
+    background: #fff1f2;
+    border-color: #fecdd3;
 }
 
+.mensagem_sucesso {
+    color: #14532d;
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+}
 
-@media (max-width: 768px) {
+.buscaAvancada {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(260px, 0.9fr);
+    gap: 16px;
+    align-items: end;
+    padding: 18px;
+    margin-top: 18px !important;
+}
 
-    .grid {
+.buscaApi {
+    grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) auto auto;
+    align-items: end;
+}
+
+.buscaTexto {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #d7d7d7;
+    border-radius: 8px;
+    padding: 0 13px;
+    background: #fff;
+}
+
+.buscaTexto img {
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+}
+
+.buscaTexto input {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.tabelaContainer,
+.painelItens {
+    padding: 14px;
+    margin-top: 18px !important;
+    overflow-x: auto;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+.tabela th {
+    color: #555;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #eee;
+}
+
+.tabela td {
+    color: #222;
+    font-size: 14px;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.tabela tr:hover {
+    background: #fafafa;
+}
+
+.textoApoio {
+    display: block;
+    color: #777;
+    font-size: 12px;
+    margin-top: 4px !important;
+}
+
+.valor {
+    color: #e53935;
+    font-weight: 800;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 86px;
+    min-height: 32px;
+    border-radius: 10px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.status_agendada {
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+.status_proxima {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status_realizada {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.celulaVazia {
+    text-align: center;
+    color: #666 !important;
+    padding: 24px !important;
+}
+
+.painelItens {
+    overflow-x: visible;
+}
+
+.painelItensCabecalho {
+    padding: 4px 4px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.formItem {
+    grid-template-columns: minmax(240px, 1fr) 140px auto;
+    align-items: end;
+    padding: 16px 4px;
+}
+
+.tabelaItensContainer {
+    overflow-x: auto;
+}
+
+.inputQuantidade {
+    max-width: 110px;
+}
+
+@media (max-width: 1180px) {
+    .areaFormulario,
+    .buscaAvancada {
         grid-template-columns: 1fr;
     }
 
-    .direita {
-        order: -1;
-    }
-
-    .boxResumo {
-        text-align: center;
-    }
-
-    .duplo {
-        grid-template-columns: 1fr;
-    }
-
-    .botoes {
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-
-    .salvar,
-    .cancelar {
-        width: 100%;
-        max-width: 200px;
-    }
-
-    .adicionar {
-        width: 100%;
+    .buscaApi {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
 
-
-@media (max-width: 425px) {
-
+@media (max-width: 900px) {
     .container {
-        padding: 15px;
+        padding: 24px 16px;
     }
 
-    .formulario {
-        padding: 15px;
-    }
-
-    .titulo {
-        font-size: 20px;
-        text-align: center;
-    }
-
-    .blocoServico {
-        padding: 10px;
-    }
-
-    input,
-    select,
-    textarea {
-        padding: 9px;
-        font-size: 14px;
-    }
-
-    .descricao {
-        height: 70px;
-    }
-
-    .observacoes {
-        height: 80px;
-    }
-
-    .boxResumo {
-        font-size: 13px;
-        padding: 12px;
-    }
-
-    .remover {
-        width: 100%;
-    }
-}
-
-
-@media (max-width: 375px) {
-
-    .titulo {
-        font-size: 18px;
-    }
-
-    input,
-    select,
-    textarea {
-        font-size: 13px;
-    }
-
-    .salvar,
-    .cancelar {
-        padding: 8px;
-        font-size: 13px;
-    }
-}
-
-
-@media (max-width: 320px) {
-
-    .container {
-        padding: 8px;
-    }
-
-    .formulario {
-        padding: 10px;
-    }
-
-    .titulo {
-        font-size: 15px;
-        text-align: center;
-    }
-
-    /* 🔥 inputs menores */
-    input,
-    select,
-    textarea {
-        padding: 7px;
-        font-size: 12px;
-        border-radius: 6px;
-    }
-
-    /* 🔥 campos duplos continuam empilhados */
-    .duplo {
-        grid-template-columns: 1fr;
-        gap: 8px;
-    }
-
-    /* 🔥 bloco de serviço mais compacto */
-    .blocoServico {
-        padding: 8px;
-        gap: 8px;
-    }
-
-    /* 🔥 textarea menor */
-    .descricao {
-        height: 60px;
-    }
-
-    .observacoes {
-        height: 70px;
-    }
-
-    /* 🔥 resumo menor */
-    .boxResumo {
-        padding: 10px;
-        font-size: 11px;
-    }
-
-    /* 🔥 BOTÕES */
-    .botoes {
+    .cabecalho,
+    .formCabecalho,
+    .painelItensCabecalho {
         flex-direction: column;
         align-items: stretch;
-        gap: 8px;
     }
 
-    .salvar,
-    .cancelar {
+    .gridCampos,
+    .linhaServico,
+    .formItem {
+        grid-template-columns: 1fr;
+    }
+
+    .botaoRemover {
         width: 100%;
-        padding: 8px;
-        font-size: 12px;
-        border-radius: 6px;
+    }
+}
+
+@media (max-width: 560px) {
+    .container {
+        padding: 18px 12px;
     }
 
-    /* 🔥 botão adicionar */
-    .adicionar {
-        padding: 8px;
-        font-size: 12px;
+    .titulo {
+        font-size: 24px;
     }
 
-    /* 🔥 botão remover */
-    .remover {
-        padding: 6px;
-        font-size: 11px;
+    .formulario,
+    .painelHistorico,
+    .buscaAvancada,
+    .tabelaContainer,
+    .painelItens {
+        padding: 14px;
+    }
+
+    .buscaApi {
+        grid-template-columns: 1fr;
+    }
+
+    .botoesFormulario {
+        flex-direction: column;
+    }
+
+    .botaoPrimario,
+    .botaoSecundario {
+        width: 100%;
     }
 }

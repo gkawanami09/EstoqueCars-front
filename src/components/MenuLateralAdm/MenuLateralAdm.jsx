@@ -49,6 +49,15 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
                     Veiculos
                 </button>
 
+                <button
+                    type="button"
+                    className={classeItem(["/manutencoes", "/cadastromanutencao", "/cadastroedicaomanutencao"])}
+                    onClick={() => navegar("/manutencoes")}
+                >
+                    <img src="/IconEngrenagem.png" alt="Manutencoes" className={css.icone_img} />
+                    Manutencoes
+                </button>
+
                 <button type="button" className={css.menu_item}>
                     <img src="/ImgNavBar/Vendas.png" alt="Vendas" className={css.icone_img} />
                     Vendas

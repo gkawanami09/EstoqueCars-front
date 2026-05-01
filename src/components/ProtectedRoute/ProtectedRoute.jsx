@@ -13,6 +13,7 @@ const rotasAdm = [
     "/detalhesveiculos",
     "/cadastroservicos",
     "/edicaoservicos",
+    "/manutencoes",
     "/cadastromanutencao",
     "/cadastroedicaomanutencao"
 ];
