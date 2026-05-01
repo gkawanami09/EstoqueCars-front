@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import css from "./MenuLateralAdm.module.css";
 
 function MenuLateralAdm({ aberto = false, aoNavegar }) {
@@ -25,7 +25,9 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
     return (
         <aside className={`${css.menu_lateral} ${aberto ? css.menu_aberto : ""}`}>
             <div className={css.logo_container}>
+                <Link to = "/">
                 <img src="/ImgNavBar/LogoNav.png" alt="Estoque Cars" className={css.logo} />
+                </Link>
             </div> <br />
 
             <nav className={css.menu}>
@@ -40,7 +42,7 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
 
                 <button
                     type="button"
-                    className={classeItem(["/dashboardadmveiculos", "/cadastrov", "/editarveiculos"])}
+                    className={classeItem(["/dashboardadmveiculos", "/dashboardadmmarcas", "/cadastrov", "/editarveiculos", "/detalhesveiculos"])}
                     onClick={() => navegar("/dashboardAdmVeiculos")}
                 >
                     <img src="/ImgNavBar/Veículo.png" alt="Veiculos" className={css.icone_img} />

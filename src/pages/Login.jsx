@@ -44,8 +44,9 @@ function Login({ API }) {
             tipo_usuario: tipoUsuario
         }))
 
-        if (dados.token) {
-            localStorage.setItem("access_token", dados.token)
+        const token = dados.token || dados.access_token
+        if (token) {
+            localStorage.setItem("access_token", token)
         }
 
         if (tipoUsuario === 2) {

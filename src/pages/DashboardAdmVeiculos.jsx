@@ -133,9 +133,7 @@ function DashboardAdmVeiculos({ API }) {
         if (statusFormatado === "Em estoque") {
             return (
                 <>
-                    Em
-                    <br />
-                    estoque
+                    Em estoque
                 </>
             );
         }
@@ -162,6 +160,12 @@ function DashboardAdmVeiculos({ API }) {
                             onClick={() => navigate("/CadastroServicos")}
                         >
                             Cadastrar Serviço
+                        </button>
+                        <button
+                            className={css.btn_add}
+                            onClick={() => navigate("/dashboardAdmMarcas")}
+                        >
+                            Gerenciar Marcas
                         </button>
                         <button
                             className={css.btn_add}
@@ -278,6 +282,14 @@ function DashboardAdmVeiculos({ API }) {
                                         >
                                             Excluir
                                         </button>
+                                        <button
+                                            type="button"
+                                            className={css.btn_detalhes}
+                                            onClick={() => navigate(`/detalhesVeiculos/${carro.id}`)}
+                                        >
+                                            Detalhes
+                                        </button>
+
                                     </div>
                                 </td>
                             </tr>

@@ -24,6 +24,8 @@
     display: flex;
     gap: 12px;
     align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
 }
 
 .titulo_boas_vindas {
@@ -127,6 +129,12 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     padding: 0 20px;
+}
+.btn_detalhes{
+    background-color: #000;
+    color: #fff;
+    border: none;
+    border-radius: 5px;;
 }
 
 .icone_busca {
@@ -292,7 +300,7 @@
     background-color: #000000;
     color: #ffffff;
     border: none;
-    width: 180px;
+    width: 170px;
     height: 50px;
     border-radius: 8px;
     font-weight: bold;
@@ -343,6 +351,7 @@
 
     .botoes_cabecalho {
         width: 100%;
+        justify-content: flex-start;
     }
 
     .titulo_boas_vindas {

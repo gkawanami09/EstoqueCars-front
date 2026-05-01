@@ -92,8 +92,8 @@ function DashboardAdmClientes({ API }) {
             id_usuario: cliente.id_usuario,
             nome: cliente.nome || "",
             email: cliente.email || "",
-            telefone: cliente.telefone || "",
-            cpf: cliente.cpf || "",
+            telefone: mascararTelefone(cliente.telefone),
+            cpf: mascararCpf(cliente.cpf),
             senha: ""
         });
         setMensagem(null);
@@ -296,28 +296,52 @@ function DashboardAdmClientes({ API }) {
         }
     }
 
+    function somenteNumeros(valor, limite) {
+        return String(valor || "").replace(/\D/g, "").slice(0, limite);
+    }
+
+    function mascararTelefone(valor) {
+        const numeros = somenteNumeros(valor, 11);
+
+        if (numeros.length <= 2) {
+            return numeros ? `(${numeros}` : "";
+        }
+
+        if (numeros.length <= 6) {
+            return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+        }
+
+        if (numeros.length <= 10) {
+            return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`;
+        }
+
+        return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+    }
+
+    function mascararCpf(valor) {
+        const numeros = somenteNumeros(valor, 11);
+
+        if (numeros.length <= 3) {
+            return numeros;
+        }
+
+        if (numeros.length <= 6) {
+            return `${numeros.slice(0, 3)}.${numeros.slice(3)}`;
+        }
+
+        if (numeros.length <= 9) {
+            return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6)}`;
+        }
+
+        return `${numeros.slice(0, 3)}.${numeros.slice(3, 6)}.${numeros.slice(6, 9)}-${numeros.slice(9)}`;
+    }
+
     function formatarTelefone(valor) {
-        const numeros = String(valor || "").replace(/\D/g, "");
-
-        if (numeros.length === 11) {
-            return numeros.replace(/(\d{2})(\d{5})(\d{4})/, "($1) $2-$3");
-        }
-
-        if (numeros.length === 10) {
-            return numeros.replace(/(\d{2})(\d{4})(\d{4})/, "($1) $2-$3");
-        }
-
-        return valor || "-";
+        return mascararTelefone(valor) || "-";
     }
 
     function formatarCpf(valor) {
-        const numeros = String(valor || "").replace(/\D/g, "");
-
-        if (numeros.length === 11) {
-            return numeros.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, "$1.$2.$3-$4");
-        }
-
-        return valor || "-";
+        return mascararCpf(valor) || "-";
     }
 
     function textoSituacao(cliente) {
@@ -435,7 +459,7 @@ function DashboardAdmClientes({ API }) {
                             <div className={css.acoes}>
                                 <button type="button" className={css.btn_editar} onClick={() => abrirEdicao(cliente)}>
                                     <img src="/Editar.png" alt="Editar o perfil" />
-                                   
+                                    Editar
                                 </button>
                                 <button type="button" className={css.btn_bloquear} onClick={() => abrirConfirmacaoBloqueio(cliente, true)}>
                                     Bloquear
@@ -486,7 +510,9 @@ function DashboardAdmClientes({ API }) {
                                     <input
                                         type="tel"
                                         value={formulario.telefone}
-                                        onChange={(e) => atualizarCampo("telefone", e.target.value)}
+                                        onChange={(e) => atualizarCampo("telefone", mascararTelefone(e.target.value))}
+                                        inputMode="numeric"
+                                        maxLength="15"
                                         required
                                     />
                                 </label>
@@ -496,7 +522,9 @@ function DashboardAdmClientes({ API }) {
                                     <input
                                         type="text"
                                         value={formulario.cpf}
-                                        onChange={(e) => atualizarCampo("cpf", e.target.value)}
+                                        onChange={(e) => atualizarCampo("cpf", mascararCpf(e.target.value))}
+                                        inputMode="numeric"
+                                        maxLength="14"
                                         required
                                     />
                                 </label>

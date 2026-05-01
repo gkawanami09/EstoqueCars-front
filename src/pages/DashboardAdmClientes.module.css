@@ -135,6 +135,7 @@
     font-size: 1.1rem;
     font-weight: 900;
     line-height: 1.2;
+    min-height: 42px;
 }
 
 .card_info_principal p {
@@ -147,14 +148,15 @@
 
 .dados_cliente {
     display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
 }
 
 .dados_cliente div {
+    min-width: 0;
     border-radius: 8px;
     background: #f7f7f7;
-    padding: 10px;
+    padding: 10px 8px;
 }
 
 .dados_cliente span {
@@ -167,22 +169,22 @@
 }
 
 .dados_cliente strong {
+    display: block;
     color: #111;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 800;
-    overflow-wrap: anywhere;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .telefone_valor {
-    display: inline-block;
     white-space: nowrap;
-    letter-spacing: 0.2px;
+    letter-spacing: 0;
 }
 
 .cpf_valor {
-    display: inline-block;
     white-space: nowrap;
-    letter-spacing: 0.2px;
+    letter-spacing: 0;
 }
 
 .status {
@@ -208,7 +210,7 @@
 
 .acoes {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
     margin-top: auto !important;
 }
@@ -223,10 +225,26 @@
     font-weight: 800;
     cursor: pointer;
     min-height: 36px;
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    line-height: 1.1;
+    text-align: center;
+    white-space: nowrap;
 }
 
 .btn_editar {
-    background: white;
+    color: #222;
+    background: #f2f2f2;
+}
+
+.acoes img {
+    width: 15px;
+    height: 15px;
+    object-fit: contain;
+    flex-shrink: 0;
 }
 
 .btn_bloquear {
@@ -249,9 +267,11 @@
     align-items: center;
     justify-content: space-between;
     gap: 12px;
+    
     border-radius: 12px;
     padding: 13px 14px;
-    margin-bottom: 18px;
+    margin-bottom: 18px !important;
+    margin-top: 10px !important;
     border: 1px solid transparent;
     font-size: 14px;
     font-weight: 700;
@@ -292,7 +312,7 @@
 }
 
 .mensagem_texto span {
-    margin-top: 2px;
+    margin-top: 2px !important;
     font-size: 13px;
     font-weight: 600;
     overflow-wrap: anywhere;
@@ -327,6 +347,10 @@
     background: #ecfdf3;
     border-color: #bbf7d0;
     border-left-color: #16a34a;
+}
+
+.mensagem_sucesso .mensagem_texto span {
+    color: #15803d;
 }
 
 .mensagem_sucesso .mensagem_icone {
@@ -425,7 +449,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 12px;
-    margin-top: 24px;
+    margin-top: 24px !important;
 }
 
 .btn_cancelar {
@@ -457,57 +481,68 @@
 }
 
 .confirm_box {
-    width: min(560px, 100%);
-    border-radius: 20px;
-    padding: 22px 20px 18px;
-    background: linear-gradient(180deg, #2a2b2e 0%, #1f2024 100%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+    width: min(420px, 100%);
+    border-radius: 12px;
+    padding: 24px;
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.26);
     color: #fff;
 }
 
 .confirm_box h3 {
     margin: 0;
-    font-size: 32px;
-    font-weight: 700;
+    color: #111;
+    font-size: 1.35rem;
+    font-weight: 900;
     line-height: 1.1;
 }
 
 .confirm_box p {
-    margin: 18px 0 30px;
-    font-size: 30px;
-    line-height: 1.2;
-    color: rgba(255, 255, 255, 0.95);
-    font-weight: 500;
+    margin: 10px 0 22px;
+    color: #555;
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 700;
+    overflow-wrap: anywhere;
 }
 
 .confirm_botoes {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
+    margin-top: 20px !important;
 }
 
 .confirm_ok,
 .confirm_cancel {
-    min-width: 74px;
-    height: 44px;
-    border-radius: 12px;
-    border: 1px solid rgba(255, 255, 255, 0.35);
+    min-width: 104px;
+    height: 42px;
+    border-radius: 7px;
+    border: none;
     padding: 0 18px;
-    font-size: 30px;
+    font-size: 14px;
+    font-weight: 900;
     line-height: 1;
     cursor: pointer;
 }
 
 .confirm_ok {
-    background: #f3f4f6;
-    color: #18181b;
-    border-color: #f3f4f6;
+    background: #111;
+    color: #fff;
 }
 
 .confirm_cancel {
-    background: rgba(255, 255, 255, 0.08);
-    color: #fff;
+    background: #f2f2f2;
+    color: #222;
+}
+
+.confirm_ok:hover {
+    background: #2a2a2a;
+}
+
+.confirm_cancel:hover {
+    background: #e8e8e8;
 }
 
 @media (max-width: 900px) {
@@ -551,6 +586,10 @@
         grid-template-columns: 1fr;
     }
 
+    .acoes {
+        grid-template-columns: 1fr;
+    }
+
     .form_grid {
         grid-template-columns: 1fr;
     }
@@ -565,17 +604,18 @@
     }
 
     .confirm_box h3 {
-        font-size: 26px;
+        font-size: 1.2rem;
     }
 
     .confirm_box p {
-        font-size: 22px;
+        font-size: 14px;
     }
 
     .confirm_ok,
     .confirm_cancel {
-        font-size: 24px;
-        min-width: 68px;
+        font-size: 13px;
+        min-width: 0;
         height: 40px;
+        flex: 1;
     }
 }
