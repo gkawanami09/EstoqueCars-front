@@ -97,6 +97,24 @@ function cabecalhoAutorizacao() {
     return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
+function limparPlaca(valor) {
+    return String(valor || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase().slice(0, 7);
+}
+
+function mascararPlaca(valor) {
+    const placa = limparPlaca(valor);
+
+    if (/^[A-Z]{3}[0-9]{4}$/.test(placa)) {
+        return `${placa.slice(0, 3)}-${placa.slice(3)}`;
+    }
+
+    return placa;
+}
+
+function limparRenavam(valor) {
+    return String(valor || "").replace(/\D/g, "").slice(0, 11);
+}
+
 function CadastroVeiculo({ API }) {
     const [formulario, setFormulario] = useState(formularioInicial);
     const [categorias, setCategorias] = useState([]);
@@ -199,8 +217,8 @@ function CadastroVeiculo({ API }) {
                 estado_conservacao: normalizarEstadoConservacao(carro.estado_conservacao),
                 status_documento: normalizarStatusDocumento(carro.status_documento),
                 status_estoque: normalizarStatusEstoque(carro.status_estoque),
-                placa: carro.placa || "",
-                renavam: carro.renavam || ""
+                placa: mascararPlaca(carro.placa),
+                renavam: limparRenavam(carro.renavam)
             });
             setPreviewAtual(carro.imagem ? `${API}${carro.imagem}` : "");
         } catch {
@@ -244,6 +262,16 @@ function CadastroVeiculo({ API }) {
                 return;
             }
 
+            if (campo === "placa") {
+                formData.append(campo, limparPlaca(valor));
+                return;
+            }
+
+            if (campo === "renavam") {
+                formData.append(campo, limparRenavam(valor));
+                return;
+            }
+
             formData.append(campo, valor);
         });
 
@@ -283,6 +311,14 @@ function CadastroVeiculo({ API }) {
             setMensagem({
                 tipo: "erro",
                 texto: "O RENAVAM deve conter exatamente 11 digitos."
+            });
+            return;
+        }
+
+        if (limparPlaca(formulario.placa).length !== 7) {
+            setMensagem({
+                tipo: "erro",
+                texto: "A placa deve conter exatamente 7 caracteres."
             });
             return;
         }
@@ -378,14 +414,16 @@ function CadastroVeiculo({ API }) {
                             <Input
                                 label="Placa"
                                 value={formulario.placa}
-                                onChange={(e) => atualizarCampo("placa", e.target.value.toUpperCase())}
+                                onChange={(e) => atualizarCampo("placa", mascararPlaca(e.target.value))}
+                                maxLength={8}
                                 required={true}
                             />
 
                             <Input
                                 label="Renavam"
                                 value={formulario.renavam}
-                                onChange={(e) => atualizarCampo("renavam", e.target.value.replace(/\D/g, "").slice(0, 11))}
+                                onChange={(e) => atualizarCampo("renavam", limparRenavam(e.target.value))}
+                                maxLength={11}
                                 inputMode="numeric"
                                 required={true}
                             />

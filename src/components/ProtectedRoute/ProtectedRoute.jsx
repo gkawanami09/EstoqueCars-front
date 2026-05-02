@@ -11,7 +11,6 @@ const rotasAdm = [
     "/dashboardadmmarcas",
     "/cadastrov",
     "/editarveiculos",
-    "/detalhesveiculos",
     "/cadastroservicos",
     "/edicaoservicos",
     "/manutencoes",
@@ -28,7 +27,7 @@ const rotasUsuario = [
 
 function ProtectedRoute() {
     const [menuAberto, setMenuAberto] = useState(false);
-    const usuarioSalvo = localStorage.getItem("usuario_logado");
+    const usuarioSalvo = localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado");
     const location = useLocation();
 
     if (!usuarioSalvo) {
@@ -36,7 +35,7 @@ function ProtectedRoute() {
     }
 
     const usuario = JSON.parse(usuarioSalvo);
-    const tipoUsuario = Number(usuario.tipo_usuario);
+    const tipoUsuario = Number(usuario.tipo_usuario || usuario["tipo_usuário"]);
     const isAdm = tipoUsuario === 2;
     const rotaAtual = location.pathname.toLowerCase();
     const rotaAdm = rotasAdm.some((rota) => rotaAtual.startsWith(rota));

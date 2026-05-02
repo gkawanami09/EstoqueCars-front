@@ -9,6 +9,17 @@ function Login({ API }) {
     const [erro, setErro] = useState("")
     const navigate = useNavigate()
 
+    function pegarTipoUsuario(dados) {
+        return Number(
+            dados.tipo_usuario ??
+            dados["tipo_usuario"] ??
+            dados.tipoUsuario ??
+            dados.TIPO_USUARIO ??
+            dados.tipo ??
+            1
+        )
+    }
+
     // Valida o login na API e salva os dados do usuario no localStorage.
     async function entrar(e) {
         e.preventDefault()
@@ -38,8 +49,9 @@ function Login({ API }) {
         const nome =
             dados.nome ||
             nomePadrao
-        const tipoUsuario = Number(dados.tipo_usuario)
+        const tipoUsuario = pegarTipoUsuario(dados)
 
+        localStorage.removeItem("usuário_logado")
         localStorage.setItem("usuario_logado", JSON.stringify({
             id_usuario: dados.id_usuario || dados.id_user || dados.id,
             nome,

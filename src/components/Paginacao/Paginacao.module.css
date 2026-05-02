@@ -1,0 +1,54 @@
+.paginacao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 18px !important;
+    flex-wrap: wrap;
+}
+
+.paginacao button {
+    min-width: 110px;
+    height: 40px;
+    border: 1px solid #d7d7d7;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #222222;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.paginacao button:hover:not(:disabled) {
+    background: #000000;
+    border-color: #000000;
+    color: #ffffff;
+}
+
+.paginacao button:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.paginacao span {
+    color: #444444;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+@media (max-width: 480px) {
+    .paginacao {
+        gap: 8px;
+    }
+
+    .paginacao button {
+        flex: 1 1 120px;
+    }
+
+    .paginacao span {
+        width: 100%;
+        text-align: center;
+        order: -1;
+    }
+}
