@@ -112,6 +112,7 @@ function CadastroVeiculo({ API }) {
         }));
     }
 
+    // Carrega as categorias para preencher o select do formulario.
     const buscarCategorias = useCallback(async () => {
         try {
             const resposta = await fetch(`${API}/buscar_categoria`, {
@@ -128,6 +129,7 @@ function CadastroVeiculo({ API }) {
         }
     }, [API]);
 
+    // Carrega as marcas cadastradas para vincular ao veiculo.
     const buscarMarcas = useCallback(async () => {
         try {
             const resposta = await fetch(`${API}/buscar_marca`, {
@@ -145,6 +147,7 @@ function CadastroVeiculo({ API }) {
         }
     }, [API]);
 
+    // Quando esta editando, busca o veiculo pelo id da rota e preenche o formulario.
     const carregarCarro = useCallback(async () => {
         setCarregando(true);
         setMensagem(null);
@@ -218,6 +221,7 @@ function CadastroVeiculo({ API }) {
         setFoto(arquivo || null);
     }
 
+    // Monta o FormData porque o cadastro tambem envia imagem do veiculo.
     function montarFormData() {
         const formData = new FormData();
 
@@ -242,6 +246,7 @@ function CadastroVeiculo({ API }) {
         return formData;
     }
 
+    // Decide entre cadastrar ou editar e envia os dados para a API.
     async function salvar(e) {
         e.preventDefault();
         setMensagem(null);

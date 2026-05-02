@@ -13,7 +13,6 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-bottom: 100px !important;
 }
 
 .cabecalho_destaque {
@@ -107,7 +106,7 @@
 
 .secao_filtros {
     text-align: center;
-    margin-bottom: 60px !important;
+    
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -116,7 +115,7 @@
 .titulo_explore {
     font-size: 2.2rem;
     font-weight: 900;
-    margin-bottom: 30px !important;
+    
     margin-left: 0 !important;
 }
 

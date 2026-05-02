@@ -1,63 +1,86 @@
-import { useEffect, useMemo, useState } from "react";
+// Importa hooks usados para estado, filtro, efeito e funcao estavel.
+import { useCallback, useEffect, useMemo, useState } from "react";
+// Importa o CSS module da tela.
 import css from "./DashboardAdmMarcas.module.css";
 
+// Tela administrativa de marcas.
 function DashboardAdmMarcas({ API }) {
+    // Lista de marcas vindas da API.
     const [marcas, setMarcas] = useState([]);
+    // Texto digitado no campo de busca.
     const [busca, setBusca] = useState("");
+    // Nome digitado no formulario.
     const [nomeMarca, setNomeMarca] = useState("");
+    // Marca que esta sendo editada.
     const [marcaEditando, setMarcaEditando] = useState(null);
+    // Carregamento da lista.
     const [carregando, setCarregando] = useState(true);
+    // Carregamento do botao salvar.
     const [salvando, setSalvando] = useState(false);
+    // Mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
+    // Dados do modal de confirmacao.
     const [confirmacao, setConfirmacao] = useState({
         aberta: false,
         marca: null
     });
 
-    useEffect(() => {
-        carregarMarcas();
-    }, []);
-
+    // Monta o header Authorization quando existe token.
     function cabecalhoAutorizacao() {
+        // Busca token salvo depois do login.
         const token = localStorage.getItem("access_token");
+        // Se existir, retorna Bearer; se nao, nao envia header.
         return token ? { Authorization: `Bearer ${token}` } : undefined;
     }
 
+    // Pega o id da marca aceitando varios nomes possiveis da API.
     function idMarca(marca) {
         return marca?.id_marca || marca?.ID_MARCA || marca?.id || marca?.ID;
     }
 
+    // Pega o nome da marca aceitando varios nomes possiveis da API.
     function textoMarca(marca) {
         return marca?.marca || marca?.MARCA || marca?.nome || marca?.NOME || "";
     }
 
+    // Le resposta que pode vir vazia ou em JSON.
     async function lerResposta(resposta) {
+        // Le primeiro como texto para evitar erro com corpo vazio.
         const texto = await resposta.text();
 
+        // Se nao veio nada, retorna objeto vazio.
         if (!texto) {
             return {};
         }
 
         try {
+            // Tenta transformar em JSON.
             return JSON.parse(texto);
         } catch {
+            // Se nao for JSON valido, retorna objeto vazio.
             return {};
         }
     }
 
-    async function carregarMarcas({ limparMensagem = true } = {}) {
+    // Lista as marcas cadastradas usando a rota de busca da API.
+    const carregarMarcas = useCallback(async ({ limparMensagem = true } = {}) => {
+        // Liga o carregamento da lista.
         setCarregando(true);
+        // Limpa mensagem antiga quando precisa.
         if (limparMensagem) {
             setMensagem(null);
         }
 
         try {
+            // Chama a API de buscar/listar marcas.
             const resposta = await fetch(`${API}/buscar_marca`, {
                 method: "POST",
                 credentials: "include"
             });
+            // Le a resposta com seguranca.
             const dados = await lerResposta(resposta);
 
+            // Se a API retornou erro, mostra mensagem.
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
@@ -66,47 +89,68 @@ function DashboardAdmMarcas({ API }) {
                 return false;
             }
 
+            // Aceita a lista em formatos diferentes.
             const lista = dados.marca || dados.marcas || dados;
+            // Salva lista valida ou lista vazia.
             setMarcas(Array.isArray(lista) ? lista : []);
+            // Indica que carregou com sucesso.
             return true;
         } catch {
+            // Mostra erro de conexao.
             setMensagem({
                 tipo: "erro",
                 texto: "Nao foi possivel conectar ao servidor."
             });
             return false;
         } finally {
+            // Desliga carregamento da lista.
             setCarregando(false);
         }
-    }
+    }, [API]);
 
+    // Carrega as marcas quando a tela abre.
+    useEffect(() => {
+        carregarMarcas();
+    }, [carregarMarcas]);
+
+    // Filtra marcas no front pelo nome digitado no campo de busca.
     const marcasFiltradas = useMemo(() => {
+        // Normaliza o termo pesquisado.
         const termo = busca.trim().toLowerCase();
 
+        // Sem busca, retorna todas as marcas.
         if (!termo) {
             return marcas;
         }
 
+        // Retorna apenas marcas que contem o termo.
         return marcas.filter((marca) => textoMarca(marca).toLowerCase().includes(termo));
     }, [busca, marcas]);
 
+    // Limpa o formulario e sai do modo de edicao.
     function limparFormulario() {
         setNomeMarca("");
         setMarcaEditando(null);
         setSalvando(false);
     }
 
+    // Coloca a marca escolhida no formulario para editar.
     function editarMarca(marca) {
         setMarcaEditando(marca);
         setNomeMarca(textoMarca(marca));
         setMensagem(null);
     }
 
+    // Cadastra uma nova marca ou atualiza a marca que esta em edicao.
     async function salvarMarca(e) {
+        // Evita refresh da pagina.
         e.preventDefault();
+        // Limpa mensagem antiga.
         setMensagem(null);
 
+        // Remove espacos extras do nome.
         const nome = nomeMarca.trim();
+        // Valida campo obrigatorio.
         if (!nome) {
             setMensagem({
                 tipo: "erro",
@@ -115,53 +159,71 @@ function DashboardAdmMarcas({ API }) {
             return;
         }
 
+        // Usa FormData porque o backend Flask le request.form.
         const formData = new FormData();
+        // Campo principal para cadastro.
         formData.append("marca", nome);
+        // Campo extra para compatibilidade.
         formData.append("nome", nome);
+        // Campo usado em algumas rotas de edicao.
         formData.append("nova_marca", nome);
 
+        // Define se esta editando.
         const editando = Boolean(marcaEditando);
+        // Pega o id da marca se estiver editando.
         const id = idMarca(marcaEditando);
+        // Monta a URL correta.
         const url = editando ? `${API}/editar_marca/${id}` : `${API}/cadastrar_marca`;
 
+        // Liga carregamento do botao.
         setSalvando(true);
 
         try {
+            // Envia POST para cadastrar ou PUT para editar.
             const resposta = await fetch(url, {
                 method: editando ? "PUT" : "POST",
                 headers: cabecalhoAutorizacao(),
                 credentials: "include",
                 body: formData
             });
+            // Le a resposta.
             const dados = await lerResposta(resposta);
 
+            // Se a API recusou, mostra erro.
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || dados.mensagem || `Não foi possivel ${editando ? "editar" : "cadastrar"} a marca.`
+                    texto: dados.erro || dados.mensagem || `Nao foi possivel ${editando ? "editar" : "cadastrar"} a marca.`
                 });
                 return;
             }
 
+            // Monta a mensagem de sucesso.
             const mensagemSucesso = {
                 tipo: "sucesso",
                 texto: dados.mensagem || `Marca ${editando ? "editada" : "cadastrada"} com sucesso.`
             };
+            // Limpa o formulario.
             limparFormulario();
+            // Recarrega a lista sem apagar a mensagem.
             const recarregou = await carregarMarcas({ limparMensagem: false });
+            // Mostra sucesso somente se a lista recarregou.
             if (recarregou) {
                 setMensagem(mensagemSucesso);
             }
         } catch {
+            // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Não foi possivel conectar ao servidor."
+                texto: "Nao foi possivel conectar ao servidor."
             });
         } finally {
+            // Desliga carregamento do botao.
             setSalvando(false);
         }
     }
 
+    // Abre o modal de confirmacao.
     function abrirConfirmacaoExclusao(marca) {
         setConfirmacao({
             aberta: true,
@@ -169,6 +231,7 @@ function DashboardAdmMarcas({ API }) {
         });
     }
 
+    // Fecha o modal de confirmacao.
     function fecharConfirmacao() {
         setConfirmacao({
             aberta: false,
@@ -176,24 +239,32 @@ function DashboardAdmMarcas({ API }) {
         });
     }
 
+    // Solicita a exclusao; a API deve impedir se houver veiculos vinculados.
     async function excluirMarca() {
+        // Pega a marca que esta no modal.
         const marca = confirmacao.marca;
 
+        // Sem marca nao tem o que excluir.
         if (!marca) {
             return;
         }
 
+        // Limpa mensagem antiga.
         setMensagem(null);
+        // Fecha o modal antes de chamar a API.
         fecharConfirmacao();
 
         try {
+            // Chama a rota DELETE da API.
             const resposta = await fetch(`${API}/deletar_marca/${idMarca(marca)}`, {
                 method: "DELETE",
                 headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
+            // Le a resposta.
             const dados = await lerResposta(resposta);
 
+            // Mostra erro se a API bloquear por veiculo vinculado.
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
@@ -202,12 +273,15 @@ function DashboardAdmMarcas({ API }) {
                 return;
             }
 
+            // Remove a marca da lista da tela.
             setMarcas((listaAtual) => listaAtual.filter((item) => idMarca(item) !== idMarca(marca)));
+            // Mostra sucesso.
             setMensagem({
                 tipo: "sucesso",
                 texto: dados.mensagem || "Marca excluida com sucesso."
             });
         } catch {
+            // Erro de conexao.
             setMensagem({
                 tipo: "erro",
                 texto: "Nao foi possivel conectar ao servidor."
@@ -215,15 +289,19 @@ function DashboardAdmMarcas({ API }) {
         }
     }
 
+    // Renderiza a pagina.
     return (
+        // Container principal.
         <main className={css.container}>
+            {/* Cabecalho da pagina. */}
             <header className={css.cabecalho}>
                 <div>
                     <h1>Marcas</h1>
-                    <p>Cadastre, edite e remova as marcas usadas nos veículos.</p>
+                    <p>Cadastre, edite e remova as marcas usadas nos veiculos.</p>
                 </div>
             </header>
 
+            {/* Mensagem de sucesso ou erro. */}
             {mensagem && (
                 <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
                     <div>
@@ -236,6 +314,7 @@ function DashboardAdmMarcas({ API }) {
                 </div>
             )}
 
+            {/* Painel do formulario de marca. */}
             <section className={css.painel}>
                 <form className={css.formulario} onSubmit={salvarMarca}>
                     <label>
@@ -250,6 +329,7 @@ function DashboardAdmMarcas({ API }) {
                         />
                     </label>
 
+                    {/* Botoes do formulario. */}
                     <div className={css.botoes_form}>
                         {marcaEditando && (
                             <button type="button" className={css.cancelar} onClick={limparFormulario}>
@@ -263,6 +343,7 @@ function DashboardAdmMarcas({ API }) {
                 </form>
             </section>
 
+            {/* Area da lista de marcas. */}
             <section className={css.lista_area}>
                 <div className={css.lista_topo}>
                     <h2>Marcas cadastradas</h2>
@@ -277,12 +358,15 @@ function DashboardAdmMarcas({ API }) {
                     </div>
                 </div>
 
+                {/* Estado de carregamento. */}
                 {carregando && <div className={css.estado}>Carregando marcas...</div>}
 
+                {/* Estado vazio. */}
                 {!carregando && marcasFiltradas.length === 0 && (
                     <div className={css.estado}>Nenhuma marca encontrada</div>
                 )}
 
+                {/* Lista de marcas filtradas. */}
                 {!carregando && marcasFiltradas.length > 0 && (
                     <div className={css.tabela}>
                         {marcasFiltradas.map((marca) => (
@@ -305,6 +389,7 @@ function DashboardAdmMarcas({ API }) {
                 )}
             </section>
 
+            {/* Modal de confirmacao de exclusao. */}
             {confirmacao.aberta && (
                 <div className={css.alert_overlay}>
                     <div className={css.alert_box} role="dialog" aria-modal="true" aria-labelledby="titulo-alerta-marca">
@@ -330,4 +415,5 @@ function DashboardAdmMarcas({ API }) {
     );
 }
 
+// Exporta a tela para as rotas.
 export default DashboardAdmMarcas;

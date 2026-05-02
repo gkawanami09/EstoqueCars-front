@@ -11,6 +11,7 @@ function ConfirmarEmail({ API }) {
     const [erro, setErro] = useState("")
     const [sucesso, setSucesso] = useState("")
 
+    // Confirma o codigo recebido por email antes de liberar a conta.
     async function verificarCodigo(e) {
         e.preventDefault();
         setErro("");
@@ -23,6 +24,7 @@ function ConfirmarEmail({ API }) {
             return;
         }
 
+        // Envia email e codigo para a rota de confirmacao da API.
         const retorno = await fetch(`${API}/confirmar_email`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

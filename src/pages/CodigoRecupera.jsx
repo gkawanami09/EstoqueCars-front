@@ -14,6 +14,7 @@ function CodigoRecupera({ API }) {
     const [erro, setErro] = useState("");
     const [sucesso, setSucesso] = useState("");
 
+    // Solicita para a API enviar o codigo de recuperacao ao email informado.
     async function enviarCodigo(e) {
         e.preventDefault();
         setErro("");
@@ -46,6 +47,7 @@ function CodigoRecupera({ API }) {
         setEtapa(2);
     }
 
+    // Confere se o codigo digitado pertence ao email informado.
     async function validarCodigo(e) {
         e.preventDefault();
         setErro("");
@@ -84,6 +86,7 @@ function CodigoRecupera({ API }) {
         setSucesso(dados.mensagem || "Código válido! Agora defina sua nova senha.");
     }
 
+    // Envia a nova senha para finalizar a recuperacao.
     async function redefinirSenha(e) {
         e.preventDefault();
         setErro("");

@@ -134,7 +134,8 @@
     font-weight: 900;
 }
 
-.ficha {
+.ficha,
+.manutencoes {
     width: min(1180px, 100%);
     margin: 0 auto !important;
     border-radius: 12px;
@@ -142,6 +143,10 @@
     border: 1px solid #e5e5e5;
     box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
     overflow: hidden;
+}
+
+.manutencoes {
+    margin-top: 16px !important;
 }
 
 .ficha_cabecalho {
@@ -205,6 +210,88 @@
     overflow-wrap: anywhere;
 }
 
+.estado_manutencao {
+    padding: 22px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.lista_manutencoes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    padding: 18px;
+}
+
+.card_manutencao {
+    border: 1px solid #ededed;
+    border-radius: 10px;
+    background: #fff;
+    overflow: hidden;
+}
+
+.manutencao_topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 16px;
+    border-bottom: 1px solid #ededed;
+}
+
+.manutencao_topo strong {
+    display: block;
+    color: #111;
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.manutencao_topo span {
+    display: block;
+    color: #666;
+    font-size: 13px;
+    font-weight: 700;
+    margin-top: 5px !important;
+}
+
+.valor_manutencao {
+    color: #f25555 !important;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.servicos_manutencao {
+    display: flex;
+    flex-direction: column;
+}
+
+.servico_item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.servico_item:last-child {
+    border-bottom: none;
+}
+
+.servico_item span {
+    color: #111;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.servico_item small {
+    color: #666;
+    font-size: 12px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
 .estado,
 .estado_erro {
     border-radius: 12px;
@@ -247,6 +334,10 @@
 
     .grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .lista_manutencoes {
+        grid-template-columns: 1fr;
     }
 
     .info:nth-child(4n) {
@@ -311,5 +402,17 @@
 
     .info:last-child {
         border-bottom: none;
+    }
+
+    .manutencao_topo,
+    .servico_item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .valor_manutencao,
+    .servico_item small {
+        text-align: left;
+        white-space: normal;
     }
 }

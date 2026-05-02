@@ -1,7 +1,11 @@
+// Importa hooks usados para estado e dados iniciais.
 import { useMemo, useState } from "react";
+// Importa input com mascara para telefone e CPF.
 import { IMaskInput } from "react-imask";
+// Importa CSS module desta tela.
 import css from "./MinhaConta.module.css";
 
+// Usuario vazio usado quando nao existe usuario salvo.
 const usuarioVazio = {
     id_usuario: "",
     nome: "",
@@ -11,50 +15,69 @@ const usuarioVazio = {
     tipo_usuario: ""
 };
 
+// Le o usuario salvo no localStorage depois do login.
 function lerUsuarioLogado() {
     try {
+        // Tenta converter o JSON salvo no navegador.
         return JSON.parse(localStorage.getItem("usuario_logado")) || usuarioVazio;
     } catch {
+        // Se der erro no JSON, usa usuario vazio.
         return usuarioVazio;
     }
 }
 
+// Tenta pegar o ID do usuario dentro do token JWT.
 function idPeloToken() {
+    // Busca token salvo no navegador.
     const token = localStorage.getItem("access_token");
 
+    // Token JWT precisa ter pontos.
     if (!token || !token.includes(".")) {
         return "";
     }
 
     try {
+        // Decodifica a parte do payload do JWT.
         const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+        // Aceita varios nomes possiveis para o id.
         return payload.id_user || payload.id_usuario || payload.id || "";
     } catch {
+        // Se nao conseguir ler, retorna vazio.
         return "";
     }
 }
 
+// Monta a URL da foto quando a API retorna caminho ou nome de arquivo.
 function montarUrlFoto(API, valor) {
+    // Sem valor, nao tem foto.
     if (!valor) {
         return "";
     }
 
+    // Se ja veio URL completa, usa direto.
     if (String(valor).startsWith("http")) {
         return valor;
     }
 
+    // Se veio caminho com barra, coloca a URL da API antes.
     if (String(valor).startsWith("/")) {
         return `${API}${valor}`;
     }
 
+    // Se veio so o nome do arquivo, aponta para uploads.
     return `${API}/uploads/${valor}`;
 }
 
+// Tela Minha Conta do usuario.
 function MinhaConta({ API }) {
+    // Le usuario inicial apenas uma vez.
     const usuarioInicial = useMemo(() => lerUsuarioLogado(), []);
+    // Guarda os dados base do usuario.
     const [usuarioBase, setUsuarioBase] = useState(usuarioInicial);
+    // Descobre o ID pelo usuario salvo ou pelo token.
     const idUsuario = usuarioBase.id_usuario || usuarioBase.id_user || usuarioBase.id || idPeloToken();
 
+    // Guarda os campos editaveis do formulario.
     const [formulario, setFormulario] = useState({
         nome: usuarioBase.nome || "",
         email: usuarioBase.email || "",
@@ -62,13 +85,20 @@ function MinhaConta({ API }) {
         cpf: usuarioBase.cpf || "",
         senha: ""
     });
+    // Guarda o arquivo de foto escolhido.
     const [foto, setFoto] = useState(null);
+    // Guarda a URL temporaria para pre-visualizar a foto.
     const [previewFoto, setPreviewFoto] = useState("");
+    // Guarda mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
+    // Controla carregamento do botao salvar.
     const [salvando, setSalvando] = useState(false);
+    // Muda a URL da foto para forcar o navegador a recarregar.
     const [versaoFoto, setVersaoFoto] = useState(Date.now());
+    // Controla qual extensao de foto esta sendo tentada.
     const [tentativaFoto, setTentativaFoto] = useState(0);
 
+    // Lista de caminhos possiveis para a foto de perfil.
     const fotosPossiveis = [
         montarUrlFoto(API, usuarioBase.foto_perfil || usuarioBase.foto || usuarioBase.imagem),
         idUsuario ? `${API}/uploads/foto_perfil${idUsuario}.pgn` : "",
@@ -79,21 +109,29 @@ function MinhaConta({ API }) {
         idUsuario ? `${API}/uploads/${idUsuario}.png` : "",
     ].filter(Boolean);
 
+    // Escolhe a foto atual ou usa o icone padrao.
     const fotoPerfil = fotosPossiveis[tentativaFoto]
         ? `${fotosPossiveis[tentativaFoto]}?v=${versaoFoto}`
         : "/IconPerfil.png";
 
+    // Atualiza um campo do formulario.
     function atualizarCampo(campo, valor) {
         setFormulario((atual) => ({ ...atual, [campo]: valor }));
     }
 
+    // Guarda a foto escolhida pelo usuario.
     function selecionarFoto(e) {
+        // Pega o primeiro arquivo escolhido.
         const arquivo = e.target.files?.[0];
+        // Guarda arquivo para enviar no FormData.
         setFoto(arquivo || null);
+        // Cria preview local da imagem.
         setPreviewFoto(arquivo ? URL.createObjectURL(arquivo) : "");
+        // Reinicia tentativa de carregamento.
         setTentativaFoto(0);
     }
 
+    // Volta os campos para o valor salvo.
     function limparFormulario() {
         setFormulario({
             nome: usuarioBase.nome || "",
@@ -102,12 +140,17 @@ function MinhaConta({ API }) {
             cpf: usuarioBase.cpf || "",
             senha: ""
         });
+        // Remove foto escolhida.
         setFoto(null);
+        // Remove preview.
         setPreviewFoto("");
+        // Limpa mensagem.
         setMensagem(null);
     }
 
+    // Atualiza o usuario salvo no localStorage depois do sucesso da API.
     function salvarUsuarioLocal() {
+        // Monta objeto com dados atualizados.
         const usuarioAtualizado = {
             ...usuarioBase,
             id_usuario: idUsuario,
@@ -117,14 +160,20 @@ function MinhaConta({ API }) {
             cpf: formulario.cpf
         };
 
+        // Salva no navegador.
         localStorage.setItem("usuario_logado", JSON.stringify(usuarioAtualizado));
+        // Atualiza estado base.
         setUsuarioBase(usuarioAtualizado);
     }
 
+    // Atualiza os dados da conta e envia foto/senha somente quando preenchidos.
     async function salvar(e) {
+        // Impede refresh da pagina.
         e.preventDefault();
+        // Limpa mensagem antiga.
         setMensagem(null);
 
+        // Sem ID nao da para chamar a rota.
         if (!idUsuario) {
             setMensagem({
                 tipo: "erro",
@@ -133,6 +182,7 @@ function MinhaConta({ API }) {
             return;
         }
 
+        // Nome e email sao obrigatorios.
         if (!formulario.nome.trim() || !formulario.email.trim()) {
             setMensagem({
                 tipo: "erro",
@@ -141,32 +191,44 @@ function MinhaConta({ API }) {
             return;
         }
 
+        // FormData permite enviar texto e arquivo juntos.
         const formData = new FormData();
+        // Envia nome sem espacos sobrando.
         formData.append("nome", formulario.nome.trim());
+        // Envia email sem espacos sobrando.
         formData.append("email", formulario.email.trim());
+        // Envia telefone somente com numeros.
         formData.append("telefone", String(formulario.telefone || "").replace(/\D/g, ""));
+        // Envia CPF somente com numeros.
         formData.append("cpf", String(formulario.cpf || "").replace(/\D/g, ""));
 
+        // Senha so e enviada quando o usuario digitou uma nova.
         if (formulario.senha.trim()) {
             formData.append("senha", formulario.senha);
         }
 
+        // Foto so e enviada quando o usuario escolheu arquivo.
         if (foto) {
             formData.append("foto_perfil", foto);
         }
 
+        // Liga carregamento do botao.
         setSalvando(true);
 
         try {
+            // Busca token para enviar no Authorization.
             const token = localStorage.getItem("access_token");
+            // FormData e necessario porque a API tambem pode receber foto_perfil.
             const resposta = await fetch(`${API}/editar_usuario/${idUsuario}`, {
                 method: "POST",
                 headers: token ? { Authorization: `Bearer ${token}` } : undefined,
                 credentials: "include",
                 body: formData
             });
+            // Converte resposta para JSON.
             const dados = await resposta.json();
 
+            // Se a API retornou erro, mostra na tela.
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
@@ -175,27 +237,38 @@ function MinhaConta({ API }) {
                 return;
             }
 
+            // Atualiza o usuario local.
             salvarUsuarioLocal();
+            // Limpa a senha depois de salvar.
             setFormulario((atual) => ({ ...atual, senha: "" }));
+            // Limpa arquivo escolhido.
             setFoto(null);
+            // Limpa preview.
             setPreviewFoto("");
+            // Forca recarregar a imagem.
             setVersaoFoto(Date.now());
+            // Volta para a primeira tentativa de foto.
             setTentativaFoto(0);
+            // Mostra sucesso.
             setMensagem({
                 tipo: "sucesso",
                 texto: dados.mensagem || "Conta atualizada com sucesso."
             });
         } catch {
+            // Erro de conexao.
             setMensagem({
                 tipo: "erro",
                 texto: "Nao foi possivel conectar ao servidor."
             });
         } finally {
+            // Desliga carregamento.
             setSalvando(false);
         }
     }
 
+    // Renderiza a tela.
     return (
+        // Container principal.
         <div className={css.layout_minha_conta}>
             <main className={css.conteudo_principal}>
                 <header className={css.cabecalho}>

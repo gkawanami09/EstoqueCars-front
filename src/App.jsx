@@ -57,8 +57,8 @@ function App({ API }) {
 
           {/* grupo de rotas protegidas */}
           <Route element={<ProtectedRoute API={API} />}>
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/Dashboard" element={<Dashboard />} />
+            <Route path="/dashboard" element={<Dashboard API={API} />} />
+            <Route path="/Dashboard" element={<Dashboard API={API} />} />
             <Route path="/favoritos" element={<Favoritos />} />
             <Route path="/minhaConta" element={<MinhaConta API={API} />} />
             <Route path="/dashboardAdm" element={<DashboardAdm  API={API} />} />

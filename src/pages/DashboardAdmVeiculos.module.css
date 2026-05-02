@@ -17,7 +17,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 30px;
+    margin-bottom: 30px !important;
 }
 
 .botoes_cabecalho {
@@ -382,6 +382,7 @@
     .tabela {
         min-width: 860px;
     }
+
 }
 
 @media (max-width: 425px) {

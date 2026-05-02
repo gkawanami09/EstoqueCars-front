@@ -14,7 +14,7 @@ function Home() {
                 titulo="de Carros Usados do"
                 span2="Senai"
                 subtitulo="Nossa equipe oferece uma ampla seleção de carros a pronta entrega."
-                buttonTo="/carros"
+                buttonTo="/CarrosSedan"
                 buttonNome="ver carros"
             />
 

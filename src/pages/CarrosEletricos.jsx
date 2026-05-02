@@ -1,8 +1,12 @@
 import css from "./CarrosEletricos.module.css";
-import Header from "../components/Header/Header.jsx";
-import Footer from "../components/Footer/Footer.jsx";
+import { useNavigate } from "react-router-dom";
 
 function CarrosEletricos() {
+    const navigate = useNavigate();
+
+    function irParaContato() {
+        window.location.href = "/#Contato";
+    }
 
 
     return (
@@ -13,7 +17,9 @@ function CarrosEletricos() {
                         <p className={css.subtitulo_destaque}>O mais vendido da categoria</p>
                         <h1 className={css.titulo_destaque}>HONDA HR-V</h1>
                         <button
+                            type="button"
                             className={css.botao_ver_mais_destaque}
+                            onClick={irParaContato}
                         >
                             Ver Mais
                         </button>
@@ -35,11 +41,11 @@ function CarrosEletricos() {
                 <section className={css.secao_filtros}>
                     <h2 className={css.titulo_explore}>Explore todas as opções</h2>
                     <div className={css.grupo_botoes_filtro}>
-                        <button className={`${css.botao_filtro} ${css.filtro_ativo}`}>Sedan</button>
-                        <button className={css.botao_filtro}>Elétrico</button>
-                        <button className={css.botao_filtro}>Esportivo</button>
-                        <button className={css.botao_filtro}>Caminhonete</button>
-                        <button className={css.botao_filtro}>SUV</button>
+                        <button type="button" className={css.botao_filtro} onClick={() => navigate("/CarrosSedan")}>Sedan</button>
+                        <button type="button" className={`${css.botao_filtro} ${css.filtro_ativo}`} onClick={() => navigate("/CarrosEletricos")}>Elétrico</button>
+                        <button type="button" className={css.botao_filtro} onClick={() => navigate("/CarrosEsportivos")}>Esportivo</button>
+                        <button type="button" className={css.botao_filtro} onClick={() => navigate("/CarrosCaminhonetes")}>Caminhonete</button>
+                        <button type="button" className={css.botao_filtro} onClick={() => navigate("/CarrosSUV")}>SUV</button>
                     </div>
                 </section>
 
@@ -64,7 +70,9 @@ function CarrosEletricos() {
                         <div className={css.area_preco_acao}>
                             <h2 className={css.preco_carro}>R$ 180.000</h2>
                             <button
+                                type="button"
                                 className={css.botao_ver_mais_card}
+                                onClick={irParaContato}
 
                             >
                                 Ver Mais
@@ -91,7 +99,9 @@ function CarrosEletricos() {
                         <div className={css.area_preco_acao}>
                             <h2 className={css.preco_carro}>R$ 320.000</h2>
                             <button
+                                type="button"
                                 className={css.botao_ver_mais_card}
+                                onClick={irParaContato}
 
                             >
                                 Ver Mais
@@ -119,7 +129,9 @@ function CarrosEletricos() {
                         <div className={css.area_preco_acao}>
                             <h2 className={css.preco_carro}>R$ 110.000</h2>
                             <button
+                                type="button"
                                 className={css.botao_ver_mais_card}
+                                onClick={irParaContato}
 
                             >
                                 Ver Mais
@@ -148,7 +160,9 @@ function CarrosEletricos() {
                         <div className={css.area_preco_acao}>
                             <h2 className={css.preco_carro}>R$ 210.000</h2>
                             <button
+                                type="button"
                                 className={css.botao_ver_mais_card}
+                                onClick={irParaContato}
 
                             >
                                 Ver Mais

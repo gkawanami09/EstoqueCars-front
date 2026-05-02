@@ -41,6 +41,7 @@ function Cadastro({API}) {
         setInputFoto((valorAtual) => valorAtual + 1);
     }
 
+    // Envia os dados do formulario para criar o usuario na API.
     async function cadastrar(e) {
         e.preventDefault();
         setErro("");
@@ -77,6 +78,7 @@ function Cadastro({API}) {
             formData.append("foto_perfil", foto);
         }
 
+        // FormData permite enviar texto e foto de perfil no mesmo request.
         const retorno = await fetch(`${API}/criar_usuario`, {
             method: "POST",
             credentials: "include",

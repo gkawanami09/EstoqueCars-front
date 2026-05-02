@@ -1,21 +1,70 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import css from "./DetalhesVeiculos.module.css";
+
+// Le respostas da API mesmo quando a rota retorna corpo vazio.
+async function lerRespostaJson(resposta) {
+    const texto = await resposta.text();
+
+    if (!texto) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(texto);
+    } catch {
+        return {};
+    }
+}
 
 function DetalhesVeiculos({ API }) {
     const { id } = useParams();
     const navigate = useNavigate();
     const [carro, setCarro] = useState(null);
+    const [manutencoes, setManutencoes] = useState([]);
     const [carregando, setCarregando] = useState(true);
+    const [carregandoManutencoes, setCarregandoManutencoes] = useState(true);
     const [erro, setErro] = useState("");
+    const [erroManutencoes, setErroManutencoes] = useState("");
 
-    useEffect(() => {
-        carregarCarro();
-    }, [id]);
+    // Busca as manutencoes vinculadas ao veiculo exibido no detalhe.
+    const carregarManutencoes = useCallback(async (idVeiculo) => {
+        setCarregandoManutencoes(true);
+        setErroManutencoes("");
 
-    async function carregarCarro() {
+        try {
+            const resposta = await fetch(`${API}/buscar_manutencao`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({ id_veiculo: Number(idVeiculo) })
+            });
+            const dados = await lerRespostaJson(resposta);
+
+            if (!resposta.ok) {
+                if (resposta.status === 404) {
+                    setManutencoes([]);
+                    return;
+                }
+
+                setErroManutencoes(dados.erro || "Nao foi possivel carregar as manutencoes.");
+                return;
+            }
+
+            setManutencoes(Array.isArray(dados) ? dados : []);
+        } catch {
+            setErroManutencoes("Erro de conexao ao carregar manutencoes.");
+            setManutencoes([]);
+        } finally {
+            setCarregandoManutencoes(false);
+        }
+    }, [API]);
+
+    // Busca o veiculo pelo id da rota e depois carrega suas manutencoes.
+    const carregarCarro = useCallback(async () => {
         setCarregando(true);
         setErro("");
+        setManutencoes([]);
 
         try {
             const resposta = await fetch(`${API}/listar_carro`, {
@@ -40,12 +89,17 @@ function DetalhesVeiculos({ API }) {
             }
 
             setCarro(veiculoEncontrado);
+            await carregarManutencoes(id);
         } catch {
             setErro("Erro de conexao com o servidor.");
         } finally {
             setCarregando(false);
         }
-    }
+    }, [API, carregarManutencoes, id]);
+
+    useEffect(() => {
+        carregarCarro();
+    }, [carregarCarro]);
 
     function formatarPreco(valor) {
         return Number(valor || 0).toLocaleString("pt-BR", {
@@ -114,6 +168,7 @@ function DetalhesVeiculos({ API }) {
         return valor || "-";
     }
 
+    // Monta a URL da imagem do backend ou retorna o icone padrao.
     function imagemVeiculo() {
         if (!carro?.imagem) {
             return "/IconCar.png";
@@ -137,7 +192,7 @@ function DetalhesVeiculos({ API }) {
     if (carregando) {
         return (
             <main className={css.container}>
-                <div className={css.estado}>Carregando detalhes do veículo...</div>
+                <div className={css.estado}>Carregando detalhes do veiculo...</div>
             </main>
         );
     }
@@ -146,10 +201,10 @@ function DetalhesVeiculos({ API }) {
         return (
             <main className={css.container}>
                 <div className={css.estado_erro}>
-                    <strong>Ops, nao encontramos esse veículo.</strong>
+                    <strong>Ops, nao encontramos esse veiculo.</strong>
                     <span>{erro || "Tente voltar para a lista e abrir novamente."}</span>
                     <button type="button" onClick={() => navigate("/dashboardAdmVeiculos")}>
-                        Voltar para veículos
+                        Voltar para veiculos
                     </button>
                 </div>
             </main>
@@ -167,7 +222,7 @@ function DetalhesVeiculos({ API }) {
                     >
                         Voltar
                     </button>
-                    <h1>{carro.modelo || carro.nome || "Detalhes do veículo"}</h1>
+                    <h1>{carro.modelo || carro.nome || "Detalhes do veiculo"}</h1>
                     <p>{valor(carro.marca)} - {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
                 </div>
 
@@ -176,7 +231,7 @@ function DetalhesVeiculos({ API }) {
                     className={css.editar}
                     onClick={() => navigate(`/editarVeiculos/${idCarro()}`)}
                 >
-                    Editar veículo
+                    Editar veiculo
                 </button>
             </header>
 
@@ -194,11 +249,11 @@ function DetalhesVeiculos({ API }) {
                 <aside className={css.resumo}>
                     <span className={css.status}>{formatarStatusEstoque(carro.status_estoque)}</span>
                     <div className={css.preco_bloco}>
-                        <span>Preço de venda</span>
+                        <span>Preco de venda</span>
                         <strong>{formatarPreco(carro.preco)}</strong>
                     </div>
                     <div className={css.descricao_bloco}>
-                        <span>Descrição</span>
+                        <span>Descricao</span>
                         <p>{valor(carro.descricao)}</p>
                     </div>
                 </aside>
@@ -206,8 +261,8 @@ function DetalhesVeiculos({ API }) {
 
             <section className={css.ficha}>
                 <div className={css.ficha_cabecalho}>
-                    <h2>Ficha técnica</h2>
-                    <span>Dados cadastrados do veículo</span>
+                    <h2>Ficha tecnica</h2>
+                    <span>Dados cadastrados do veiculo</span>
                 </div>
 
                 <div className={css.grid}>
@@ -215,15 +270,63 @@ function DetalhesVeiculos({ API }) {
                     <Info titulo="Modelo" valor={valor(carro.modelo)} />
                     <Info titulo="Categoria" valor={valor(carro.categoria || carro.nome_categoria)} />
                     <Info titulo="Cambio" valor={formatarCambio(carro.cambio)} />
-                    <Info titulo="Ano fabricação" valor={valor(carro.ano_fabricacao)} />
+                    <Info titulo="Ano fabricacao" valor={valor(carro.ano_fabricacao)} />
                     <Info titulo="Ano modelo" valor={valor(carro.ano_modelo)} />
                     <Info titulo="Quilometragem" valor={`${formatarNumero(carro.quilometragem)} km`} />
                     <Info titulo="Cor" valor={valor(carro.cor)} />
                     <Info titulo="Placa" valor={valor(carro.placa)} />
                     <Info titulo="Renavam" valor={valor(carro.renavam)} />
-                    <Info titulo="Conservação" valor={formatarEstado(carro.estado_conservacao)} />
+                    <Info titulo="Conservacao" valor={formatarEstado(carro.estado_conservacao)} />
                     <Info titulo="Documento" valor={formatarDocumento(carro.status_documento)} />
                 </div>
+            </section>
+
+            <section className={css.manutencoes}>
+                <div className={css.ficha_cabecalho}>
+                    <h2>Manutenções do veículo</h2>
+                    <span>Serviços agendados ou realizados neste carro</span>
+                </div>
+
+                {carregandoManutencoes && (
+                    <div className={css.estado_manutencao}>Carregando manutenções...</div>
+                )}
+
+                {!carregandoManutencoes && erroManutencoes && (
+                    <div className={css.estado_manutencao}>{erroManutencoes}</div>
+                )}
+
+                {!carregandoManutencoes && !erroManutencoes && manutencoes.length === 0 && (
+                    <div className={css.estado_manutencao}>Nenhuma manutenção cadastrada para este veículo.</div>
+                )}
+
+                {!carregandoManutencoes && !erroManutencoes && manutencoes.length > 0 && (
+                    <div className={css.lista_manutencoes}>
+                        {manutencoes.map((manutencao) => (
+                            <article key={manutencao.id_manutencao} className={css.card_manutencao}>
+                                <div className={css.manutencao_topo}>
+                                    <div>
+                                        <strong>Manutenção #{manutencao.id_manutencao}</strong>
+                                        <span>{manutencao.data || "-"}</span>
+                                    </div>
+                                    <strong className={css.valor_manutencao}>
+                                        {formatarPreco(manutencao.valor_total)}
+                                    </strong>
+                                </div>
+
+                                <div className={css.servicos_manutencao}>
+                                    {(manutencao.servicos_realizados || []).map((servico, index) => (
+                                        <div key={`${servico.servico}-${index}`} className={css.servico_item}>
+                                            <span>{servico.servico || servico.nome_servico || "Servico"}</span>
+                                            <small>
+                                                Qtd. {servico.quantidade || 1} - {formatarPreco(servico.valor_unitario)}
+                                            </small>
+                                        </div>
+                                    ))}
+                                </div>
+                            </article>
+                        ))}
+                    </div>
+                )}
             </section>
         </main>
     );

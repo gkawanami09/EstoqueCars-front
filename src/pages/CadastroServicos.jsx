@@ -94,6 +94,7 @@ function ordenarServicosPorId(lista) {
     return [...lista].sort((servicoA, servicoB) => Number(servicoA.id_servico) - Number(servicoB.id_servico));
 }
 
+// Le a resposta da API mesmo quando ela vem vazia ou sem JSON valido.
 async function lerResposta(resposta) {
     const texto = await resposta.text();
 
@@ -161,6 +162,7 @@ function CadastroServicos({ API }) {
         setMensagem({ tipo, texto });
     }, []);
 
+    // Busca os servicos aplicando filtros de descricao, id ou valor.
     const buscarServicos = useCallback(async (filtrosBusca = FILTROS_INICIAIS, mostrarMensagem = true) => {
         setCarregando(true);
         if (mostrarMensagem) {
@@ -220,6 +222,7 @@ function CadastroServicos({ API }) {
         setFormulario(FORMULARIO_INICIAL);
     }
 
+    // Cadastra um novo servico usando FormData, como a API espera.
     async function salvar(e) {
         e.preventDefault();
         setMensagem(null);
@@ -279,6 +282,7 @@ function CadastroServicos({ API }) {
         setEdicao(FORMULARIO_INICIAL);
     }
 
+    // Atualiza nome/valor do servico; a API registra historico se o valor mudar.
     async function atualizarServico(e) {
         e.preventDefault();
 
@@ -334,6 +338,7 @@ function CadastroServicos({ API }) {
         setConfirmacao(null);
     }
 
+    // Exclui o servico; o backend deve bloquear se ele estiver em manutencoes.
     async function deletarServico(servico) {
         setExcluindoId(servico.id_servico);
         setConfirmacao(null);
@@ -365,6 +370,7 @@ function CadastroServicos({ API }) {
         }
     }
 
+    // Reajusta todos os servicos ou apenas um, dependendo do id selecionado.
     async function reajustarServicos(e) {
         e.preventDefault();
         setMensagem(null);

@@ -9,6 +9,7 @@ function Login({ API }) {
     const [erro, setErro] = useState("")
     const navigate = useNavigate()
 
+    // Valida o login na API e salva os dados do usuario no localStorage.
     async function entrar(e) {
         e.preventDefault()
         setErro("")
@@ -18,6 +19,7 @@ function Login({ API }) {
             return
         }
 
+        // credentials include mantem cookies de sessao/token enviados pelo backend.
         const retorno = await fetch(`${API}/login`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },

@@ -142,12 +142,14 @@ function DashboardAdm({ API }) {
     const [erro, setErro] = useState("");
 
     useEffect(() => {
+        // Carrega os dados principais do painel admin em paralelo.
         async function carregarDashboard() {
             setCarregando(true);
             setErro("");
 
             try {
                 const [resCarros, resClientes, resServicos, resManutencoes] = await Promise.all([
+                    // Cada endpoint alimenta um bloco do dashboard.
                     fetch(`${API}/listar_carro`, { method: "GET", credentials: "include" }),
                     fetch(`${API}/listar_usuario`, { method: "GET", credentials: "include" }),
                     fetch(`${API}/buscar_servico`, {
