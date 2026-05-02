@@ -92,6 +92,11 @@ function formatarErroApi(texto) {
     return mensagem || "Nao foi possivel salvar o veiculo. Tente novamente.";
 }
 
+function cabecalhoAutorizacao() {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : undefined;
+}
+
 function CadastroVeiculo({ API }) {
     const [formulario, setFormulario] = useState(formularioInicial);
     const [categorias, setCategorias] = useState([]);
@@ -117,6 +122,7 @@ function CadastroVeiculo({ API }) {
         try {
             const resposta = await fetch(`${API}/buscar_categoria`, {
                 method: "POST",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             const dados = await resposta.json();
@@ -134,6 +140,7 @@ function CadastroVeiculo({ API }) {
         try {
             const resposta = await fetch(`${API}/buscar_marca`, {
                 method: "POST",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             const dados = await resposta.json();
@@ -155,6 +162,7 @@ function CadastroVeiculo({ API }) {
         try {
             const resposta = await fetch(`${API}/listar_carro`, {
                 method: "GET",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             const dados = await resposta.json();
@@ -288,6 +296,7 @@ function CadastroVeiculo({ API }) {
 
             const resposta = await fetch(url, {
                 method: estaEditando ? "PUT" : "POST",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include",
                 body: montarFormData()
             });

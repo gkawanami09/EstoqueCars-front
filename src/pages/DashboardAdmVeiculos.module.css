@@ -338,6 +338,12 @@
     font-size: 14px;
 }
 
+@media (max-width: 1100px) {
+    .botoes_cabecalho {
+        justify-content: flex-start;
+    }
+}
+
 @media (max-width: 900px) {
     .conteudo_principal {
         padding: 24px 16px 28px;
@@ -351,7 +357,9 @@
 
     .botoes_cabecalho {
         width: 100%;
-        justify-content: flex-start;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
     }
 
     .titulo_boas_vindas {
@@ -360,48 +368,130 @@
 
     .btn_add {
         width: 100%;
-        max-width: 260px;
+        max-width: none;
+        height: 44px;
+        font-size: 13px;
+        padding: 0 10px;
     }
 
     .secao_filtros {
-        gap: 10px;
-        margin-top: 18px !important;
+        gap: 8px;
+        margin-top: 15px !important;
         margin-bottom: 24px;
     }
 
     .botao_filtro {
-        flex: 1 1 130px;
-        padding: 11px 14px;
-    }
-
-    .tabela_container {
-        overflow-x: auto;
+        flex: 1 1 45%;
         padding: 10px;
     }
 
-    .tabela {
-        min-width: 860px;
+    .tabela_container {
+        background: transparent;
+        padding: 0;
     }
 
+    /* Transformando a tabela em Cards */
+    .tabela thead {
+        display: none;
+    }
+
+    .tabela, .tabela tbody, .tabela tr, .tabela td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .tabela tr {
+        margin-bottom: 20px !important;
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eaeaea;
+    }
+
+    .tabela td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: right;
+    }
+
+    .tabela td:last-child {
+        border-bottom: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding-bottom: 0;
+        padding-top: 16px;
+    }
+
+    /* O pseudo-elemento :before cria o "título" do campo no mobile */
+    .tabela td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-align: left;
+        color: #666;
+        flex: 1;
+        font-size: 0.9rem;
+    }
+
+    /* Foto fica centralizada no card, sem o rótulo antes dela */
+    .tabela td[data-label="Foto"] {
+        display: flex;
+        justify-content: center;
+        padding-bottom: 15px;
+        border-bottom: none;
+    }
+    
+    .tabela td[data-label="Foto"]::before {
+        display: none;
+    }
+
+    .img_carro {
+        width: 100%;
+        max-width: 250px;
+        height: auto;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .acoes {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 8px;
+    }
+
+    .acoes button {
+        width: 100%;
+        padding: 10px 5px;
+        font-size: 13px;
+    }
 }
 
-@media (max-width: 425px) {
+@media (max-width: 480px) {
     .conteudo_principal {
         padding: 16px 12px 24px;
     }
 
     .titulo_boas_vindas {
-        font-size: 1.35rem;
+        font-size: 1.4rem;
     }
 
-    .btn_add,
-    .botao_filtro {
-        width: 100%;
-        flex-basis: 100%;
+    .botoes_cabecalho {
+        grid-template-columns: 1fr;
     }
 
     .area_busca {
-        margin-top: 18px !important;
+        margin-top: 15px !important;
         padding: 0 12px;
+    }
+    
+    .acoes {
+        grid-template-columns: 1fr;
     }
 }

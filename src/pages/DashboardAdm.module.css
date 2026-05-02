@@ -378,6 +378,66 @@
     .cardsResumo {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .tabelaContainer {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        padding: 0;
+    }
+
+    /* Transformando a tabela em Cards */
+    .tabela thead {
+        display: none;
+    }
+
+    .tabela, .tabela tbody, .tabela tr, .tabela td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .tabela tr {
+        margin-bottom: 20px !important;
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eaeaea;
+    }
+
+    .tabela td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: right;
+    }
+
+    .tabela td:last-child {
+        border-bottom: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding-bottom: 0;
+        padding-top: 16px;
+    }
+
+    .tabela td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-align: left;
+        color: #666;
+        flex: 1;
+        font-size: 0.9rem;
+    }
+
+    .botaoVer {
+        width: 100%;
+        padding: 10px 5px;
+    }
 }
 
 @media (max-width: 520px) {

@@ -204,6 +204,20 @@ function formatarMoeda(valor) {
     });
 }
 
+// Monta o header X-Access-Token quando existe token salvo.
+function cabecalhoAutorizacao() {
+    const token = localStorage.getItem("access_token");
+    return token ? { "X-Access-Token": token } : undefined;
+}
+
+// Monta headers para rotas que recebem JSON.
+function headersJsonAutenticado() {
+    return {
+        "Content-Type": "application/json",
+        ...(cabecalhoAutorizacao() || {})
+    };
+}
+
 // Le respostas da API de manutencao, inclusive quando o backend retorna vazio.
 async function lerRespostaJson(resposta) {
     // Le como texto primeiro para evitar erro quando a resposta vem vazia.
@@ -348,6 +362,7 @@ function CadastroManutencao({ API }) {
             // Chama a rota GET que lista todas as manutencoes.
             const resposta = await fetch(`${API}/listar_manutencao`, {
                 method: "GET",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Le a resposta mesmo se ela vier vazia.
@@ -391,6 +406,7 @@ function CadastroManutencao({ API }) {
             // Busca os carros cadastrados para escolher na manutencao.
             const resposta = await fetch(`${API}/listar_carro`, {
                 method: "GET",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Le a resposta em JSON seguro.
@@ -421,6 +437,7 @@ function CadastroManutencao({ API }) {
                 // Chama a rota atual da tentativa.
                 const resposta = await fetch(`${API}${rota}`, {
                     method: "GET",
+                    headers: cabecalhoAutorizacao(),
                     credentials: "include"
                 });
                 // Le a resposta sem quebrar se vier vazia.
@@ -442,7 +459,7 @@ function CadastroManutencao({ API }) {
             // Fallback usado pela sua API atual para listar servicos com filtro vazio.
             const resposta = await fetch(`${API}/buscar_servico`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: headersJsonAutenticado(),
                 credentials: "include",
                 body: JSON.stringify({})
             });
@@ -478,6 +495,7 @@ function CadastroManutencao({ API }) {
             // Chama a rota que lista os itens da manutencao.
             const resposta = await fetch(`${API}/listar_item_manutencao/${idManutencao}`, {
                 method: "GET",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Le a resposta de forma segura.
@@ -656,7 +674,7 @@ function CadastroManutencao({ API }) {
             // Envia os dados para a API.
             const resposta = await fetch(rota, {
                 method: estaEditando ? "PUT" : "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: headersJsonAutenticado(),
                 credentials: "include",
                 body: JSON.stringify(payload)
             });
@@ -753,6 +771,7 @@ function CadastroManutencao({ API }) {
             // Chama a rota DELETE do backend.
             const resposta = await fetch(`${API}/deletar_manutencao/${idManutencao}`, {
                 method: "DELETE",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Le a resposta de forma segura.
@@ -825,7 +844,7 @@ function CadastroManutencao({ API }) {
             // Envia o novo item para a API.
             const resposta = await fetch(`${API}/adicionar_item_manutencao`, {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: headersJsonAutenticado(),
                 credentials: "include",
                 body: JSON.stringify({
                     id_manutencao: Number(manutencaoSelecionada.id_manutencao),
@@ -887,7 +906,7 @@ function CadastroManutencao({ API }) {
             // Chama a rota que edita a quantidade do item.
             const resposta = await fetch(`${API}/editar_item_manutencao/${idItem}`, {
                 method: "PUT",
-                headers: { "Content-Type": "application/json" },
+                headers: headersJsonAutenticado(),
                 credentials: "include",
                 body: JSON.stringify({ quantidade: Number(quantidade) })
             });
@@ -942,6 +961,7 @@ function CadastroManutencao({ API }) {
             // Chama a rota que exclui o item.
             const resposta = await fetch(`${API}/excluir_item_manutencao/${idItem}`, {
                 method: "DELETE",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Le a resposta.
@@ -1003,6 +1023,7 @@ function CadastroManutencao({ API }) {
             // Chama a rota do historico de reajuste do servico.
             const resposta = await fetch(`${API}/historico_servico/${servicoHistorico}`, {
                 method: "GET",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Le a resposta da API.
@@ -1087,7 +1108,7 @@ function CadastroManutencao({ API }) {
             <header className={css.cabecalho}>
                 <div>
                     <h1 className={css.titulo}>Manutenções</h1>
-                    <p className={css.subtitulo}>Agende servícos, acompanhe itens e consulte o histórico de valores.</p>
+                    <p className={css.subtitulo}>Agende serviços, acompanhe itens e consulte o histórico de valores.</p>
                 </div>
 
                 <button type="button" className={css.botaoSecundario} onClick={carregarManutencoes}>
@@ -1227,13 +1248,13 @@ function CadastroManutencao({ API }) {
 
                     <div className={css.botoesFormulario}>
                         <button type="button" className={css.botaoSecundario} onClick={adicionarServicoFormulario}>
-                            Adicionar servíco
+                            Adicionar serviço
                         </button>
                         <button type="button" className={css.botaoSecundario} onClick={limparFormulario}>
                             Limpar
                         </button>
                         <button type="submit" className={css.botaoPrimario} disabled={salvando}>
-                            {salvando ? "Salvando..." : formulario.id_manutencao ? "Salvar edicao" : "Agendar manutencao"}
+                            {salvando ? "Salvando..." : formulario.id_manutencao ? "Salvar edição" : "Agendar manutenção"}
                         </button>
                     </div>
                 </form>
@@ -1247,7 +1268,7 @@ function CadastroManutencao({ API }) {
                             onChange={(e) => setServicoHistorico(e.target.value)}
                             disabled={servicos.length === 0}
                         >
-                            <option value="">{servicos.length > 0 ? "Selecione um servico" : "Nenhum servico carregado"}</option>
+                            <option value="">{servicos.length > 0 ? "Selecione um serviço" : "Nenhum serviço carregado"}</option>
                             {servicos.map((servico) => (
                                 <option key={servico.id} value={servico.id}>
                                     {servico.nome}
@@ -1312,19 +1333,19 @@ function CadastroManutencao({ API }) {
 
                     {!carregando && manutencoesFiltradas.map((manutencao) => (
                         <tr key={manutencao.id_manutencao}>
-                            <td>
+                            <td data-label="Veículo">
                                 <strong>{manutencao.modelo || "Veiculo"}</strong>
                                 <span className={css.textoApoio}>{manutencao.marca}</span>
                             </td>
-                            <td>{manutencao.placa || "-"}</td>
-                            <td>{manutencao.data || "-"}</td>
-                            <td className={css.valor}>{formatarMoeda(manutencao.valor_total)}</td>
-                            <td>
+                            <td data-label="Placa">{manutencao.placa || "-"}</td>
+                            <td data-label="Data">{manutencao.data || "-"}</td>
+                            <td data-label="Total" className={css.valor}>{formatarMoeda(manutencao.valor_total)}</td>
+                            <td data-label="Status">
                                 <span className={`${css.status} ${classeStatus(manutencao.data)}`}>
                                     {textoStatus(manutencao.data)}
                                 </span>
                             </td>
-                            <td>
+                            <td data-label="Ações">
                                 <div className={css.acoes}>
                                     <button type="button" className={css.btnDetalhes} onClick={() => selecionarManutencao(manutencao)}>
                                         Itens
@@ -1358,6 +1379,7 @@ function CadastroManutencao({ API }) {
                     <form className={css.formItem} onSubmit={adicionarItem}>
                         <label className={css.campo}>
                             <span>Serviço</span>
+                            {/* Renderiza o select com a lista de servicos disponiveis, ou desabilita caso a API ainda nao tenha carregado ou falhado. */}
                             {servicos.length > 0 ? (
                                 <select
                                     value={itemFormulario.id_servico}
@@ -1376,6 +1398,8 @@ function CadastroManutencao({ API }) {
                                 </select>
                             )}
                         </label>
+                        
+                        {/* Campo para inputar a quantidade daquele servico que vai ser adicionado. */}
                         <label className={css.campo}>
                             <span>Quantidade</span>
                             <input
@@ -1385,13 +1409,17 @@ function CadastroManutencao({ API }) {
                                 onChange={(e) => setItemFormulario((atual) => ({ ...atual, quantidade: e.target.value }))}
                             />
                         </label>
+
+                        {/* Botao de submit do formulario para acionar a rota de adicao do item na API. Desativa enquanto carrega ou se nao tiver servico selecionavel. */}
                         <button type="submit" className={css.botaoPrimario} disabled={salvandoItem || servicos.length === 0}>
                             {salvandoItem ? "Adicionando..." : "Adicionar item"}
                         </button>
                     </form>
 
+                    {/* Container da tabela listando os itens ja adicionados na manutencao selecionada. */}
                     <div className={css.tabelaItensContainer}>
                         <table className={css.tabela}>
+                            {/* Cabecalho da tabela dos servicos prestados naquela manutencao especifica. */}
                             <thead>
                             <tr>
                                 <th>Serviço</th>
@@ -1402,22 +1430,28 @@ function CadastroManutencao({ API }) {
                             </tr>
                             </thead>
                             <tbody>
+                            {/* Mostra mensagem visual enquanto aguarda retorno da rota de listagem de itens da manutencao. */}
                             {carregandoItens && (
                                 <tr>
                                     <td colSpan="5" className={css.celulaVazia}>Carregando itens...</td>
                                 </tr>
                             )}
 
+                            {/* Mostra mensagem indicando que a lista esta vazia, se a API retornou sem erros porem sem itens. */}
                             {!carregandoItens && itens.length === 0 && (
                                 <tr>
                                     <td colSpan="5" className={css.celulaVazia}>Nenhum item cadastrado</td>
                                 </tr>
                             )}
 
+                            {/* Varre a lista de itens da manutencao atual para imprimir linha a linha na tabela/cards. */}
                             {!carregandoItens && itens.map((item) => (
                                 <tr key={item.id_item}>
-                                    <td>{item.nome_servico}</td>
-                                    <td>
+                                    {/* Exibe o nome do servico vindo do objeto de item (preenchido por join da API ou normalizacao). */}
+                                    <td data-label="Serviço">{item.nome_servico}</td>
+                                    
+                                    {/* Imprime o input de alterar quantidade do servico diretamente na celula. */}
+                                    <td data-label="Quantidade">
                                         <input
                                             className={css.inputQuantidade}
                                             type="number"
@@ -1431,9 +1465,15 @@ function CadastroManutencao({ API }) {
                                             }
                                         />
                                     </td>
-                                    <td>{formatarMoeda(item.valor_unitario)}</td>
-                                    <td className={css.valor}>{formatarMoeda(item.total)}</td>
-                                    <td>
+                                    
+                                    {/* Imprime o custo unitario fixado na hora em que o servico foi inserido. */}
+                                    <td data-label="Unitário">{formatarMoeda(item.valor_unitario)}</td>
+                                    
+                                    {/* Imprime o subtotal multiplicando o unitario pela quantidade. */}
+                                    <td data-label="Total" className={css.valor}>{formatarMoeda(item.total)}</td>
+                                    
+                                    {/* Agrupa os botoes de acoes para salvar a nova qtde ou excluir definitivamente o item da manutencao. */}
+                                    <td data-label="Ações">
                                         <div className={css.acoes}>
                                             <button type="button" className={css.btnEditar} onClick={() => editarItem(item.id_item)}>
                                                 Salvar

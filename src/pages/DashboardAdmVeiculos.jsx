@@ -26,6 +26,11 @@ function DashboardAdmVeiculos({ API }) {
     // Cria a funcao de navegacao entre rotas.
     const navigate = useNavigate();
 
+    function cabecalhoAutorizacao() {
+        const token = localStorage.getItem("access_token");
+        return token ? { Authorization: `Bearer ${token}` } : undefined;
+    }
+
     // Funcao que busca os carros na API.
     const carregarCarros = useCallback(async () => {
         // Liga o carregamento antes da requisicao.
@@ -46,6 +51,8 @@ function DashboardAdmVeiculos({ API }) {
             const resposta = await fetch(`${API}/listar_carro?${params.toString()}`, {
                 // Metodo usado pela rota de listagem.
                 method: "GET",
+                //esse metodo vai pegar o token da funcao adiconada 
+                headers: cabecalhoAutorizacao(),
                 // Envia cookies junto, caso a API use login por cookie.
                 credentials: "include"
             });
@@ -55,7 +62,7 @@ function DashboardAdmVeiculos({ API }) {
 
             // Se a API respondeu erro, mostra a mensagem e para aqui.
             if (!resposta.ok) {
-                setErro(dados.erro || "Erro ao carregar veiculos.");
+                setErro(dados.erro || "Erro ao carregar veículos.");
                 return;
             }
 
@@ -87,6 +94,8 @@ function DashboardAdmVeiculos({ API }) {
             const resposta = await fetch(`${API}/excluir_carro/${id}`, {
                 // Metodo esperado pela rota de exclusao.
                 method: "DELETE",
+                // Envia o token do admin para a API autorizar a exclusao.
+                headers: cabecalhoAutorizacao(),
                 // Envia cookies junto para manter permissao de administrador.
                 credentials: "include"
             });
@@ -96,7 +105,7 @@ function DashboardAdmVeiculos({ API }) {
 
             // Se a API bloquear, por exemplo por manutencao vinculada, mostra erro.
             if (!resposta.ok) {
-                setErro(dados.erro || "Erro ao excluir veiculo.");
+                setErro(dados.erro || "Erro ao excluir veículo.");
                 return;
             }
 
@@ -159,7 +168,7 @@ function DashboardAdmVeiculos({ API }) {
 
         // Status 2 ou texto parecido com indisponivel.
         if (status === "2" || status.includes("indispon")) {
-            return "Indisponivel";
+            return "Indisponível";
         }
 
         // Status 3 ou texto parecido com vendido.
@@ -177,7 +186,7 @@ function DashboardAdmVeiculos({ API }) {
         const statusFormatado = formatarStatusEstoque(valor);
 
         // Classe visual para carro indisponivel.
-        if (statusFormatado === "Indisponivel") {
+        if (statusFormatado === "Indisponível") {
             return `${css.status} ${css.status_indisponivel}`;
         }
 
@@ -272,7 +281,7 @@ function DashboardAdmVeiculos({ API }) {
                     {/* Campo que altera o estado "busca". */}
                     <input
                         type="text"
-                        placeholder="Buscar veÃ­culos"
+                        placeholder="Buscar veículos"
                         className={css.input_busca}
                         value={busca}
                         onChange={(e) => setBusca(e.target.value)}
@@ -337,7 +346,7 @@ function DashboardAdmVeiculos({ API }) {
                         {!carregando && carrosFiltrados.length === 0 && (
                             <tr>
                                 <td colSpan="9" className={css.celula_vazia}>
-                                    Nenhum veí­culo cadastrado
+                                    Nenhum veículo cadastrado
                                 </td>
                             </tr>
                         )}
@@ -346,41 +355,41 @@ function DashboardAdmVeiculos({ API }) {
                         {!carregando && carrosFiltrados.map((carro) => (
                             <tr key={carro.id}>
                                 {/* Foto do carro. */}
-                                <td>
+                                <td data-label="Foto">
                                     <img
                                         src={`${API}${carro.imagem}`}
-                                        alt={carro.nome}
+                                        alt={carro.modelo}
                                         className={css.img_carro}
                                     />
                                 </td>
 
                                 {/* Modelo do carro. */}
-                                <td>{carro.modelo}</td>
+                                <td data-label="Modelo">{carro.modelo}</td>
 
                                 {/* Marca do carro. */}
-                                <td>{carro.marca}</td>
+                                <td data-label="Marca">{carro.marca}</td>
 
                                 {/* Ano de fabricacao e ano do modelo. */}
-                                <td>{carro.ano_fabricacao}/{carro.ano_modelo}</td>
+                                <td data-label="Ano">{carro.ano_fabricacao}/{carro.ano_modelo}</td>
 
                                 {/* Quilometragem formatada no padrao brasileiro. */}
-                                <td>{Number(carro.quilometragem || 0).toLocaleString("pt-BR")}</td>
+                                <td data-label="Km">{Number(carro.quilometragem || 0).toLocaleString("pt-BR")}</td>
 
                                 {/* Cor cadastrada para o carro. */}
-                                <td>{carro.cor}</td>
+                                <td data-label="Cor">{carro.cor}</td>
 
                                 {/* Preco formatado como dinheiro. */}
-                                <td className={css.preco}>{formatarPreco(carro.preco)}</td>
+                                <td data-label="Preço" className={css.preco}>{formatarPreco(carro.preco)}</td>
 
                                 {/* Etiqueta de status do estoque. */}
-                                <td>
+                                <td data-label="Status">
                                     <span className={classeStatusEstoque(carro.status_estoque)}>
                                         {textoStatusEstoque(carro.status_estoque)}
                                     </span>
                                 </td>
 
                                 {/* Botoes de acao daquele carro. */}
-                                <td>
+                                <td data-label="Ações">
                                     <div className={css.acoes}>
                                         {/* Abre a tela de edicao do carro. */}
                                         <button
@@ -420,10 +429,10 @@ function DashboardAdmVeiculos({ API }) {
             {/* Modal usado para confirmar exclusao do veiculo. */}
             <ModalConfirmacao
                 aberto={Boolean(carroParaExcluir)}
-                titulo="Excluir veiculo"
-                texto="Deseja excluir este veiculo?"
+                titulo="Excluir veículo"
+                texto="Deseja excluir este veículo?"
                 destaque={carroParaExcluir?.modelo || ""}
-                textoConfirmar="Excluir veiculo"
+                textoConfirmar="Excluir veículo"
                 carregando={excluindoId === carroParaExcluir?.id}
                 onCancelar={() => setCarroParaExcluir(null)}
                 onConfirmar={() => excluirCarro(carroParaExcluir.id)}

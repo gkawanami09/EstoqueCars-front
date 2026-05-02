@@ -40,7 +40,7 @@ function DashboardAdmClientes({ API }) {
         texto: ""
     });
 
-    // Monta o header Authorization quando existe token.
+    // Monta o header X-Access-Token quando existe token.
     function cabecalhoAutorizacao() {
         // Busca token salvo no navegador.
         const token = localStorage.getItem("access_token");
@@ -49,8 +49,8 @@ function DashboardAdmClientes({ API }) {
             return undefined;
         }
 
-        // Retorna o token no formato Bearer.
-        return { Authorization: `Bearer ${token}` };
+        // Retorna o token no header customizado.
+        return { "X-Access-Token": token };
     }
 
     // Carrega clientes quando a tela abre.
@@ -65,6 +65,7 @@ function DashboardAdmClientes({ API }) {
             // Chama a rota que lista usuarios.
             const resposta = await fetch(`${API}/listar_usuario`, {
                 method: "GET",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Converte resposta para JSON.
@@ -186,6 +187,7 @@ function DashboardAdmClientes({ API }) {
             // Chama a rota de editar usuario.
             const resposta = await fetch(`${API}/editar_usuario/${formulario.id_usuario}`, {
                 method: "POST",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include",
                 body: formData
             });
@@ -243,6 +245,7 @@ function DashboardAdmClientes({ API }) {
             // Chama a rota DELETE do usuario.
             const resposta = await fetch(`${API}/excluir_usuario/${cliente.id_usuario}`, {
                 method: "DELETE",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Converte resposta para JSON.

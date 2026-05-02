@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Navigate, Outlet, useLocation } from "react-router-dom";
 import MenuLateral from "../MenuLateral/MenuLateral.jsx";
 import MenuLateralAdm from "../MenuLateralAdm/MenuLateralAdm.jsx";
@@ -26,6 +27,7 @@ const rotasUsuario = [
 ];
 
 function ProtectedRoute() {
+    const [menuAberto, setMenuAberto] = useState(false);
     const usuarioSalvo = localStorage.getItem("usuario_logado");
     const location = useLocation();
 
@@ -50,7 +52,26 @@ function ProtectedRoute() {
 
     return (
         <div className={css.layout}>
-            {isAdm ? <MenuLateralAdm /> : <MenuLateral />}
+            {/* Botão Hamburguer para Mobile */}
+            <button 
+                className={css.hamburguer} 
+                onClick={() => setMenuAberto(true)}
+                aria-label="Abrir menu"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white">
+                    <path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z" />
+                </svg>
+            </button>
+
+            {/* Overlay para fechar o menu ao clicar fora */}
+            {menuAberto && (
+                <div className={css.overlay} onClick={() => setMenuAberto(false)} />
+            )}
+
+            {isAdm ? 
+                <MenuLateralAdm aberto={menuAberto} aoNavegar={() => setMenuAberto(false)} /> : 
+                <MenuLateral aberto={menuAberto} aoNavegar={() => setMenuAberto(false)} />
+            }
 
             <main className={css.conteudo}>
                 <Outlet />

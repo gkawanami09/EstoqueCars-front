@@ -5,6 +5,20 @@ import Input from "../components/Input/Input.jsx";
 // Importa hooks para controlar estado e carregar dados.
 import { useEffect, useState } from "react";
 
+// Monta o header Authorization quando existe token salvo.
+function cabecalhoAutorizacao() {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : undefined;
+}
+
+// Monta headers para requisicoes JSON.
+function headersJsonAutenticado() {
+    return {
+        "Content-Type": "application/json",
+        ...(cabecalhoAutorizacao() || {})
+    };
+}
+
 // Componente da tela de edicao de manutencao.
 function EdicaoManutencao({ API, id }) {
     // Guarda o veiculo da manutencao.
@@ -33,7 +47,10 @@ function EdicaoManutencao({ API, id }) {
         // Funcao interna que chama a API.
         async function carregarServicos() {
             // Busca todos os servicos disponiveis.
-            const res = await fetch(`${API}/servicos`);
+            const res = await fetch(`${API}/servicos`, {
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
             // Converte resposta para JSON.
             const dados = await res.json();
             // Salva os servicos no estado.
@@ -49,7 +66,10 @@ function EdicaoManutencao({ API, id }) {
         // Funcao interna que busca a manutencao pelo id.
         async function carregarManutencao() {
             // Chama a API usando o id recebido.
-            const res = await fetch(`${API}/manutencoes/${id}`);
+            const res = await fetch(`${API}/manutencoes/${id}`, {
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
             // Converte a resposta em JSON.
             const dados = await res.json();
 
@@ -99,7 +119,10 @@ function EdicaoManutencao({ API, id }) {
         // Se o usuario escolheu um servico, busca o valor dele.
         if (campo === "servicoId" && valor) {
             // Busca o servico escolhido na API.
-            const res = await fetch(`${API}/servicos/${valor}`);
+            const res = await fetch(`${API}/servicos/${valor}`, {
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
             // Converte a resposta em JSON.
             const dados = await res.json();
             // Coloca o valor unitario na linha.
@@ -137,9 +160,8 @@ function EdicaoManutencao({ API, id }) {
         // Envia a edicao para a API.
         const resposta = await fetch(`${API}/manutencoes/${id}`, {
             method: "PUT",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: headersJsonAutenticado(),
+            credentials: "include",
             body: JSON.stringify(dados)
         });
 

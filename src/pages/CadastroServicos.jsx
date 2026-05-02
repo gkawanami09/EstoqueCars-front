@@ -46,13 +46,13 @@ function criarHeadersJson() {
 
     return {
         "Content-Type": "application/json",
-        ...(token ? { Authorization: `Bearer ${token}` } : {})
+        ...(token ? { "X-Access-Token": token } : {})
     };
 }
 
 function criarHeadersAutenticados() {
     const token = localStorage.getItem("access_token");
-    return token ? { Authorization: `Bearer ${token}` } : undefined;
+    return token ? { "X-Access-Token": token } : undefined;
 }
 
 function normalizarValor(valor) {
@@ -662,11 +662,11 @@ function CadastroServicos({ API }) {
                             <tbody>
                                 {servicos.map((servico) => (
                                     <tr key={servico.id_servico}>
-                                        <td>{servico.id_servico}</td>
-                                        <td>{servico.descricao}</td>
-                                        <td>{formatarMoeda(servico.valor_unitario)}</td>
-                                        <td>{Number(servico.valor_porcentagem || 0).toFixed(2)}%</td>
-                                        <td>
+                                        <td data-label="ID">{servico.id_servico}</td>
+                                        <td data-label="Serviço">{servico.descricao}</td>
+                                        <td data-label="Valor">{formatarMoeda(servico.valor_unitario)}</td>
+                                        <td data-label="Reajuste">{Number(servico.valor_porcentagem || 0).toFixed(2)}%</td>
+                                        <td data-label="Ações">
                                             <div className={css.acoesLinha}>
                                                 <button type="button" onClick={() => iniciarEdicao(servico)}>
                                                     Editar

@@ -101,6 +101,19 @@
     background-color: #f25555;
 }
 
+@media (max-width: 900px) {
+    .menu_lateral {
+        position: fixed;
+        transform: translateX(-100%);
+        z-index: 999;
+        transition: transform 0.3s ease;
+    }
+
+    .menu_lateral.menu_aberto {
+        transform: translateX(0);
+    }
+}
+
 @media (max-width: 425px) {
     .menu_lateral {
         width: 220px;

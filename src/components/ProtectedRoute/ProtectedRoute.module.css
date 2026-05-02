@@ -2,6 +2,7 @@
     height: 100vh;
     display: flex;
     background: #100b0f;
+    position: relative;
 }
 
 .conteudo {
@@ -10,4 +11,51 @@
     min-width: 0;
     background: #f6f7fa;
     overflow-y: auto;
+    position: relative;
+}
+
+.hamburguer {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 900;
+    background: #171414;
+    border: none;
+    border-radius: 8px;
+    padding: 8px;
+    cursor: pointer;
+}
+
+.hamburguer svg {
+    width: 24px;
+    height: 24px;
+    fill: white;
+    display: block;
+}
+
+.overlay {
+    display: none;
+}
+
+@media (max-width: 900px) {
+    .hamburguer {
+        display: block;
+    }
+    
+    .overlay {
+        display: block;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 998;
+    }
+
+    /* Adiciona padding no topo do conteudo mobile para não ficar embaixo do hamburguer */
+    .conteudo {
+        padding-top: 60px;
+    }
 }

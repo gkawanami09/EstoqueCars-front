@@ -25,11 +25,8 @@ function DashboardAdmMarcas({ API }) {
         marca: null
     });
 
-    // Monta o header Authorization quando existe token.
     function cabecalhoAutorizacao() {
-        // Busca token salvo depois do login.
         const token = localStorage.getItem("access_token");
-        // Se existir, retorna Bearer; se nao, nao envia header.
         return token ? { Authorization: `Bearer ${token}` } : undefined;
     }
 
@@ -75,6 +72,7 @@ function DashboardAdmMarcas({ API }) {
             // Chama a API de buscar/listar marcas.
             const resposta = await fetch(`${API}/buscar_marca`, {
                 method: "POST",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             // Le a resposta com seguranca.

@@ -7,6 +7,20 @@ import { useState, useEffect } from "react";
 // Importa hooks de rota para pegar id e navegar.
 import { useParams, useNavigate } from "react-router-dom";
 
+// Monta o header Authorization quando existe token salvo.
+function cabecalhoAutorizacao() {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : undefined;
+}
+
+// Monta headers para requisicoes JSON.
+function headersJsonAutenticado() {
+    return {
+        "Content-Type": "application/json",
+        ...(cabecalhoAutorizacao() || {})
+    };
+}
+
 // Tela de edicao de servico.
 function EdicaoServicos({ API }) {
     // Pega o id do servico pela URL.
@@ -39,7 +53,10 @@ function EdicaoServicos({ API }) {
         async function buscarDados() {
             try {
                 // Busca o servico pelo id da URL.
-                const resposta = await fetch(`${API}/servicos/${id}`);
+                const resposta = await fetch(`${API}/servicos/${id}`, {
+                    headers: cabecalhoAutorizacao(),
+                    credentials: "include"
+                });
                 // Converte a resposta para JSON.
                 const dados = await resposta.json();
 
@@ -89,7 +106,8 @@ function EdicaoServicos({ API }) {
         // Envia o PUT para atualizar o servico.
         const resposta = await fetch(`${API}/servicos/${id}`, {
             method: "PUT",
-            headers: { "Content-Type": "application/json" },
+            headers: headersJsonAutenticado(),
+            credentials: "include",
             body: JSON.stringify(dadosAtualizados)
         });
 
