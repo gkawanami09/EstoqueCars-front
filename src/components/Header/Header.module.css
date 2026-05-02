@@ -47,6 +47,25 @@
     color: var(--preto);
 }
 
+.botaoDashboardDesktop {
+    border: 2px solid #ff3b3b;
+    background: transparent;
+    color: #ff3b3b;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.botaoDashboardDesktop:hover {
+    background: #ff3b3b;
+    color: #ffffff;
+}
+
 .botaoLogoutDesktop {
     border: none;
     background: #ff3b3b;
@@ -152,12 +171,15 @@
 
     .botaoEntrarMobile,
     .botaoCadastroMobile,
+    .botaoDashboardMobile,
     .botaoLogoutMobile {
         border-radius: 6px;
-        height: 34px;
+        min-height: 34px;
+        padding: 0 8px;
         display: flex;
         justify-content: center;
         align-items: center;
+        text-align: center;
         font-size: 13px;
         font-weight: 700;
         margin-top: 2px;
@@ -171,6 +193,12 @@
     .botaoCadastroMobile {
         background: #ffffff;
         color: #111111;
+    }
+
+    .botaoDashboardMobile {
+        border: 1px solid #ffffff;
+        color: #ffffff;
+        line-height: 1.2;
     }
 
     .botaoLogoutMobile {

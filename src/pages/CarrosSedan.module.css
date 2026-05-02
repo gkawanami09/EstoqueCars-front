@@ -2,7 +2,7 @@
 .container {
     width: 100%;
     max-width: 1100px;
-    margin: 0 auto;
+    margin: 0 auto !important;
     padding: 40px 20px;
     font-family: 'Montserrat', 'Segoe UI', sans-serif;
     color: #000;
@@ -13,14 +13,14 @@
     flex-direction: column;
     align-items: center;
     text-align: center;
-    margin-bottom: 100px;
+    margin-bottom: 100px !important;
 }
 
 .cabecalho_destaque {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin-left: 90px !important;
+    margin-left: 0 !important;
 
 }
 
@@ -64,13 +64,13 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-top: 30px;
+    margin: 30px auto 0 !important;
     min-height: 350px;
 }
 
 .imagem_carro_destaque {
     width: 500px;
-    margin-left: -95px !important;
+    margin-left: -85px !important;
     z-index: 2;
     position: relative;
 }
@@ -107,7 +107,7 @@
 
 .secao_filtros {
     text-align: center;
-    margin-bottom: 60px;
+    margin-bottom: 60px !important;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -116,8 +116,8 @@
 .titulo_explore {
     font-size: 2.2rem;
     font-weight: 900;
-    margin-bottom: 30px;
-    margin-left: 90px !important;
+    margin-bottom: 30px !important;
+    margin-left: 0 !important;
 }
 
 .grupo_botoes_filtro {
@@ -125,7 +125,7 @@
     justify-content: center;
     gap: 15px;
     flex-wrap: wrap;
-    margin-left: 90px !important;
+    margin-left: 0 !important;
     margin-top: 30px !important;
 }
 
@@ -169,6 +169,7 @@
     gap: 40px;
     width: 100%;
     max-width: 1000px;
+    margin: 0 auto !important;
 }
 
 .card_carro:last-child {

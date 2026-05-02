@@ -21,9 +21,12 @@ function MenuLateral({ aberto = false, aoNavegar }) {
 
     return (
         <aside className={`${css.menu_lateral} ${aberto ? css.menu_aberto : ""}`}>
+
+            
             <div className={css.logo_container}>
+                
                 <img src="/ImgNavBar/LogoNav.png" alt="Estoque Cars" className={css.logo} />
-            </div>
+            </div> <br />
 
             <nav className={css.menu}>
                 <button type="button" className={classeItem("/dashboard")} onClick={() => navegar("/dashboard")}>

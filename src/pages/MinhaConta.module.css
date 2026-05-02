@@ -82,17 +82,18 @@
 .avatar_grande {
     width: 80px;
     height: 80px;
-    background-color: #000;
+    background-color: #f4f4f4;
     border-radius: 50%;
     display: flex;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
 }
 
 .img_avatar {
-    width: 40px;
-    height: 40px;
-    filter: brightness(0) invert(1);
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 .dados_usuario h2 {
@@ -114,11 +115,15 @@
     gap: 10px;
 }
 
-.alterar_foto_area p {
+.alterar_foto_area span {
     color: #666;
     font-size: 0.9rem;
     margin: 0;
     font-weight: 600;
+}
+
+.alterar_foto_area input {
+    display: none;
 }
 
 .box_foto_placeholder {
@@ -129,8 +134,14 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
+.box_foto_placeholder:hover {
+    background-color: #e3e3e3;
+    transform: translateY(-1px);
+}
 
 .icone_add_foto {
     width: 30px;
@@ -147,6 +158,7 @@
     background-color: #fff;
     border-radius: 20px;
     padding: 40px;
+    gap: 20px;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
     display: flex;
     flex-direction: column;
@@ -241,6 +253,61 @@
 .botao_salvar:hover {
     background-color: #f25555;
     box-shadow: 0 4px 15px rgba(242, 85, 85, 0.4);
+}
+
+.botao_salvar:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.mensagem {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 18px !important;
+    border: 1px solid transparent;
+}
+
+.mensagem strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 4px !important;
+}
+
+.mensagem span {
+    display: block;
+    color: inherit;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.mensagem button {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.mensagem_erro {
+    color: #991b1b;
+    background: #fff1f2;
+    border-color: #fecdd3;
+}
+
+.mensagem_sucesso {
+    color: #14532d;
+    background: #ecfdf3;
+    border-color: #bbf7d0;
 }
 
 .icone_add_foto {

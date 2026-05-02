@@ -17,7 +17,7 @@ function CarrosHome({subtitulo, titulo, span}) {
                 <CardCarrosHome />
                 <CardCarrosHome />
             </div>
-            <ButtonLink buttonTo="/carros" buttonNome="Explorar Carros"/>
+            <ButtonLink buttonTo="/CarrosSedan" buttonNome="Explorar Carros"/>
         </section>
     )
 }

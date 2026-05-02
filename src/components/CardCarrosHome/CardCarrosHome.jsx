@@ -22,7 +22,7 @@ function CardCarrosHome() {
                     <h3>R$120.000</h3>
                 </div>
                 <div>
-                    <ButtonLink buttonTo="/carros" buttonNome="ver mais"/>
+                    <ButtonLink buttonTo="/CarrosSedan" buttonNome="ver mais"/>
                 </div>
             </div>
         </div>

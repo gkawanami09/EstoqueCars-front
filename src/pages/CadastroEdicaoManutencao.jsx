@@ -14,6 +14,7 @@ function EdicaoManutencao({ API, id }) {
     const [total, setTotal] = useState("");
 
     const [erro, setErro] = useState("");
+    const [mensagem, setMensagem] = useState(null);
 
     // 🔹 CARREGAR SERVIÇOS (mesmo da outra tela)
     useEffect(() => {
@@ -79,6 +80,8 @@ function EdicaoManutencao({ API, id }) {
     // 🔹 SALVAR ALTERAÇÃO
     async function salvar(e) {
         e.preventDefault();
+        setErro("");
+        setMensagem(null);
 
         if (!veiculo || servicosSelecionados.length === 0) {
             setErro("Preencha os campos obrigatórios.");
@@ -110,12 +113,32 @@ function EdicaoManutencao({ API, id }) {
 
         setTotal(res.total);
 
-        alert("Manutenção atualizada com sucesso!");
+        setMensagem({
+            tipo: "sucesso",
+            texto: "Manutencao atualizada com sucesso!"
+        });
     }
 
     return (
         <main className={css.container}>
             <h1 className={css.titulo}>Editar Manutenção</h1>
+
+            {mensagem && (
+                <div
+                    className={`${css.mensagem} ${
+                        mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
+                    }`}
+                    role="alert"
+                >
+                    <div>
+                        <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atencao"}</strong>
+                        <span>{mensagem.texto}</span>
+                    </div>
+                    <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
+                        x
+                    </button>
+                </div>
+            )}
 
             <form className={css.formulario} onSubmit={salvar}>
 

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import css from "./CadastroManutencao.module.css";
+import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao.jsx";
 
 const formularioInicial = () => ({
     id_manutencao: null,
@@ -32,6 +33,7 @@ function normalizarServico(servico) {
     const nome =
         servico.nome_servico ??
         servico.NOME_SERVICO ??
+        servico.descricao ??
         servico.nome ??
         servico.nomeServico ??
         servico.servico ??
@@ -56,12 +58,13 @@ function normalizarVeiculo(veiculo) {
         marca,
         modelo,
         placa,
-        label: [marca, modelo, placa].filter(Boolean).join(" - ") || `Veiculo ${id || ""}`
+        label: [placa, modelo, marca].filter(Boolean).join(" - ") || `Veiculo ${id || ""}`
     };
 }
 
 function normalizarManutencao(manutencao) {
     const id = manutencao.id_manutencao ?? manutencao.ID_MANUTENCAO ?? manutencao.id;
+    const servicosRealizados = manutencao.servicos_realizados ?? manutencao.servicos ?? [];
 
     return {
         id_manutencao: id,
@@ -70,7 +73,7 @@ function normalizarManutencao(manutencao) {
         placa: manutencao.placa ?? manutencao.PLACA ?? "",
         data: manutencao.data ?? manutencao.data_manutencao ?? manutencao.DATA_MANUTENCAO ?? "",
         valor_total: Number(manutencao.valor_total ?? manutencao.VALOR_TOTAL ?? 0),
-        servicos_realizados: manutencao.servicos_realizados ?? manutencao.servicos ?? []
+        servicos_realizados: Array.isArray(servicosRealizados) ? servicosRealizados : []
     };
 }
 
@@ -171,8 +174,8 @@ function CadastroManutencao({ API }) {
     const [itens, setItens] = useState([]);
     const [quantidadesItens, setQuantidadesItens] = useState({});
     const [buscaTexto, setBuscaTexto] = useState("");
-    const [buscaIdManutencao, setBuscaIdManutencao] = useState("");
-    const [buscaIdVeiculo, setBuscaIdVeiculo] = useState("");
+    const [buscaVeiculo, setBuscaVeiculo] = useState("");
+    const [mostrarSugestoesVeiculos, setMostrarSugestoesVeiculos] = useState(false);
     const [servicoHistorico, setServicoHistorico] = useState("");
     const [historico, setHistorico] = useState([]);
     const [mensagem, setMensagem] = useState(null);
@@ -181,12 +184,26 @@ function CadastroManutencao({ API }) {
     const [carregandoItens, setCarregandoItens] = useState(false);
     const [salvandoItem, setSalvandoItem] = useState(false);
     const [carregandoHistorico, setCarregandoHistorico] = useState(false);
+    const [confirmacao, setConfirmacao] = useState(null);
+    const [confirmandoAcao, setConfirmandoAcao] = useState(false);
 
     const servicosPorId = useMemo(() => {
         const mapa = new Map();
         servicos.forEach((servico) => mapa.set(String(servico.id), servico));
         return mapa;
     }, [servicos]);
+
+    const veiculosFiltrados = useMemo(() => {
+        const termo = buscaVeiculo.trim().toLowerCase();
+        const lista = termo
+            ? veiculos.filter((veiculo) => {
+                const campos = [veiculo.label, veiculo.placa, veiculo.modelo, veiculo.marca];
+                return campos.some((campo) => String(campo || "").toLowerCase().includes(termo));
+            })
+            : veiculos;
+
+        return lista.slice(0, 6);
+    }, [buscaVeiculo, veiculos]);
 
     const manutencoesFiltradas = useMemo(() => {
         const termo = buscaTexto.trim().toLowerCase();
@@ -197,12 +214,18 @@ function CadastroManutencao({ API }) {
 
         return manutencoes.filter((manutencao) => {
             const campos = [
-                manutencao.id_manutencao,
                 manutencao.marca,
                 manutencao.modelo,
                 manutencao.placa,
                 manutencao.data,
-                manutencao.valor_total
+                manutencao.valor_total,
+                ...manutencao.servicos_realizados.flatMap((servico) => [
+                    servico.servico,
+                    servico.nome_servico,
+                    servico.NOME_SERVICO,
+                    servico.descricao,
+                    servico.DESCRICAO
+                ])
             ];
 
             return campos.some((campo) => String(campo || "").toLowerCase().includes(termo));
@@ -296,6 +319,24 @@ function CadastroManutencao({ API }) {
             }
         }
 
+        try {
+            const resposta = await fetch(`${API}/buscar_servico`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                credentials: "include",
+                body: JSON.stringify({})
+            });
+            const dados = await lerRespostaJson(resposta);
+
+            if (resposta.ok) {
+                const lista = extrairLista(dados, ["servicos", "servico", "servicos_cadastrados"]).map(normalizarServico);
+                setServicos(lista.filter((servico) => servico.id));
+                return;
+            }
+        } catch {
+            setServicos([]);
+        }
+
         setServicos([]);
     }, [API]);
 
@@ -360,6 +401,24 @@ function CadastroManutencao({ API }) {
         }));
     }
 
+    function atualizarBuscaVeiculo(valor) {
+        setBuscaVeiculo(valor);
+
+        const termo = valor.trim().toLowerCase();
+        const veiculoEncontrado = veiculos.find((veiculo) =>
+            String(veiculo.label).toLowerCase() === termo ||
+            String(veiculo.placa).toLowerCase() === termo
+        );
+
+        atualizarCampo("id_veiculo", veiculoEncontrado?.id || "");
+    }
+
+    function selecionarVeiculo(veiculo) {
+        setBuscaVeiculo(veiculo.label);
+        atualizarCampo("id_veiculo", veiculo.id);
+        setMostrarSugestoesVeiculos(false);
+    }
+
     function atualizarServicoFormulario(index, campo, valor) {
         setFormulario((dadosAtuais) => ({
             ...dadosAtuais,
@@ -385,6 +444,7 @@ function CadastroManutencao({ API }) {
 
     function limparFormulario() {
         setFormulario(formularioInicial());
+        setBuscaVeiculo("");
         setMensagem(null);
     }
 
@@ -406,7 +466,7 @@ function CadastroManutencao({ API }) {
         if (!String(formulario.id_veiculo).trim() || !formulario.data_manutencao || servicosPayload.length === 0) {
             setMensagem({
                 tipo: "erro",
-                texto: "Informe veiculo, data e pelo menos um servico."
+                texto: "Selecione um veiculo da lista, informe a data e escolha pelo menos um servico."
             });
             return;
         }
@@ -449,6 +509,7 @@ function CadastroManutencao({ API }) {
                 texto: dados.mensagem || "Manutencao salva com sucesso."
             });
             setFormulario(formularioInicial());
+            setBuscaVeiculo("");
             await carregarManutencoes();
         } catch {
             setMensagem({
@@ -458,51 +519,6 @@ function CadastroManutencao({ API }) {
         } finally {
             setSalvando(false);
         }
-    }
-
-    async function buscarManutencao(e) {
-        e.preventDefault();
-        setMensagem(null);
-
-        if (!buscaIdManutencao.trim() && !buscaIdVeiculo.trim()) {
-            await carregarManutencoes();
-            return;
-        }
-
-        try {
-            const resposta = await fetch(`${API}/buscar_manutencao`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                credentials: "include",
-                body: JSON.stringify({
-                    id_manutencao: buscaIdManutencao ? Number(buscaIdManutencao) : undefined,
-                    id_veiculo: buscaIdVeiculo ? Number(buscaIdVeiculo) : undefined
-                })
-            });
-            const dados = await lerRespostaJson(resposta);
-
-            if (!resposta.ok) {
-                setManutencoes([]);
-                setMensagem({
-                    tipo: "erro",
-                    texto: dados.erro || "Nenhuma manutencao encontrada."
-                });
-                return;
-            }
-
-            setManutencoes(extrairLista(dados, ["manutencoes", "manutencao"]).map(normalizarManutencao));
-        } catch {
-            setMensagem({
-                tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
-            });
-        }
-    }
-
-    async function limparBuscaApi() {
-        setBuscaIdManutencao("");
-        setBuscaIdVeiculo("");
-        await carregarManutencoes();
     }
 
     function editarManutencao(manutencao) {
@@ -529,16 +545,22 @@ function CadastroManutencao({ API }) {
             data_manutencao: dataBrParaInput(manutencao.data),
             servicos: servicosManutencao
         });
+        setBuscaVeiculo(veiculoEncontrado?.label || [manutencao.placa, manutencao.modelo, manutencao.marca].filter(Boolean).join(" - "));
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    function pedirExclusaoManutencao(idManutencao) {
+        setConfirmacao({
+            tipo: "manutencao",
+            id: idManutencao,
+            titulo: "Cancelar agendamento",
+            texto: "Deseja cancelar este agendamento de manutencao?",
+            textoConfirmar: "Cancelar agendamento"
+        });
+    }
+
     async function excluirManutencao(idManutencao) {
-        const confirmou = window.confirm("Deseja cancelar este agendamento de manutencao?");
-
-        if (!confirmou) {
-            return;
-        }
-
+        setConfirmandoAcao(true);
         setMensagem(null);
 
         try {
@@ -563,12 +585,15 @@ function CadastroManutencao({ API }) {
             setManutencaoSelecionada((atual) =>
                 atual?.id_manutencao === idManutencao ? null : atual
             );
+            setConfirmacao(null);
             await carregarManutencoes();
         } catch {
             setMensagem({
                 tipo: "erro",
                 texto: "Nao foi possivel conectar ao servidor."
             });
+        } finally {
+            setConfirmandoAcao(false);
         }
     }
 
@@ -673,13 +698,18 @@ function CadastroManutencao({ API }) {
         }
     }
 
+    function pedirExclusaoItem(idItem) {
+        setConfirmacao({
+            tipo: "item",
+            id: idItem,
+            titulo: "Excluir item",
+            texto: "Deseja excluir este item da manutencao?",
+            textoConfirmar: "Excluir item"
+        });
+    }
+
     async function excluirItem(idItem) {
-        const confirmou = window.confirm("Deseja excluir este item da manutencao?");
-
-        if (!confirmou) {
-            return;
-        }
-
+        setConfirmandoAcao(true);
         setMensagem(null);
 
         try {
@@ -701,6 +731,7 @@ function CadastroManutencao({ API }) {
                 tipo: "sucesso",
                 texto: dados.mensagem || "Item excluido com sucesso."
             });
+            setConfirmacao(null);
             await carregarItens(manutencaoSelecionada.id_manutencao);
             await carregarManutencoes();
         } catch {
@@ -708,6 +739,8 @@ function CadastroManutencao({ API }) {
                 tipo: "erro",
                 texto: "Nao foi possivel conectar ao servidor."
             });
+        } finally {
+            setConfirmandoAcao(false);
         }
     }
 
@@ -828,23 +861,42 @@ function CadastroManutencao({ API }) {
                     </div>
 
                     <div className={css.gridCampos}>
-                        <label className={css.campo}>
+                        <div className={`${css.campo} ${css.campoAutocomplete}`}>
                             <span>Veiculo</span>
                             <input
-                                list="lista-veiculos"
-                                value={formulario.id_veiculo}
-                                onChange={(e) => atualizarCampo("id_veiculo", e.target.value.replace(/\D/g, ""))}
-                                placeholder="Digite ou selecione o ID"
-                                inputMode="numeric"
+                                type="text"
+                                value={buscaVeiculo}
+                                onChange={(e) => atualizarBuscaVeiculo(e.target.value)}
+                                onFocus={() => setMostrarSugestoesVeiculos(true)}
+                                onBlur={() => setMostrarSugestoesVeiculos(false)}
+                                placeholder="Busque por placa, modelo ou marca"
+                                autoComplete="off"
                             />
-                            <datalist id="lista-veiculos">
-                                {veiculos.map((veiculo) => (
-                                    <option key={veiculo.id} value={veiculo.id}>
-                                        {veiculo.label}
-                                    </option>
-                                ))}
-                            </datalist>
-                        </label>
+                            {mostrarSugestoesVeiculos && (
+                                <div className={css.listaAutocomplete}>
+                                    {veiculosFiltrados.length > 0 ? (
+                                        veiculosFiltrados.map((veiculo) => (
+                                            <button
+                                                key={veiculo.id}
+                                                type="button"
+                                                onMouseDown={(e) => {
+                                                    e.preventDefault();
+                                                    selecionarVeiculo(veiculo);
+                                                }}
+                                            >
+                                                <strong>{veiculo.placa || "Sem placa"}</strong>
+                                                <span>{[veiculo.modelo, veiculo.marca].filter(Boolean).join(" - ") || veiculo.label}</span>
+                                            </button>
+                                        ))
+                                    ) : (
+                                        <div className={css.autocompleteVazio}>Nenhum veiculo encontrado</div>
+                                    )}
+                                </div>
+                            )}
+                            {formulario.id_veiculo && (
+                                <small className={css.campoAjuda}>Veiculo selecionado para este agendamento.</small>
+                            )}
+                        </div>
 
                         <label className={css.campo}>
                             <span>Data e hora</span>
@@ -878,12 +930,9 @@ function CadastroManutencao({ API }) {
                                                 ))}
                                             </select>
                                         ) : (
-                                            <input
-                                                value={item.id_servico}
-                                                onChange={(e) => atualizarServicoFormulario(index, "id_servico", e.target.value.replace(/\D/g, ""))}
-                                                placeholder="ID do servico"
-                                                inputMode="numeric"
-                                            />
+                                            <select value="" disabled>
+                                                <option>Nenhum servico carregado</option>
+                                            </select>
                                         )}
                                     </label>
 
@@ -931,25 +980,20 @@ function CadastroManutencao({ API }) {
                     <h2>Historico de preco</h2>
                     <label className={css.campo}>
                         <span>Servico</span>
-                        {servicos.length > 0 ? (
-                            <select value={servicoHistorico} onChange={(e) => setServicoHistorico(e.target.value)}>
-                                <option value="">Selecione</option>
-                                {servicos.map((servico) => (
-                                    <option key={servico.id} value={servico.id}>
-                                        {servico.nome}
-                                    </option>
-                                ))}
-                            </select>
-                        ) : (
-                            <input
-                                value={servicoHistorico}
-                                onChange={(e) => setServicoHistorico(e.target.value.replace(/\D/g, ""))}
-                                placeholder="ID do servico"
-                                inputMode="numeric"
-                            />
-                        )}
+                        <select
+                            value={servicoHistorico}
+                            onChange={(e) => setServicoHistorico(e.target.value)}
+                            disabled={servicos.length === 0}
+                        >
+                            <option value="">{servicos.length > 0 ? "Selecione um servico" : "Nenhum servico carregado"}</option>
+                            {servicos.map((servico) => (
+                                <option key={servico.id} value={servico.id}>
+                                    {servico.nome}
+                                </option>
+                            ))}
+                        </select>
                     </label>
-                    <button type="submit" className={css.botaoPrimario} disabled={carregandoHistorico}>
+                    <button type="submit" className={css.botaoPrimario} disabled={carregandoHistorico || servicos.length === 0}>
                         {carregandoHistorico ? "Buscando..." : "Consultar"}
                     </button>
 
@@ -965,47 +1009,24 @@ function CadastroManutencao({ API }) {
             </section>
 
             <section className={css.buscaAvancada}>
-                <form onSubmit={buscarManutencao} className={css.buscaApi}>
-                    <label className={css.campo}>
-                        <span>ID manutencao</span>
-                        <input
-                            value={buscaIdManutencao}
-                            onChange={(e) => setBuscaIdManutencao(e.target.value.replace(/\D/g, ""))}
-                            inputMode="numeric"
-                        />
-                    </label>
-                    <label className={css.campo}>
-                        <span>ID veiculo</span>
-                        <input
-                            value={buscaIdVeiculo}
-                            onChange={(e) => setBuscaIdVeiculo(e.target.value.replace(/\D/g, ""))}
-                            inputMode="numeric"
-                        />
-                    </label>
-                    <button type="submit" className={css.botaoPrimario}>
-                        Buscar
-                    </button>
-                    <button type="button" className={css.botaoSecundario} onClick={limparBuscaApi}>
-                        Limpar busca
-                    </button>
-                </form>
-
                 <div className={css.buscaTexto}>
                     <img src="/IconBusca.png" alt="Buscar" />
                     <input
                         type="text"
-                        placeholder="Filtrar por placa, modelo, marca ou data"
+                        placeholder="Buscar por placa, modelo, marca, data ou servico"
                         value={buscaTexto}
                         onChange={(e) => setBuscaTexto(e.target.value)}
                     />
                 </div>
+                <button type="button" className={css.botaoSecundario} onClick={() => setBuscaTexto("")}>
+                    Limpar busca
+                </button>
             </section>
 
             <section className={css.tabelaContainer}>
                 <table className={css.tabela}>
                     <thead>
                     <tr>
-                        <th>ID</th>
                         <th>Veiculo</th>
                         <th>Placa</th>
                         <th>Data</th>
@@ -1017,19 +1038,18 @@ function CadastroManutencao({ API }) {
                     <tbody>
                     {carregando && (
                         <tr>
-                            <td colSpan="7" className={css.celulaVazia}>Carregando manutencoes...</td>
+                            <td colSpan="6" className={css.celulaVazia}>Carregando manutencoes...</td>
                         </tr>
                     )}
 
                     {!carregando && manutencoesFiltradas.length === 0 && (
                         <tr>
-                            <td colSpan="7" className={css.celulaVazia}>Nenhuma manutencao encontrada</td>
+                            <td colSpan="6" className={css.celulaVazia}>Nenhuma manutencao encontrada</td>
                         </tr>
                     )}
 
                     {!carregando && manutencoesFiltradas.map((manutencao) => (
                         <tr key={manutencao.id_manutencao}>
-                            <td>{manutencao.id_manutencao}</td>
                             <td>
                                 <strong>{manutencao.modelo || "Veiculo"}</strong>
                                 <span className={css.textoApoio}>{manutencao.marca}</span>
@@ -1050,7 +1070,7 @@ function CadastroManutencao({ API }) {
                                     <button type="button" className={css.btnEditar} onClick={() => editarManutencao(manutencao)}>
                                         Editar
                                     </button>
-                                    <button type="button" className={css.btnExcluir} onClick={() => excluirManutencao(manutencao.id_manutencao)}>
+                                    <button type="button" className={css.btnExcluir} onClick={() => pedirExclusaoManutencao(manutencao.id_manutencao)}>
                                         Excluir
                                     </button>
                                 </div>
@@ -1065,7 +1085,7 @@ function CadastroManutencao({ API }) {
                 <section className={css.painelItens}>
                     <header className={css.painelItensCabecalho}>
                         <div>
-                            <h2>Itens da manutencao #{manutencaoSelecionada.id_manutencao}</h2>
+                            <h2>Itens da manutencao</h2>
                             <span>{manutencaoSelecionada.modelo} {manutencaoSelecionada.placa ? `- ${manutencaoSelecionada.placa}` : ""}</span>
                         </div>
                         <button type="button" className={css.botaoSecundario} onClick={() => setManutencaoSelecionada(null)}>
@@ -1089,12 +1109,9 @@ function CadastroManutencao({ API }) {
                                     ))}
                                 </select>
                             ) : (
-                                <input
-                                    value={itemFormulario.id_servico}
-                                    onChange={(e) => setItemFormulario((atual) => ({ ...atual, id_servico: e.target.value.replace(/\D/g, "") }))}
-                                    placeholder="ID do servico"
-                                    inputMode="numeric"
-                                />
+                                <select value="" disabled>
+                                    <option>Nenhum servico carregado</option>
+                                </select>
                             )}
                         </label>
                         <label className={css.campo}>
@@ -1106,7 +1123,7 @@ function CadastroManutencao({ API }) {
                                 onChange={(e) => setItemFormulario((atual) => ({ ...atual, quantidade: e.target.value }))}
                             />
                         </label>
-                        <button type="submit" className={css.botaoPrimario} disabled={salvandoItem}>
+                        <button type="submit" className={css.botaoPrimario} disabled={salvandoItem || servicos.length === 0}>
                             {salvandoItem ? "Adicionando..." : "Adicionar item"}
                         </button>
                     </form>
@@ -1159,7 +1176,7 @@ function CadastroManutencao({ API }) {
                                             <button type="button" className={css.btnEditar} onClick={() => editarItem(item.id_item)}>
                                                 Salvar
                                             </button>
-                                            <button type="button" className={css.btnExcluir} onClick={() => excluirItem(item.id_item)}>
+                                            <button type="button" className={css.btnExcluir} onClick={() => pedirExclusaoItem(item.id_item)}>
                                                 Excluir
                                             </button>
                                         </div>
@@ -1171,6 +1188,25 @@ function CadastroManutencao({ API }) {
                     </div>
                 </section>
             )}
+
+            <ModalConfirmacao
+                aberto={Boolean(confirmacao)}
+                titulo={confirmacao?.titulo}
+                texto={confirmacao?.texto}
+                textoConfirmar={confirmacao?.textoConfirmar}
+                carregando={confirmandoAcao}
+                onCancelar={() => setConfirmacao(null)}
+                onConfirmar={() => {
+                    if (confirmacao?.tipo === "manutencao") {
+                        excluirManutencao(confirmacao.id);
+                        return;
+                    }
+
+                    if (confirmacao?.tipo === "item") {
+                        excluirItem(confirmacao.id);
+                    }
+                }}
+            />
         </main>
     );
 }

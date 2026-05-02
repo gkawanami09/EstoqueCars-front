@@ -60,7 +60,7 @@ function App({ API }) {
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/Dashboard" element={<Dashboard />} />
             <Route path="/favoritos" element={<Favoritos />} />
-            <Route path="/minhaConta" element={<MinhaConta />} />
+            <Route path="/minhaConta" element={<MinhaConta API={API} />} />
             <Route path="/dashboardAdm" element={<DashboardAdm  API={API} />} />
             <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos API={API} />} />
             <Route path="/dashboardAdmClientes" element={<DashboardAdmClientes API={API} />} />

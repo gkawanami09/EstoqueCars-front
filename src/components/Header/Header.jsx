@@ -6,7 +6,23 @@ import { useState } from 'react'
 function Header({ API }) {
     const [menuAberto, setMenuAberto] = useState(false)
     const navigate = useNavigate()
-    const usuarioLogado = !!localStorage.getItem('usuario_logado')
+    const usuarioSalvo = localStorage.getItem('usuario_logado')
+    const usuarioLogado = !!usuarioSalvo
+
+    function buscarRotaDashboard() {
+        if (!usuarioSalvo) {
+            return '/dashboard'
+        }
+
+        try {
+            const usuario = JSON.parse(usuarioSalvo)
+            return Number(usuario.tipo_usuario) === 2 ? '/dashboardAdm' : '/dashboard'
+        } catch {
+            return '/dashboard'
+        }
+    }
+
+    const rotaDashboard = buscarRotaDashboard()
 
     function toggleMenu() {
         setMenuAberto(!menuAberto)
@@ -44,7 +60,12 @@ function Header({ API }) {
 
             <div className={css.buttonsDesktop}>
                 {usuarioLogado ? (
-                    <button className={css.botaoLogoutDesktop} type="button" onClick={sair}>Logout</button>
+                    <>
+                        <Link className={css.botaoDashboardDesktop} to={rotaDashboard}>
+                            Voltar para Dashboard
+                        </Link>
+                        <button className={css.botaoLogoutDesktop} type="button" onClick={sair}>Logout</button>
+                    </>
                 ) : (
                     <>
                         <Link className={css.linkCadastro} to='/cadastro'>Cadastro</Link>
@@ -69,7 +90,12 @@ function Header({ API }) {
                     <a href="/#Contato" onClick={fecharMenu}>Contato</a>
 
                     {usuarioLogado ? (
-                        <button className={css.botaoLogoutMobile} type="button" onClick={sair}>Logout</button>
+                        <>
+                            <Link className={css.botaoDashboardMobile} to={rotaDashboard} onClick={fecharMenu}>
+                                Voltar para Dashboard
+                            </Link>
+                            <button className={css.botaoLogoutMobile} type="button" onClick={sair}>Logout</button>
+                        </>
                     ) : (
                         <>
                             <Link className={css.botaoEntrarMobile} to="/login" onClick={fecharMenu}>Entrar</Link>

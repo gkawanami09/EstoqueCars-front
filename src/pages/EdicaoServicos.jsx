@@ -15,6 +15,7 @@ function EdicaoServicos({ API }) {
     const [statusServico, setStatusServico] = useState("ativo");
     const [statusDocumento, setStatusDocumento] = useState("pendente");
     const [erro, setErro] = useState("");
+    const [mensagem, setMensagem] = useState(null);
 
     useEffect(() => {
         async function buscarDados() {
@@ -33,7 +34,7 @@ function EdicaoServicos({ API }) {
                 } else {
                     setErro("Erro ao carregar dados do serviço.");
                 }
-            } catch (erro) {
+            } catch {
                 setErro("Servidor indisponível.");
             }
         }
@@ -42,6 +43,8 @@ function EdicaoServicos({ API }) {
 
     async function atualizar(e) {
         e.preventDefault();
+        setErro("");
+        setMensagem(null);
 
         const dadosAtualizados = {
             nomeServico,
@@ -65,13 +68,38 @@ function EdicaoServicos({ API }) {
             return;
         }
 
-        alert("Serviço atualizado com sucesso!");
-        navigate("/servicos");
+        setMensagem({
+            tipo: "sucesso",
+            texto: "Servico atualizado com sucesso!"
+        });
+        setTimeout(() => navigate("/servicos"), 900);
     }
 
     return (
         <main className={css.container}>
             <h1 className={css.titulo}>Edição de Serviço</h1>
+
+            {mensagem && (
+                <div
+                    className={`${css.mensagem} ${
+                        mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
+                    }`}
+                    role="alert"
+                >
+                    <div>
+                        <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Confira os dados"}</strong>
+                        <span>{mensagem.texto}</span>
+                    </div>
+                    <button
+                        type="button"
+                        className={css.mensagem_fechar}
+                        onClick={() => setMensagem(null)}
+                        aria-label="Fechar mensagem"
+                    >
+                        x
+                    </button>
+                </div>
+            )}
 
             <form className={css.formulario} onSubmit={atualizar}>
 

@@ -39,8 +39,11 @@ function Login({ API }) {
         const tipoUsuario = Number(dados.tipo_usuario)
 
         localStorage.setItem("usuario_logado", JSON.stringify({
+            id_usuario: dados.id_usuario || dados.id_user || dados.id,
             nome,
             email,
+            telefone: dados.telefone || "",
+            cpf: dados.cpf || "",
             tipo_usuario: tipoUsuario
         }))
 

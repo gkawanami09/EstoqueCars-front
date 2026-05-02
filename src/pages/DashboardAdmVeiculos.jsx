@@ -1,6 +1,7 @@
 import css from "./DashboardAdmVeiculos.module.css";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao.jsx";
 
 function DashboardAdmVeiculos({ API }) {
     const [carros, setCarros] = useState([]);
@@ -8,6 +9,8 @@ function DashboardAdmVeiculos({ API }) {
     const [categoria, setCategoria] = useState("");
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState("");
+    const [carroParaExcluir, setCarroParaExcluir] = useState(null);
+    const [excluindoId, setExcluindoId] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -44,11 +47,7 @@ function DashboardAdmVeiculos({ API }) {
     }
 
     async function excluirCarro(id) {
-        const confirmou = window.confirm("Deseja excluir este veiculo?");
-        if (!confirmou) {
-            return;
-        }
-
+        setExcluindoId(id);
         setErro("");
 
         try {
@@ -64,8 +63,11 @@ function DashboardAdmVeiculos({ API }) {
             }
 
             setCarros((listaAtual) => listaAtual.filter((carro) => carro.id !== id));
+            setCarroParaExcluir(null);
         } catch {
             setErro("Erro de conexao com o servidor.");
+        } finally {
+            setExcluindoId(null);
         }
     }
 
@@ -278,7 +280,7 @@ function DashboardAdmVeiculos({ API }) {
                                         <button
                                             type="button"
                                             className={css.btn_excluir}
-                                            onClick={() => excluirCarro(carro.id)}
+                                            onClick={() => setCarroParaExcluir(carro)}
                                         >
                                             Excluir
                                         </button>
@@ -298,6 +300,17 @@ function DashboardAdmVeiculos({ API }) {
                     </table>
                 </section>
             </main>
+
+            <ModalConfirmacao
+                aberto={Boolean(carroParaExcluir)}
+                titulo="Excluir veiculo"
+                texto="Deseja excluir este veiculo?"
+                destaque={carroParaExcluir?.modelo || ""}
+                textoConfirmar="Excluir veiculo"
+                carregando={excluindoId === carroParaExcluir?.id}
+                onCancelar={() => setCarroParaExcluir(null)}
+                onConfirmar={() => excluirCarro(carroParaExcluir.id)}
+            />
         </div>
     );
 }
