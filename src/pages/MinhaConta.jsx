@@ -203,7 +203,7 @@ function MinhaConta({ API }) {
                         <h1 className={css.titulo}>
                             Minha <span className={css.destaque_vermelho}>conta</span>
                         </h1>
-                        <p className={css.subtitulo}>Gerencie suas informacoes pessoais e seguranca</p>
+                        <p className={css.subtitulo}>Gerencie suas informações pessoais e segurança</p>
                     </div>
                 </header>
 
@@ -254,7 +254,7 @@ function MinhaConta({ API }) {
 
                     <div className={css.cards_inferiores}>
                         <section className={css.card_form}>
-                            <h2 className={css.titulo_card}>Informacoes pessoais</h2>
+                            <h2 className={css.titulo_card}>Informações pessoais</h2>
 
                             <div className={css.grupo_input}>
                                 <label>Nome completo</label>
@@ -302,7 +302,7 @@ function MinhaConta({ API }) {
                         </section>
 
                         <section className={css.card_form}>
-                            <h2 className={`${css.titulo_card} ${css.destaque_vermelho}`}>Seguranca</h2>
+                            <h2 className={`${css.titulo_card} ${css.destaque_vermelho}`}>Segurança</h2>
 
                             <div className={css.grupo_input}>
                                 <label>Nova senha</label>

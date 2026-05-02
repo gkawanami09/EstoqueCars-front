@@ -220,7 +220,7 @@ function DashboardAdmMarcas({ API }) {
             <header className={css.cabecalho}>
                 <div>
                     <h1>Marcas</h1>
-                    <p>Cadastre, edite e remova as marcas usadas nos veiculos.</p>
+                    <p>Cadastre, edite e remova as marcas usadas nos veículos.</p>
                 </div>
             </header>
 

@@ -137,7 +137,7 @@ function DetalhesVeiculos({ API }) {
     if (carregando) {
         return (
             <main className={css.container}>
-                <div className={css.estado}>Carregando detalhes do veiculo...</div>
+                <div className={css.estado}>Carregando detalhes do veículo...</div>
             </main>
         );
     }
@@ -146,10 +146,10 @@ function DetalhesVeiculos({ API }) {
         return (
             <main className={css.container}>
                 <div className={css.estado_erro}>
-                    <strong>Ops, nao encontramos esse veiculo.</strong>
+                    <strong>Ops, nao encontramos esse veículo.</strong>
                     <span>{erro || "Tente voltar para a lista e abrir novamente."}</span>
                     <button type="button" onClick={() => navigate("/dashboardAdmVeiculos")}>
-                        Voltar para veiculos
+                        Voltar para veículos
                     </button>
                 </div>
             </main>
@@ -167,7 +167,7 @@ function DetalhesVeiculos({ API }) {
                     >
                         Voltar
                     </button>
-                    <h1>{carro.modelo || carro.nome || "Detalhes do veiculo"}</h1>
+                    <h1>{carro.modelo || carro.nome || "Detalhes do veículo"}</h1>
                     <p>{valor(carro.marca)} - {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
                 </div>
 
@@ -176,7 +176,7 @@ function DetalhesVeiculos({ API }) {
                     className={css.editar}
                     onClick={() => navigate(`/editarVeiculos/${idCarro()}`)}
                 >
-                    Editar veiculo
+                    Editar veículo
                 </button>
             </header>
 
@@ -194,11 +194,11 @@ function DetalhesVeiculos({ API }) {
                 <aside className={css.resumo}>
                     <span className={css.status}>{formatarStatusEstoque(carro.status_estoque)}</span>
                     <div className={css.preco_bloco}>
-                        <span>Preco de venda</span>
+                        <span>Preço de venda</span>
                         <strong>{formatarPreco(carro.preco)}</strong>
                     </div>
                     <div className={css.descricao_bloco}>
-                        <span>Descricao</span>
+                        <span>Descrição</span>
                         <p>{valor(carro.descricao)}</p>
                     </div>
                 </aside>
@@ -206,8 +206,8 @@ function DetalhesVeiculos({ API }) {
 
             <section className={css.ficha}>
                 <div className={css.ficha_cabecalho}>
-                    <h2>Ficha tecnica</h2>
-                    <span>Dados cadastrados do veiculo</span>
+                    <h2>Ficha técnica</h2>
+                    <span>Dados cadastrados do veículo</span>
                 </div>
 
                 <div className={css.grid}>
@@ -215,13 +215,13 @@ function DetalhesVeiculos({ API }) {
                     <Info titulo="Modelo" valor={valor(carro.modelo)} />
                     <Info titulo="Categoria" valor={valor(carro.categoria || carro.nome_categoria)} />
                     <Info titulo="Cambio" valor={formatarCambio(carro.cambio)} />
-                    <Info titulo="Ano fabricacao" valor={valor(carro.ano_fabricacao)} />
+                    <Info titulo="Ano fabricação" valor={valor(carro.ano_fabricacao)} />
                     <Info titulo="Ano modelo" valor={valor(carro.ano_modelo)} />
                     <Info titulo="Quilometragem" valor={`${formatarNumero(carro.quilometragem)} km`} />
                     <Info titulo="Cor" valor={valor(carro.cor)} />
                     <Info titulo="Placa" valor={valor(carro.placa)} />
                     <Info titulo="Renavam" valor={valor(carro.renavam)} />
-                    <Info titulo="Conservacao" valor={formatarEstado(carro.estado_conservacao)} />
+                    <Info titulo="Conservação" valor={formatarEstado(carro.estado_conservacao)} />
                     <Info titulo="Documento" valor={formatarDocumento(carro.status_documento)} />
                 </div>
             </section>

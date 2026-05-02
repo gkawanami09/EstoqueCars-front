@@ -422,8 +422,8 @@ function CadastroServicos({ API }) {
     return (
         <main className={css.container}>
             <div className={css.cabecalho}>
-                <h1 className={css.titulo}>Cadastro de Servicos</h1>
-                <p className={css.subtitulo}>Cadastre, consulte, edite, exclua e reajuste os servicos da oficina.</p>
+                <h1 className={css.titulo}>Cadastro de Serviços</h1>
+                <p className={css.subtitulo}>Cadastre, consulte, edite, exclua e reajuste os serviços da oficina.</p>
             </div>
 
             {mensagem && (
@@ -451,15 +451,15 @@ function CadastroServicos({ API }) {
             <section className={css.painel}>
                 <div className={css.painelCabecalho}>
                     <div>
-                        <h2 className={css.painelTitulo}>Novo servico</h2>
-                        <p>Informe o nome e o valor do servico.</p>
+                        <h2 className={css.painelTitulo}>Novo serviço</h2>
+                        <p>Informe o nome e o valor do serviço.</p>
                     </div>
                 </div>
 
                 <form className={css.formularioInterno} onSubmit={salvar}>
                     <div className={css.duplo}>
                         <Input
-                            label="Nome do Servico"
+                            label="Nome do Serviço"
                             value={formulario.nome_servico}
                             onChange={(e) => atualizarCampo("nome_servico", e.target.value)}
                             placeholder="Ex: Revisao completa"
@@ -482,7 +482,7 @@ function CadastroServicos({ API }) {
                             Limpar
                         </button>
                         <button type="submit" className={css.salvar} disabled={salvando}>
-                            {salvando ? "Salvando..." : "Salvar Servico"}
+                            {salvando ? "Salvando..." : "Salvar Serviço"}
                         </button>
                     </div>
                 </form>
@@ -491,8 +491,8 @@ function CadastroServicos({ API }) {
             <section className={css.painel}>
                 <div className={css.painelCabecalho}>
                     <div>
-                        <h2 className={css.painelTitulo}>Buscar servicos</h2>
-                        <p>Pesquise por nome do servico ou valor unitario.</p>
+                        <h2 className={css.painelTitulo}>Buscar serviços</h2>
+                        <p>Pesquise por nome do serviço ou valor unitário.</p>
                     </div>
                 </div>
 
@@ -509,13 +509,13 @@ function CadastroServicos({ API }) {
                         />
 
                         <label className={css.campo}>
-                            <span>Servico</span>
+                            <span>Serviço</span>
                             <select
                                 className={css.select}
                                 value={filtros.id_servico}
                                 onChange={(e) => atualizarFiltro("id_servico", e.target.value)}
                             >
-                                <option value="">Todos os servicos</option>
+                                <option value="">Todos os serviços</option>
                                 {servicos.map((servico) => (
                                     <option key={servico.id_servico} value={servico.id_servico}>
                                         {servico.descricao}
@@ -525,7 +525,7 @@ function CadastroServicos({ API }) {
                         </label>
 
                         <Input
-                            label="Valor unitario"
+                            label="Valor unitário"
                             {...MASCARA_VALOR}
                             value={filtros.valor_unitario}
                             onAccept={(valor) => atualizarFiltro("valor_unitario", String(valor))}
@@ -549,7 +549,7 @@ function CadastroServicos({ API }) {
                 <div className={css.painelCabecalho}>
                     <div>
                         <h2 className={css.painelTitulo}>Reajustar valores</h2>
-                        <p>Informe apenas a porcentagem para reajustar todos, ou escolha um servico especifico.</p>
+                        <p>Informe apenas a porcentagem para reajustar todos, ou escolha um serviço específico.</p>
                     </div>
                 </div> 
 
@@ -566,13 +566,13 @@ function CadastroServicos({ API }) {
                         />
 
                         <label className={css.campo}>
-                            <span>Servico especifico</span>
+                            <span>Serviço especifico</span>
                             <select
                                 className={css.select}
                                 value={reajuste.id_servico}
                                 onChange={(e) => atualizarReajuste("id_servico", e.target.value)}
                             >
-                                <option value="">Todos os servicos</option>
+                                <option value="">Todos os serviços</option>
                                 {servicos.map((servico) => (
                                     <option key={servico.id_servico} value={servico.id_servico}>
                                         {servico.descricao}
@@ -594,15 +594,15 @@ function CadastroServicos({ API }) {
                 <section className={css.painel}>
                     <div className={css.painelCabecalho}>
                         <div>
-                            <h2 className={css.painelTitulo}>Editar servico #{editandoId}</h2>
-                            <p>Atualize as informacoes do servico selecionado.</p>
+                            <h2 className={css.painelTitulo}>Editar serviço #{editandoId}</h2>
+                            <p>Atualize as informações do serviço selecionado.</p>
                         </div>
                     </div>
 
                     <form className={css.formularioInterno} onSubmit={atualizarServico}>
                         <div className={css.duplo}>
                             <Input
-                                label="Nome do Servico"
+                                label="Nome do Serviço"
                                 value={edicao.nome_servico}
                                 onChange={(e) => setEdicao((atual) => ({ ...atual, nome_servico: e.target.value }))}
                                 required
@@ -623,7 +623,7 @@ function CadastroServicos({ API }) {
                                 Cancelar
                             </button>
                             <button type="submit" className={css.salvar} disabled={salvando}>
-                                {salvando ? "Atualizando..." : "Salvar alteracoes"}
+                                {salvando ? "Atualizando..." : "Salvar alterações"}
                             </button>
                         </div>
                     </form>
@@ -633,7 +633,7 @@ function CadastroServicos({ API }) {
             <section className={css.painel}>
                 <div className={css.painelCabecalho}>
                     <div>
-                        <h2 className={css.painelTitulo}>Servicos cadastrados</h2>
+                        <h2 className={css.painelTitulo}>Serviços cadastrados</h2>
                         <p>{servicos.length} registro(s) carregado(s).</p>
                     </div>
                     <button type="button" className={css.botaoSecundario} onClick={() => buscarServicos(FILTROS_INICIAIS)}>
@@ -647,10 +647,10 @@ function CadastroServicos({ API }) {
                             <thead>
                                 <tr>
                                     <th>ID</th>
-                                    <th>Servico</th>
+                                    <th>Serviço</th>
                                     <th>Valor</th>
                                     <th>Reajuste</th>
-                                    <th>Acoes</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -681,7 +681,7 @@ function CadastroServicos({ API }) {
                         </table>
                     ) : (
                         <div className={css.vazio}>
-                            {carregando ? "Carregando servicos..." : "Nenhum servico encontrado."}
+                            {carregando ? "Carregando serviços..." : "Nenhum serviço encontrado."}
                         </div>
                     )}
                 </div>
@@ -699,7 +699,7 @@ function CadastroServicos({ API }) {
                         <div className={css.modalIcone}>!</div>
                         <div>
                             <h2 id="titulo-confirmacao" className={css.modalTitulo}>
-                                Excluir servico
+                                Excluir serviço
                             </h2>
                             <p className={css.modalTexto}>
                                 Deseja deletar o servico <strong>{confirmacao.descricao}</strong>?

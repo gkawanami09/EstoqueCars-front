@@ -824,8 +824,8 @@ function CadastroManutencao({ API }) {
         <main className={css.container}>
             <header className={css.cabecalho}>
                 <div>
-                    <h1 className={css.titulo}>Manutencoes</h1>
-                    <p className={css.subtitulo}>Agende servicos, acompanhe itens e consulte o historico de valores.</p>
+                    <h1 className={css.titulo}>Manutenções</h1>
+                    <p className={css.subtitulo}>Agende servícos, acompanhe itens e consulte o histórico de valores.</p>
                 </div>
 
                 <button type="button" className={css.botaoSecundario} onClick={carregarManutencoes}>
@@ -855,7 +855,7 @@ function CadastroManutencao({ API }) {
                     <div className={css.formCabecalho}>
                         <div>
                             <h2>{formulario.id_manutencao ? "Editar agendamento" : "Novo agendamento"}</h2>
-                            <span>Escolha a data, o horario e os servicos que serao feitos no veiculo.</span>
+                            <span>Escolha a data, o horário e os serviços que serão feitos no veículo.</span>
                         </div>
                         <strong>{formatarMoeda(totalFormulario)}</strong>
                     </div>
@@ -889,12 +889,12 @@ function CadastroManutencao({ API }) {
                                             </button>
                                         ))
                                     ) : (
-                                        <div className={css.autocompleteVazio}>Nenhum veiculo encontrado</div>
+                                        <div className={css.autocompleteVazio}>Nenhum veículo encontrado</div>
                                     )}
                                 </div>
                             )}
                             {formulario.id_veiculo && (
-                                <small className={css.campoAjuda}>Veiculo selecionado para este agendamento.</small>
+                                <small className={css.campoAjuda}>Veículo selecionado para este agendamento.</small>
                             )}
                         </div>
 
@@ -916,7 +916,7 @@ function CadastroManutencao({ API }) {
                             return (
                                 <div key={`${item.id_servico}-${index}`} className={css.linhaServico}>
                                     <label className={css.campo}>
-                                        <span>Servico</span>
+                                        <span>Serviço</span>
                                         {servicos.length > 0 ? (
                                             <select
                                                 value={item.id_servico}
@@ -931,7 +931,7 @@ function CadastroManutencao({ API }) {
                                             </select>
                                         ) : (
                                             <select value="" disabled>
-                                                <option>Nenhum servico carregado</option>
+                                                <option>Nenhum serviço carregado</option>
                                             </select>
                                         )}
                                     </label>
@@ -965,7 +965,7 @@ function CadastroManutencao({ API }) {
 
                     <div className={css.botoesFormulario}>
                         <button type="button" className={css.botaoSecundario} onClick={adicionarServicoFormulario}>
-                            Adicionar servico
+                            Adicionar servíco
                         </button>
                         <button type="button" className={css.botaoSecundario} onClick={limparFormulario}>
                             Limpar
@@ -979,7 +979,7 @@ function CadastroManutencao({ API }) {
                 <form className={css.painelHistorico} onSubmit={buscarHistorico}>
                     <h2>Historico de preco</h2>
                     <label className={css.campo}>
-                        <span>Servico</span>
+                        <span>Serviço</span>
                         <select
                             value={servicoHistorico}
                             onChange={(e) => setServicoHistorico(e.target.value)}
@@ -1013,7 +1013,7 @@ function CadastroManutencao({ API }) {
                     <img src="/IconBusca.png" alt="Buscar" />
                     <input
                         type="text"
-                        placeholder="Buscar por placa, modelo, marca, data ou servico"
+                        placeholder="Buscar por placa, modelo, marca, data ou serviço"
                         value={buscaTexto}
                         onChange={(e) => setBuscaTexto(e.target.value)}
                     />
@@ -1027,24 +1027,24 @@ function CadastroManutencao({ API }) {
                 <table className={css.tabela}>
                     <thead>
                     <tr>
-                        <th>Veiculo</th>
+                        <th>Veículo</th>
                         <th>Placa</th>
                         <th>Data</th>
                         <th>Total</th>
                         <th>Status</th>
-                        <th>Acoes</th>
+                        <th>Ações</th>
                     </tr>
                     </thead>
                     <tbody>
                     {carregando && (
                         <tr>
-                            <td colSpan="6" className={css.celulaVazia}>Carregando manutencoes...</td>
+                            <td colSpan="6" className={css.celulaVazia}>Carregando manutenções...</td>
                         </tr>
                     )}
 
                     {!carregando && manutencoesFiltradas.length === 0 && (
                         <tr>
-                            <td colSpan="6" className={css.celulaVazia}>Nenhuma manutencao encontrada</td>
+                            <td colSpan="6" className={css.celulaVazia}>Nenhuma manutenção encontrada</td>
                         </tr>
                     )}
 
@@ -1095,7 +1095,7 @@ function CadastroManutencao({ API }) {
 
                     <form className={css.formItem} onSubmit={adicionarItem}>
                         <label className={css.campo}>
-                            <span>Servico</span>
+                            <span>Serviço</span>
                             {servicos.length > 0 ? (
                                 <select
                                     value={itemFormulario.id_servico}
@@ -1110,7 +1110,7 @@ function CadastroManutencao({ API }) {
                                 </select>
                             ) : (
                                 <select value="" disabled>
-                                    <option>Nenhum servico carregado</option>
+                                    <option>Nenhum serviço carregado</option>
                                 </select>
                             )}
                         </label>
@@ -1132,11 +1132,11 @@ function CadastroManutencao({ API }) {
                         <table className={css.tabela}>
                             <thead>
                             <tr>
-                                <th>Servico</th>
+                                <th>Serviço</th>
                                 <th>Quantidade</th>
                                 <th>Unitario</th>
                                 <th>Total</th>
-                                <th>Acoes</th>
+                                <th>Ações</th>
                             </tr>
                             </thead>
                             <tbody>

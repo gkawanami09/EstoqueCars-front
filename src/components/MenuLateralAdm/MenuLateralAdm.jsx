@@ -46,7 +46,7 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
                     onClick={() => navegar("/dashboardAdmVeiculos")}
                 >
                     <img src="/ImgNavBar/Veículo.png" alt="Veiculos" className={css.icone_img} />
-                    Veiculos
+                    Veículos
                 </button>
 
          
@@ -82,7 +82,7 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
 
                 <button type="button" className={css.menu_item}>
                     <img src="/ImgNavBar/Relatórios.png" alt="Relatorios" className={css.icone_img} />
-                    Relatorios
+                    Relatórios
                 </button>
             </nav>
 

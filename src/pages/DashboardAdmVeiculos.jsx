@@ -148,7 +148,7 @@ function DashboardAdmVeiculos({ API }) {
             <main className={css.conteudo_principal}>
                 <header className={css.cabecalho}>
                     <h1 className={css.titulo_boas_vindas}>
-                        Veiculos
+                        Veículos
                     </h1>
                     <div className={css.botoes_cabecalho}>
                         <button
@@ -188,7 +188,7 @@ function DashboardAdmVeiculos({ API }) {
                     />
                     <input
                         type="text"
-                        placeholder="Buscar veiculos"
+                        placeholder="Buscar veículos"
                         className={css.input_busca}
                         value={busca}
                         onChange={(e) => setBusca(e.target.value)}
@@ -225,9 +225,9 @@ function DashboardAdmVeiculos({ API }) {
                             <th>Ano</th>
                             <th>Km</th>
                             <th>Cor</th>
-                            <th>Preco</th>
+                            <th>Preço</th>
                             <th>Status</th>
-                            <th>Acoes</th>
+                            <th>Ações</th>
                         </tr>
                         </thead>
 
@@ -235,7 +235,7 @@ function DashboardAdmVeiculos({ API }) {
                         {carregando && (
                             <tr>
                                 <td colSpan="9" className={css.celula_vazia}>
-                                    Carregando veiculos...
+                                    Carregando veículos...
                                 </td>
                             </tr>
                         )}
@@ -243,7 +243,7 @@ function DashboardAdmVeiculos({ API }) {
                         {!carregando && carrosFiltrados.length === 0 && (
                             <tr>
                                 <td colSpan="9" className={css.celula_vazia}>
-                                    Nenhum veiculo cadastrado
+                                    Nenhum veículo cadastrado
                                 </td>
                             </tr>
                         )}

@@ -319,7 +319,7 @@ function CadastroVeiculo({ API }) {
     return (
         <main className={css.container}>
             <h1 className={css.titulo}>
-                {estaEditando ? "Editar Veiculo" : "Cadastro Veiculos"}
+                {estaEditando ? "Editar Veiculo" : "Cadastro Veículos"}
             </h1>
 
             <form className={css.formulario} onSubmit={salvar}>
@@ -438,7 +438,7 @@ function CadastroVeiculo({ API }) {
 
                         <div className={css.duplo}>
                             <Input
-                                label="Ano Fabricacao"
+                                label="Ano Fabricação"
                                 value={formulario.ano_fabricacao}
                                 onChange={(e) => atualizarCampo("ano_fabricacao", e.target.value.replace(/\D/g, "").slice(0, 4))}
                                 inputMode="numeric"
@@ -474,18 +474,21 @@ function CadastroVeiculo({ API }) {
                         </div>
 
                         <div className={css.duplo}>
+                           
                             <select
                                 className={css.select}
                                 value={formulario.estado_conservacao}
                                 onChange={(e) => atualizarCampo("estado_conservacao", e.target.value)}
+                                label="Estado da conservação"
                             >
+                                
                                 <option value="1">Bom</option>
                                 <option value="2">Regular</option>
                                 <option value="3">Ruim</option>
                             </select>
 
                             <Input
-                                label="Preco de Venda"
+                                label="Preço de Venda"
                                 as={IMaskInput}
                                 mask={Number}
                                 scale={2}

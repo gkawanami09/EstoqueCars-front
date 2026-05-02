@@ -242,13 +242,13 @@ function DashboardAdm({ API }) {
                     <h1 className={css.titulo_boas_vindas}>
                         Bem-vindo, <span className={css.nome_adm}>Administrador</span>
                     </h1>
-                    <p className={css.subtitulo}>Acompanhe estoque, clientes, servicos e manutencoes em um so lugar.</p>
+                    <p className={css.subtitulo}>Acompanhe estoque, clientes, serviços e manutenções em um so lugar.</p>
                 </div>
 
                 <div className={css.acoesTopo}>
-                    <button type="button" onClick={() => navigate("/cadastroVeiculos")}>Cadastrar Veiculo</button>
-                    <button type="button" onClick={() => navigate("/CadastroServicos")}>Cadastrar Servico</button>
-                    <button type="button" onClick={() => navigate("/manutencoes")}>Agendar Manutencao</button>
+                    <button type="button" onClick={() => navigate("/cadastroVeiculos")}>Cadastrar Veículo</button>
+                    <button type="button" onClick={() => navigate("/CadastroServicos")}>Cadastrar Serviço</button>
+                    <button type="button" onClick={() => navigate("/manutencoes")}>Agendar Manutenção</button>
                 </div>
             </header>
 
@@ -256,7 +256,7 @@ function DashboardAdm({ API }) {
                 <img src="/IconBusca.png" alt="Buscar" className={css.icone_busca} />
                 <input
                     type="text"
-                    placeholder="Buscar veiculos, clientes, servicos ou manutencoes"
+                    placeholder="Buscar veiculos"
                     className={css.input_busca}
                     value={busca}
                     onChange={(e) => setBusca(e.target.value)}
@@ -268,9 +268,9 @@ function DashboardAdm({ API }) {
 
             <section className={css.cardsResumo}>
                 <article className={css.cardResumo}>
-                    <span>Veiculos em estoque</span>
+                    <span>Veículos em estoque</span>
                     <strong>{resumo.emEstoque.length}</strong>
-                    <small>Disponiveis para venda</small>
+                    <small>Disponíveis para venda</small>
                 </article>
                 <article className={css.cardResumo}>
                     <span>Vendidos</span>
@@ -283,14 +283,14 @@ function DashboardAdm({ API }) {
                     <small>{resumo.clientesBloqueados.length} bloqueado(s)</small>
                 </article>
                 <article className={css.cardResumo}>
-                    <span>Servicos</span>
+                    <span>Serviços</span>
                     <strong>{servicos.length}</strong>
                     <small>Cadastrados</small>
                 </article>
                 <article className={css.cardResumo}>
                     <span>Valor em estoque</span>
                     <strong className={css.valorCard}>{formatarMoeda(resumo.valorEstoque)}</strong>
-                    <small>Soma dos disponiveis</small>
+                    <small>Soma dos disponíveis</small>
                 </article>
             </section>
 
@@ -315,7 +315,7 @@ function DashboardAdm({ API }) {
 
                     <article className={css.painelLista}>
                         <h2>Alertas do sistema</h2>
-                        <p>Manutencoes proximas: <strong>{resumo.proximas.length}</strong></p>
+                        <p>Manutenções proximas: <strong>{resumo.proximas.length}</strong></p>
                         <p>Clientes bloqueados: <strong>{resumo.clientesBloqueados.length}</strong></p>
                         <p>Estoque baixo: <strong>{resumo.emEstoque.length <= 3 ? "Sim" : "Nao"}</strong></p>
                     </article>
@@ -324,7 +324,7 @@ function DashboardAdm({ API }) {
 
             <section className={css.tabelaContainer}>
                 <div className={css.painelCabecalho}>
-                    <h2>Veiculos</h2>
+                    <h2>Veículos</h2>
                     <div className={css.filtrosRapidos}>
                         {categorias.map((categoria) => (
                             <button key={categoria} type="button" onClick={() => setBusca(categoria)}>
@@ -342,8 +342,8 @@ function DashboardAdm({ API }) {
                             <th>Marca</th>
                             <th>Ano</th>
                             <th>Cor</th>
-                            <th>Preco</th>
-                            <th>Acoes</th>
+                            <th>Preço</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
