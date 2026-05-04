@@ -68,6 +68,29 @@ function montarUrlFoto(API, valor) {
     return `${API}/uploads/${valor}`;
 }
 
+// Aplica mascara visual de telefone sem alterar o valor salvo.
+function formatarTelefone(valor) {
+    const numeros = String(valor || "").replace(/\D/g, "").slice(0, 11);
+
+    if (!numeros) {
+        return "";
+    }
+
+    if (numeros.length <= 2) {
+        return `(${numeros}`;
+    }
+
+    if (numeros.length <= 6) {
+        return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
+    }
+
+    if (numeros.length <= 10) {
+        return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`;
+    }
+
+    return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
+}
+
 // Tela Minha Conta do usuario.
 function MinhaConta({ API }) {
     // Le usuario inicial apenas uma vez.
@@ -312,8 +335,8 @@ function MinhaConta({ API }) {
                             </div>
                             <div className={css.dados_usuario}>
                                 <h2>{formulario.nome || "Usuario"}</h2>
-                                <p>{formulario.email || "E-mail nao informado"}</p>
-                                <p>{formulario.telefone || "Telefone nao informado"}</p>
+                                <p>{formulario.email || "E-mail não informado"}</p>
+                                <p>{formatarTelefone(formulario.telefone) || "Telefone não informado"}</p>
                             </div>
                         </div>
                         <label className={css.alterar_foto_area}>

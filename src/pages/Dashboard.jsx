@@ -270,7 +270,7 @@ function Dashboard({ API }) {
 
                     {/* Estado vazio quando nao carregou, nao tem erro e nao tem carros filtrados. */}
                     {!carregando && !erro && carrosFiltrados.length === 0 && (
-                        <div className={css.estado_lista}>Nenhum veiculo encontrado.</div>
+                        <div className={css.estado_lista}>Nenhum veículo encontrado.</div>
                     )}
 
                     {/* Renderiza um card para cada carro filtrado. */}
