@@ -205,6 +205,12 @@ function formatarMoeda(valor) {
     });
 }
 
+// Garante uma quantidade numerica valida para servicos da manutencao.
+function normalizarQuantidadeServico(valor) {
+    const quantidade = Number(valor || 1);
+    return quantidade > 0 ? quantidade : 1;
+}
+
 // Monta o header Authorization quando existe token salvo.
 function cabecalhoAutorizacao() {
     const token = localStorage.getItem("access_token");
@@ -608,9 +614,39 @@ function CadastroManutencao({ API }) {
     function atualizarServicoFormulario(index, campo, valor) {
         setFormulario((dadosAtuais) => ({
             ...dadosAtuais,
-            servicos: dadosAtuais.servicos.map((servico, posicao) =>
-                posicao === index ? { ...servico, [campo]: valor } : servico
-            )
+            servicos: (() => {
+                const servicosAtualizados = dadosAtuais.servicos.map((servico, posicao) =>
+                    posicao === index ? { ...servico, [campo]: valor } : servico
+                );
+
+                if (campo !== "id_servico" || !String(valor).trim()) {
+                    return servicosAtualizados;
+                }
+
+                const posicaoDuplicada = servicosAtualizados.findIndex((servico, posicao) =>
+                    posicao !== index && String(servico.id_servico) === String(valor)
+                );
+
+                if (posicaoDuplicada === -1) {
+                    return servicosAtualizados;
+                }
+
+                return servicosAtualizados
+                    .map((servico, posicao) => {
+                        if (posicao !== posicaoDuplicada) {
+                            return servico;
+                        }
+
+                        const quantidadeAtual = normalizarQuantidadeServico(servico.quantidade);
+                        const quantidadeRepetida = normalizarQuantidadeServico(servicosAtualizados[index]?.quantidade);
+
+                        return {
+                            ...servico,
+                            quantidade: String(quantidadeAtual + quantidadeRepetida)
+                        };
+                    })
+                    .filter((_, posicao) => posicao !== index);
+            })()
         }));
     }
 
@@ -639,14 +675,22 @@ function CadastroManutencao({ API }) {
 
     // Converte os servicos do formulario para o JSON esperado pela API.
     function montarServicosPayload() {
-        // Remove linhas sem servico escolhido.
-        return formulario.servicos
+        const servicosAgrupados = new Map();
+
+        formulario.servicos
             .filter((servico) => String(servico.id_servico).trim())
-            // Converte id e quantidade para numero.
-            .map((servico) => ({
-                id_servico: Number(servico.id_servico),
-                quantidade: Number(servico.quantidade || 1)
-            }));
+            .forEach((servico) => {
+                const idServico = Number(servico.id_servico);
+                const quantidade = normalizarQuantidadeServico(servico.quantidade);
+                const quantidadeAtual = servicosAgrupados.get(idServico) || 0;
+
+                servicosAgrupados.set(idServico, quantidadeAtual + quantidade);
+            });
+
+        return Array.from(servicosAgrupados, ([id_servico, quantidade]) => ({
+            id_servico,
+            quantidade
+        }));
     }
 
     // Cria ou edita uma manutencao, vinculando veiculo, data e servicos.
