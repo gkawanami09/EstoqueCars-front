@@ -189,7 +189,7 @@ function DetalhesVeiculos({ API }) {
 
         // 2 ou texto com indisponivel vira "Indisponivel".
         if (status === "2" || status.includes("indispon")) {
-            return "Indisponivel";
+            return "Indisponível";
         }
 
         // 3 ou texto com vendido vira "Vendido".
@@ -199,6 +199,21 @@ function DetalhesVeiculos({ API }) {
 
         // Qualquer outro valor vira "Em estoque".
         return "Em estoque";
+    }
+
+    // Escolhe a cor do status usando a mesma regra da listagem administrativa.
+    function classeStatusEstoque(valor) {
+        const statusFormatado = formatarStatusEstoque(valor);
+
+        if (statusFormatado === "Indisponível") {
+            return css.status_indisponivel;
+        }
+
+        if (statusFormatado === "Vendido") {
+            return css.status_vendido;
+        }
+
+        return css.status_estoque;
     }
 
     // Converte o estado de conservacao para texto.
@@ -375,7 +390,9 @@ function DetalhesVeiculos({ API }) {
                 {/* Card lateral com status, preco e descricao. */}
                 <aside className={css.resumo}>
                     {/* Status do estoque do veiculo. */}
-                    <span className={css.status}>{formatarStatusEstoque(carro.status_estoque)}</span>
+                    <span className={`${css.status} ${classeStatusEstoque(carro.status_estoque)}`}>
+                        {formatarStatusEstoque(carro.status_estoque)}
+                    </span>
                     {/* Preco de venda formatado em real. */}
                     <div className={css.preco_bloco}>
                         <span>Preço de venda</span>

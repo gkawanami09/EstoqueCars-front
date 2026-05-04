@@ -170,7 +170,7 @@ function DashboardAdmVeiculos({ API }) {
     }, [carrosFiltrados, paginaAtual]);
 
     // Lista de categorias usadas nos botoes de filtro.
-    const categorias = ["Sedan", "Eletrico", "Esportivo", "Caminhonete", "SUV"];
+    const categorias = ["Sedan", "Elétrico", "Esportivo", "Caminhonete", "SUV"];
 
     // Formata o preco para moeda brasileira.
     function formatarPreco(valor) {

@@ -43,6 +43,16 @@ function DashboardAdmMarcas({ API }) {
         return marca?.marca || marca?.MARCA || marca?.nome || marca?.NOME || "";
     }
 
+    // Normaliza o nome para comparar duplicidade sem diferenca de caixa, acento ou espacos extras.
+    function normalizarNomeMarca(nome) {
+        return String(nome || "")
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .trim()
+            .replace(/\s+/g, " ")
+            .toLowerCase();
+    }
+
     // Le resposta que pode vir vazia ou em JSON.
     async function lerResposta(resposta) {
         // Le primeiro como texto para evitar erro com corpo vazio.
@@ -176,6 +186,24 @@ function DashboardAdmMarcas({ API }) {
             return;
         }
 
+        // Define se esta editando.
+        const editando = Boolean(marcaEditando);
+        // Pega o id da marca se estiver editando.
+        const id = idMarca(marcaEditando);
+        // Impede cadastrar ou editar para um nome que ja existe em outra marca.
+        const marcaDuplicada = marcas.some((marca) =>
+            normalizarNomeMarca(textoMarca(marca)) === normalizarNomeMarca(nome) &&
+            String(idMarca(marca)) !== String(id || "")
+        );
+
+        if (marcaDuplicada) {
+            setMensagem({
+                tipo: "erro",
+                texto: "Já existe uma marca cadastrada com esse nome."
+            });
+            return;
+        }
+
         // Usa FormData porque o backend Flask le request.form.
         const formData = new FormData();
         // Campo principal para cadastro.
@@ -185,10 +213,6 @@ function DashboardAdmMarcas({ API }) {
         // Campo usado em algumas rotas de edicao.
         formData.append("nova_marca", nome);
 
-        // Define se esta editando.
-        const editando = Boolean(marcaEditando);
-        // Pega o id da marca se estiver editando.
-        const id = idMarca(marcaEditando);
         // Monta a URL correta.
         const url = editando ? `${API}/editar_marca/${id}` : `${API}/cadastrar_marca`;
 

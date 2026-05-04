@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import css from "./CadastroManutencao.module.css";
 // Importa o modal usado para confirmar exclusoes.
 import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao.jsx";
+import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Cria o formulario vazio de manutencao.
 const formularioInicial = () => ({
@@ -257,6 +258,8 @@ function CadastroManutencao({ API }) {
     const [quantidadesItens, setQuantidadesItens] = useState({});
     // Texto usado na busca da tabela.
     const [buscaTexto, setBuscaTexto] = useState("");
+    // Pagina atual da tabela de manutencoes.
+    const [paginaAtual, setPaginaAtual] = useState(1);
     // Texto digitado no autocomplete de veiculo.
     const [buscaVeiculo, setBuscaVeiculo] = useState("");
     // Controla se as sugestoes de veiculo aparecem.
@@ -335,6 +338,22 @@ function CadastroManutencao({ API }) {
             return campos.some((campo) => String(campo || "").toLowerCase().includes(termo));
         });
     }, [buscaTexto, manutencoes]);
+
+    // Total de paginas considerando os filtros atuais.
+    const totalPaginas = Math.max(1, Math.ceil(manutencoesFiltradas.length / ITENS_POR_PAGINA));
+
+    // Mantem a pagina atual dentro do limite quando a lista muda.
+    useEffect(() => {
+        if (paginaAtual > totalPaginas) {
+            setPaginaAtual(totalPaginas);
+        }
+    }, [paginaAtual, totalPaginas]);
+
+    // Mostra somente as manutencoes da pagina atual.
+    const manutencoesPaginadas = useMemo(() => {
+        const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        return manutencoesFiltradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+    }, [manutencoesFiltradas, paginaAtual]);
 
     // Calcula o total do formulario antes de salvar.
     const totalFormulario = useMemo(() => {
@@ -1298,10 +1317,20 @@ function CadastroManutencao({ API }) {
                         type="text"
                         placeholder="Buscar por placa, modelo, marca, data ou serviço"
                         value={buscaTexto}
-                        onChange={(e) => setBuscaTexto(e.target.value)}
+                        onChange={(e) => {
+                            setBuscaTexto(e.target.value);
+                            setPaginaAtual(1);
+                        }}
                     />
                 </div>
-                <button type="button" className={css.botaoSecundario} onClick={() => setBuscaTexto("")}>
+                <button
+                    type="button"
+                    className={css.botaoSecundario}
+                    onClick={() => {
+                        setBuscaTexto("");
+                        setPaginaAtual(1);
+                    }}
+                >
                     Limpar busca
                 </button>
             </section>
@@ -1331,7 +1360,7 @@ function CadastroManutencao({ API }) {
                         </tr>
                     )}
 
-                    {!carregando && manutencoesFiltradas.map((manutencao) => (
+                    {!carregando && manutencoesPaginadas.map((manutencao) => (
                         <tr key={manutencao.id_manutencao}>
                             <td data-label="Veículo">
                                 <strong>{manutencao.modelo || "Veiculo"}</strong>
@@ -1363,6 +1392,16 @@ function CadastroManutencao({ API }) {
                     </tbody>
                 </table>
             </section>
+
+            {!carregando && manutencoesFiltradas.length > 0 && (
+                <div className={css.paginacaoArea}>
+                    <Paginacao
+                        paginaAtual={paginaAtual}
+                        totalItens={manutencoesFiltradas.length}
+                        onMudarPagina={setPaginaAtual}
+                    />
+                </div>
+            )}
 
             {manutencaoSelecionada && (
                 <section className={css.painelItens}>

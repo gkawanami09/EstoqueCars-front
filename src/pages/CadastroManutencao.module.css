@@ -429,6 +429,12 @@
     overflow-x: auto;
 }
 
+.paginacaoArea {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px !important;
+}
+
 .tabela {
     width: 100%;
     border-collapse: collapse;

@@ -128,10 +128,23 @@
     width: fit-content;
     border-radius: 999px;
     padding: 8px 14px;
-    background: #dcfce7;
-    color: #166534;
     font-size: 13px;
     font-weight: 900;
+}
+
+.status_estoque {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status_indisponivel {
+    background: #fee2e2;
+    color: #b91c1c;
+}
+
+.status_vendido {
+    background: #dcfce7;
+    color: #166534;
 }
 
 .ficha,

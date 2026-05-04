@@ -3,9 +3,10 @@ import css from "./CadastroServicos.module.css";
 // Importa o componente Input padronizado do projeto.
 import Input from "../components/Input/Input.jsx";
 // Importa hooks do React usados para estado, efeito e funcoes memoizadas.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 // Importa o input com mascara para campos de valor e porcentagem.
 import { IMaskInput } from "react-imask";
+import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Estado inicial do formulario de cadastro de servico.
 const FORMULARIO_INICIAL = {
@@ -233,6 +234,8 @@ function CadastroServicos({ API }) {
     const [reajuste, setReajuste] = useState(REAJUSTE_INICIAL);
     // Guarda a lista de servicos exibida na tabela.
     const [servicos, setServicos] = useState([]);
+    // Guarda a pagina atual da tabela.
+    const [paginaAtual, setPaginaAtual] = useState(1);
     // Guarda mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
     // Controla carregamento da busca/listagem.
@@ -318,6 +321,22 @@ function CadastroServicos({ API }) {
         // Busca sem filtros e sem exibir mensagem inicial.
         buscarServicos(FILTROS_INICIAIS, false);
     }, [buscarServicos]); // Executa novamente se a funcao de busca mudar.
+
+    // Total de paginas considerando os servicos carregados.
+    const totalPaginas = Math.max(1, Math.ceil(servicos.length / ITENS_POR_PAGINA));
+
+    // Mantem a pagina atual valida quando a lista muda de tamanho.
+    useEffect(() => {
+        if (paginaAtual > totalPaginas) {
+            setPaginaAtual(totalPaginas);
+        }
+    }, [paginaAtual, totalPaginas]);
+
+    // Exibe apenas os servicos da pagina atual.
+    const servicosPaginados = useMemo(() => {
+        const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        return servicos.slice(inicio, inicio + ITENS_POR_PAGINA);
+    }, [servicos, paginaAtual]);
 
     // Atualiza um campo do formulario de cadastro.
     function atualizarCampo(campo, valor) {
@@ -596,6 +615,7 @@ function CadastroServicos({ API }) {
 
     function limparFiltros() {
         setFiltros(FILTROS_INICIAIS);
+        setPaginaAtual(1);
         buscarServicos(FILTROS_INICIAIS, false);
     }
 
@@ -678,6 +698,7 @@ function CadastroServicos({ API }) {
 
                 <form className={css.formularioInterno} onSubmit={(e) => {
                     e.preventDefault();
+                    setPaginaAtual(1);
                     buscarServicos(filtros);
                 }}>
                     <div className={css.filtros}>
@@ -816,7 +837,14 @@ function CadastroServicos({ API }) {
                         <h2 className={css.painelTitulo}>Serviços cadastrados</h2>
                         <p>{servicos.length} registro(s) carregado(s).</p>
                     </div>
-                    <button type="button" className={css.botaoSecundario} onClick={() => buscarServicos(FILTROS_INICIAIS)}>
+                    <button
+                        type="button"
+                        className={css.botaoSecundario}
+                        onClick={() => {
+                            setPaginaAtual(1);
+                            buscarServicos(FILTROS_INICIAIS);
+                        }}
+                    >
                         Atualizar lista
                     </button>
                 </div>
@@ -834,7 +862,7 @@ function CadastroServicos({ API }) {
                                 </tr>
                             </thead>
                             <tbody>
-                                {servicos.map((servico) => (
+                                {servicosPaginados.map((servico) => (
                                     <tr key={servico.id_servico}>
                                         <td data-label="ID">{servico.id_servico}</td>
                                         <td data-label="Serviço">{servico.descricao}</td>
@@ -865,6 +893,16 @@ function CadastroServicos({ API }) {
                         </div>
                     )}
                 </div>
+
+                {!carregando && servicos.length > 0 && (
+                    <div className={css.paginacaoArea}>
+                        <Paginacao
+                            paginaAtual={paginaAtual}
+                            totalItens={servicos.length}
+                            onMudarPagina={setPaginaAtual}
+                        />
+                    </div>
+                )}
             </section>
 
             {confirmacao && (
