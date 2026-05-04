@@ -226,9 +226,11 @@ function DashboardAdmVeiculos({ API }) {
                 {/* Cabecalho com titulo e botoes de atalhos. */}
                 <header className={css.cabecalho}>
                     {/* Titulo principal da tela. */}
+                    
                     <h1 className={css.titulo_boas_vindas}>
                         Veículos
                     </h1>
+                    
 
                     {/* Area dos botoes superiores. */}
                     <div className={css.botoes_cabecalho}>

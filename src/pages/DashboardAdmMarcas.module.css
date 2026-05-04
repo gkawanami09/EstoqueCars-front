@@ -275,6 +275,11 @@
     border-color: #bbf7d0;
 }
 
+.mensagem_sucesso strong,
+.mensagem_sucesso span {
+    color: #14532d;
+}
+
 .alert_overlay {
     position: fixed;
     inset: 0;

@@ -378,7 +378,7 @@ function DetalhesVeiculos({ API }) {
                     <span className={css.status}>{formatarStatusEstoque(carro.status_estoque)}</span>
                     {/* Preco de venda formatado em real. */}
                     <div className={css.preco_bloco}>
-                        <span>Preco de venda</span>
+                        <span>Preço de venda</span>
                         <strong>{formatarPreco(carro.preco)}</strong>
                     </div>
                     {/* Descricao cadastrada no veiculo. */}
@@ -394,7 +394,7 @@ function DetalhesVeiculos({ API }) {
                 {/* Titulo da ficha tecnica. */}
                 <div className={css.ficha_cabecalho}>
                     <h2>Ficha tecnica</h2>
-                    <span>Dados cadastrados do veiculo</span>
+                    <span>Dados cadastrados do veículo</span>
                 </div>
 
                 {/* Grid de informacoes, usando o componente Info para repetir o mesmo layout. */}
@@ -403,13 +403,13 @@ function DetalhesVeiculos({ API }) {
                     <Info titulo="Modelo" valor={valor(carro.modelo)} />
                     <Info titulo="Categoria" valor={valor(carro.categoria || carro.nome_categoria)} />
                     <Info titulo="Cambio" valor={formatarCambio(carro.cambio)} />
-                    <Info titulo="Ano fabricacao" valor={valor(carro.ano_fabricacao)} />
+                    <Info titulo="Ano fabricação" valor={valor(carro.ano_fabricacao)} />
                     <Info titulo="Ano modelo" valor={valor(carro.ano_modelo)} />
                     <Info titulo="Quilometragem" valor={`${formatarNumero(carro.quilometragem)} km`} />
                     <Info titulo="Cor" valor={valor(carro.cor)} />
                     <Info titulo="Placa" valor={formatarPlaca(carro.placa)} />
                     <Info titulo="Renavam" valor={formatarRenavam(carro.renavam)} />
-                    <Info titulo="Conservacao" valor={formatarEstado(carro.estado_conservacao)} />
+                    <Info titulo="Conservação" valor={formatarEstado(carro.estado_conservacao)} />
                     <Info titulo="Documento" valor={formatarDocumento(carro.status_documento)} />
                 </div>
             </section>

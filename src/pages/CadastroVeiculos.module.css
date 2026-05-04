@@ -53,6 +53,19 @@
     gap: 12px;
 }
 
+.campoSelect {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.campoSelect span {
+    color: #333;
+    font-size: 14px;
+    font-weight: 500;
+}
+
 .select,
 .selectPequeno,
 .descricao {

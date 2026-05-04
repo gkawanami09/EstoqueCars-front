@@ -295,7 +295,7 @@ function DashboardAdmMarcas({ API }) {
             <header className={css.cabecalho}>
                 <div>
                     <h1>Marcas</h1>
-                    <p>Cadastre, edite e remova as marcas usadas nos veiculos.</p>
+                    <p>Cadastre, edite e remova as marcas usadas nos veículos.</p>
                 </div>
             </header>
 
@@ -303,7 +303,7 @@ function DashboardAdmMarcas({ API }) {
             {mensagem && (
                 <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
                     <div>
-                        <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atencao"}</strong>
+                        <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atenção"}</strong>
                         <span>{mensagem.texto}</span>
                     </div>
                     <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
@@ -335,7 +335,7 @@ function DashboardAdmMarcas({ API }) {
                             </button>
                         )}
                         <button type="submit" className={css.salvar} disabled={salvando}>
-                            {salvando ? "Salvando..." : marcaEditando ? "Salvar edicao" : "Cadastrar marca"}
+                            {salvando ? "Salvando..." : marcaEditando ? "Salvar edição" : "Cadastrar marca"}
                         </button>
                     </div>
                 </form>

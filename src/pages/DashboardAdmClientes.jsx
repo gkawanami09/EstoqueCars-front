@@ -5,16 +5,23 @@ import css from "./DashboardAdmClientes.module.css";
 
 // Objeto usado para iniciar e limpar o formulario de cliente.
 const clienteInicial = {
+    // Guarda o ID do usuario quando o formulario esta editando alguem.
     id_usuario: "",
+    // Guarda o nome digitado no campo de nome.
     nome: "",
+    // Guarda o email digitado no campo de email.
     email: "",
+    // Guarda o telefone com mascara visual no formulario.
     telefone: "",
+    // Guarda o CPF com mascara visual no formulario.
     cpf: "",
+    // Guarda a nova senha apenas quando o admin quiser alterar.
     senha: ""
 };
 
 // Tela administrativa de clientes.
 function DashboardAdmClientes({ API }) {
+    // Recebe a URL base da API Flask por props.
     // Lista de clientes carregada da API.
     const [clientes, setClientes] = useState([]);
     // Texto digitado na busca.
@@ -33,14 +40,19 @@ function DashboardAdmClientes({ API }) {
     const [salvando, setSalvando] = useState(false);
     // Dados do modal de confirmacao.
     const [confirmacao, setConfirmacao] = useState({
+        // Informa se o modal de confirmacao esta aberto.
         aberta: false,
+        // Guarda qual tipo de acao sera confirmada: excluir ou bloqueio.
         tipo: "",
+        // Guarda o cliente selecionado para a acao.
         cliente: null,
+        // Guarda se a acao de bloqueio sera bloquear ou desbloquear.
         bloquear: false,
+        // Texto exibido dentro do modal de confirmacao.
         texto: ""
     });
 
-    // Monta o header X-Access-Token quando existe token.
+    // Monta o header Authorization quando existe token.
     function cabecalhoAutorizacao() {
         // Busca token salvo no navegador.
         const token = localStorage.getItem("access_token");
@@ -49,8 +61,8 @@ function DashboardAdmClientes({ API }) {
             return undefined;
         }
 
-        // Retorna o token no header customizado.
-        return { "X-Access-Token": token };
+        // Retorna o token no formato Bearer.
+        return { Authorization: `Bearer ${token}` };
     }
 
     // Carrega clientes quando a tela abre.
@@ -64,8 +76,11 @@ function DashboardAdmClientes({ API }) {
         try {
             // Chama a rota que lista usuarios.
             const resposta = await fetch(`${API}/listar_usuario`, {
+                // Define que a rota sera chamada por GET.
                 method: "GET",
+                // Envia o token no header Authorization quando ele existir.
                 headers: cabecalhoAutorizacao(),
+                // Mantem tambem o envio de cookies para compatibilidade com o backend.
                 credentials: "include"
             });
             // Converte resposta para JSON.
@@ -82,6 +97,7 @@ function DashboardAdmClientes({ API }) {
 
             // Remove administradores da lista, deixando apenas clientes.
             const somenteClientes = (Array.isArray(dados) ? dados : []).filter(
+                // Remove usuarios admin, pois tipo_usuario 2 representa administrador.
                 (usuario) => Number(usuario.tipo_usuario) !== 2
             );
 
@@ -97,12 +113,12 @@ function DashboardAdmClientes({ API }) {
             // Desliga carregamento.
             setCarregando(false);
         }
-    }, [API]);
+    }, [API]); // Recria a funcao apenas quando a URL da API mudar.
 
     // Carrega clientes quando a tela abre.
     useEffect(() => {
         carregarClientes();
-    }, [carregarClientes]);
+    }, [carregarClientes]); // Executa novamente se a funcao de carregamento mudar.
 
     // Cria a lista filtrada pelo campo de busca.
     const clientesFiltrados = useMemo(() => {
@@ -115,36 +131,53 @@ function DashboardAdmClientes({ API }) {
 
         // Procura no nome, email, telefone e CPF.
         return clientes.filter((cliente) => {
+            // Junta os campos pesquisaveis do cliente.
             const campos = [cliente.nome, cliente.email, cliente.telefone, cliente.cpf];
+            // Verifica se algum campo contem o texto buscado.
             return campos.some((campo) => String(campo || "").toLowerCase().includes(termo));
         });
-    }, [busca, clientes]);
+    }, [busca, clientes]); // Recalcula filtro quando busca ou lista mudarem.
 
     // Abre modal de edicao com os dados do cliente.
     function abrirEdicao(cliente) {
+        // Guarda o cliente escolhido para abrir o modal.
         setClienteEditando(cliente);
+        // Preenche o formulario com os dados atuais do cliente.
         setFormulario({
+            // ID usado para montar a rota de edicao.
             id_usuario: cliente.id_usuario,
+            // Nome atual ou vazio caso a API nao mande nome.
             nome: cliente.nome || "",
+            // Email atual ou vazio caso a API nao mande email.
             email: cliente.email || "",
+            // Telefone formatado para aparecer com mascara.
             telefone: mascararTelefone(cliente.telefone),
+            // CPF formatado para aparecer com mascara.
             cpf: mascararCpf(cliente.cpf),
+            // Senha sempre inicia vazia para nao expor senha.
             senha: ""
         });
+        // Limpa mensagens anteriores ao abrir o modal.
         setMensagem(null);
     }
 
     // Fecha modal e limpa formulario.
     function fecharEdicao() {
+        // Remove o cliente do estado de edicao.
         setClienteEditando(null);
+        // Volta o formulario para o estado inicial.
         setFormulario(clienteInicial);
+        // Garante que o botao salvar nao fique preso em carregamento.
         setSalvando(false);
     }
 
     // Atualiza um campo do formulario.
     function atualizarCampo(campo, valor) {
+        // Atualiza o formulario usando o estado anterior como base.
         setFormulario((atual) => ({
+            // Mantem todos os campos que nao foram alterados.
             ...atual,
+            // Atualiza dinamicamente apenas o campo recebido.
             [campo]: valor
         }));
     }
@@ -158,10 +191,14 @@ function DashboardAdmClientes({ API }) {
 
         // Valida campos obrigatorios.
         if (!formulario.nome.trim() || !formulario.email.trim() || !formulario.telefone.trim() || !formulario.cpf.trim()) {
+            // Mostra erro quando algum dado principal nao foi preenchido.
             setMensagem({
+                // Define a mensagem como visual de erro.
                 tipo: "erro",
+                // Texto exibido para o usuario.
                 texto: "Preencha nome, email, telefone e CPF."
             });
+            // Interrompe o envio para a API.
             return;
         }
 
@@ -186,9 +223,13 @@ function DashboardAdmClientes({ API }) {
         try {
             // Chama a rota de editar usuario.
             const resposta = await fetch(`${API}/editar_usuario/${formulario.id_usuario}`, {
+                // A rota Flask de editar usuario usa POST.
                 method: "POST",
+                // Envia token para permitir a operacao autenticada.
                 headers: cabecalhoAutorizacao(),
+                // Envia cookies junto se o backend estiver usando cookie.
                 credentials: "include",
+                // Envia os dados no formato multipart/form-data.
                 body: formData
             });
             // Converte resposta para JSON.
@@ -197,29 +238,41 @@ function DashboardAdmClientes({ API }) {
             // Mostra erro se a API recusou.
             if (!resposta.ok) {
                 setMensagem({
+                    // Marca a mensagem como erro.
                     tipo: "erro",
+                    // Usa erro da API ou texto padrao.
                     texto: dados.erro || "Nao foi possivel editar o cliente."
                 });
+                // Sai sem atualizar a lista local.
                 return;
             }
 
             // Atualiza o cliente editado na lista local.
             setClientes((listaAtual) =>
                 listaAtual.map((cliente) =>
+                    // Procura o cliente editado pelo ID.
                     cliente.id_usuario === formulario.id_usuario
                         ? {
+                            // Mantem campos que nao foram alterados.
                             ...cliente,
+                            // Atualiza nome com o valor do formulario.
                             nome: formulario.nome,
+                            // Atualiza email com o valor do formulario.
                             email: formulario.email,
+                            // Salva telefone sem mascara na lista.
                             telefone: formulario.telefone.replace(/\D/g, ""),
+                            // Salva CPF sem mascara na lista.
                             cpf: formulario.cpf.replace(/\D/g, "")
                         }
+                        // Mantem clientes que nao foram editados.
                         : cliente
                 )
             );
             // Mostra sucesso.
             setMensagem({
+                // Marca a mensagem como sucesso.
                 tipo: "sucesso",
+                // Usa mensagem da API ou texto padrao.
                 texto: dados.mensagem || "Cliente editado com sucesso."
             });
             // Fecha modal.
@@ -227,7 +280,9 @@ function DashboardAdmClientes({ API }) {
         } catch {
             // Erro de conexao.
             setMensagem({
+                // Marca a mensagem como erro de conexao.
                 tipo: "erro",
+                // Texto exibido quando fetch falha.
                 texto: "Nao foi possivel conectar ao servidor."
             });
         } finally {
@@ -244,8 +299,11 @@ function DashboardAdmClientes({ API }) {
         try {
             // Chama a rota DELETE do usuario.
             const resposta = await fetch(`${API}/excluir_usuario/${cliente.id_usuario}`, {
+                // DELETE remove o usuario escolhido.
                 method: "DELETE",
+                // Envia o token do administrador.
                 headers: cabecalhoAutorizacao(),
+                // Inclui cookies por compatibilidade com a autenticacao do Flask.
                 credentials: "include"
             });
             // Converte resposta para JSON.
@@ -254,23 +312,31 @@ function DashboardAdmClientes({ API }) {
             // Mostra erro se a API bloquear.
             if (!resposta.ok) {
                 setMensagem({
+                    // Mensagem visual de erro.
                     tipo: "erro",
+                    // Prioriza a mensagem enviada pela API.
                     texto: dados.erro || "Nao foi possivel excluir o cliente."
                 });
+                // Para sem remover o cliente da tela.
                 return;
             }
 
             // Remove cliente da lista da tela.
+            // Mantem somente os clientes com ID diferente do excluido.
             setClientes((listaAtual) => listaAtual.filter((item) => item.id_usuario !== cliente.id_usuario));
             // Mostra sucesso.
             setMensagem({
+                // Mensagem visual de sucesso.
                 tipo: "sucesso",
+                // Texto vindo da API ou fallback local.
                 texto: dados.mensagem || "Cliente removido com sucesso."
             });
         } catch {
             // Erro de conexao.
             setMensagem({
+                // Mensagem visual de erro.
                 tipo: "erro",
+                // Texto padrao para falha de conexao.
                 texto: "Nao foi possivel conectar ao servidor."
             });
         }
@@ -289,8 +355,11 @@ function DashboardAdmClientes({ API }) {
         try {
             // Chama a rota de bloquear/desbloquear usuario.
             const resposta = await fetch(`${API}/${rota}/${cliente.id_usuario}`, {
+                // PUT altera a situacao do usuario.
                 method: "PUT",
+                // Envia token do administrador.
                 headers: cabecalhoAutorizacao(),
+                // Mantem cookies da sessao.
                 credentials: "include"
             });
             // Converte resposta para JSON.
@@ -299,26 +368,35 @@ function DashboardAdmClientes({ API }) {
             // Mostra erro se a API recusou.
             if (!resposta.ok) {
                 setMensagem({
+                    // Mensagem visual de erro.
                     tipo: "erro",
+                    // Usa erro da API ou mensagem baseada na acao.
                     texto: dados.erro || `Nao foi possivel ${acao} o cliente.`
                 });
+                // Para sem alterar o status local.
                 return;
             }
 
             // Atualiza o status local do cliente.
             setSituacoes((atuais) => ({
+                // Mantem as situacoes ja alteradas de outros clientes.
                 ...atuais,
+                // Atualiza apenas o cliente clicado.
                 [cliente.id_usuario]: bloquear ? "bloqueado" : "ativo"
             }));
             // Mostra sucesso.
             setMensagem({
+                // Mensagem visual de sucesso.
                 tipo: "sucesso",
+                // Texto vindo da API ou fallback local.
                 texto: dados.mensagem || `Cliente ${bloquear ? "bloqueado" : "desbloqueado"} com sucesso.`
             });
         } catch {
             // Erro de conexao.
             setMensagem({
+                // Mensagem visual de erro.
                 tipo: "erro",
+                // Texto padrao para erro de rede.
                 texto: "Nao foi possivel conectar ao servidor."
             });
         }
@@ -326,33 +404,51 @@ function DashboardAdmClientes({ API }) {
 
     // Abre confirmacao para excluir cliente.
     function abrirConfirmacaoExclusao(cliente) {
+        // Abre o modal de confirmacao.
         setConfirmacao({
+            // Deixa o modal visivel.
             aberta: true,
+            // Informa que a acao confirmada sera exclusao.
             tipo: "excluir",
+            // Guarda o cliente que sera excluido.
             cliente,
+            // Nao usa bloqueio nessa acao.
             bloquear: false,
+            // Texto personalizado com o nome do cliente.
             texto: `Deseja excluir ${cliente.nome}?`
         });
     }
 
     // Abre confirmacao para bloquear ou desbloquear.
     function abrirConfirmacaoBloqueio(cliente, bloquear) {
+        // Abre o modal de confirmacao.
         setConfirmacao({
+            // Deixa o modal visivel.
             aberta: true,
+            // Informa que a acao confirmada sera bloqueio/desbloqueio.
             tipo: "bloqueio",
+            // Guarda o cliente que sera alterado.
             cliente,
+            // Guarda se a acao e bloquear ou desbloquear.
             bloquear,
+            // Monta o texto conforme a acao escolhida.
             texto: `Deseja ${bloquear ? "bloquear" : "desbloquear"} ${cliente.nome}?`
         });
     }
 
     // Fecha a caixa de confirmacao.
     function fecharConfirmacao() {
+        // Volta o modal para o estado inicial fechado.
         setConfirmacao({
+            // Fecha o modal.
             aberta: false,
+            // Limpa o tipo de acao.
             tipo: "",
+            // Remove o cliente selecionado.
             cliente: null,
+            // Reseta a flag de bloqueio.
             bloquear: false,
+            // Limpa o texto exibido.
             texto: ""
         });
     }
@@ -383,6 +479,7 @@ function DashboardAdmClientes({ API }) {
 
     // Mantem somente numeros e limita o tamanho.
     function somenteNumeros(valor, limite) {
+        // Converte qualquer valor para texto, remove nao-digitos e corta no limite.
         return String(valor || "").replace(/\D/g, "").slice(0, limite);
     }
 
@@ -436,17 +533,31 @@ function DashboardAdmClientes({ API }) {
 
     // Mostra telefone formatado ou traco.
     function formatarTelefone(valor) {
+        // Aplica a mascara e, se nao houver valor, exibe traco.
         return mascararTelefone(valor) || "-";
     }
 
     // Mostra CPF formatado ou traco.
     function formatarCpf(valor) {
+        // Aplica a mascara e, se nao houver valor, exibe traco.
         return mascararCpf(valor) || "-";
+    }
+
+    // Verifica se o cliente esta bloqueado.
+    function clienteBloqueado(cliente) {
+        // Usa primeiro o status alterado localmente nesta tela.
+        if (situacoes[cliente.id_usuario]) {
+            // Retorna true quando o status local esta como bloqueado.
+            return situacoes[cliente.id_usuario] === "bloqueado";
+        }
+
+        // Se nao houve alteracao local, usa a situacao que veio da API.
+        return Number(cliente.situacao) === 1;
     }
 
     // Define o texto de situacao do cliente.
     function textoSituacao(cliente) {
-        return situacoes[cliente.id_usuario] === "bloqueado" ? "Bloqueado" : "Ativo";
+        return clienteBloqueado(cliente) ? "Bloqueado" : "Ativo";
     }
 
     // Monta a primeira tentativa de foto de perfil.
@@ -488,30 +599,38 @@ function DashboardAdmClientes({ API }) {
                     </div>
                 </header>
 
+                {/* Mostra o alerta apenas quando existir mensagem no estado. */}
                 {mensagem && (
                     <div
                         className={`${css.mensagem} ${
                             mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
                         }`}
                     >
+                        {/* Agrupa icone e textos da mensagem. */}
                         <div className={css.mensagem_info}>
+                            {/* Mostra check para sucesso e exclamação para erro. */}
                             <span className={css.mensagem_icone}>
                                 {mensagem.tipo === "sucesso" ? "✓" : "!"}
                             </span>
+                            {/* Conteudo textual do alerta. */}
                             <div className={css.mensagem_texto}>
-                                <strong>{mensagem.tipo === "sucesso" ? "Sucesso" : "Atencao"}</strong>
+                                <strong>{mensagem.tipo === "sucesso" ? "Sucesso" : "Atenção"}</strong>
                                 <span>{mensagem.texto}</span>
                             </div>
                         </div>
+                        {/* Botao para fechar/limpar o alerta. */}
                         <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
                             x
                         </button>
                     </div>
                 )}
 
+                {/* Barra superior com o campo de busca. */}
                 <div className={css.barra_acoes}>
+                    {/* Caixa visual do input de busca. */}
                     <div className={css.area_busca}>
                         <span className={css.icone_busca}>⌕</span>
+                        {/* Campo controlado pela variavel busca. */}
                         <input
                             type="text"
                             placeholder="Buscar clientes"
@@ -522,19 +641,26 @@ function DashboardAdmClientes({ API }) {
 
                 </div> <br/>
 
+                {/* Lista de cards de clientes. */}
                 <section className={css.cards_container}>
+                    {/* Estado de carregamento enquanto a API responde. */}
                     {carregando && (
                         <div className={css.estado_lista}>Carregando clientes...</div>
                     )}
 
+                    {/* Estado vazio quando terminou de carregar e nao ha resultados. */}
                     {!carregando && clientesFiltrados.length === 0 && (
                         <div className={css.estado_lista}>Nenhum cliente encontrado</div>
                     )}
 
+                    {/* Renderiza um card para cada cliente filtrado. */}
                     {!carregando && clientesFiltrados.map((cliente) => (
                         <article key={cliente.id_usuario} className={css.card_cliente}>
+                            {/* Topo do card com foto e etiqueta de status. */}
                             <div className={css.card_topo}>
+                                {/* Area circular da foto do cliente. */}
                                 <div className={css.avatar}>
+                                    {/* Imagem tenta carregar a foto do backend. */}
                                     <img
                                         src={fotoPerfil(cliente)}
                                         alt={`Foto de ${cliente.nome}`}
@@ -543,60 +669,91 @@ function DashboardAdmClientes({ API }) {
                                     />
                                 </div>
 
+                                {/* Etiqueta visual de ativo ou bloqueado. */}
                                 <span
                                     className={`${css.status} ${
                                         textoSituacao(cliente) === "Bloqueado" ? css.status_bloqueado : css.status_ativo
                                     }`}
                                 >
+                                    {/* Texto do status calculado pela funcao. */}
                                     {textoSituacao(cliente)}
                                 </span>
                             </div>
 
+                            {/* Bloco principal com nome e email. */}
                             <div className={css.card_info_principal}>
+                                {/* Nome do cliente. */}
                                 <h2>{cliente.nome}</h2>
+                                {/* Email do cliente. */}
                                 <p>{cliente.email}</p>
                             </div>
 
+                            {/* Bloco com telefone e CPF. */}
                             <div className={css.dados_cliente}>
+                                {/* Campo visual de telefone. */}
                                 <div>
                                     <span>Telefone</span>
                                     <strong className={css.telefone_valor}>{formatarTelefone(cliente.telefone)}</strong>
                                 </div>
+                                {/* Campo visual de CPF. */}
                                 <div>
                                     <span>CPF</span>
                                     <strong className={css.cpf_valor}>{formatarCpf(cliente.cpf)}</strong>
                                 </div>
                             </div>
 
-                            <div className={css.acoes}>
-                                <button type="button" className={css.btn_editar} onClick={() => abrirEdicao(cliente)}>
-                                    <img src="/Editar.png" alt="Editar o perfil" />
-                                    Editar
-                                </button>
-                                <button type="button" className={css.btn_bloquear} onClick={() => abrirConfirmacaoBloqueio(cliente, true)}>
-                                    Bloquear
-                                </button>
-                                <button type="button" className={css.btn_desbloquear} onClick={() => abrirConfirmacaoBloqueio(cliente, false)}>
-                                    Desbloquear
-                                </button>
-                                <button type="button" className={css.btn_excluir} onClick={() => abrirConfirmacaoExclusao(cliente)}>
-                                    <img src="/Exculir.png" alt="Excluir perfil" />
-                                    Excluir
-                                </button>
-                            </div>
+                            {/* Se estiver bloqueado, mostra apenas desbloquear e excluir. */}
+                            {clienteBloqueado(cliente) ? (
+                                <div className={`${css.acoes} ${css.acoes_bloqueado}`}>
+                                    {/* Botao abre confirmacao para desbloquear. */}
+                                    <button type="button" className={css.btn_desbloquear} onClick={() => abrirConfirmacaoBloqueio(cliente, false)}>
+                                        Desbloquear
+                                    </button>
+                                    {/* Botao abre confirmacao para excluir. */}
+                                    <button type="button" className={css.btn_excluir} onClick={() => abrirConfirmacaoExclusao(cliente)}>
+                                        <img src="/Exculir.png" alt="Excluir perfil" />
+                                        Excluir
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className={css.acoes}>
+                                    {/* Botao abre modal de edicao. */}
+                                    <button type="button" className={css.btn_editar} onClick={() => abrirEdicao(cliente)}>
+                                        <img src="/Editar.png" alt="Editar o perfil" />
+                                        Editar
+                                    </button>
+                                    {/* Botao abre confirmacao para bloquear. */}
+                                    <button type="button" className={css.btn_bloquear} onClick={() => abrirConfirmacaoBloqueio(cliente, true)}>
+                                        Bloquear
+                                    </button>
+                                    {/* Botao abre confirmacao para excluir. */}
+                                    <button type="button" className={css.btn_excluir} onClick={() => abrirConfirmacaoExclusao(cliente)}>
+                                        <img src="/Exculir.png" alt="Excluir perfil" />
+                                        Excluir
+                                    </button>
+                                </div>
+                            )}
                         </article>
                     ))}
                 </section>
 
+                {/* Mostra o modal apenas quando existe um cliente em edicao. */}
                 {clienteEditando && (
                     <div className={css.modal_overlay}>
+                        {/* Fundo escuro do modal. */}
+                        {/* Formulario de edicao enviado pela funcao salvarEdicao. */}
                         <form className={css.modal} onSubmit={salvarEdicao}>
+                            {/* Cabecalho do modal. */}
                             <header className={css.modal_cabecalho}>
+                                {/* Titulo do modal. */}
                                 <h2>Editar cliente</h2>
+                                {/* Botao para fechar o modal sem salvar. */}
                                 <button type="button" onClick={fecharEdicao} aria-label="Fechar modal">x</button>
                             </header>
 
+                            {/* Grid com os campos editaveis. */}
                             <div className={css.form_grid}>
+                                {/* Campo de nome. */}
                                 <label>
                                     Nome
                                     <input
@@ -607,6 +764,7 @@ function DashboardAdmClientes({ API }) {
                                     />
                                 </label>
 
+                                {/* Campo de email. */}
                                 <label>
                                     Email
                                     <input
@@ -617,6 +775,7 @@ function DashboardAdmClientes({ API }) {
                                     />
                                 </label>
 
+                                {/* Campo de telefone com mascara. */}
                                 <label>
                                     Telefone
                                     <input
@@ -629,6 +788,7 @@ function DashboardAdmClientes({ API }) {
                                     />
                                 </label>
 
+                                {/* Campo de CPF com mascara. */}
                                 <label>
                                     CPF
                                     <input
@@ -641,6 +801,7 @@ function DashboardAdmClientes({ API }) {
                                     />
                                 </label>
 
+                                {/* Campo opcional de nova senha. */}
                                 <label className={css.campo_inteiro}>
                                     Nova senha
                                     <input
@@ -652,10 +813,13 @@ function DashboardAdmClientes({ API }) {
                                 </label>
                             </div>
 
+                            {/* Rodape com botoes do modal. */}
                             <footer className={css.modal_botoes}>
+                                {/* Botao cancela a edicao e fecha o modal. */}
                                 <button type="button" className={css.btn_cancelar} onClick={fecharEdicao}>
                                     Cancelar
                                 </button>
+                                {/* Botao envia o formulario; fica desabilitado enquanto salva. */}
                                 <button type="submit" className={css.btn_salvar} disabled={salvando}>
                                     {salvando ? "Salvando..." : "Salvar alteracoes"}
                                 </button>
@@ -664,15 +828,21 @@ function DashboardAdmClientes({ API }) {
                     </div>
                 )}
 
+                {/* Mostra o modal de confirmacao apenas quando ele estiver aberto. */}
                 {confirmacao.aberta && (
                     <div className={css.confirm_overlay}>
+                        {/* Caixa central de confirmacao. */}
                         <div className={css.confirm_box}>
                             <h3>Confirmar ação</h3>
+                            {/* Texto dinamico com a acao escolhida. */}
                             <p>{confirmacao.texto}</p>
+                            {/* Botoes para confirmar ou cancelar. */}
                             <div className={css.confirm_botoes}>
+                                {/* Executa a acao guardada no estado confirmacao. */}
                                 <button type="button" className={css.confirm_ok} onClick={confirmarAcao}>
                                     OK
                                 </button>
+                                {/* Fecha o modal sem executar nada. */}
                                 <button type="button" className={css.confirm_cancel} onClick={fecharConfirmacao}>
                                     Cancelar
                                 </button>

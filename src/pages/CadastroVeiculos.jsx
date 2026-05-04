@@ -78,7 +78,7 @@ function formatarErroApi(texto) {
         mensagemLower.includes("stored procedure") ||
         mensagemLower.includes("conversion error")
     ) {
-        return "Nao foi possivel salvar o veiculo. Confira os campos de categoria, marca, cambio, status e conservacao.";
+        return "Nao foi possivel salvar o veículo. Confira os campos de categoria, marca, cambio, status e conservacao.";
     }
 
     if (mensagemLower.includes("renavam")) {
@@ -89,7 +89,7 @@ function formatarErroApi(texto) {
         return "A placa informada ja existe ou esta invalida. Confira os dados e tente novamente.";
     }
 
-    return mensagem || "Nao foi possivel salvar o veiculo. Tente novamente.";
+    return mensagem || "Não foi possivel salvar o veículo. Tente novamente.";
 }
 
 function cabecalhoAutorizacao() {
@@ -188,7 +188,7 @@ function CadastroVeiculo({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: formatarErroApi(dados.erro || "Erro ao carregar veiculo.")
+                    texto: formatarErroApi(dados.erro || "Erro ao carregar veículo.")
                 });
                 return;
             }
@@ -357,7 +357,7 @@ function CadastroVeiculo({ API }) {
         } catch {
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor. Verifique sua conexao e tente novamente."
+                texto: "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente."
             });
         } finally {
             setSalvando(false);
@@ -369,7 +369,7 @@ function CadastroVeiculo({ API }) {
     return (
         <main className={css.container}>
             <h1 className={css.titulo}>
-                {estaEditando ? "Editar Veiculo" : "Cadastro Veículos"}
+                {estaEditando ? "Editar Veículo" : "Cadastro Veículos"}
             </h1>
 
             <form className={css.formulario} onSubmit={salvar}>
@@ -394,7 +394,7 @@ function CadastroVeiculo({ API }) {
                         </button>
                     </div>
                 )}
-                {carregando && <div className={css.status}>Carregando dados do veiculo...</div>}
+                {carregando && <div className={css.status}>Carregando dados do veículo...</div>}
 
                 <div className={css.grid}>
                     <div className={css.esquerda}>
@@ -526,18 +526,18 @@ function CadastroVeiculo({ API }) {
                         </div>
 
                         <div className={css.duplo}>
-                           
-                            <select
-                                className={css.select}
-                                value={formulario.estado_conservacao}
-                                onChange={(e) => atualizarCampo("estado_conservacao", e.target.value)}
-                                label="Estado da conservação"
-                            >
-                                
-                                <option value="1">Bom</option>
-                                <option value="2">Regular</option>
-                                <option value="3">Ruim</option>
-                            </select>
+                            <label className={css.campoSelect}>
+                                <span>Estado do veículo</span>
+                                <select
+                                    className={css.select}
+                                    value={formulario.estado_conservacao}
+                                    onChange={(e) => atualizarCampo("estado_conservacao", e.target.value)}
+                                >
+                                    <option value="1">Bom</option>
+                                    <option value="2">Regular</option>
+                                    <option value="3">Ruim</option>
+                                </select>
+                            </label>
 
                             <Input
                                 label="Preço de Venda"

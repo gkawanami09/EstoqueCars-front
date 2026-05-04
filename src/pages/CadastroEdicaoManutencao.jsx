@@ -144,7 +144,7 @@ function EdicaoManutencao({ API, id }) {
 
         // Valida campos obrigatorios.
         if (!veiculo || servicosSelecionados.length === 0) {
-            setErro("Preencha os campos obrigatorios.");
+            setErro("Preencha os campos obrigatórios.");
             return;
         }
 
@@ -180,7 +180,7 @@ function EdicaoManutencao({ API, id }) {
         // Mostra mensagem de sucesso.
         setMensagem({
             tipo: "sucesso",
-            texto: "Manutencao atualizada com sucesso!"
+            texto: "Manutenção atualizada com sucesso!"
         });
     }
 
@@ -189,7 +189,7 @@ function EdicaoManutencao({ API, id }) {
         // Container principal da pagina.
         <main className={css.container}>
             {/* Titulo da pagina. */}
-            <h1 className={css.titulo}>Editar Manutencao</h1>
+            <h1 className={css.titulo}>Editar Manutenção</h1>
 
             {/* Alerta visual de mensagem. */}
             {mensagem && (
@@ -200,7 +200,7 @@ function EdicaoManutencao({ API, id }) {
                     role="alert"
                 >
                     <div>
-                        <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atencao"}</strong>
+                        <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atenção"}</strong>
                         <span>{mensagem.texto}</span>
                     </div>
                     <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
@@ -216,7 +216,7 @@ function EdicaoManutencao({ API, id }) {
                     <div className={css.esquerda}>
                         {/* Campo do veiculo. */}
                         <Input
-                            label="Veiculo"
+                            label="Veículo"
                             value={veiculo}
                             onChange={(e) => setVeiculo(e.target.value)}
                         />
@@ -232,7 +232,7 @@ function EdicaoManutencao({ API, id }) {
                                         alterarServico(index, "servicoId", e.target.value)
                                     }
                                 >
-                                    <option value="">Selecione um servico</option>
+                                    <option value="">Selecione um serviço</option>
                                     {servicos.map((s) => (
                                         <option key={s.id} value={s.id}>
                                             {s.nome}
@@ -251,7 +251,7 @@ function EdicaoManutencao({ API, id }) {
                                     />
 
                                     <Input
-                                        label="Valor Unitario"
+                                        label="Valor Unitário"
                                         value={item.valorUnitario}
                                         readOnly
                                     />
@@ -274,7 +274,7 @@ function EdicaoManutencao({ API, id }) {
                             className={css.adicionar}
                             onClick={adicionarServico}
                         >
-                            + Adicionar Servico
+                            + Adicionar Serviço
                         </button>
 
                         {/* Campo de itens/descricao. */}

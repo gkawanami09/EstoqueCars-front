@@ -57,7 +57,7 @@
     display: flex;
     justify-content: flex-end;
     gap: 14px;
-    margin-top: 36px;
+    margin-top: 36px !important;
 }
 
 .cancelar,

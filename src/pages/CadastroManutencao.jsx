@@ -204,10 +204,10 @@ function formatarMoeda(valor) {
     });
 }
 
-// Monta o header X-Access-Token quando existe token salvo.
+// Monta o header Authorization quando existe token salvo.
 function cabecalhoAutorizacao() {
     const token = localStorage.getItem("access_token");
-    return token ? { "X-Access-Token": token } : undefined;
+    return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
 // Monta headers para rotas que recebem JSON.
@@ -945,7 +945,7 @@ function CadastroManutencao({ API }) {
             tipo: "item",
             id: idItem,
             titulo: "Excluir item",
-            texto: "Deseja excluir este item da manutencao?",
+            texto: "Deseja excluir este item da manutenção?",
             textoConfirmar: "Excluir item"
         });
     }

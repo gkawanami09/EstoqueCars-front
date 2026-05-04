@@ -62,7 +62,7 @@ function Header({ API }) {
                 {usuarioLogado ? (
                     <>
                         <Link className={css.botaoDashboardDesktop} to={rotaDashboard}>
-                            Voltar para Dashboard
+                            Dashboard
                         </Link>
                         <button className={css.botaoLogoutDesktop} type="button" onClick={sair}>Logout</button>
                     </>
@@ -92,7 +92,7 @@ function Header({ API }) {
                     {usuarioLogado ? (
                         <>
                             <Link className={css.botaoDashboardMobile} to={rotaDashboard} onClick={fecharMenu}>
-                                Voltar para Dashboard
+                                Dashboard
                             </Link>
                             <button className={css.botaoLogoutMobile} type="button" onClick={sair}>Logout</button>
                         </>

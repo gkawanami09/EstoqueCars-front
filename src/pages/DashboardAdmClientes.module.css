@@ -215,6 +215,10 @@
     margin-top: auto !important;
 }
 
+.acoes_bloqueado {
+    grid-template-columns: 1fr;
+}
+
 .acoes button,
 .btn_cancelar,
 .btn_salvar {
@@ -258,6 +262,7 @@
 }
 
 .btn_excluir {
+    grid-column: 1 / -1;
     color: #fff;
     background: #f25555;
 }
