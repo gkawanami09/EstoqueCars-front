@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 // Importa o CSS module da tela de clientes.
 import css from "./DashboardAdmClientes.module.css";
+import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Objeto usado para iniciar e limpar o formulario de cliente.
 const clienteInicial = {
@@ -26,6 +27,8 @@ function DashboardAdmClientes({ API }) {
     const [clientes, setClientes] = useState([]);
     // Texto digitado na busca.
     const [busca, setBusca] = useState("");
+    // Pagina atual da lista de clientes.
+    const [paginaAtual, setPaginaAtual] = useState(1);
     // Controla carregamento da lista.
     const [carregando, setCarregando] = useState(true);
     // Mensagem visual de sucesso ou erro.
@@ -137,6 +140,22 @@ function DashboardAdmClientes({ API }) {
             return campos.some((campo) => String(campo || "").toLowerCase().includes(termo));
         });
     }, [busca, clientes]); // Recalcula filtro quando busca ou lista mudarem.
+
+    // Total de paginas considerando a busca atual.
+    const totalPaginas = Math.max(1, Math.ceil(clientesFiltrados.length / ITENS_POR_PAGINA));
+
+    // Garante que a pagina atual continue valida quando a lista muda.
+    useEffect(() => {
+        if (paginaAtual > totalPaginas) {
+            setPaginaAtual(totalPaginas);
+        }
+    }, [paginaAtual, totalPaginas]);
+
+    // Lista apenas os clientes da pagina atual.
+    const clientesPaginados = useMemo(() => {
+        const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        return clientesFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
+    }, [clientesFiltrados, paginaAtual]);
 
     // Abre modal de edicao com os dados do cliente.
     function abrirEdicao(cliente) {
@@ -635,7 +654,10 @@ function DashboardAdmClientes({ API }) {
                             type="text"
                             placeholder="Buscar clientes"
                             value={busca}
-                            onChange={(e) => setBusca(e.target.value)}
+                            onChange={(e) => {
+                                setBusca(e.target.value);
+                                setPaginaAtual(1);
+                            }}
                         />
                     </div>
 
@@ -654,7 +676,7 @@ function DashboardAdmClientes({ API }) {
                     )}
 
                     {/* Renderiza um card para cada cliente filtrado. */}
-                    {!carregando && clientesFiltrados.map((cliente) => (
+                    {!carregando && clientesPaginados.map((cliente) => (
                         <article key={cliente.id_usuario} className={css.card_cliente}>
                             {/* Topo do card com foto e etiqueta de status. */}
                             <div className={css.card_topo}>
@@ -736,6 +758,16 @@ function DashboardAdmClientes({ API }) {
                         </article>
                     ))}
                 </section>
+
+                {!carregando && clientesFiltrados.length > 0 && (
+                    <div className={css.paginacao_area}>
+                        <Paginacao
+                            paginaAtual={paginaAtual}
+                            totalItens={clientesFiltrados.length}
+                            onMudarPagina={setPaginaAtual}
+                        />
+                    </div>
+                )}
 
                 {/* Mostra o modal apenas quando existe um cliente em edicao. */}
                 {clienteEditando && (

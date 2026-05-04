@@ -84,6 +84,10 @@
     gap: 18px;
 }
 
+.paginacao_area {
+    margin-top: 20px !important;
+}
+
 .estado_lista {
     grid-column: 1 / -1;
     border-radius: 10px;

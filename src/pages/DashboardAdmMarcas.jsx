@@ -2,6 +2,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 // Importa o CSS module da tela.
 import css from "./DashboardAdmMarcas.module.css";
+import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Tela administrativa de marcas.
 function DashboardAdmMarcas({ API }) {
@@ -9,6 +10,8 @@ function DashboardAdmMarcas({ API }) {
     const [marcas, setMarcas] = useState([]);
     // Texto digitado no campo de busca.
     const [busca, setBusca] = useState("");
+    // Pagina atual da lista.
+    const [paginaAtual, setPaginaAtual] = useState(1);
     // Nome digitado no formulario.
     const [nomeMarca, setNomeMarca] = useState("");
     // Marca que esta sendo editada.
@@ -124,6 +127,22 @@ function DashboardAdmMarcas({ API }) {
         // Retorna apenas marcas que contem o termo.
         return marcas.filter((marca) => textoMarca(marca).toLowerCase().includes(termo));
     }, [busca, marcas]);
+
+    // Total de paginas considerando a busca atual.
+    const totalPaginas = Math.max(1, Math.ceil(marcasFiltradas.length / ITENS_POR_PAGINA));
+
+    // Mantem a pagina atual dentro do limite quando a lista muda.
+    useEffect(() => {
+        if (paginaAtual > totalPaginas) {
+            setPaginaAtual(totalPaginas);
+        }
+    }, [paginaAtual, totalPaginas]);
+
+    // Mostra somente as marcas da pagina atual.
+    const marcasPaginadas = useMemo(() => {
+        const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        return marcasFiltradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+    }, [marcasFiltradas, paginaAtual]);
 
     // Limpa o formulario e sai do modo de edicao.
     function limparFormulario() {
@@ -350,7 +369,10 @@ function DashboardAdmMarcas({ API }) {
                         <input
                             type="text"
                             value={busca}
-                            onChange={(e) => setBusca(e.target.value)}
+                            onChange={(e) => {
+                                setBusca(e.target.value);
+                                setPaginaAtual(1);
+                            }}
                             placeholder="Buscar marca"
                         />
                     </div>
@@ -366,24 +388,33 @@ function DashboardAdmMarcas({ API }) {
 
                 {/* Lista de marcas filtradas. */}
                 {!carregando && marcasFiltradas.length > 0 && (
-                    <div className={css.tabela}>
-                        {marcasFiltradas.map((marca) => (
-                            <article key={idMarca(marca)} className={css.linha}>
-                                <div>
-                                    <span>Marca</span>
-                                    <strong>{textoMarca(marca)}</strong>
-                                </div>
-                                <div className={css.acoes}>
-                                    <button type="button" className={css.editar} onClick={() => editarMarca(marca)}>
-                                        Editar
-                                    </button>
-                                    <button type="button" className={css.excluir} onClick={() => abrirConfirmacaoExclusao(marca)}>
-                                        Excluir
-                                    </button>
-                                </div>
-                            </article>
-                        ))}
-                    </div>
+                    <>
+                        <div className={css.tabela}>
+                            {marcasPaginadas.map((marca) => (
+                                <article key={idMarca(marca)} className={css.linha}>
+                                    <div>
+                                        <span>Marca</span>
+                                        <strong>{textoMarca(marca)}</strong>
+                                    </div>
+                                    <div className={css.acoes}>
+                                        <button type="button" className={css.editar} onClick={() => editarMarca(marca)}>
+                                            Editar
+                                        </button>
+                                        <button type="button" className={css.excluir} onClick={() => abrirConfirmacaoExclusao(marca)}>
+                                            Excluir
+                                        </button>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                        <div className={css.paginacao_area}>
+                            <Paginacao
+                                paginaAtual={paginaAtual}
+                                totalItens={marcasFiltradas.length}
+                                onMudarPagina={setPaginaAtual}
+                            />
+                        </div>
+                    </>
                 )}
             </section>
 

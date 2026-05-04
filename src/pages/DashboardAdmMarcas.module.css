@@ -163,6 +163,10 @@
     flex-direction: column;
 }
 
+.paginacao_area {
+    padding: 0 22px 20px;
+}
+
 .linha {
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;

@@ -166,6 +166,11 @@
     padding: 10px;
 }
 
+.paginacao_area {
+    margin-top: 4px !important;
+    padding-bottom: 20px;
+}
+
 .tabela {
     width: 100%;
     border-collapse: collapse;

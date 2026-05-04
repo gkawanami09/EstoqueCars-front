@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // Importa o modal bonito usado para confirmar exclusao.
 import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao.jsx";
+import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Componente da pagina de gerenciamento de veiculos do administrador.
 function DashboardAdmVeiculos({ API }) {
@@ -13,6 +14,8 @@ function DashboardAdmVeiculos({ API }) {
     const [carros, setCarros] = useState([]);
     // Guarda o texto digitado no campo de busca.
     const [busca, setBusca] = useState("");
+    // Guarda a pagina atual da listagem.
+    const [paginaAtual, setPaginaAtual] = useState(1);
     // Guarda a categoria selecionada no filtro.
     const [categoria, setCategoria] = useState("");
     // Controla quando a tabela esta carregando dados.
@@ -150,6 +153,22 @@ function DashboardAdmVeiculos({ API }) {
         });
     }, [busca, carros]);
 
+    // Total de paginas considerando a busca atual.
+    const totalPaginas = Math.max(1, Math.ceil(carrosFiltrados.length / ITENS_POR_PAGINA));
+
+    // Mantem a pagina atual dentro do limite quando a lista muda.
+    useEffect(() => {
+        if (paginaAtual > totalPaginas) {
+            setPaginaAtual(totalPaginas);
+        }
+    }, [paginaAtual, totalPaginas]);
+
+    // Mostra somente os carros da pagina atual.
+    const carrosPaginados = useMemo(() => {
+        const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        return carrosFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
+    }, [carrosFiltrados, paginaAtual]);
+
     // Lista de categorias usadas nos botoes de filtro.
     const categorias = ["Sedan", "Eletrico", "Esportivo", "Caminhonete", "SUV"];
 
@@ -286,7 +305,10 @@ function DashboardAdmVeiculos({ API }) {
                         placeholder="Buscar veículos"
                         className={css.input_busca}
                         value={busca}
-                        onChange={(e) => setBusca(e.target.value)}
+                        onChange={(e) => {
+                            setBusca(e.target.value);
+                            setPaginaAtual(1);
+                        }}
                     />
                 </div>
 
@@ -296,7 +318,10 @@ function DashboardAdmVeiculos({ API }) {
                     <button
                         type="button"
                         className={`${css.botao_filtro} ${categoria === "" ? css.filtro_ativo : ""}`}
-                        onClick={() => setCategoria("")}
+                        onClick={() => {
+                            setCategoria("");
+                            setPaginaAtual(1);
+                        }}
                     >
                         Todos
                     </button>
@@ -307,7 +332,10 @@ function DashboardAdmVeiculos({ API }) {
                             key={nomeCategoria}
                             type="button"
                             className={`${css.botao_filtro} ${categoria === nomeCategoria ? css.filtro_ativo : ""}`}
-                            onClick={() => setCategoria(nomeCategoria)}
+                            onClick={() => {
+                                setCategoria(nomeCategoria);
+                                setPaginaAtual(1);
+                            }}
                         >
                             {nomeCategoria}
                         </button>
@@ -354,7 +382,7 @@ function DashboardAdmVeiculos({ API }) {
                         )}
 
                         {/* Cria uma linha para cada carro filtrado. */}
-                        {!carregando && carrosFiltrados.map((carro) => (
+                        {!carregando && carrosPaginados.map((carro) => (
                             <tr key={carro.id}>
                                 {/* Foto do carro. */}
                                 <td data-label="Foto">
@@ -426,6 +454,16 @@ function DashboardAdmVeiculos({ API }) {
                         </tbody>
                     </table>
                 </section>
+
+                {!carregando && carrosFiltrados.length > 0 && (
+                    <div className={css.paginacao_area}>
+                        <Paginacao
+                            paginaAtual={paginaAtual}
+                            totalItens={carrosFiltrados.length}
+                            onMudarPagina={setPaginaAtual}
+                        />
+                    </div>
+                )}
             </main>
 
             {/* Modal usado para confirmar exclusao do veiculo. */}
