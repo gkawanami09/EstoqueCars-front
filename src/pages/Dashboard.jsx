@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import css from "./Dashboard.module.css";
 
 // Lista fixa de categorias exibidas nos botoes de filtro.
-const categorias = ["Sedan", "Eletrico", "Esportivo", "Caminhonete", "SUV"];
+const categorias = ["Sedan", "Elétrico", "Esportivo", "Caminhonete", "SUV"];
 
 // Tela principal do usuario comum, mostrando a vitrine de veiculos.
 function Dashboard({ API }) {
