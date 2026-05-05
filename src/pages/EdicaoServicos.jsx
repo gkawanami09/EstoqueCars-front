@@ -6,7 +6,6 @@ import Input from "../components/Input/Input.jsx";
 import { useState, useEffect } from "react";
 // Importa hooks de rota para pegar id e navegar.
 import { useParams, useNavigate } from "react-router-dom";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Monta o header Authorization quando existe token salvo.
 function cabecalhoAutorizacao() {
@@ -47,8 +46,6 @@ function EdicaoServicos({ API }) {
     const [erro, setErro] = useState("");
     // Guarda mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
-    const mensagemRef = useScrollMensagem(mensagem);
-    const erroRef = useScrollMensagem(erro);
 
     // Busca os dados do servico quando a tela abre.
     useEffect(() => {
@@ -140,8 +137,7 @@ function EdicaoServicos({ API }) {
             {/* Mensagem visual de sucesso ou erro. */}
             {mensagem && (
                 <div
-                    ref={mensagemRef}
-                    className={`${css.mensagem} ${
+                   className={`${css.mensagem} ${
                         mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
                     }`}
                     role="alert"
@@ -237,7 +233,7 @@ function EdicaoServicos({ API }) {
                 </div>
 
                 {/* Erro simples da tela. */}
-                {erro && <p ref={erroRef} className={css.erro}>{erro}</p>}
+                {erro && <p className={css.erro}>{erro}</p>}
 
                 {/* Botoes finais. */}
                 <div className={css.botoes}>

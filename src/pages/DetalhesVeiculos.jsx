@@ -4,7 +4,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 // Importa os estilos desta pagina.
 import css from "./DetalhesVeiculos.module.css";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Le respostas da API mesmo quando a rota retorna corpo vazio.
 async function lerRespostaJson(resposta) {
@@ -62,8 +61,6 @@ function DetalhesVeiculos({ API }) {
 
     // Guarda erro ao buscar as manutencoes.
     const [erroManutencoes, setErroManutencoes] = useState("");
-    const erroRef = useScrollMensagem(erro);
-    const erroManutencoesRef = useScrollMensagem(erroManutencoes);
 
     // Busca as manutencoes vinculadas ao veiculo exibido no detalhe.
     const carregarManutencoes = useCallback(async (idVeiculo) => {
@@ -333,7 +330,7 @@ function DetalhesVeiculos({ API }) {
     if (erro || !carro) {
         return (
             <main className={css.container}>
-                <div ref={erroRef} className={css.estado_erro}>
+                <div className={css.estado_erro}>
                     <strong>Ops, nao encontramos esse veiculo.</strong>
                     <span>{erro || "Tente voltar para a lista e abrir novamente."}</span>
                     <button type="button" onClick={() => navigate(rotaVoltar)}>
@@ -449,7 +446,7 @@ function DetalhesVeiculos({ API }) {
 
                 {/* Mensagem quando a API retorna erro ao buscar manutencoes. */}
                 {!carregandoManutencoes && erroManutencoes && (
-                    <div ref={erroManutencoesRef} className={css.estado_manutencao}>{erroManutencoes}</div>
+                    <div className={css.estado_manutencao}>{erroManutencoes}</div>
                 )}
 
                 {/* Mensagem quando o veiculo nao possui manutencoes cadastradas. */}

@@ -3,7 +3,6 @@ import Input from "../components/Input/Input.jsx";
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { IMaskInput } from "react-imask";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 const formularioInicial = {
     id_categoria: "",
@@ -128,7 +127,6 @@ function CadastroVeiculo({ API }) {
     const navigate = useNavigate();
     const { id } = useParams();
     const estaEditando = Boolean(id);
-    const mensagemRef = useScrollMensagem(mensagem);
 
     function atualizarCampo(campo, valor) {
         setFormulario((dadosAtuais) => ({
@@ -377,8 +375,7 @@ function CadastroVeiculo({ API }) {
             <form className={css.formulario} onSubmit={salvar}>
                 {mensagem && (
                     <div
-                        ref={mensagemRef}
-                        className={`${css.mensagem} ${
+                       className={`${css.mensagem} ${
                             mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
                         }`}
                         role="alert"

@@ -9,6 +9,7 @@ const rotasAdm = [
     "/dashboardadmveiculos",
     "/dashboardadmclientes",
     "/dashboardadmmarcas",
+    "/dashboardadmfinanceiros",
     "/cadastrocliente",
     "/cadastrov",
     "/editarveiculos",

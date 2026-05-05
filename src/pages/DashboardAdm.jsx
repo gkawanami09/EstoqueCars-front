@@ -4,7 +4,6 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // Importa os estilos CSS especificos para esta pagina.
 import css from "./DashboardAdm.module.css";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Lista fixa de categorias usadas para filtrar os veiculos rapidamente.
 const categorias = ["Sedan", "Eletrico", "Esportivo", "Caminhonete", "SUV"];
@@ -197,7 +196,6 @@ function DashboardAdm({ API }) {
     const [carregando, setCarregando] = useState(true);
     // Armazena mensagem de erro geral, caso algo falhe ao carregar a tela.
     const [erro, setErro] = useState("");
-    const erroRef = useScrollMensagem(erro);
 
     // O useEffect dispara toda vez que o componente for montado na tela.
     useEffect(() => {
@@ -354,7 +352,7 @@ function DashboardAdm({ API }) {
             </div>
 
             {/* Renderizacao condicional para as flags de status inicial (se carregando ou se quebrou API). */}
-            {erro && <div ref={erroRef} className={css.mensagemErro}>{erro}</div>}
+            {erro && <div className={css.mensagemErro}>{erro}</div>}
             {carregando && <div className={css.estado}>Carregando dashboard...</div>}
 
             {/* Sessao de cartoes superiores: Cada article e um quadrado do topo da tela que mostra as parciais. */}

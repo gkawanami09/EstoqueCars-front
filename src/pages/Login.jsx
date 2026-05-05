@@ -2,14 +2,12 @@ import css from "./Login.module.css";
 import Input from "../components/Input/Input.jsx";
 import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 function Login({ API }) {
     const [email, setEmail] = useState("")
     const [senha, setSenha] = useState("")
     const [erro, setErro] = useState("")
-    const erroRef = useScrollMensagem(erro)
-    const navigate = useNavigate()
+   const navigate = useNavigate()
 
     function pegarTipoUsuario(dados) {
         return Number(
@@ -91,7 +89,7 @@ function Login({ API }) {
                         <p className={css.subtitulo}>
                             Entre para acessar a sua conta e comprar os <br /> melhores carros usados.
                         </p>
-                        {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
+                        {erro && <p className={css.erro_api}>{erro}</p>}
                     </div>
 
                     <div className={css.campo}>

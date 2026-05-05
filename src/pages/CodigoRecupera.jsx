@@ -1,7 +1,6 @@
-﻿import css from "./CodigoRecupera.module.css";
+import css from "./CodigoRecupera.module.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 function CodigoRecupera({ API }) {
     const navigate = useNavigate();
@@ -14,8 +13,6 @@ function CodigoRecupera({ API }) {
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [erro, setErro] = useState("");
     const [sucesso, setSucesso] = useState("");
-    const erroRef = useScrollMensagem(erro);
-    const sucessoRef = useScrollMensagem(sucesso);
 
     // Solicita para a API enviar o codigo de recuperacao ao email informado.
     async function enviarCodigo(e) {
@@ -38,11 +35,9 @@ function CodigoRecupera({ API }) {
         const dados = await retorno.json();
 
         if (!retorno.ok) {
-            setErro(dados.erro || dados.mensagem || "Não foi possível enviar o código.");
             return;
         }
 
-        setSucesso(dados.mensagem || "Código enviado para seu e-mail.");
         setTipo("validarCodigo");
         setCodigo("");
         setNovaSenha("");
@@ -59,7 +54,6 @@ function CodigoRecupera({ API }) {
         const codigoLimpo = codigo.replace(/\D/g, "");
 
         if (!email.trim() || !codigoLimpo.trim()) {
-            setErro("Preencha e-mail e código.");
             return;
         }
 
@@ -76,17 +70,14 @@ function CodigoRecupera({ API }) {
         const dados = await retorno.json();
 
         if (!retorno.ok) {
-            setErro(dados.erro || dados.mensagem || "Não foi possível validar o código.");
             return;
         }
 
         if (!dados.valido) {
-            setErro(dados.erro || dados.mensagem || "Código inválido.");
             return;
         }
 
         setTipo("redefinirSenha");
-        setSucesso(dados.mensagem || "Código válido! Agora defina sua nova senha.");
     }
 
     // Envia a nova senha para finalizar a recuperacao.
@@ -103,7 +94,6 @@ function CodigoRecupera({ API }) {
         }
 
         if (novaSenha !== confirmarSenha) {
-            setErro("As senhas não coincidem.");
             return;
         }
 
@@ -125,7 +115,6 @@ function CodigoRecupera({ API }) {
                 dados.erro_senha ||
                 dados.erro ||
                 dados.mensagem ||
-                "Não foi possível redefinir a senha."
             );
             return;
         }
@@ -155,7 +144,6 @@ function CodigoRecupera({ API }) {
     return (
         <main className={css.container}>
             <div className={css.coluna_esquerda}>
-                <img className={css.imagem} src="/ImgConfirmar/ImgConfirmar.png" alt="Recuperação de conta" />
             </div>
 
             <div className={css.linha_vertical}></div>
@@ -168,10 +156,9 @@ function CodigoRecupera({ API }) {
 
                     <p className={css.subtitulo}>
                         {etapa === 1
-                            ? "Digite seu e-mail para receber o código de recuperação."
                             : tipo === "validarCodigo"
-                                ? "Informe o código recebido no e-mail para validar sua identidade."
-                                : "Código validado. Agora defina sua nova senha."}
+                                ? "Informe o c�digo recebido no e-mail para validar sua identidade."
+                                : "C�digo validado. Agora defina sua nova senha."}
                     </p>
 
                     {etapa === 1 ? (
@@ -187,11 +174,10 @@ function CodigoRecupera({ API }) {
                                 />
                             </div>
 
-                            {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
-                            {sucesso && <p ref={sucessoRef} className={css.sucesso_api}>{sucesso}</p>}
+                            {erro && <p className={css.erro_api}>{erro}</p>}
+                            {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
 
                             <button type="submit" className={css.botao_acao}>
-                                Enviar código
                             </button>
                         </form>
                     ) : (
@@ -210,7 +196,6 @@ function CodigoRecupera({ API }) {
                             )}
                              {tipo !== "redefinirSenha" && (
                             <div className={css.email_area}>
-                                <label className={css.email_label}>Código</label>
                                 <input
                                     type="text"
                                     className={css.email_input}
@@ -219,7 +204,6 @@ function CodigoRecupera({ API }) {
                                     inputMode="numeric"
                                     maxLength={6}
                                     minLength={6}
-                                    placeholder="Digite o código"
                                 />
                             </div>
                              )}
@@ -249,16 +233,14 @@ function CodigoRecupera({ API }) {
                                     </div>
 
                                     <p className={css.aviso}>
-                                        A nova senha deve seguir as regras do sistema e não pode repetir suas 3 últimas senhas.
                                     </p>
                                 </>
                             )}
 
-                            {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
-                            {sucesso && <p ref={sucessoRef} className={css.sucesso_api}>{sucesso}</p>}
+                            {erro && <p className={css.erro_api}>{erro}</p>}
+                            {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
 
                             <button type="submit" className={css.botao_acao}>
-                                {tipo === "validarCodigo" ? "Confirmar Código" : "Redefinir Senha"}
                             </button>
 
                             <button
@@ -277,4 +259,3 @@ function CodigoRecupera({ API }) {
 }
 
 export default CodigoRecupera;
-

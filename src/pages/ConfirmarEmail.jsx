@@ -1,7 +1,6 @@
-﻿import css from "./ConfirmarEmail.module.css";
+import css from "./ConfirmarEmail.module.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 function ConfirmarEmail({ API }) {
     const location = useLocation();
@@ -11,8 +10,6 @@ function ConfirmarEmail({ API }) {
     const [codigo, setCodigo] = useState("")
     const [erro, setErro] = useState("")
     const [sucesso, setSucesso] = useState("")
-    const erroRef = useScrollMensagem(erro)
-    const sucessoRef = useScrollMensagem(sucesso)
 
     // Confirma o codigo recebido por email antes de liberar a conta.
     async function verificarCodigo(e) {
@@ -23,7 +20,6 @@ function ConfirmarEmail({ API }) {
         const codigoLimpo = codigo.replace(/\D/g, "")
 
         if (!email.trim() || codigoLimpo.length !== 6) {
-            setErro("Preencha o e-mail e os 6 dígitos do código.")
             return;
         }
 
@@ -38,7 +34,6 @@ function ConfirmarEmail({ API }) {
         const dados = await retorno.json();
 
         if (!retorno.ok) {
-            setErro(dados.erro || dados.mensagem || "Não foi possível confirmar o e-mail.");
             return;
         }
 
@@ -49,15 +44,13 @@ function ConfirmarEmail({ API }) {
     return (
         <main className={css.container}>
             <div className={css.coluna_esquerda}>
-                <img className={css.imagem} src="/ImgConfirmar/ImgConfirmar.png" alt="Confirmação por e-mail" />
+                <img className={css.imagem} src="/ImgConfirmar/ImgConfirmar.png" alt="Confirma��o por e-mail" />
             </div>
 
             <div className={css.linha_vertical}></div>
 
             <div className={css.coluna_direita}>
                 <section className={css.conteudo}>
-                    <h1 className={css.titulo}>Digite o código de <span>verificação</span></h1>
-                    <p className={css.subtitulo}>Enviamos um código de 6 dígitos para o seu e-mail.</p>
 
                     <form className={css.formulario} onSubmit={verificarCodigo}>
                         <div className={css.email_area}>
@@ -81,11 +74,10 @@ function ConfirmarEmail({ API }) {
                             placeholder="000000"
                         />
 
-                        {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
-                        {sucesso && <p ref={sucessoRef} className={css.sucesso_api}>{sucesso}</p>}
+                        {erro && <p className={css.erro_api}>{erro}</p>}
+                        {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
 
                         <button type="submit" className={css.botao_verificar}>
-                            Verificar código
                         </button>
                     </form>
 
