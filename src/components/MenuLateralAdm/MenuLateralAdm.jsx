@@ -66,8 +66,8 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
                     className={classeItem(["/dashboardadmclientes"])}
                     onClick={() => navegar("/dashboardAdmClientes")}
                 >
-                    <img src="/ImgNavBar/Clientes.png" alt="Clientes" className={css.icone_img} />
-                    Clientes
+                    <img src="/ImgNavBar/Clientes.png" alt="Usuários" className={css.icone_img} />
+                    Usuários
                 </button>
 
                 <button type="button" className={css.menu_item}>
