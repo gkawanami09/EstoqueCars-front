@@ -265,7 +265,7 @@ function DashboardAdmClientes({ API }) {
                     // Marca a mensagem como erro.
                     tipo: "erro",
                     // Usa erro da API ou texto padrao.
-                    texto: dados.erro || "Nao foi possivel editar o cliente."
+                    texto: dados.erro || "Não foi possivel editar o cliente."
                 });
                 // Sai sem atualizar a lista local.
                 return;
@@ -307,7 +307,7 @@ function DashboardAdmClientes({ API }) {
                 // Marca a mensagem como erro de conexao.
                 tipo: "erro",
                 // Texto exibido quando fetch falha.
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possivel conectar ao servidor."
             });
         } finally {
             // Desliga carregamento do botao.
@@ -339,7 +339,7 @@ function DashboardAdmClientes({ API }) {
                     // Mensagem visual de erro.
                     tipo: "erro",
                     // Prioriza a mensagem enviada pela API.
-                    texto: dados.erro || "Nao foi possivel excluir o cliente."
+                    texto: dados.erro || "Não foi possivel excluir o cliente."
                 });
                 // Para sem remover o cliente da tela.
                 return;
@@ -361,7 +361,7 @@ function DashboardAdmClientes({ API }) {
                 // Mensagem visual de erro.
                 tipo: "erro",
                 // Texto padrao para falha de conexao.
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possivel conectar ao servidor."
             });
         }
     }
@@ -395,7 +395,7 @@ function DashboardAdmClientes({ API }) {
                     // Mensagem visual de erro.
                     tipo: "erro",
                     // Usa erro da API ou mensagem baseada na acao.
-                    texto: dados.erro || `Nao foi possivel ${acao} o cliente.`
+                    texto: dados.erro || `Não foi possivel ${acao} o cliente.`
                 });
                 // Para sem alterar o status local.
                 return;
@@ -421,7 +421,7 @@ function DashboardAdmClientes({ API }) {
                 // Mensagem visual de erro.
                 tipo: "erro",
                 // Texto padrao para erro de rede.
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possivel conectar ao servidor."
             });
         }
     }
@@ -773,9 +773,107 @@ function DashboardAdmClientes({ API }) {
                         <Paginacao
                             paginaAtual={paginaAtual}
                             totalItens={clientesFiltrados.length}
-                            // Adicionado o final que foi cortado na sua mensagem
-                            onChange={(pagina) => setPaginaAtual(pagina)}
+                            onMudarPagina={setPaginaAtual}
                         />
+                    </div>
+                )}
+
+                {/* Mostra o modal apenas quando existe um cliente em edicao. */}
+                {clienteEditando && (
+                    <div className={css.modal_overlay}>
+                        {/* Formulario de edicao enviado pela funcao salvarEdicao. */}
+                        <form className={css.modal} onSubmit={salvarEdicao}>
+                            {/* Cabecalho do modal. */}
+                            <header className={css.modal_cabecalho}>
+                                <h2>Editar cliente</h2>
+                                <button type="button" onClick={fecharEdicao} aria-label="Fechar modal">x</button>
+                            </header>
+
+                            {/* Grid com os campos editaveis. */}
+                            <div className={css.form_grid}>
+                                <label>
+                                    Nome
+                                    <input
+                                        type="text"
+                                        value={formulario.nome}
+                                        onChange={(e) => atualizarCampo("nome", e.target.value)}
+                                        required
+                                    />
+                                </label>
+
+                                <label>
+                                    Email
+                                    <input
+                                        type="email"
+                                        value={formulario.email}
+                                        onChange={(e) => atualizarCampo("email", e.target.value)}
+                                        required
+                                    />
+                                </label>
+
+                                <label>
+                                    Telefone
+                                    <input
+                                        type="tel"
+                                        value={formulario.telefone}
+                                        onChange={(e) => atualizarCampo("telefone", mascararTelefone(e.target.value))}
+                                        inputMode="numeric"
+                                        maxLength="15"
+                                        required
+                                    />
+                                </label>
+
+                                <label>
+                                    CPF
+                                    <input
+                                        type="text"
+                                        value={formulario.cpf}
+                                        onChange={(e) => atualizarCampo("cpf", mascararCpf(e.target.value))}
+                                        inputMode="numeric"
+                                        maxLength="14"
+                                        required
+                                    />
+                                </label>
+
+                                <label className={css.campo_inteiro}>
+                                    Nova senha
+                                    <input
+                                        type="password"
+                                        value={formulario.senha}
+                                        onChange={(e) => atualizarCampo("senha", e.target.value)}
+                                        placeholder="Deixe vazio para manter a senha atual"
+                                    />
+                                </label>
+                            </div>
+
+                            {/* Rodape com botoes do modal. */}
+                            <footer className={css.modal_botoes}>
+                                <button type="button" className={css.btn_cancelar} onClick={fecharEdicao}>
+                                    Cancelar
+                                </button>
+                                <button type="submit" className={css.btn_salvar} disabled={salvando}>
+                                    {salvando ? "Salvando..." : "Salvar alteracoes"}
+                                </button>
+                            </footer>
+                        </form>
+                    </div>
+                )}
+
+                {/* Mostra o modal de confirmacao apenas quando ele estiver aberto. */}
+                {confirmacao.aberta && (
+                    <div className={css.confirm_overlay}>
+                        <div className={css.confirm_box}>
+                            <h3>Confirmar acao</h3>
+                            <p>{confirmacao.texto}</p>
+                            <div className={css.confirm_botoes}>
+                                <button type="button" className={css.confirm_ok} onClick={confirmarAcao}>
+                                    OK
+                                </button>
+                                <button type="button" className={css.confirm_cancel} onClick={fecharConfirmacao}>
+                                    Cancelar
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 )}
             </main>
