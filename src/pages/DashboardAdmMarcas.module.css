@@ -215,7 +215,7 @@
 }
 
 .excluir {
-    background: #f25555;
+    background: var(--cor-principal);
     color: #fff;
 }
 
@@ -370,7 +370,7 @@
 }
 
 .alert_excluir {
-    background: #f25555;
+    background: var(--cor-principal);
     color: #fff;
 }
 

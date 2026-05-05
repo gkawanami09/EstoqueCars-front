@@ -1,10 +1,12 @@
 ﻿import { Link, useNavigate } from 'react-router-dom'
 import css from './Header.module.css'
 import ButtonLink from '../ButtonLink/ButtonLink'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { lerConfigEmpresa } from '../../utils/configEmpresa'
 
 function Header({ API }) {
     const [menuAberto, setMenuAberto] = useState(false)
+    const [configEmpresa, setConfigEmpresa] = useState(() => lerConfigEmpresa())
     const navigate = useNavigate()
     const usuarioSalvo = localStorage.getItem('usuario_logado')
     const usuarioLogado = !!usuarioSalvo
@@ -23,6 +25,20 @@ function Header({ API }) {
     }
 
     const rotaDashboard = buscarRotaDashboard()
+
+    useEffect(() => {
+        function atualizarConfig() {
+            setConfigEmpresa(lerConfigEmpresa())
+        }
+
+        window.addEventListener('config_empresa_atualizada', atualizarConfig)
+        window.addEventListener('storage', atualizarConfig)
+
+        return () => {
+            window.removeEventListener('config_empresa_atualizada', atualizarConfig)
+            window.removeEventListener('storage', atualizarConfig)
+        }
+    }, [])
 
     function toggleMenu() {
         setMenuAberto(!menuAberto)
@@ -47,7 +63,7 @@ function Header({ API }) {
         <header className={css.container}>
             <Link className={css.logoBox} to="/">
                 <div>
-                    <img className={css.logo} src="/Logo.png" alt="Logo" />
+                    <img className={css.logo} src={configEmpresa.logo || "/Logo.png"} alt={configEmpresa.nome || "Logo"} />
                 </div>
             </Link>
 

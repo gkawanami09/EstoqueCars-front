@@ -1,7 +1,7 @@
 .menu_lateral {
     width: 250px;
     height: 100vh;
-    background-color: #171414;
+    background-color: var(--preto-nav);
     display: flex;
     flex-direction: column;
     padding: 24px 20px;
@@ -64,11 +64,11 @@
 }
 
 .menu_item:hover {
-    background-color: #f25555;
+    background-color: var(--cor-principal);
 }
 
 .menu_ativo {
-    background-color: #f25555;
+    background-color: var(--cor-principal);
     color: #fff;
 }
 
@@ -98,7 +98,7 @@
 }
 
 .botao_sair:hover {
-    background-color: #f25555;
+    background-color: var(--cor-principal);
 }
 
 @media (max-width: 900px) {

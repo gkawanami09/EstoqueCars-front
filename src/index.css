@@ -8,13 +8,15 @@
   --cinza-card: #F0F0F0;
   --cinza-escuro-card: #878896;
   --preto-nav: #171414;
+  --cor-principal: var(--vermelho);
+  --fonte-site: 'Montserrat';
 }
 
 * {
   box-sizing: border-box;
   margin: 0 !important;
   text-decoration: none !important;
-  font-family: 'Montserrat', sans-serif !important;
+  font-family: var(--fonte-site), 'Montserrat', sans-serif !important;
 }
 
 html, body, #root {

@@ -555,33 +555,12 @@ function DashboardAdmClientes({ API }) {
                         Cadastrar Usuário
                     </button>
                 </div>
-
                 {/* AREA DE FILTROS */}
-                <div
-                    className={css.area_filtros}
-                    style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: '35px',       /* Aumentado o espaço entre os botões */
-                        marginTop: '40px', /* Aumentado para descer mais os botões */
-                        marginBottom: '40px', /* Espaço em relação aos cards abaixo */
-                        flexWrap: 'wrap'
-                    }}
-                >
+                <div className={css.area_filtros}>
                     <button
                         type="button"
                         onClick={() => { setFiltroTipo("Todos"); setPaginaAtual(1); }}
-                        style={{
-                            backgroundColor: filtroTipo === "Todos" ? '#F45B5B' : '#000000',
-                            color: '#FFFFFF',
-                            padding: '12px 32px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontWeight: '600',
-                            fontSize: '15px',
-                            transition: 'background-color 0.2s ease'
-                        }}
+                        className={`${css.btn_filtro} ${filtroTipo === "Todos" ? css.btn_filtro_ativo : ""}`}
                     >
                         Todos
                     </button>
@@ -589,17 +568,7 @@ function DashboardAdmClientes({ API }) {
                     <button
                         type="button"
                         onClick={() => { setFiltroTipo("Cliente"); setPaginaAtual(1); }}
-                        style={{
-                            backgroundColor: filtroTipo === "Cliente" ? '#F45B5B' : '#000000',
-                            color: '#FFFFFF',
-                            padding: '12px 32px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontWeight: '600',
-                            fontSize: '15px',
-                            transition: 'background-color 0.2s ease'
-                        }}
+                        className={`${css.btn_filtro} ${filtroTipo === "Cliente" ? css.btn_filtro_ativo : ""}`}
                     >
                         Cliente
                     </button>
@@ -607,17 +576,7 @@ function DashboardAdmClientes({ API }) {
                     <button
                         type="button"
                         onClick={() => { setFiltroTipo("Vendedor"); setPaginaAtual(1); }}
-                        style={{
-                            backgroundColor: filtroTipo === "Vendedor" ? '#F45B5B' : '#000000',
-                            color: '#FFFFFF',
-                            padding: '12px 32px',
-                            borderRadius: '8px',
-                            border: 'none',
-                            cursor: 'pointer',
-                            fontWeight: '600',
-                            fontSize: '15px',
-                            transition: 'background-color 0.2s ease'
-                        }}
+                        className={`${css.btn_filtro} ${filtroTipo === "Vendedor" ? css.btn_filtro_ativo : ""}`}
                     >
                         Vendedor
                     </button>

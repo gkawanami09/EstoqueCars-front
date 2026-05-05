@@ -22,7 +22,7 @@
 }
 
 .nome_adm {
-    color: #f25555;
+    color: var(--cor-principal);
 }
 
 .subtitulo {
@@ -326,7 +326,7 @@
 }
 
 .preco {
-    color: #f25555 !important;
+    color: var(--cor-principal) !important;
     font-weight: 900 !important;
 }
 
