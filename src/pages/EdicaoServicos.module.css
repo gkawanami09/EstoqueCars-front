@@ -77,7 +77,7 @@
 }
 
 .anexar {
-    background: #000;
+    background: var(--preto);
     color: #fff;
     padding: 10px 20px;
     border-radius: 8px;
@@ -104,7 +104,7 @@
 }
 
 .salvar {
-    background: #000;
+    background: var(--preto);
     color: #fff;
     padding: 12px 40px;
     border-radius: 8px;

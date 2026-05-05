@@ -52,7 +52,7 @@
 }
 
 .link_ativo {
-    background: #f34747 !important;
+    background: var(--vermelho-salmao) !important;
     color: #fff !important;
     box-shadow: 0 8px 16px rgba(243, 71, 71, 0.28);
 }

@@ -72,12 +72,12 @@
 .titulo {
     font-size: 38px;
     font-weight: bold;
-    color: #1a1a1a;
+    color: var(--preto);
     margin-bottom: 5px;
 }
 
 .titulo span {
-    color: #ff3b3b;
+    color: var(--vermelho-salmao);
 }
 
 .subtitulo {
@@ -90,7 +90,7 @@
 .erro_api {
     grid-column: 1 / -1;
     margin-top: 10px;
-    color: #d7263d;
+    color: var(--vermelho-vivo);
     background-color: #ffecee;
     border: 1px solid #f5b8c0;
     border-radius: 8px;
@@ -108,7 +108,7 @@
 
 /* Estilo exato do botão "Criar Conta" da imagem */
 .botao_criar {
-    background-color: #000000;
+    background-color: var(--preto);
     color: #ffffff;
     border: none;
     width: 180px;
@@ -139,7 +139,7 @@
     border: 3px solid #d8d8d8;
     border-radius: 10px;
     background-color: #f2f2f2;
-    color: #333;
+    color: var(--preto);
     font-size: 14px;
     font-weight: 500;
     display: inline-flex;
@@ -154,7 +154,7 @@
 }
 
 .texto_upload {
-    color: #ff4d4f;
+    color: var(--vermelho-salmao);
     font-size: 14px;
     font-weight: 500;
 }
