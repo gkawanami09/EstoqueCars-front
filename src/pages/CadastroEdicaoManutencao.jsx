@@ -4,7 +4,6 @@ import css from "./CadastroManutencao.module.css";
 import Input from "../components/Input/Input.jsx";
 // Importa hooks para controlar estado e carregar dados.
 import { useEffect, useState } from "react";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Monta o header Authorization quando existe token salvo.
 function cabecalhoAutorizacao() {
@@ -42,8 +41,6 @@ function EdicaoManutencao({ API, id }) {
     const [erro, setErro] = useState("");
     // Guarda mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
-    const mensagemRef = useScrollMensagem(mensagem);
-    const erroRef = useScrollMensagem(erro);
 
     // Carrega os servicos quando a tela abre.
     useEffect(() => {
@@ -197,8 +194,7 @@ function EdicaoManutencao({ API, id }) {
             {/* Alerta visual de mensagem. */}
             {mensagem && (
                 <div
-                    ref={mensagemRef}
-                    className={`${css.mensagem} ${
+                   className={`${css.mensagem} ${
                         mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
                     }`}
                     role="alert"
@@ -314,7 +310,7 @@ function EdicaoManutencao({ API, id }) {
                 />
 
                 {/* Erro simples do formulario. */}
-                {erro && <p ref={erroRef} className={css.erro}>{erro}</p>}
+                {erro && <p className={css.erro}>{erro}</p>}
 
                 {/* Botoes finais. */}
                 <div className={css.botoes}>

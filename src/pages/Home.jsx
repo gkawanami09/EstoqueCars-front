@@ -1,4 +1,4 @@
-﻿import Banner from "../components/Banner/Banner"
+import Banner from "../components/Banner/Banner"
 import Categoria from "../components/Categoria/Categoria"
 import CarrosHome from "../components/CarrosHome/CarrosHome"
 import Beneficio from "../components/Beneficio/Beneficio"
@@ -20,19 +20,14 @@ function Home() {
 
             <Categoria subtitulo="Escolha o seu estilo de carro" titulo="Categorias"/>
 
-            <CarrosHome subtitulo="Explore nossa coleção exclusiva" titulo="Diversos Modelos de " span="Carros"/>
 
             <Beneficio
                 titulo1="Oferecemos uma"
                 span1="ampla"
-                titulo2="seleção de"
-                span2="carros acessíveis"
-                subtitulo="O HB20 é um usado acessível que chama atenção pelo equilíbrio entre economia, estilo e praticidade."
             />
 
             <Etapas subtitulo="Siga etapas simples" titulo1="Como" span="Comprar" titulo2="seu Carro"/>
 
-            <Faq span="Dúvidas" titulo="Frequentes" subtitulo="FAQ"/>
 
             <Contato />
         </>

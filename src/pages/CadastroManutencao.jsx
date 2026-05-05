@@ -5,7 +5,6 @@ import css from "./CadastroManutencao.module.css";
 // Importa o modal usado para confirmar exclusoes.
 import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao.jsx";
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Cria o formulario vazio de manutencao.
 const formularioInicial = () => ({
@@ -277,8 +276,7 @@ function CadastroManutencao({ API }) {
     const [historico, setHistorico] = useState([]);
     // Mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
-    const mensagemRef = useScrollMensagem(mensagem);
-    // Carregamento da lista de manutencoes.
+   // Carregamento da lista de manutencoes.
     const [carregando, setCarregando] = useState(true);
     // Carregamento do botao de salvar manutencao.
     const [salvando, setSalvando] = useState(false);
@@ -1183,8 +1181,7 @@ function CadastroManutencao({ API }) {
 
             {mensagem && (
                 <div
-                    ref={mensagemRef}
-                    className={`${css.mensagem} ${
+                   className={`${css.mensagem} ${
                         mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
                     }`}
                     role="alert"

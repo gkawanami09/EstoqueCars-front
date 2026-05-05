@@ -1,9 +1,8 @@
-ï»¿import css from "./Cadastro.module.css";
+import css from "./Cadastro.module.css";
 import Input from "../components/Input/Input.jsx";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 import {IMaskInput} from "react-imask";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 function Cadastro({API}) {
     const [nome, setNome] = useState("");
@@ -15,8 +14,7 @@ function Cadastro({API}) {
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [erro, setErro] = useState("");
-    const erroRef = useScrollMensagem(erro);
-    const navigate = useNavigate();
+   const navigate = useNavigate();
 
     function selecionarFoto(e) {
         const arquivo = e.target.files?.[0];
@@ -61,12 +59,12 @@ function Cadastro({API}) {
         }
 
         if (cpf.length !== 11) {
-            setErro("CPF deve ter exatamente 11 nÃºmeros.");
+            setErro("CPF deve ter exatamente 11 números.");
             return;
         }
 
         if (senha !== confirmarSenha) {
-            setErro("As senhas nÃ£o coincidem.");
+            setErro("As senhas não coincidem.");
             return;
         }
 
@@ -110,7 +108,7 @@ function Cadastro({API}) {
                     <div className={css.cabecalho_form}>
                         <h1 className={css.titulo}><span>Crie</span> sua Conta</h1>
                         <h6 className={css.subtitulo}>Preencha os dados abaixo para criar sua conta</h6>
-                        {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
+                        {erro && <p className={css.erro_api}>{erro}</p>}
                     </div>
 
 

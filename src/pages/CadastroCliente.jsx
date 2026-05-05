@@ -3,7 +3,6 @@ import Input from "../components/Input/Input.jsx";
 import { useState } from "react";
 import { IMaskInput } from "react-imask";
 import { useNavigate } from "react-router-dom";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 function CadastroCliente({ API }) {
     const navigate = useNavigate();
@@ -19,7 +18,6 @@ function CadastroCliente({ API }) {
 
     const [mensagem, setMensagem] = useState(null);
     const [salvando, setSalvando] = useState(false);
-    const mensagemRef = useScrollMensagem(mensagem);
 
     function cabecalhoAutorizacao() {
         const token = localStorage.getItem("access_token");
@@ -127,7 +125,7 @@ function CadastroCliente({ API }) {
             setSenha(""); setConfirmarSenha(""); removerFoto();
             navigate("/dashboardAdmClientes");
 
-        } catch (error) {
+        } catch {
             setMensagem({ tipo: "erro", texto: "Não foi possível conectar ao servidor." });
         } finally {
             setSalvando(false);
@@ -146,7 +144,7 @@ function CadastroCliente({ API }) {
                 </header>
 
                 {mensagem && (
-                    <div ref={mensagemRef} className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
+                    <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
                         <div className={css.mensagem_info}>
                             <span className={css.mensagem_icone}>{mensagem.tipo === "sucesso" ? "✓" : "!"}</span>
                             <div className={css.mensagem_texto}>

@@ -1,0 +1,554 @@
+.pagina {
+    min-height: 100vh;
+    background: #f5f5f5;
+    padding: 32px 30px;
+    color: #111;
+    font-family: var(--fonte-site), "Montserrat", "Segoe UI", sans-serif;
+}
+
+.cabecalho {
+    margin-bottom: 34px !important;
+}
+
+.cabecalho h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.resumo {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 13px;
+    margin-bottom: 12px !important;
+}
+
+.card_resumo {
+    min-width: 0;
+    min-height: 72px;
+    border-radius: 8px;
+    padding: 9px 20px 14px;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+}
+
+.card_resumo span {
+    font-size: 14px;
+    font-weight: 900;
+    color: white;
+    line-height: 1.2;
+}
+
+.card_resumo strong {
+    display: block;
+    margin-top: 8px !important;
+    font-size: 1.45rem;
+    font-weight: 900;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+}
+
+.card_receita {
+    background: #2f8246;
+}
+
+.card_despesas {
+    background: #f43f43;
+}
+
+.card_saldo {
+    background: #5d79d4;
+}
+
+.card_mes {
+    background: #f09a4a;
+}
+
+.filtros {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) minmax(170px, max-content) 112px 134px;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 28px !important;
+}
+
+.campo_busca {
+    height: 35px;
+    border: 1px solid #e4e4e4;
+    border-radius: 8px;
+    background: #fff;
+    padding: 0 11px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.campo_busca img {
+    width: 17px;
+    height: 17px;
+    object-fit: contain;
+    opacity: 0.6;
+}
+
+.campo_busca input {
+    min-width: 0;
+    width: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: #222;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.campo_busca input::placeholder {
+    color: #707070;
+}
+
+.select_filtro,
+.botao_nova {
+    height: 35px;
+    border: none;
+    border-radius: 7px;
+    background: #000;
+    color: #fff;
+    padding: 0 12px;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+
+}
+
+.select_filtro {
+    background-position: calc(100% - 15px) 14px, calc(100% - 10px) 14px;
+    background-size: 5px 5px, 5px 5px;
+    background-repeat: no-repeat;
+    min-width: 112px;
+    padding-right: 32px;
+    white-space: nowrap;
+}
+
+.select_periodo {
+    min-width: 170px;
+}
+
+.botao_nova {
+    width: 100%;
+}
+
+.tabela_container {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.tabela {
+    width: 100%;
+    min-width: 760px;
+    border-collapse: collapse;
+}
+
+.tabela th,
+.tabela td {
+    padding: 10px 12px;
+    text-align: left;
+    font-size: 14px;
+}
+
+.tabela th {
+    color: #111;
+    font-weight: 900;
+    border-bottom: 1px solid #eeeeee;
+}
+
+.tabela td {
+    color: #111;
+    font-weight: 600;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 69px;
+    min-height: 30px;
+    border-radius: 7px;
+    padding: 6px 10px;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.entrada {
+    background: #2f8246;
+}
+
+.saida {
+    background: #f43f43;
+}
+
+.valor_entrada {
+    color: #2f8246 !important;
+}
+
+.valor_saida {
+    color: #ff2d2d !important;
+}
+
+.acoes {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.botao_editar,
+.botao_excluir {
+    width: 22px;
+    height: 22px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.botao_editar {
+    border: 1px solid #111;
+    background: #fff;
+}
+
+.botao_excluir {
+    border: none;
+    background: #f43f43;
+}
+
+.botao_editar img,
+.botao_excluir img {
+    width: 13px;
+    height: 13px;
+    object-fit: contain;
+}
+
+.botao_excluir img {
+    filter: brightness(0) invert(1);
+}
+
+.estado_vazio {
+    height: 160px;
+    text-align: center !important;
+    color: #777 !important;
+    font-weight: 800 !important;
+}
+
+.modal_overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.45);
+    padding: 18px;
+}
+
+.modal {
+    width: min(100%, 500px);
+    max-height: none;
+    overflow: visible;
+    border: none;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 22px 70px rgba(0, 0, 0, 0.34);
+}
+
+.modal_cabecalho {
+    background: #f43f43;
+    color: #fff;
+    border-radius: 7px;
+    padding: 18px 24px;
+}
+
+.modal_cabecalho h2 {
+    font-size: 1.45rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.modal_conteudo {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px 24px 4px;
+}
+
+.grupo_tipo {
+    border: none;
+    padding: 0;
+}
+
+.grupo_tipo legend,
+.campo_modal span {
+    display: block;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 900;
+    margin-bottom: 7px !important;
+}
+
+.opcoes_tipo {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.botao_tipo {
+    min-width: 118px;
+    min-height: 42px;
+    border-radius: 8px;
+    background: #fff;
+    padding: 0 12px;
+    font-size: 1.1rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.botao_entrada {
+    border: 1px solid #2f8246;
+    color: #2f8246;
+}
+
+.botao_saida {
+    border: 1px solid #f43f43;
+    color: #f43f43;
+}
+
+.tipo_ativo.botao_entrada {
+    background: #ecfdf3;
+}
+
+.tipo_ativo.botao_saida {
+    background: #fff1f2;
+}
+
+.campo_modal input {
+    width: 100%;
+    height: 42px;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    padding: 0 14px;
+    color: #111;
+    font-size: 1rem;
+    font-weight: 700;
+    outline: none;
+}
+
+.campo_modal input:focus {
+    border-color: #0ea5ff;
+    box-shadow: 0 0 0 3px rgba(14, 165, 255, 0.16);
+}
+
+.modal_botoes {
+    display: flex;
+    gap: 14px;
+    padding: 28px 24px 26px;
+}
+
+.botao_salvar,
+.botao_cancelar {
+    min-width: 122px;
+    height: 44px;
+    border-radius: 9px;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.botao_salvar {
+    border: none;
+    background: #000;
+    color: #fff;
+}
+
+.botao_cancelar {
+    border: 1px solid #e5e5e5;
+    background: #fff;
+    color: #111;
+}
+
+@media (max-width: 1100px) {
+    .resumo {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .filtros {
+        grid-template-columns: minmax(220px, 1fr) 170px 130px;
+    }
+
+    .botao_nova {
+        grid-column: 1 / -1;
+        max-width: 220px;
+        justify-self: end;
+    }
+}
+
+@media (max-width: 760px) {
+    .pagina {
+        padding: 24px 16px;
+    }
+
+    .cabecalho {
+        margin-bottom: 22px !important;
+    }
+
+    .cabecalho h1 {
+        font-size: 1.75rem;
+    }
+
+    .resumo {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-bottom: 18px !important;
+    }
+
+    .filtros {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .campo_busca,
+    .select_filtro,
+    .botao_nova {
+        width: 100%;
+        max-width: none;
+        min-height: 42px;
+        justify-self: stretch;
+    }
+
+    .tabela_container {
+        overflow: visible;
+        background: transparent;
+    }
+
+    .tabela {
+        min-width: 0;
+    }
+
+    .tabela thead {
+        display: none;
+    }
+
+    .tabela,
+    .tabela tbody,
+    .tabela tr,
+    .tabela td {
+        display: block;
+        width: 100%;
+    }
+
+    .tabela tr {
+        border-radius: 8px;
+        background: #fff;
+        margin-bottom: 12px !important;
+        padding: 12px;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    .tabela td {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 10px 0;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    .tabela td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .tabela td::before {
+        content: attr(data-label);
+        color: #666;
+        font-size: 13px;
+        font-weight: 900;
+        text-align: left;
+    }
+
+    .acoes {
+        justify-content: flex-end;
+    }
+
+    .estado_vazio {
+        display: table-cell !important;
+        height: auto;
+        padding: 32px 12px !important;
+        background: #fff;
+        border-radius: 8px;
+    }
+
+    .estado_vazio::before {
+        display: none;
+    }
+
+    .modal_overlay {
+        align-items: center;
+        padding: 12px;
+    }
+
+    .modal {
+        max-height: none;
+    }
+
+    .modal_cabecalho {
+        padding: 16px 18px;
+    }
+
+    .modal_cabecalho h2 {
+        font-size: 1.45rem;
+    }
+
+    .modal_conteudo {
+        gap: 14px;
+        padding: 14px 18px 4px;
+    }
+
+    .grupo_tipo legend,
+    .campo_modal span {
+        font-size: 1rem;
+    }
+
+    .opcoes_tipo {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .botao_tipo {
+        min-width: 0;
+        width: 100%;
+        min-height: 40px;
+        font-size: 1.05rem;
+    }
+
+    .modal_botoes {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 22px 18px 18px;
+    }
+
+    .botao_salvar,
+    .botao_cancelar {
+        width: 100%;
+        min-width: 0;
+        height: 48px;
+    }
+}

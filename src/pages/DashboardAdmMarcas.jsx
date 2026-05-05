@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 // Importa o CSS module da tela.
 import css from "./DashboardAdmMarcas.module.css";
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Tela administrativa de marcas.
 function DashboardAdmMarcas({ API }) {
@@ -23,8 +22,7 @@ function DashboardAdmMarcas({ API }) {
     const [salvando, setSalvando] = useState(false);
     // Mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
-    const mensagemRef = useScrollMensagem(mensagem);
-    // Dados do modal de confirmacao.
+   // Dados do modal de confirmacao.
     const [confirmacao, setConfirmacao] = useState({
         aberta: false,
         marca: null
@@ -346,7 +344,7 @@ function DashboardAdmMarcas({ API }) {
 
             {/* Mensagem de sucesso ou erro. */}
             {mensagem && (
-                <div ref={mensagemRef} className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
+                <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
                     <div>
                         <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atenção"}</strong>
                         <span>{mensagem.texto}</span>

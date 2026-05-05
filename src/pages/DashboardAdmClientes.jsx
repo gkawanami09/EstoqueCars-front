@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 // Importa o CSS module da tela de clientes.
 import css from "./DashboardAdmClientes.module.css";
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Objeto usado para iniciar e limpar o formulario de cliente.
 const clienteInicial = {
@@ -28,7 +27,12 @@ function DashboardAdmClientes({ API }) {
     const [carregando, setCarregando] = useState(true);
     const [mensagem, setMensagem] = useState(null);
 
+
     const mensagemRef = useScrollMensagem(mensagem);
+
+    // Referencia do alerta para rolar a tela ate ele quando houver retorno da API.
+   // Cliente aberto no modal de edicao.
+
 
     const [clienteEditando, setClienteEditando] = useState(null);
     const [formulario, setFormulario] = useState(clienteInicial);
@@ -405,8 +409,7 @@ function DashboardAdmClientes({ API }) {
 
                 {mensagem && (
                     <div
-                        ref={mensagemRef}
-                        className={`${css.mensagem} ${
+                       className={`${css.mensagem} ${
                             mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
                         }`}
                     >

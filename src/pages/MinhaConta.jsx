@@ -4,7 +4,6 @@ import { useMemo, useState } from "react";
 import { IMaskInput } from "react-imask";
 // Importa CSS module desta tela.
 import css from "./MinhaConta.module.css";
-import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Usuario vazio usado quando nao existe usuario salvo.
 const usuarioVazio = {
@@ -115,8 +114,7 @@ function MinhaConta({ API }) {
     const [previewFoto, setPreviewFoto] = useState("");
     // Guarda mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
-    const mensagemRef = useScrollMensagem(mensagem);
-    // Controla carregamento do botao salvar.
+   // Controla carregamento do botao salvar.
     const [salvando, setSalvando] = useState(false);
     // Muda a URL da foto para forcar o navegador a recarregar.
     const [versaoFoto, setVersaoFoto] = useState(Date.now());
@@ -306,7 +304,7 @@ function MinhaConta({ API }) {
                 </header>
 
                 {mensagem && (
-                    <div ref={mensagemRef} className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
+                    <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
                         <div>
                             <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atencao"}</strong>
                             <span>{mensagem.texto}</span>
