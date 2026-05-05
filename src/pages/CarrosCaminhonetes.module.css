@@ -5,7 +5,7 @@
     margin: 0 auto !important;
     padding: 40px 20px;
     font-family: 'Montserrat', 'Segoe UI', sans-serif;
-    color: #000;
+    color: var(--preto);
 }
 
 .secao_destaque {
@@ -41,7 +41,7 @@
 }
 
 .botao_ver_mais_destaque {
-    background-color: #000;
+    background-color: var(--preto);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -54,7 +54,7 @@
 }
 
 .botao_ver_mais_destaque:hover {
-    background-color: #ff4747;
+    background-color: var(--vermelho);
 }
 
 .area_imagem_destaque {
@@ -101,7 +101,7 @@
 .valor_destaque {
     font-size: 2rem;
     font-weight: 900;
-    color: #000;
+    color: var(--preto);
     margin: 0;
 }
 
@@ -130,7 +130,7 @@
 }
 
 .botao_filtro {
-    background-color: #000;
+    background-color: var(--preto);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -142,14 +142,14 @@
 }
 
 .botao_filtro:hover {
-    background-color: #ff4747;
+    background-color: var(--vermelho);
 }
 
 .filtro_ativo {
-    background-color: #000;
+    background-color: var(--preto);
 }
 .filtro_ativo:hover {
-    background-color: #ff4747;
+    background-color: var(--vermelho);
 }
 
 .lista_carros {
@@ -219,12 +219,12 @@
 
 .grade_especificacoes strong {
     font-weight: 900;
-    color: #000;
+    color: var(--preto);
     margin-right: 5px;
 }
 
 .cor_destaque {
-    color: #f25555;
+    color: var(--vermelho-claro);
     font-weight: 600;
 }
 
@@ -241,11 +241,11 @@
     font-size: 1.8rem;
     font-weight: 900;
     margin: 0;
-    color: #000;
+    color: var(--preto);
 }
 
 .botao_ver_mais_card {
-    background-color: #000;
+    background-color: var(--preto);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -259,7 +259,7 @@
 }
 
 .botao_ver_mais_card:hover {
-    background-color: #ff4747;
+    background-color: var(--vermelho);
 }
 
 @media (max-width: 900px) {

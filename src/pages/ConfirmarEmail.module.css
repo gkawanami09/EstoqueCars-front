@@ -49,7 +49,7 @@
 }
 
 .titulo span {
-    color: #ef4444;
+    color: var(--vermelho);
 }
 
 .subtitulo {
@@ -89,7 +89,7 @@
 }
 
 .email_input:focus {
-    border-color: #ef4444;
+    border-color: var(--vermelho);
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
@@ -115,7 +115,7 @@
 }
 
 .codigo_input_unico:focus {
-    border-color: #ef4444;
+    border-color: var(--vermelho);
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
     background-color: #fffdfd;
 }
@@ -159,7 +159,7 @@
 .erro_api {
     margin-top: -8px;
     margin-bottom: -2px;
-    color: #d7263d;
+    color: var(--vermelho);
     background-color: #ffecee;
     border: 1px solid #f5b8c0;
     border-radius: 8px;
@@ -182,7 +182,7 @@
 
 .link,
 .link_botao {
-    color: #ef4444;
+    color: var(--vermelho);
     font-weight: 600;
     text-decoration: none;
     background: transparent;

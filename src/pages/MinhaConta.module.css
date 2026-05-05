@@ -28,7 +28,7 @@
 }
 
 .destaque_vermelho {
-    color: #f25555;
+    color: var(--vermelho);
 }
 
 .subtitulo {
@@ -251,7 +251,7 @@
 }
 
 .botao_salvar:hover {
-    background-color: #f25555;
+    background-color: var(--vermelho);
     box-shadow: 0 4px 15px rgba(242, 85, 85, 0.4);
 }
 
@@ -299,7 +299,7 @@
 }
 
 .mensagem_erro {
-    color: #991b1b;
+    color: var(--vermelho);
     background: #fff1f2;
     border-color: #fecdd3;
 }

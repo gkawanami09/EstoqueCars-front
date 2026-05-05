@@ -22,12 +22,12 @@
 }
 
 .vermelho:hover {
-    background-color: #d93a3a;
+    background-color: var(--vermelho-vivo);
 }
 
 .branco {
     background-color: #ffffff;
-    color: #000000;
+    color: var(--preto);
 }
 
 .branco:hover {

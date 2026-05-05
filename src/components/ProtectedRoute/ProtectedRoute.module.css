@@ -1,7 +1,7 @@
 .layout {
     height: 100vh;
     display: flex;
-    background: #100b0f;
+    background: var(--preto);
     position: relative;
 }
 
@@ -20,7 +20,7 @@
     top: 15px;
     left: 15px;
     z-index: 900;
-    background: #171414;
+    background: var(--preto);
     border: none;
     border-radius: 8px;
     padding: 8px;

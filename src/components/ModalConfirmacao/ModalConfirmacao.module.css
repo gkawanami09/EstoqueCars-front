@@ -28,13 +28,13 @@
     justify-content: center;
     margin-bottom: 18px;
     background: #fff1f2;
-    color: #991b1b;
+    color: var(--vermelho-escuro);
     font-size: 22px;
     font-weight: 900;
 }
 
 .titulo {
-    color: #111111;
+    color: var(--preto);
     font-size: 22px;
     font-weight: 800;
     line-height: 1.2;
@@ -49,7 +49,7 @@
 }
 
 .texto strong {
-    color: #111111;
+    color: var(--preto);
     font-weight: 800;
 }
 
@@ -74,7 +74,7 @@
 .cancelar {
     border: 1px solid #d7d7d7;
     background: #ffffff;
-    color: #222222;
+    color: var(--preto);
 }
 
 .cancelar:hover {
@@ -83,12 +83,12 @@
 
 .confirmar {
     border: none;
-    background: #dc2626;
+    background: var(--vermelho-vivo);
     color: #ffffff;
 }
 
 .confirmar:hover {
-    background: #b91c1c;
+    background: var(--vermelho-escuro);
 }
 
 .confirmar:disabled {

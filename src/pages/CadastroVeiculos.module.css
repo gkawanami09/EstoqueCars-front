@@ -8,7 +8,7 @@
     width: 100%;
     max-width: 1120px;
     margin: 0 auto 22px !important;
-    color: #111;
+    color: var(--preto);
     font-size: 28px;
     font-weight: 800;
     line-height: 1.15;
@@ -61,7 +61,7 @@
 }
 
 .campoSelect span {
-    color: #333;
+    color: var(--preto);
     font-size: 14px;
     font-weight: 500;
 }
@@ -73,7 +73,7 @@
     border: 1px solid #d7d7d7;
     border-radius: 8px;
     background: #fff;
-    color: #111;
+    color: var(--preto);
     font-size: 15px;
     outline: none;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -100,7 +100,7 @@
 .select:focus,
 .selectPequeno:focus,
 .descricao:focus {
-    border-color: #111;
+    border-color: var(--preto);
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -135,7 +135,7 @@
     justify-content: center;
     min-height: 48px;
     border-radius: 8px;
-    background: #000;
+    background: var(--preto);
     color: #fff;
     padding: 0 16px;
     text-align: center;
@@ -173,7 +173,7 @@
 
 .salvar {
     border: none;
-    background: #000;
+    background: var(--preto);
     color: #fff;
 }
 
@@ -191,7 +191,7 @@
 .cancelar {
     border: 1px solid #d7d7d7;
     background: #fff;
-    color: #222;
+    color: var(--preto);
 }
 
 .cancelar:hover {
@@ -225,7 +225,7 @@
 }
 
 .mensagem_erro {
-    color: #991b1b;
+    color: var(--vermelho-escuro);
     background: #fff1f2;
     border-color: #fecdd3;
 }
