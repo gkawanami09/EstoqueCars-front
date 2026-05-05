@@ -1,26 +1,9 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
 import css from "./MenuLateralAdm.module.css";
-import { lerConfigEmpresa } from "../../utils/configEmpresa";
 
 function MenuLateralAdm({ aberto = false, aoNavegar }) {
     const navigate = useNavigate();
     const location = useLocation();
-    const [configEmpresa, setConfigEmpresa] = useState(() => lerConfigEmpresa());
-
-    useEffect(() => {
-        function atualizarConfig() {
-            setConfigEmpresa(lerConfigEmpresa());
-        }
-
-        window.addEventListener("config_empresa_atualizada", atualizarConfig);
-        window.addEventListener("storage", atualizarConfig);
-
-        return () => {
-            window.removeEventListener("config_empresa_atualizada", atualizarConfig);
-            window.removeEventListener("storage", atualizarConfig);
-        };
-    }, []);
 
     function sair() {
         localStorage.removeItem("usuario_logado");
@@ -43,7 +26,7 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
         <aside className={`${css.menu_lateral} ${aberto ? css.menu_aberto : ""}`}>
             <div className={css.logo_container}>
                 <Link to = "/">
-                <img src={configEmpresa.logo || "/ImgNavBar/LogoNav.png"} alt={configEmpresa.nome || "Estoque Cars"} className={css.logo} />
+                <img src="/ImgNavBar/LogoNav.png" alt="Estoque Cars" className={css.logo} />
                 </Link>
             </div> <br />
 
@@ -105,14 +88,7 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
                     <img src="/ImgNavBar/Relatórios.png" alt="Relatorios" className={css.icone_img} />
                     Relatórios
                 </button>
-                <button
-                    type="button"
-                    className={classeItem(["/configuracaoempresa"])}
-                    onClick={() => navegar("/configuracaoEmpresa")}
-                >
-                    <img src="/ImgNavBar/engrenagem.png" alt="Configuracoes" className={css.icone_img} />
-                    Configurações
-                </button>
+            
             </nav>
 
             <div className={css.rodape_menu}>
