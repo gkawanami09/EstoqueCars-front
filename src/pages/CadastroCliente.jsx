@@ -2,8 +2,10 @@ import css from "./CadastroCliente.module.css";
 import Input from "../components/Input/Input.jsx";
 import { useState } from "react";
 import { IMaskInput } from "react-imask";
+import { useNavigate } from "react-router-dom";
 
 function CadastroCliente({ API }) {
+    const navigate = useNavigate();
     const [nome, setNome] = useState("");
     const [email, setEmail] = useState("");
     const [telefone, setTelefone] = useState("");
@@ -16,6 +18,25 @@ function CadastroCliente({ API }) {
 
     const [mensagem, setMensagem] = useState(null);
     const [salvando, setSalvando] = useState(false);
+
+    function cabecalhoAutorizacao() {
+        const token = localStorage.getItem("access_token");
+        return token ? { Authorization: `Bearer ${token}` } : undefined;
+    }
+
+    async function lerRespostaJson(resposta) {
+        const texto = await resposta.text();
+
+        if (!texto) {
+            return {};
+        }
+
+        try {
+            return JSON.parse(texto);
+        } catch {
+            return {};
+        }
+    }
 
     function selecionarFoto(e) {
         const arquivo = e.target.files?.[0];
@@ -74,7 +95,7 @@ function CadastroCliente({ API }) {
         formData.append("telefone", telefone);
         formData.append("cpf", cpf);
         formData.append("senha", senha);
-        formData.append("tipo_usuario", tipoUsuario);
+        formData.append("tipo_usuario", tipoUsuario === "vendedor" ? "3" : "1");
 
         if (foto) {
             formData.append("foto_perfil", foto);
@@ -85,11 +106,12 @@ function CadastroCliente({ API }) {
         try {
             const retorno = await fetch(`${API}/criar_usuario`, {
                 method: "POST",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include",
                 body: formData
             });
 
-            const dados = await retorno.json();
+            const dados = await lerRespostaJson(retorno);
 
             if (!retorno.ok) {
                 setMensagem({ tipo: "erro", texto: dados.erro || dados.mensagem || "Erro ao cadastrar." });
@@ -101,6 +123,7 @@ function CadastroCliente({ API }) {
             // Limpa o formulário após o sucesso (opcional, pode redirecionar também)
             setNome(""); setEmail(""); setTelefone(""); setCpf("");
             setSenha(""); setConfirmarSenha(""); removerFoto();
+            navigate("/dashboardAdmClientes");
 
         } catch (error) {
             setMensagem({ tipo: "erro", texto: "Não foi possível conectar ao servidor." });
