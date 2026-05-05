@@ -88,6 +88,11 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
                     <img src="/ImgNavBar/Relatórios.png" alt="Relatorios" className={css.icone_img} />
                     Relatórios
                 </button>
+
+                <button type="button" className={css.menu_item}>
+                    <img src="/IconEngrenagem.png" alt="Configurações" className={css.icone_img} />
+                    Configurações
+                </button>
             
             </nav>
 

@@ -84,7 +84,7 @@ input, select, textarea {
 
 
 .remover {
-    background: #e74c3c;
+    background: var(--vermelho);
     color: white;
     border: none;
     padding: 8px;
