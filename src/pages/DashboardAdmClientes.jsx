@@ -27,13 +27,7 @@ function DashboardAdmClientes({ API }) {
     const [carregando, setCarregando] = useState(true);
     const [mensagem, setMensagem] = useState(null);
 
-
-    const mensagemRef = useScrollMensagem(mensagem);
-
-    // Referencia do alerta para rolar a tela ate ele quando houver retorno da API.
-   // Cliente aberto no modal de edicao.
-
-
+    // Cliente aberto no modal de edicao.
     const [clienteEditando, setClienteEditando] = useState(null);
     const [formulario, setFormulario] = useState(clienteInicial);
     const [situacoes, setSituacoes] = useState({});

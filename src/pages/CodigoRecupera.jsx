@@ -32,7 +32,7 @@ function CodigoRecupera({ API }) {
             body: JSON.stringify({ email })
         });
 
-        const dados = await retorno.json();
+        await retorno.json();
 
         if (!retorno.ok) {
             return;
@@ -115,6 +115,7 @@ function CodigoRecupera({ API }) {
                 dados.erro_senha ||
                 dados.erro ||
                 dados.mensagem ||
+                "Não foi possível redefinir a senha."
             );
             return;
         }
@@ -156,6 +157,7 @@ function CodigoRecupera({ API }) {
 
                     <p className={css.subtitulo}>
                         {etapa === 1
+                            ? "Informe o e-mail cadastrado para receber o código de recuperação."
                             : tipo === "validarCodigo"
                                 ? "Informe o c�digo recebido no e-mail para validar sua identidade."
                                 : "C�digo validado. Agora defina sua nova senha."}

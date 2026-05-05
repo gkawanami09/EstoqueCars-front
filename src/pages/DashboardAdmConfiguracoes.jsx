@@ -7,9 +7,6 @@ import Input from "../components/Input/Input.jsx";
 // Importa hooks do React para estado e efeitos colaterais.
 import { useEffect, useState } from "react";
 
-// Importa hook personalizado para scroll automático até mensagens.
-import useScrollMensagem from "../hooks/useScrollMensagem";
-
 // Função que monta o header de autorização com token JWT.
 function cabecalhoAutorizacao() {
     // Pega o token salvo no localStorage.
@@ -17,17 +14,6 @@ function cabecalhoAutorizacao() {
 
     // Se existir token, retorna no formato Bearer, senão retorna undefined.
     return token ? { Authorization: `Bearer ${token}` } : undefined;
-}
-
-// Função que monta headers para requisições JSON autenticadas.
-function headersJsonAutenticado() {
-    return {
-        // Define o tipo de conteúdo como JSON.
-        "Content-Type": "application/json",
-
-        // Espalha o header de autorização (se existir).
-        ...(cabecalhoAutorizacao() || {})
-    };
 }
 
 // Componente principal da tela de configurações.
@@ -65,12 +51,6 @@ function DashboardAdmConfiguracoes({ API }) {
 
     // Estado de erro simples.
     const [erro, setErro] = useState("");
-
-    // Referência para rolar até a mensagem automaticamente.
-    const mensagemRef = useScrollMensagem(mensagem);
-
-    // Referência para rolar até o erro automaticamente.
-    const erroRef = useScrollMensagem(erro);
 
     // useEffect executa ao carregar a tela.
     useEffect(() => {
@@ -178,7 +158,7 @@ function DashboardAdmConfiguracoes({ API }) {
 
             {/* Exibe mensagem se existir */}
             {mensagem && (
-                <div ref={mensagemRef} className={css.mensagem}>
+                <div className={css.mensagem}>
                     {mensagem.texto}
                 </div>
             )}
@@ -275,7 +255,7 @@ function DashboardAdmConfiguracoes({ API }) {
                 </div>
 
                 {/* Exibe erro */}
-                {erro && <p ref={erroRef} className={css.erro}>{erro}</p>}
+                {erro && <p className={css.erro}>{erro}</p>}
 
                 {/* Botões */}
                 <div className={css.botoes}>
