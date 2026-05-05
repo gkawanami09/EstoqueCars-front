@@ -67,7 +67,7 @@
     border: 1px solid #ffd0d0;
     border-radius: 8px;
     background: #fff5f5;
-    color: #b4232a;
+    color: var(--vermelho);
     font-weight: 800;
 }
 
@@ -244,7 +244,7 @@
 }
 
 .botao_filtro {
-    background-color: #000;
+    background-color: var(--preto);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -256,12 +256,12 @@
 }
 
 .botao_filtro:hover {
-    background-color: #f25555;
+    background-color: var(--vermelho);
     transform: translateY(-2px);
 }
 
 .filtro_ativo {
-    background-color: #f25555;
+    background-color: var(--vermelho);
 }
 
 .area_botao_central {
@@ -271,7 +271,7 @@
 }
 
 .botao_carregar_mais {
-    background-color: #000;
+    background-color: var(--preto);
     color: #fff;
     border: none;
     border-radius: 8px;
@@ -283,7 +283,7 @@
 }
 
 .botao_carregar_mais:hover {
-    background-color: #ff4747;
+    background-color: var(--vermelho);
 }
 
 .area_busca {
@@ -311,7 +311,7 @@
     font-size: 1rem;
     outline: none;
     background-color: transparent;
-    color: #333;
+    color: var(--preto);
 }
 
 .input_busca::placeholder {

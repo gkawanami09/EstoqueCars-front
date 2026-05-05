@@ -2,6 +2,11 @@
 
 :root {
   --vermelho: #EF4444;
+  --vermelho-claro: #f25555;
+  --vermelho-escuro: #991b1b;
+  --vermelho-medio: #b91c1c;
+  --vermelho-vivo: #dc2626;
+  --vermelho-salmao: #ff3b3b;
   --preto: #000000;
   --cinza-escuro: #616568;
   --cinza-fundo: #EDEDED;

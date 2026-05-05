@@ -19,7 +19,7 @@
 
 .codigo {
     font-size: 64px;
-    color: #ef4444;
+    color: var(--vermelho);
     margin-bottom: 8px;
 }
 
@@ -42,7 +42,7 @@
     width: 170px;
     height: 42px;
     border-radius: 8px;
-    background-color: #000;
+    background-color: var(--preto);
     color: #fff;
     font-weight: 700;
 }

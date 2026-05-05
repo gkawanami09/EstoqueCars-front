@@ -245,7 +245,7 @@
 }
 
 .status_bloqueado {
-    color: #b91c1c;
+    color: var(--vermelho);
     background: #fee2e2;
 }
 
@@ -380,12 +380,12 @@
     color: #991b1b;
     background: #fff1f2;
     border-color: #fecdd3;
-    border-left-color: #dc2626;
+    border-left-color: var(--vermelho);
 }
 
 .mensagem_erro .mensagem_icone {
     color: #fff;
-    background: #dc2626;
+    background: var(--vermelho);
 }
 
 .mensagem_sucesso {
@@ -468,7 +468,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
-    color: #333;
+    color: var(--preto);
     font-size: 14px;
     font-weight: 800;
 }
@@ -483,7 +483,7 @@
 }
 
 .form_grid input:focus {
-    border-color: #111;
+    border-color: var(--preto);
     box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
 }
 
@@ -500,14 +500,14 @@
 
 .btn_cancelar {
     min-width: 120px;
-    color: #222;
+    color: var(--preto);
     background: #f2f2f2;
 }
 
 .btn_salvar {
     min-width: 160px;
     color: #fff;
-    background: #111;
+    background: var(--preto);
 }
 
 .btn_salvar:disabled {
@@ -538,7 +538,7 @@
 
 .confirm_box h3 {
     margin: 0;
-    color: #111;
+    color: var(--preto);
     font-size: 1.35rem;
     font-weight: 900;
     line-height: 1.1;
@@ -574,17 +574,17 @@
 }
 
 .confirm_ok {
-    background: #111;
+    background: var(--preto);
     color: #fff;
 }
 
 .confirm_cancel {
     background: #f2f2f2;
-    color: #222;
+    color: var(--preto);
 }
 
 .confirm_ok:hover {
-    background: #2a2a2a;
+    background: var(--preto);
 }
 
 .confirm_cancel:hover {

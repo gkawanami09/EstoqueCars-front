@@ -41,7 +41,7 @@
 .voltar {
     padding: 0;
     background: transparent;
-    color: #f25555;
+    color: var(--vermelho);
 }
 
 .editar {
@@ -109,7 +109,7 @@
 
 .preco_bloco strong {
     display: block;
-    color: #f25555;
+    color: var(--vermelho);
     font-size: 2.1rem;
     font-weight: 900;
     line-height: 1.1;
@@ -139,7 +139,7 @@
 
 .status_indisponivel {
     background: #fee2e2;
-    color: #b91c1c;
+    color: var(--vermelho);
 }
 
 .status_vendido {
@@ -269,7 +269,7 @@
 }
 
 .valor_manutencao {
-    color: #f25555 !important;
+    color: var(--vermelho) !important;
     text-align: right;
     white-space: nowrap;
 }
@@ -293,7 +293,7 @@
 }
 
 .servico_item span {
-    color: #111;
+    color: var(--preto);
     font-size: 14px;
     font-weight: 900;
 }
@@ -324,7 +324,7 @@
 }
 
 .estado_erro strong {
-    color: #111;
+    color: var(--preto);
     font-size: 18px;
 }
 
@@ -336,7 +336,7 @@
 .estado_erro button {
     height: 42px;
     padding: 0 18px;
-    background: #111;
+    background: var(--preto);
     color: #fff;
 }
 
