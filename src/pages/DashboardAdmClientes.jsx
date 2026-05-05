@@ -661,6 +661,10 @@ function DashboardAdmClientes({ API }) {
                         />
                     </div>
 
+                    {/* Botao reservado para cadastro de cliente. */}
+                    <button type="button" className={css.btn_add}>
+                        Cadastrar cliente
+                    </button>
                 </div> <br/>
 
                 {/* Lista de cards de clientes. */}

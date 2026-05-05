@@ -80,6 +80,23 @@ function normalizarCarro(carro) {
     };
 }
 
+// Funcao que identifica se o cliente esta bloqueado em diferentes formatos da API.
+function clienteEstaBloqueado(cliente) {
+    const situacao = cliente.situacao ?? cliente.status_usuario ?? cliente.status;
+    const bloqueado = cliente.bloqueado ?? cliente.blocked;
+    const textoSituacao = String(situacao || "").toLowerCase();
+    const textoBloqueado = String(bloqueado || "").toLowerCase();
+
+    return (
+        Number(situacao) === 1 ||
+        bloqueado === true ||
+        Number(bloqueado) === 1 ||
+        textoSituacao.includes("bloque") ||
+        textoBloqueado === "true" ||
+        textoBloqueado.includes("bloque")
+    );
+}
+
 // Funcao que padroniza o objeto "cliente" recebido da API.
 function normalizarCliente(cliente) {
     return {
@@ -87,7 +104,7 @@ function normalizarCliente(cliente) {
         nome: cliente.nome ?? cliente.NOME ?? "Cliente",
         email: cliente.email ?? "",
         telefone: cliente.telefone ?? "",
-        bloqueado: Boolean(cliente.bloqueado) || String(cliente.status || "").toLowerCase().includes("bloque")
+        bloqueado: clienteEstaBloqueado(cliente)
     };
 }
 
