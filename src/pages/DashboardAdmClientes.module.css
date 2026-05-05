@@ -545,7 +545,7 @@
 }
 
 .confirm_box p {
-    margin: 10px 0 22px;
+    margin: 10px 0 22px !important;
     color: #555;
     font-size: 15px;
     line-height: 1.45;

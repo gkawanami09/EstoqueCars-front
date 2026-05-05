@@ -95,7 +95,10 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
                     Relatórios
                 </button>
 
-                <button type="button" className={css.menu_item}>
+                <button type="button" 
+                        className={css.menu_item}
+                        onClick={() => navegar("/DashboardAdmConfiguracoes")}
+                >
                     <img src="/IconEngrenagem.png" alt="Configurações" className={css.icone_img} />
                     Configurações
                 </button>
