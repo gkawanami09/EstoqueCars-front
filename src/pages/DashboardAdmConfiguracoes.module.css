@@ -1,0 +1,103 @@
+.container {
+    padding: 30px;
+    background: #f5f5f5;
+    min-height: 100vh;
+}
+
+.titulo {
+    font-size: 26px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.formulario {
+    background: #ededed;
+    padding: 25px;
+    border-radius: 12px;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 25px;
+}
+
+.esquerda,
+.direita {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.duplo {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.select {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+}
+
+.logoPreview {
+    width: 120px;
+    height: auto;
+    border-radius: 8px;
+    background: white;
+    padding: 10px;
+}
+
+.mensagem {
+    background: #2ecc71;
+    color: white;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.erro {
+    color: red;
+    margin-top: 10px;
+}
+
+.botoes {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+.salvar {
+    background: black;
+    color: white;
+    padding: 10px 24px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    .grid {
+        grid-template-columns: 1fr;
+    }
+
+    .botoes {
+        justify-content: center;
+    }
+
+    .salvar {
+        width: 100%;
+    }
+}
+
+.textarea_motivo {
+    width: 100%;
+    margin-top: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    resize: none;
+    min-height: 80px;
+    font-family: inherit;
+}
