@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // Importa o CSS module exclusivo desta tela.
 import css from "./Dashboard.module.css";
+import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Lista fixa de categorias exibidas nos botoes de filtro.
 const categorias = ["Sedan", "Elétrico", "Esportivo", "Caminhonete", "SUV"];
@@ -21,6 +22,7 @@ function Dashboard({ API }) {
     const [carregando, setCarregando] = useState(true);
     // Guarda mensagens de erro da API ou conexao.
     const [erro, setErro] = useState("");
+    const erroRef = useScrollMensagem(erro);
     // Cria a funcao para navegar para outras paginas.
     const navigate = useNavigate();
     // Cria um objeto vazio para receber o usuario salvo.
@@ -261,7 +263,7 @@ function Dashboard({ API }) {
                 </section>
 
                 {/* Exibe erro quando houver mensagem no estado. */}
-                {erro && <p className={css.mensagem_erro}>{erro}</p>}
+                {erro && <p ref={erroRef} className={css.mensagem_erro}>{erro}</p>}
 
                 {/* Lista de cards dos carros. */}
                 <section className={css.lista_carros}>

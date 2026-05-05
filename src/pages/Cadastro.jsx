@@ -3,6 +3,7 @@ import Input from "../components/Input/Input.jsx";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
 import {IMaskInput} from "react-imask";
+import useScrollMensagem from "../hooks/useScrollMensagem";
 
 function Cadastro({API}) {
     const [nome, setNome] = useState("");
@@ -14,6 +15,7 @@ function Cadastro({API}) {
     const [senha, setSenha] = useState("");
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [erro, setErro] = useState("");
+    const erroRef = useScrollMensagem(erro);
     const navigate = useNavigate();
 
     function selecionarFoto(e) {
@@ -108,7 +110,7 @@ function Cadastro({API}) {
                     <div className={css.cabecalho_form}>
                         <h1 className={css.titulo}><span>Crie</span> sua Conta</h1>
                         <h6 className={css.subtitulo}>Preencha os dados abaixo para criar sua conta</h6>
-                        {erro && <p className={css.erro_api}>{erro}</p>}
+                        {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
                     </div>
 
 

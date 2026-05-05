@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 // Importa o input com mascara para campos de valor e porcentagem.
 import { IMaskInput } from "react-imask";
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
+import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Estado inicial do formulario de cadastro de servico.
 const FORMULARIO_INICIAL = {
@@ -238,6 +239,7 @@ function CadastroServicos({ API }) {
     const [paginaAtual, setPaginaAtual] = useState(1);
     // Guarda mensagem visual de sucesso ou erro.
     const [mensagem, setMensagem] = useState(null);
+    const mensagemRef = useScrollMensagem(mensagem);
     // Controla carregamento da busca/listagem.
     const [carregando, setCarregando] = useState(false);
     // Controla carregamento dos botoes de salvar/atualizar.
@@ -628,6 +630,7 @@ function CadastroServicos({ API }) {
 
             {mensagem && (
                 <div
+                    ref={mensagemRef}
                     className={`${css.mensagem} ${
                         mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
                     }`}

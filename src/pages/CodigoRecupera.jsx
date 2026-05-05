@@ -1,6 +1,7 @@
 ﻿import css from "./CodigoRecupera.module.css";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import useScrollMensagem from "../hooks/useScrollMensagem";
 
 function CodigoRecupera({ API }) {
     const navigate = useNavigate();
@@ -13,6 +14,8 @@ function CodigoRecupera({ API }) {
     const [confirmarSenha, setConfirmarSenha] = useState("");
     const [erro, setErro] = useState("");
     const [sucesso, setSucesso] = useState("");
+    const erroRef = useScrollMensagem(erro);
+    const sucessoRef = useScrollMensagem(sucesso);
 
     // Solicita para a API enviar o codigo de recuperacao ao email informado.
     async function enviarCodigo(e) {
@@ -184,8 +187,8 @@ function CodigoRecupera({ API }) {
                                 />
                             </div>
 
-                            {erro && <p className={css.erro_api}>{erro}</p>}
-                            {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
+                            {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
+                            {sucesso && <p ref={sucessoRef} className={css.sucesso_api}>{sucesso}</p>}
 
                             <button type="submit" className={css.botao_acao}>
                                 Enviar código
@@ -251,8 +254,8 @@ function CodigoRecupera({ API }) {
                                 </>
                             )}
 
-                            {erro && <p className={css.erro_api}>{erro}</p>}
-                            {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
+                            {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
+                            {sucesso && <p ref={sucessoRef} className={css.sucesso_api}>{sucesso}</p>}
 
                             <button type="submit" className={css.botao_acao}>
                                 {tipo === "validarCodigo" ? "Confirmar Código" : "Redefinir Senha"}

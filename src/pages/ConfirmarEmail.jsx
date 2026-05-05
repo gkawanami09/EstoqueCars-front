@@ -1,6 +1,7 @@
 ﻿import css from "./ConfirmarEmail.module.css";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useState } from "react";
+import useScrollMensagem from "../hooks/useScrollMensagem";
 
 function ConfirmarEmail({ API }) {
     const location = useLocation();
@@ -10,6 +11,8 @@ function ConfirmarEmail({ API }) {
     const [codigo, setCodigo] = useState("")
     const [erro, setErro] = useState("")
     const [sucesso, setSucesso] = useState("")
+    const erroRef = useScrollMensagem(erro)
+    const sucessoRef = useScrollMensagem(sucesso)
 
     // Confirma o codigo recebido por email antes de liberar a conta.
     async function verificarCodigo(e) {
@@ -78,8 +81,8 @@ function ConfirmarEmail({ API }) {
                             placeholder="000000"
                         />
 
-                        {erro && <p className={css.erro_api}>{erro}</p>}
-                        {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
+                        {erro && <p ref={erroRef} className={css.erro_api}>{erro}</p>}
+                        {sucesso && <p ref={sucessoRef} className={css.sucesso_api}>{sucesso}</p>}
 
                         <button type="submit" className={css.botao_verificar}>
                             Verificar código

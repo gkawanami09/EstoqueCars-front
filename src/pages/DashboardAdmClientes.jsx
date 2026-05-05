@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 // Importa o CSS module da tela de clientes.
 import css from "./DashboardAdmClientes.module.css";
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
+import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Objeto usado para iniciar e limpar o formulario de cliente.
 const clienteInicial = {
@@ -20,13 +21,24 @@ const clienteInicial = {
 function DashboardAdmClientes({ API }) {
     const navigate = useNavigate();
 
+
     // Estados da aplicação
+
+    // Recebe a URL base da API Flask por props.
+    // Lista de clientes carregada da API.
+
     const [clientes, setClientes] = useState([]);
     const [busca, setBusca] = useState("");
     const [filtroTipo, setFiltroTipo] = useState("Todos");
     const [paginaAtual, setPaginaAtual] = useState(1);
     const [carregando, setCarregando] = useState(true);
     const [mensagem, setMensagem] = useState(null);
+
+
+    // Referencia do alerta para rolar a tela ate ele quando houver retorno da API.
+    const mensagemRef = useScrollMensagem(mensagem);
+    // Cliente aberto no modal de edicao.
+
     const [clienteEditando, setClienteEditando] = useState(null);
     const [formulario, setFormulario] = useState(clienteInicial);
     const [situacoes, setSituacoes] = useState({});
@@ -61,7 +73,14 @@ function DashboardAdmClientes({ API }) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
+
                 setMensagem({ tipo: "erro", texto: dados.erro || "Não foi possível carregar os clientes." });
+
+                setMensagem({
+                    tipo: "erro",
+                    texto: dados.erro || "Não foi possivel carregar os clientes."
+                });
+
                 return;
             }
 
@@ -72,7 +91,14 @@ function DashboardAdmClientes({ API }) {
 
             setClientes(somenteClientes);
         } catch {
+
             setMensagem({ tipo: "erro", texto: "Não foi possível conectar ao servidor." });
+           // Erro de conexao.
+            setMensagem({
+                tipo: "erro",
+                texto: "Não foi possivel conectar ao servidor."
+            });
+
         } finally {
             setCarregando(false);
         }
@@ -495,7 +521,14 @@ function DashboardAdmClientes({ API }) {
                 </header>
 
                 {mensagem && (
-                    <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
+                    <div
+                        ref={mensagemRef}
+                        className={`${css.mensagem} ${
+                            mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro
+                        }`}
+                    >
+                        {/* Agrupa icone e textos da mensagem. */}
+
                         <div className={css.mensagem_info}>
                             <span className={css.mensagem_icone}>{mensagem.tipo === "sucesso" ? "✓" : "!"}</span>
                             <div className={css.mensagem_texto}>
@@ -636,11 +669,12 @@ function DashboardAdmClientes({ API }) {
                                 <button
                                     type="button"
                                     className={clienteBloqueado(cliente) ? css.btn_desbloquear : css.btn_bloquear}
+                                    onClick={() => abrirConfirmacaoBloqueio(cliente, !clienteBloqueado(cliente))}
                                 >
                                     {clienteBloqueado(cliente) ? "Desbloquear" : "Bloquear"}
                                 </button>
 
-                                <button type="button" className={css.btn_excluir}>
+                                <button type="button" className={css.btn_excluir} onClick={() => abrirConfirmacaoExclusao(cliente)}>
                                     <img src="/Exculir.png" alt="Excluir" /> Excluir
                                 </button>
                             </div>
@@ -653,10 +687,7 @@ function DashboardAdmClientes({ API }) {
                         <Paginacao
                             paginaAtual={paginaAtual}
                             totalItens={clientesFiltrados.length}
-
-                            onChange={(pagina) => setPaginaAtual(pagina)}
-                           onMudarPagina={setPaginaAtual}
-
+                            onMudarPagina={setPaginaAtual}
                         />
                     </div>
                 )}
@@ -735,7 +766,7 @@ function DashboardAdmClientes({ API }) {
                                     Cancelar
                                 </button>
                                 <button type="submit" className={css.btn_salvar} disabled={salvando}>
-                                    {salvando ? "Salvando..." : "Salvar alteracoes"}
+                                    {salvando ? "Salvando..." : "Salvar alterações"}
                                 </button>
                             </footer>
                         </form>
@@ -746,7 +777,7 @@ function DashboardAdmClientes({ API }) {
                 {confirmacao.aberta && (
                     <div className={css.confirm_overlay}>
                         <div className={css.confirm_box}>
-                            <h3>Confirmar acao</h3>
+                            <h3>Confirmar ação</h3> <br></br>                            
                             <p>{confirmacao.texto}</p>
                             <div className={css.confirm_botoes}>
                                 <button type="button" className={css.confirm_ok} onClick={confirmarAcao}>

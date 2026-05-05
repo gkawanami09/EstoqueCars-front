@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 // Importa o modal bonito usado para confirmar exclusao.
 import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao.jsx";
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
+import useScrollMensagem from "../hooks/useScrollMensagem";
 
 // Componente da pagina de gerenciamento de veiculos do administrador.
 function DashboardAdmVeiculos({ API }) {
@@ -22,6 +23,7 @@ function DashboardAdmVeiculos({ API }) {
     const [carregando, setCarregando] = useState(true);
     // Guarda mensagens de erro vindas da API ou da conexao.
     const [erro, setErro] = useState("");
+    const erroRef = useScrollMensagem(erro);
     // Guarda qual carro o usuario quer excluir.
     const [carroParaExcluir, setCarroParaExcluir] = useState(null);
     // Guarda o id do carro que esta sendo excluido no momento.
@@ -288,7 +290,7 @@ function DashboardAdmVeiculos({ API }) {
                 </header>
 
                 {/* Mensagem de erro exibida somente quando existir erro. */}
-                {erro && <p className={css.mensagem_erro}>{erro}</p>}
+                {erro && <p ref={erroRef} className={css.mensagem_erro}>{erro}</p>}
 
                 {/* Area do campo de busca. */}
                 <div className={css.area_busca}>
