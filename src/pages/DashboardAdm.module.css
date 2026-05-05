@@ -2,7 +2,7 @@
     min-height: 100vh;
     padding: 34px 40px 44px;
     background: #f5f5f5;
-    color: #111111;
+    color: var(--preto);
 }
 
 .cabecalho {
@@ -14,7 +14,7 @@
 }
 
 .titulo_boas_vindas {
-    color: #000000;
+    color: var(--preto);
     font-size: 30px;
     font-weight: 800;
     line-height: 1.15;
@@ -46,7 +46,7 @@
     min-height: 38px;
     border: none;
     border-radius: 8px;
-    background: #000000;
+    background: var(--preto);
     color: #ffffff;
     padding: 0 16px;
     font-size: 12px;
@@ -89,7 +89,7 @@
     border: none;
     outline: none;
     background: transparent;
-    color: #333333;
+    color: var(--preto);
     font-size: 14px;
     font-weight: 600;
 }
@@ -142,7 +142,7 @@
 
 .cardResumo span {
     display: block;
-    color: #222222;
+    color: var(--preto);
     font-size: 12px;
     font-weight: 800;
     line-height: 1.25;
@@ -150,7 +150,7 @@
 
 .cardResumo strong {
     display: block;
-    color: #000000;
+    color: var(--preto);
     font-size: 30px;
     font-weight: 900;
     line-height: 1;
@@ -187,7 +187,7 @@
 
 .painelCabecalho h2,
 .painelLista h2 {
-    color: #111111;
+    color: var(--preto);
     font-size: 18px;
     font-weight: 900;
     line-height: 1.2;
@@ -223,7 +223,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #000000;
+    background: var(--preto);
     color: #ffffff;
     font-size: 14px;
     font-weight: 900;
@@ -231,7 +231,7 @@
 
 .itemLista strong,
 .painelLista p strong {
-    color: #111111;
+    color: var(--preto);
     font-size: 13px;
     font-weight: 900;
 }
@@ -296,7 +296,7 @@
 }
 
 .tabela td {
-    color: #222222;
+    color: var(--preto);
     font-size: 13px;
     font-weight: 700;
     padding: 10px;

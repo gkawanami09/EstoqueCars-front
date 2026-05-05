@@ -104,7 +104,7 @@
   }
 
   .preco a {
-    background: #ff4d57;
+    background: var(--vermelho-claro);
     color: #fff;
     border-radius: 999px;
     font-size: 10px;

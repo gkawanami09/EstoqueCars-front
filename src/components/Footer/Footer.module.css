@@ -1,5 +1,5 @@
 ﻿.footer {
-    background-color: #121012;
+    background-color: var(--preto);
     color: #ffffff;
     padding: 28px 50px;
     margin-top: 60px;
@@ -124,7 +124,7 @@
 
 .botaoLogout {
     border: none;
-    background: #ff3b3b;
+    background: var(--vermelho-vivo);
     color: #ffffff;
     border-radius: 8px;
     min-width: 110px;
