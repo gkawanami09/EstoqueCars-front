@@ -1,5 +1,7 @@
 // Importa hooks para estado, carregamento inicial e filtro.
 import { useCallback, useEffect, useMemo, useState } from "react";
+// Importa o hook de navegação do react-router-dom.
+import { useNavigate } from "react-router-dom";
 // Importa o CSS module da tela de clientes.
 import css from "./DashboardAdmClientes.module.css";
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
@@ -22,6 +24,9 @@ const clienteInicial = {
 
 // Tela administrativa de clientes.
 function DashboardAdmClientes({ API }) {
+    // Inicializa o hook de navegação.
+    const navigate = useNavigate();
+
     // Recebe a URL base da API Flask por props.
     // Lista de clientes carregada da API.
     const [clientes, setClientes] = useState([]);
@@ -661,8 +666,8 @@ function DashboardAdmClientes({ API }) {
                         />
                     </div>
 
-                    {/* Botao reservado para cadastro de cliente. */}
-                    <button type="button" className={css.btn_add}>
+                    {/* Botão com navegação para a rota CadastroCliente. */}
+                    <button type="button" className={css.btn_add} onClick={() => navigate("/CadastroCliente")}>
                         Cadastrar cliente
                     </button>
                 </div> <br/>
@@ -768,122 +773,9 @@ function DashboardAdmClientes({ API }) {
                         <Paginacao
                             paginaAtual={paginaAtual}
                             totalItens={clientesFiltrados.length}
-                            onMudarPagina={setPaginaAtual}
+                            // Adicionado o final que foi cortado na sua mensagem
+                            onChange={(pagina) => setPaginaAtual(pagina)}
                         />
-                    </div>
-                )}
-
-                {/* Mostra o modal apenas quando existe um cliente em edicao. */}
-                {clienteEditando && (
-                    <div className={css.modal_overlay}>
-                        {/* Fundo escuro do modal. */}
-                        {/* Formulario de edicao enviado pela funcao salvarEdicao. */}
-                        <form className={css.modal} onSubmit={salvarEdicao}>
-                            {/* Cabecalho do modal. */}
-                            <header className={css.modal_cabecalho}>
-                                {/* Titulo do modal. */}
-                                <h2>Editar cliente</h2>
-                                {/* Botao para fechar o modal sem salvar. */}
-                                <button type="button" onClick={fecharEdicao} aria-label="Fechar modal">x</button>
-                            </header>
-
-                            {/* Grid com os campos editaveis. */}
-                            <div className={css.form_grid}>
-                                {/* Campo de nome. */}
-                                <label>
-                                    Nome
-                                    <input
-                                        type="text"
-                                        value={formulario.nome}
-                                        onChange={(e) => atualizarCampo("nome", e.target.value)}
-                                        required
-                                    />
-                                </label>
-
-                                {/* Campo de email. */}
-                                <label>
-                                    Email
-                                    <input
-                                        type="email"
-                                        value={formulario.email}
-                                        onChange={(e) => atualizarCampo("email", e.target.value)}
-                                        required
-                                    />
-                                </label>
-
-                                {/* Campo de telefone com mascara. */}
-                                <label>
-                                    Telefone
-                                    <input
-                                        type="tel"
-                                        value={formulario.telefone}
-                                        onChange={(e) => atualizarCampo("telefone", mascararTelefone(e.target.value))}
-                                        inputMode="numeric"
-                                        maxLength="15"
-                                        required
-                                    />
-                                </label>
-
-                                {/* Campo de CPF com mascara. */}
-                                <label>
-                                    CPF
-                                    <input
-                                        type="text"
-                                        value={formulario.cpf}
-                                        onChange={(e) => atualizarCampo("cpf", mascararCpf(e.target.value))}
-                                        inputMode="numeric"
-                                        maxLength="14"
-                                        required
-                                    />
-                                </label>
-
-                                {/* Campo opcional de nova senha. */}
-                                <label className={css.campo_inteiro}>
-                                    Nova senha
-                                    <input
-                                        type="password"
-                                        value={formulario.senha}
-                                        onChange={(e) => atualizarCampo("senha", e.target.value)}
-                                        placeholder="Deixe vazio para manter a senha atual"
-                                    />
-                                </label>
-                            </div>
-
-                            {/* Rodape com botoes do modal. */}
-                            <footer className={css.modal_botoes}>
-                                {/* Botao cancela a edicao e fecha o modal. */}
-                                <button type="button" className={css.btn_cancelar} onClick={fecharEdicao}>
-                                    Cancelar
-                                </button>
-                                {/* Botao envia o formulario; fica desabilitado enquanto salva. */}
-                                <button type="submit" className={css.btn_salvar} disabled={salvando}>
-                                    {salvando ? "Salvando..." : "Salvar alteracoes"}
-                                </button>
-                            </footer>
-                        </form>
-                    </div>
-                )}
-
-                {/* Mostra o modal de confirmacao apenas quando ele estiver aberto. */}
-                {confirmacao.aberta && (
-                    <div className={css.confirm_overlay}>
-                        {/* Caixa central de confirmacao. */}
-                        <div className={css.confirm_box}>
-                            <h3>Confirmar ação</h3>
-                            {/* Texto dinamico com a acao escolhida. */}
-                            <p>{confirmacao.texto}</p>
-                            {/* Botoes para confirmar ou cancelar. */}
-                            <div className={css.confirm_botoes}>
-                                {/* Executa a acao guardada no estado confirmacao. */}
-                                <button type="button" className={css.confirm_ok} onClick={confirmarAcao}>
-                                    OK
-                                </button>
-                                {/* Fecha o modal sem executar nada. */}
-                                <button type="button" className={css.confirm_cancel} onClick={fecharConfirmacao}>
-                                    Cancelar
-                                </button>
-                            </div>
-                        </div>
                     </div>
                 )}
             </main>

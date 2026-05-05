@@ -1,0 +1,310 @@
+
+.layout_dashboard {
+    min-height: 100vh;
+    background: #f5f5f5;
+    display: flex;
+    justify-content: center;
+    font-family: sans-serif;
+}
+
+.conteudo_principal {
+    padding: 40px;
+    width: 100%;
+    max-width: 900px;
+}
+
+.cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.titulo {
+    color: #f25555;
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin: 0;
+}
+
+.subtitulo {
+    color: #666;
+    font-size: 14px;
+    font-weight: 600;
+    margin-top: 6px !important;
+    margin-bottom: 0;
+}
+
+.mensagem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-radius: 12px;
+    padding: 13px 14px;
+    margin-bottom: 18px !important;
+    margin-top: 10px !important;
+    border: 1px solid transparent;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.08);
+    border-left-width: 5px;
+    animation: alerta_entrada 0.22s ease-out;
+}
+
+.mensagem_info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+}
+
+.mensagem_icone {
+    width: 26px;
+    height: 26px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+.mensagem_texto {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.mensagem_texto strong {
+    font-size: 13px;
+    line-height: 1.1;
+}
+
+.mensagem_texto span {
+    margin-top: 2px !important;
+    font-size: 13px;
+    font-weight: 600;
+    overflow-wrap: anywhere;
+}
+
+.mensagem button {
+    border: none;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.06);
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    font-weight: 800;
+    color: #333;
+    flex-shrink: 0;
+}
+
+.mensagem_erro {
+    color: #991b1b;
+    background: #fff1f2;
+    border-color: #fecdd3;
+    border-left-color: #dc2626;
+}
+
+.mensagem_erro .mensagem_icone {
+    color: #fff;
+    background: #dc2626;
+}
+
+.mensagem_sucesso {
+    color: #14532d;
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+    border-left-color: #16a34a;
+}
+
+.mensagem_sucesso .mensagem_texto span {
+    color: #15803d;
+}
+
+.mensagem_sucesso .mensagem_icone {
+    color: #fff;
+    background: #16a34a;
+}
+
+@keyframes alerta_entrada {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card_formulario {
+    border: 1px solid #e7e7e7;
+    border-radius: 12px;
+    background: #fff;
+    padding: 24px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.06);
+}
+
+.area_tipo_usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 24px;
+    padding-bottom: 18px;
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.label_tipo {
+    color: #333;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.opcoes_tipo {
+    display: flex;
+    gap: 24px;
+}
+
+.radio_label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    color: #222;
+}
+
+.form_grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.campo_inteiro {
+    grid-column: 1 / -1;
+}
+
+.area_upload_wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 24px;
+    padding-top: 18px;
+    border-top: 1px solid #e8e8e8;
+}
+
+.area_upload {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.botao_upload {
+    padding: 10px 16px;
+    background: #f2f2f2;
+    color: #222;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+}
+
+.texto_upload {
+    font-size: 13px;
+    color: #777;
+    font-weight: 600;
+}
+
+.input_file_escondido {
+    display: none;
+}
+
+.area_preview_foto {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.nome_arquivo {
+    font-size: 13px;
+    color: #111;
+    font-weight: 600;
+}
+
+.botao_remover_foto {
+    background: #fff1f2;
+    color: #dc2626;
+    border: 1px solid #fecdd3;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.modal_botoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px !important;
+}
+
+.btn_salvar {
+    border: none;
+    border-radius: 7px;
+    padding: 8px 10px;
+    font-size: 14px;
+    font-weight: 800;
+    cursor: pointer;
+    min-height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 160px;
+    color: #fff;
+    background: #111;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+}
+
+.btn_salvar:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+
+@media (max-width: 900px) {
+    .conteudo_principal {
+        padding: 24px 16px 28px;
+    }
+}
+
+@media (max-width: 640px) {
+    .conteudo_principal {
+        padding: 18px 12px 24px;
+    }
+
+    .titulo {
+        font-size: 1.55rem;
+    }
+
+    .form_grid {
+        grid-template-columns: 1fr;
+    }
+
+    .modal_botoes {
+        flex-direction: column-reverse;
+    }
+
+    .btn_salvar {
+        width: 100%;
+    }
+
+    .area_upload {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
