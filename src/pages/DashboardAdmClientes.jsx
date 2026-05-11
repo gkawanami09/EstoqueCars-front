@@ -251,17 +251,19 @@ function DashboardAdmClientes({ API }) {
         }
     }
 
-    async function alterarBloqueio(cliente, bloquear) {
+    async function alterarBloqueio(cliente, bloquear, motivo = "") {
         const rota = bloquear ? "bloquear_usuario" : "desbloquear_usuario";
         const acao = bloquear ? "bloquear" : "desbloquear";
+        const headers = cabecalhoAutorizacao() || {};
 
         setMensagem(null);
 
         try {
             const resposta = await fetch(`${API}/${rota}/${cliente.id_usuario}`, {
                 method: "PUT",
-                headers: cabecalhoAutorizacao(),
-                credentials: "include"
+                headers: bloquear ? { ...headers, "Content-Type": "application/json" } : headers,
+                credentials: "include",
+                body: bloquear ? JSON.stringify({ mensagem: motivo.trim() }) : undefined
             });
 
             const dados = await resposta.json();
@@ -345,7 +347,7 @@ function DashboardAdmClientes({ API }) {
         }
 
         if (tipo === "bloqueio") {
-            await alterarBloqueio(cliente, bloquear);
+            await alterarBloqueio(cliente, bloquear, motivo);
         }
     }
 
@@ -631,7 +633,6 @@ function DashboardAdmClientes({ API }) {
                     <div className={css.confirm_overlay}>
                         <div className={css.confirm_box}>
                             <h3>Confirmar ação</h3>
-                            <br />
 
                             <p>{confirmacao.texto}</p>
 
@@ -639,6 +640,7 @@ function DashboardAdmClientes({ API }) {
                                 <textarea
                                     className={css.textarea_motivo}
                                     placeholder="Descreva o motivo"
+                                    rows="4"
                                     value={confirmacao.motivo}
                                     onChange={(e) =>
                                         setConfirmacao({

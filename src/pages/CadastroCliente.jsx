@@ -95,7 +95,9 @@ function CadastroCliente({ API }) {
         formData.append("telefone", telefone);
         formData.append("cpf", cpf);
         formData.append("senha", senha);
-        formData.append("tipo_usuario", tipoUsuario === "vendedor" ? "1" : "0");
+        if (tipoUsuario === "vendedor") {
+            formData.append("tipo", "1");
+        }
 
         if (foto) {
             formData.append("foto_perfil", foto);
