@@ -7,7 +7,7 @@ createRoot(document.getElementById('root')).render(
   <StrictMode>
 
       
-    <App API="http://10.92.3.140:5000"/>
+    <App API="http://192.168.137.103:5000"/>
 
   </StrictMode>,
 )

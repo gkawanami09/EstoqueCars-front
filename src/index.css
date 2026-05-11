@@ -1,19 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
 
 :root {
-  --vermelho: #EF4444;
-  --vermelho-claro: #f25555;
-  --vermelho-escuro: #991b1b;
-  --vermelho-medio: #b91c1c;
-  --vermelho-vivo: #dc2626;
-  --vermelho-salmao: #ff3b3b;
+  --cor-principal: #EF4444;
+  --cor-secundaria: #171414;
+  --cor-texto-botao: #FFFF;
+  --cor-fundo-botao: #000000;
+  --cor-msg-erro: #EF4444;
+  --cor-borda-erro: #f5b8c0;
+  --cor-borda-certo: #166534;
+  --cor-msg-certo: #dcfce7;
+  --cor-fundo-estoque: #fef3c7;
+  --cor-letra-estoque: #926d0e;
+  --cor-fundo-nestoque: #fee2e2;
+  --cor-letra-nestoque: #991b1b;
+  --cor-fundo-vendido: #dcfce7;
+  --cor-letra-vendido: #166534;
+  --cor-texto-preco:  #b91c1c;
   --preto: #000000;
+  --preto-nav: #171414;
   --cinza-escuro: #616568;
   --cinza-fundo: #EDEDED;
   --cinza-card: #F0F0F0;
   --cinza-escuro-card: #878896;
-  --preto-nav: #171414;
-  --cor-principal: var(--vermelho);
   --fonte-site: 'Montserrat';
 }
 

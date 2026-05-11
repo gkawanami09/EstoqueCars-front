@@ -8,21 +8,21 @@
 }
 
 .preto {
-    background-color: var(--preto);
+    background-color: var(--cor-secundaria);
     color: #fff;
 }
 
 .preto:hover {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
 }
 
 .vermelho {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
     color: #fff;
 }
 
 .vermelho:hover {
-    background-color: var(--vermelho-vivo);
+    background-color: var(--cor-principal);
 }
 
 .branco {
