@@ -34,7 +34,7 @@
 }
 
 .navDesktop a:hover {
-    color: var(--vermelho);
+    color: var(--cor-principal);
 }
 
 .buttonsDesktop {
@@ -48,9 +48,9 @@
 }
 
 .botaoDashboardDesktop {
-    border: 2px solid var(--vermelho-vivo);
+    border: 2px solid var(--cor-principal);
     background: transparent;
-    color: var(--vermelho-vivo);
+    color: var(--cor-principal);
     height: 36px;
     padding: 0 16px;
     border-radius: 8px;
@@ -62,13 +62,13 @@
 }
 
 .botaoDashboardDesktop:hover {
-    background: var(--vermelho-salmao);
+    background: var(--cor-principal);
     color: #ffffff;
 }
 
 .botaoLogoutDesktop {
     border: none;
-    background: var(--vermelho-salmao);
+    background: var(--cor-principal);
     color: #ffffff;
     height: 36px;
     padding: 0 18px;

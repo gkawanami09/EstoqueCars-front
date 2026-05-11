@@ -29,7 +29,7 @@
 }
 
 .card:hover {
-    border: 1px solid var(--cinza-fundo);
+    border: 1px solid var(--cor-principal);
     border-radius: 15px;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
 }
@@ -104,7 +104,7 @@
   }
 
   .preco a {
-    background: var(--vermelho-claro);
+    background: var(--cor-principal);
     color: #fff;
     border-radius: 999px;
     font-size: 10px;

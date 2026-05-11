@@ -58,7 +58,7 @@
 }
 
 .principal:hover .quantidade {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
 }
 
 @media (max-width: 768px) {

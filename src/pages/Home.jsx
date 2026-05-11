@@ -28,6 +28,9 @@ function Home() {
 
             <Etapas subtitulo="Siga etapas simples" titulo1="Como" span="Comprar" titulo2="seu Carro"/>
 
+            <Faq
+                subtitulo="FAQ"
+            />
 
             <Contato />
         </>
