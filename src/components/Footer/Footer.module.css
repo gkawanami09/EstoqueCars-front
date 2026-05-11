@@ -68,7 +68,7 @@
 }
 
 .menu a:hover {
-    color: var(--vermelho);
+    color: var(--cor-principal);
 }
 
 .linha {
@@ -124,7 +124,7 @@
 
 .botaoLogout {
     border: none;
-    background: var(--vermelho-vivo);
+    background: var(--cor-principal);
     color: #ffffff;
     border-radius: 8px;
     min-width: 110px;

@@ -64,11 +64,11 @@
 }
 
 .menu_item:hover {
-    background-color: var(--vermelho-claro);
+    background-color: var(--cor-principal);
 }
 
 .menu_ativo {
-    background-color: var(--vermelho-claro);
+    background-color: var(--cor-principal);
     color: #fff;
 }
 
@@ -98,7 +98,7 @@
 }
 
 .botao_sair:hover {
-    background-color: var(--vermelho-claro);
+    background-color: var(--cor-principal);
 }
 
 @media (max-width: 900px) {
