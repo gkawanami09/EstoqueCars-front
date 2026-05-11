@@ -16,7 +16,7 @@ function Header({ API }) {
 
         try {
             const usuario = JSON.parse(usuarioSalvo)
-            return Number(usuario.tipo_usuario) === 2 ? '/dashboardAdm' : '/dashboard'
+            return [1, 2].includes(Number(usuario.tipo_usuario)) ? '/dashboardAdm' : '/dashboard'
         } catch {
             return '/dashboard'
         }

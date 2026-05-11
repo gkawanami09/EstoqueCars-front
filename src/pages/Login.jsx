@@ -66,7 +66,7 @@ function Login({ API }) {
             localStorage.setItem("access_token", token)
         }
 
-        if (tipoUsuario === 2) {
+        if ([1, 2].includes(tipoUsuario)) {
             navigate("/dashboardAdm")
             return
         }

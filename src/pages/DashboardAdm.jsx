@@ -185,6 +185,18 @@ function cabecalhoAutorizacao() {
 // Componente principal do Dashboard do Administrador.
 function DashboardAdm({ API }) {
     const navigate = useNavigate(); // Hook para mudar de tela.
+    const usuarioSalvo = localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado");
+    let usuarioLogado = {};
+
+    try {
+        usuarioLogado = usuarioSalvo ? JSON.parse(usuarioSalvo) : {};
+    } catch {
+        usuarioLogado = {};
+    }
+
+    const tipoUsuario = Number(usuarioLogado.tipo_usuario || usuarioLogado["tipo_usuário"]);
+    const nomePainel = String(usuarioLogado.nome || (tipoUsuario === 1 ? "Vendedor" : "Administrador")).split(" ")[0];
+
     // Estados para armazenar as entidades listadas na tela.
     const [carros, setCarros] = useState([]);
     const [clientes, setClientes] = useState([]);
@@ -327,7 +339,7 @@ function DashboardAdm({ API }) {
             <header className={css.cabecalho}>
                 <div>
                     <h1 className={css.titulo_boas_vindas}>
-                        Bem-vindo, <span className={css.nome_adm}>Administrador</span>
+                        Bem-vindo, <span className={css.nome_adm}>{nomePainel}</span>
                     </h1>
                     <p className={css.subtitulo}>Acompanhe estoque, clientes, serviços e manutenções em um só lugar.</p>
                 </div>

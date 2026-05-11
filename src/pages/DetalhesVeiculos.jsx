@@ -38,11 +38,11 @@ function DetalhesVeiculos({ API }) {
     // Transforma os dados salvos em texto para objeto JavaScript.
     const usuarioLogado = JSON.parse(usuarioSalvo);
 
-    // Verifica se o usuario tem tipo 2, que representa administrador.
-    const isAdm = Number(usuarioLogado.tipo_usuario || usuarioLogado["tipo_usuário"]) === 2;
+    // Verifica se o usuario usa o painel administrativo: vendedor (1) ou administrador (2).
+    const isPainelAdm = [1, 2].includes(Number(usuarioLogado.tipo_usuario || usuarioLogado["tipo_usuário"]));
 
-    // Admin volta para a tela de veiculos do admin; usuario comum volta para o dashboard.
-    const rotaVoltar = isAdm ? "/dashboardAdmVeiculos" : "/dashboard";
+    // Vendedor/admin volta para a tela de veiculos do admin; usuario comum volta para o dashboard.
+    const rotaVoltar = isPainelAdm ? "/dashboardAdmVeiculos" : "/dashboard";
 
     // Guarda o carro encontrado na API.
     const [carro, setCarro] = useState(null);
@@ -361,8 +361,8 @@ function DetalhesVeiculos({ API }) {
                     <p>{valor(carro.marca)} - {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
                 </div>
 
-                {/* Usuario comum nao ve este botao; apenas admin consegue editar. */}
-                {isAdm && (
+                {/* Usuario comum nao ve este botao; apenas vendedor/admin consegue editar. */}
+                {isPainelAdm && (
                     <button
                         type="button"
                         className={css.editar}

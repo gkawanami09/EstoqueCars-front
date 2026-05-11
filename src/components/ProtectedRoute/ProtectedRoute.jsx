@@ -11,13 +11,22 @@ const rotasAdm = [
     "/dashboardadmmarcas",
     "/dashboardadmfinanceiros",
     "/cadastrocliente",
+    "/cadastroveiculos",
     "/cadastrov",
     "/editarveiculos",
+    "/detalhesveiculos",
     "/cadastroservicos",
     "/edicaoservicos",
     "/manutencoes",
     "/cadastromanutencao",
-    "/cadastroedicaomanutencao"
+    "/cadastroedicaomanutencao",
+    "/dashboardadmconfiguracoes"
+];
+
+const rotasSomenteAdm = [
+    "/dashboardadmclientes",
+    "/cadastrocliente",
+    "/dashboardadmconfiguracoes"
 ];
 
 const rotasUsuario = [
@@ -39,15 +48,21 @@ function ProtectedRoute() {
     const usuario = JSON.parse(usuarioSalvo);
     const tipoUsuario = Number(usuario.tipo_usuario || usuario["tipo_usuário"]);
     const isAdm = tipoUsuario === 2;
+    const isPainelAdm = [1, 2].includes(tipoUsuario);
     const rotaAtual = location.pathname.toLowerCase();
     const rotaAdm = rotasAdm.some((rota) => rotaAtual.startsWith(rota));
+    const rotaSomenteAdm = rotasSomenteAdm.some((rota) => rotaAtual.startsWith(rota));
     const rotaUsuario = rotasUsuario.some((rota) => rotaAtual === rota || rotaAtual.startsWith(`${rota}/`));
 
-    if (rotaAdm && !isAdm) {
+    if (rotaAdm && !isPainelAdm) {
         return <Navigate to="/dashboard" replace />;
     }
 
-    if (rotaUsuario && isAdm) {
+    if (rotaSomenteAdm && !isAdm) {
+        return <Navigate to="/dashboardAdm" replace />;
+    }
+
+    if (rotaUsuario && isPainelAdm) {
         return <Navigate to="/dashboardAdm" replace />;
     }
 
@@ -69,8 +84,8 @@ function ProtectedRoute() {
                 <div className={css.overlay} onClick={() => setMenuAberto(false)} />
             )}
 
-            {isAdm ? 
-                <MenuLateralAdm aberto={menuAberto} aoNavegar={() => setMenuAberto(false)} /> : 
+            {isPainelAdm ? 
+                <MenuLateralAdm aberto={menuAberto} aoNavegar={() => setMenuAberto(false)} tipoUsuario={tipoUsuario} /> : 
                 <MenuLateral aberto={menuAberto} aoNavegar={() => setMenuAberto(false)} />
             }
 

@@ -1,9 +1,10 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import css from "./MenuLateralAdm.module.css";
 
-function MenuLateralAdm({ aberto = false, aoNavegar }) {
+function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const isAdm = Number(tipoUsuario) === 2;
 
     function sair() {
         localStorage.removeItem("usuario_logado");
@@ -61,14 +62,16 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
                     Estoque
                 </button>
 
-                <button
-                    type="button"
-                    className={classeItem(["/dashboardadmclientes"])}
-                    onClick={() => navegar("/dashboardAdmClientes")}
-                >
-                    <img src="/ImgNavBar/Clientes.png" alt="Usuários" className={css.icone_img} />
-                    Usuários
-                </button>
+                {isAdm && (
+                    <button
+                        type="button"
+                        className={classeItem(["/dashboardadmclientes"])}
+                        onClick={() => navegar("/dashboardAdmClientes")}
+                    >
+                        <img src="/ImgNavBar/Clientes.png" alt="Usuários" className={css.icone_img} />
+                        Usuários
+                    </button>
+                )}
 
                 <button type="button" className={css.menu_item}>
                     <img src="/ImgNavBar/Documentos.png" alt="Documentos" className={css.icone_img} />
@@ -91,13 +94,15 @@ function MenuLateralAdm({ aberto = false, aoNavegar }) {
                     Relatórios
                 </button>
 
-                <button type="button" 
-                        className={css.menu_item}
-                        onClick={() => navegar("/DashboardAdmConfiguracoes")}
-                >
-                    <img src="/IconEngrenagem.png" alt="Configurações" className={css.icone_img} />
-                    Configurações
-                </button>
+                {isAdm && (
+                    <button type="button" 
+                            className={css.menu_item}
+                            onClick={() => navegar("/DashboardAdmConfiguracoes")}
+                    >
+                        <img src="/IconEngrenagem.png" alt="Configurações" className={css.icone_img} />
+                        Configurações
+                    </button>
+                )}
             
             </nav>
 
