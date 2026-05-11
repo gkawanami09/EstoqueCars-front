@@ -145,6 +145,11 @@ function CodigoRecupera({ API }) {
     return (
         <main className={css.container}>
             <div className={css.coluna_esquerda}>
+                <img
+                    className={css.imagem}
+                    src="/ImgConfirmar/ImgConfirmar.png"
+                    alt="Recuperação de conta por e-mail"
+                />
             </div>
 
             <div className={css.linha_vertical}></div>
@@ -159,8 +164,8 @@ function CodigoRecupera({ API }) {
                         {etapa === 1
                             ? "Informe o e-mail cadastrado para receber o código de recuperação."
                             : tipo === "validarCodigo"
-                                ? "Informe o c�digo recebido no e-mail para validar sua identidade."
-                                : "C�digo validado. Agora defina sua nova senha."}
+                                ? "Informe o código recebido no e-mail para validar sua identidade."
+                                : "Código validado. Agora defina sua nova senha."}
                     </p>
 
                     {etapa === 1 ? (
@@ -180,35 +185,39 @@ function CodigoRecupera({ API }) {
                             {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
 
                             <button type="submit" className={css.botao_acao}>
+                                Enviar código
                             </button>
                         </form>
                     ) : (
                         <form className={css.formulario} onSubmit={enviarEtapa2}>
                             {tipo !== "redefinirSenha" && (
-                            <div className={css.email_area}>
-                                <label className={css.email_label}>E-mail</label>
-                                <input
-                                    className={css.email_input}
-                                    type="email"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="exemplo@gmail.com"
-                                />
-                            </div>
+                                <div className={css.email_area}>
+                                    <label className={css.email_label}>E-mail</label>
+                                    <input
+                                        className={css.email_input}
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="exemplo@gmail.com"
+                                    />
+                                </div>
                             )}
-                             {tipo !== "redefinirSenha" && (
-                            <div className={css.email_area}>
-                                <input
-                                    type="text"
-                                    className={css.email_input}
-                                    value={codigo}
-                                    onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                                    inputMode="numeric"
-                                    maxLength={6}
-                                    minLength={6}
-                                />
-                            </div>
-                             )}
+
+                            {tipo !== "redefinirSenha" && (
+                                <div className={css.email_area}>
+                                    <label className={css.email_label}>Código</label>
+                                    <input
+                                        type="text"
+                                        className={css.email_input}
+                                        value={codigo}
+                                        onChange={(e) => setCodigo(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                                        inputMode="numeric"
+                                        maxLength={6}
+                                        minLength={6}
+                                        placeholder="000000"
+                                    />
+                                </div>
+                            )}
 
                             {tipo === "redefinirSenha" && (
                                 <>
@@ -233,9 +242,6 @@ function CodigoRecupera({ API }) {
                                             placeholder="********"
                                         />
                                     </div>
-
-                                    <p className={css.aviso}>
-                                    </p>
                                 </>
                             )}
 
@@ -243,6 +249,7 @@ function CodigoRecupera({ API }) {
                             {sucesso && <p className={css.sucesso_api}>{sucesso}</p>}
 
                             <button type="submit" className={css.botao_acao}>
+                                {tipo === "redefinirSenha" ? "Redefinir senha" : "Validar código"}
                             </button>
 
                             <button

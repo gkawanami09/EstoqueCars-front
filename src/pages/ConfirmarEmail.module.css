@@ -49,7 +49,7 @@
 }
 
 .titulo span {
-    color: var(--vermelho);
+    color: #ef4444;
 }
 
 .subtitulo {
@@ -89,7 +89,7 @@
 }
 
 .email_input:focus {
-    border-color: var(--vermelho);
+    border-color: #ef4444;
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
@@ -115,13 +115,21 @@
 }
 
 .codigo_input_unico:focus {
-    border-color: var(--vermelho);
+    border-color: #ef4444;
     box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.15);
     background-color: #fffdfd;
 }
 
+.email_confirmado {
+    margin: 0;
+    color: #666;
+    font-size: 14px;
+    text-align: center;
+    overflow-wrap: anywhere;
+}
+
 .botao_verificar {
-    width: 186px;
+    width: min(100%, 450px);
     border: none;
     border-radius: 10px;
     height: 48px;
@@ -138,6 +146,20 @@
 .botao_verificar:hover {
     opacity: 0.9;
     transform: translateY(-1px);
+}
+
+.botao_secundario {
+    background: transparent;
+    border: 1px solid #d8d8d8;
+    border-radius: 10px;
+    width: min(100%, 450px);
+    height: 44px;
+    color: #444;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    align-self: center;
+    padding: 0 24px;
 }
 
 .auxiliar_area {
@@ -159,7 +181,7 @@
 .erro_api {
     margin-top: -8px;
     margin-bottom: -2px;
-    color: var(--vermelho);
+    color: #d7263d;
     background-color: #ffecee;
     border: 1px solid #f5b8c0;
     border-radius: 8px;
@@ -182,7 +204,7 @@
 
 .link,
 .link_botao {
-    color: var(--vermelho);
+    color: #ef4444;
     font-weight: 600;
     text-decoration: none;
     background: transparent;
@@ -218,6 +240,10 @@
     .botao_verificar {
         width: 100%;
         font-size: 15px;
+    }
+
+    .botao_secundario {
+        width: 100%;
     }
 }
 

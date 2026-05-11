@@ -2,7 +2,7 @@ import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Header from "./components/Header/Header";
-import Cadastro from "./pages/Cadastro";
+import Cadastro from "./pages/Cadastro.jsx";
 import Login from "./pages/Login";
 import ConfirmarEmail from "./pages/ConfirmarEmail";
 import CodigoRecupera from "./pages/CodigoRecupera";
@@ -78,7 +78,6 @@ function App({ API }) {
 
             <Route path="/manutencoes" element={<CadastroManutencao API={API} />} />
             <Route path="/cadastroManutencao" element={<CadastroManutencao API={API} />} />
-            <Route path="/cadastroEdicaoManutencao" element={<CadastroEdicaoManutencao API={API} />} />
             <Route path="/EdicaoServicos" element={<EdicaoServicos API={API} />} />
             <Route path="/CadastroCliente" element={<CadastroCliente API={API} />} />
             <Route path="/DashboardAdmConfiguracoes" element={<DashboardAdmConfiguracoes API={API} />} />
