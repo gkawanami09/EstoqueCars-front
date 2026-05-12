@@ -52,7 +52,11 @@ function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
 
          
 
-                <button type="button" className={css.menu_item}>
+                <button
+                    type="button"
+                    className={classeItem(["/dashboardadmvendas"])}
+                    onClick={() => navegar("/dashboardAdmVendas")}
+                >
                     <img src="/ImgNavBar/Vendas.png" alt="Vendas" className={css.icone_img} />
                     Vendas
                 </button>
@@ -86,6 +90,8 @@ function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
                     Financeiro
                 </button>
 
+               
+
                 <button type="button"
                         className={css.menu_item}
         
@@ -103,7 +109,6 @@ function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
                         Configurações
                     </button>
                 )}
-            
             </nav>
 
             <div className={css.rodape_menu}>

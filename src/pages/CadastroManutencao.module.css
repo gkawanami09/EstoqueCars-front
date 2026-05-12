@@ -1,0 +1,663 @@
+.container {
+    min-height: 100vh;
+    padding: 32px;
+    background: #f5f5f5;
+    color: #111;
+}
+
+.cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 22px !important;
+}
+
+.titulo {
+    font-size: 30px;
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.subtitulo {
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 6px !important;
+}
+
+.areaFormulario {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(280px, 0.8fr);
+    gap: 18px;
+    align-items: start;
+}
+
+.formulario,
+.painelHistorico,
+.buscaAvancada,
+.tabelaContainer,
+.painelItens {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 10px;
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.05);
+}
+
+.formulario {
+    padding: 24px;
+}
+
+.formCabecalho,
+.painelItensCabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 20px !important;
+}
+
+.formCabecalho h2,
+.painelHistorico h2,
+.painelItensCabecalho h2 {
+    font-size: 19px;
+    font-weight: 800;
+}
+
+.formCabecalho span,
+.painelItensCabecalho span {
+    display: block;
+    color: #666;
+    font-size: 13px;
+    font-weight: 500;
+    margin-top: 5px !important;
+}
+
+.formCabecalho strong {
+    color: #f25555;
+    font-size: 22px;
+    white-space: nowrap;
+}
+
+.gridCampos,
+.buscaApi,
+.formItem {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+}
+
+.campo span {
+    color: #333;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.campo input,
+.campo select,
+.buscaTexto input,
+.inputQuantidade {
+    width: 100%;
+    height: 46px;
+    border: 1px solid #d7d7d7;
+    border-radius: 8px;
+    background: #fff;
+    color: #1a1a1a;
+    font-size: 14px;
+    outline: none;
+    padding: 0 13px;
+}
+
+.campo select:disabled,
+.campo input:disabled {
+    background: #f4f4f4;
+    color: #777;
+    cursor: not-allowed;
+}
+
+.campo input:focus,
+.campo select:focus,
+.buscaTexto input:focus,
+.inputQuantidade:focus {
+    border-color: #111;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.08);
+}
+
+.campoAutocomplete {
+    position: relative;
+}
+
+.campoAjuda {
+    color: #666;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.listaAutocomplete {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid #d7d7d7;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.14);
+}
+
+.listaAutocomplete button {
+    border: none;
+    border-bottom: 1px solid #eeeeee;
+    background: #fff;
+    color: #222;
+    padding: 12px 14px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.listaAutocomplete button:last-child {
+    border-bottom: none;
+}
+
+.listaAutocomplete button:hover {
+    background: #f7f7f7;
+}
+
+.listaAutocomplete strong {
+    display: block;
+    color: #111;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.listaAutocomplete span,
+.autocompleteVazio {
+    display: block;
+    color: #666;
+    font-size: 12px;
+    font-weight: 600;
+    margin-top: 3px !important;
+}
+
+.autocompleteVazio {
+    padding: 14px;
+    margin-top: 0 !important;
+}
+
+.listaServicos {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 16px !important;
+}
+
+.linhaServico {
+    display: grid;
+    grid-template-columns: minmax(220px, 1fr) 120px 130px 100px;
+    gap: 12px;
+    align-items: end;
+    padding: 14px;
+    background: #f7f7f7;
+    border: 1px solid #ebebeb;
+    border-radius: 8px;
+}
+
+.subtotalServico {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 46px;
+}
+
+.subtotalServico span {
+    color: #666;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.subtotalServico strong {
+    color: #111;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.botoesFormulario {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 20px !important;
+    padding-top: 18px;
+    border-top: 1px solid #eee;
+}
+
+.botaoPrimario,
+.botaoSecundario,
+.botaoRemover,
+.btnDetalhes,
+.btnEditar,
+.btnExcluir {
+    min-height: 40px;
+    border-radius: 8px;
+    border: none;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease;
+}
+
+.botaoPrimario {
+    background: #000;
+    color: #fff;
+}
+
+.botaoSecundario {
+    background: #fff;
+    color: #222;
+    border: 1px solid #d7d7d7;
+}
+
+.botaoRemover,
+.btnExcluir {
+    background: #f25555;
+    color: #fff;
+}
+
+.btnDetalhes {
+    background: #111;
+    color: #fff;
+}
+
+.btnEditar {
+    background: #f4f4f4;
+    color: #111;
+    border: 1px solid #d7d7d7;
+}
+
+.botaoPrimario:hover,
+.botaoSecundario:hover,
+.botaoRemover:hover,
+.btnDetalhes:hover,
+.btnEditar:hover,
+.btnExcluir:hover {
+    opacity: 0.88;
+    transform: translateY(-1px);
+}
+
+.botaoPrimario:disabled,
+.botaoSecundario:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.painelHistorico {
+    padding: 22px;
+}
+
+.painelHistorico h2 {
+    margin-bottom: 16px !important;
+}
+
+.painelHistorico .botaoPrimario {
+    width: 100%;
+    margin-top: 14px !important;
+}
+
+.listaHistorico {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-top: 16px !important;
+}
+
+.itemHistorico {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    color: #555;
+    font-size: 13px;
+}
+
+.itemHistorico strong {
+    color: #111;
+}
+
+.mensagem {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 18px !important;
+    border: 1px solid transparent;
+}
+
+.mensagem strong {
+    display: block;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 4px !important;
+}
+
+.mensagem span {
+    display: block;
+    color: inherit;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.mensagem button {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.mensagem_erro {
+    color: #991b1b;
+    background: #fff1f2;
+    border-color: #fecdd3;
+}
+
+.mensagem_sucesso {
+    color: #14532d;
+    background: #ecfdf3;
+    border-color: #bbf7d0;
+}
+
+.buscaAvancada {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    padding: 18px;
+    margin-top: 18px !important;
+}
+
+.buscaApi {
+    grid-template-columns: minmax(120px, 1fr) minmax(120px, 1fr) auto auto;
+    align-items: end;
+}
+
+.buscaTexto {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #d7d7d7;
+    border-radius: 8px;
+    padding: 0 13px ;
+    background: #fff;
+}
+
+.buscaTexto img {
+    width: 18px;
+    height: 18px;
+    opacity: 0.6;
+}
+
+.buscaTexto input {
+    border: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.tabelaContainer,
+.painelItens {
+    padding: 14px;
+    margin-top: 18px !important;
+    overflow-x: auto;
+}
+
+.paginacaoArea {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px !important;
+}
+
+.tabela {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 850px;
+}
+
+.tabela th {
+    color: #555;
+    font-size: 13px;
+    font-weight: 800;
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #eee;
+}
+
+.tabela td {
+    color: #222;
+    font-size: 14px;
+    padding: 12px;
+    border-bottom: 1px solid #eee;
+    vertical-align: middle;
+}
+
+.tabela tr:hover {
+    background: #fafafa;
+}
+
+.textoApoio {
+    display: block;
+    color: #777;
+    font-size: 12px;
+    margin-top: 4px !important;
+}
+
+.valor {
+    color: #e53935;
+    font-weight: 800;
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 86px;
+    min-height: 32px;
+    border-radius: 10px;
+    padding: 5px 10px;
+    font-size: 12px;
+    font-weight: 800;
+    text-align: center;
+}
+
+.status_agendada {
+    background: #eef2ff;
+    color: #3730a3;
+}
+
+.status_proxima {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status_realizada {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.celulaVazia {
+    text-align: center;
+    color: #666 !important;
+    padding: 24px !important;
+}
+
+.painelItens {
+    overflow-x: visible;
+}
+
+.painelItensCabecalho {
+    padding: 4px 4px 16px;
+    border-bottom: 1px solid #eee;
+}
+
+.formItem {
+    grid-template-columns: minmax(240px, 1fr) 140px auto;
+    align-items: end;
+    padding: 16px 4px;
+}
+
+.tabelaItensContainer {
+    overflow-x: auto;
+}
+
+.inputQuantidade {
+    max-width: 110px;
+}
+
+@media (max-width: 1180px) {
+    .areaFormulario,
+    .buscaAvancada {
+        grid-template-columns: 1fr;
+    }
+
+    .buscaApi {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 900px) {
+    .container {
+        padding: 24px 16px;
+    }
+
+    .cabecalho,
+    .formCabecalho,
+    .painelItensCabecalho {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .gridCampos,
+    .linhaServico,
+    .formItem {
+        grid-template-columns: 1fr;
+    }
+
+    .botaoRemover {
+        width: 100%;
+    }
+
+    /* Transformando a tabela em Cards */
+    .tabela thead {
+        display: none;
+    }
+
+    .tabela, .tabela tbody, .tabela tr, .tabela td {
+        display: block;
+        width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
+    }
+
+    .tabela tr {
+        margin-bottom: 20px !important;
+        background-color: #fff;
+        border-radius: 12px;
+        padding: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        border: 1px solid #eaeaea;
+    }
+
+    .tabela td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
+        text-align: right;
+    }
+
+    .tabela td:last-child {
+        border-bottom: none;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding-bottom: 0;
+        padding-top: 16px;
+    }
+
+    .tabela td::before {
+        content: attr(data-label);
+        font-weight: 700;
+        text-align: left;
+        color: #666;
+        flex: 1;
+        font-size: 0.9rem;
+    }
+
+    .acoes {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .acoes button {
+        width: 100%;
+        padding: 10px 5px;
+    }
+}
+
+@media (max-width: 560px) {
+    .container {
+        padding: 18px 12px;
+    }
+
+    .titulo {
+        font-size: 24px;
+    }
+
+    .formulario,
+    .painelHistorico,
+    .buscaAvancada,
+    .tabelaContainer,
+    .painelItens {
+        padding: 14px;
+    }
+
+    .buscaApi {
+        grid-template-columns: 1fr;
+    }
+
+    .botoesFormulario {
+        flex-direction: column;
+    }
+
+    .botaoPrimario,
+    .botaoSecundario {
+        width: 100%;
+    }
+}

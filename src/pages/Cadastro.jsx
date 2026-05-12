@@ -59,12 +59,12 @@ function Cadastro({API}) {
         }
 
         if (cpf.length !== 11) {
-            setErro("CPF deve ter exatamente 11 números.");
+            setErro("CPF deve ter exatamente 11 nÃºmeros.");
             return;
         }
 
         if (senha !== confirmarSenha) {
-            setErro("As senhas não coincidem.");
+            setErro("As senhas nÃ£o coincidem.");
             return;
         }
 

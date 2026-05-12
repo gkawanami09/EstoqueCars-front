@@ -9,7 +9,9 @@ const rotasAdm = [
     "/dashboardadmveiculos",
     "/dashboardadmclientes",
     "/dashboardadmmarcas",
+    "/dashboardadmvendas",
     "/dashboardadmfinanceiros",
+    "/dashboardadmjuros",
     "/cadastrocliente",
     "/cadastroveiculos",
     "/cadastrov",
@@ -26,6 +28,7 @@ const rotasAdm = [
 const rotasSomenteAdm = [
     "/dashboardadmclientes",
     "/cadastrocliente",
+    "/dashboardadmjuros",
     "/dashboardadmconfiguracoes"
 ];
 

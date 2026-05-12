@@ -9,10 +9,11 @@ import { useEffect, useState } from "react";
 
 // Função que monta o header de autorização com token JWT.
 function cabecalhoAutorizacao() {
+
     // Pega o token salvo no localStorage.
     const token = localStorage.getItem("access_token");
 
-    // Se existir token, retorna no formato Bearer, senão retorna undefined.
+    // Se existir token, retorna no formato Bearer; senão, retorna undefined.
     return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
@@ -40,7 +41,7 @@ function DashboardAdmConfiguracoes({ API }) {
     // Estado do CNPJ da empresa.
     const [cnpj, setCnpj] = useState("");
 
-    // Estado do email de contato.
+    // Estado do e-mail de contato.
     const [email, setEmail] = useState("");
 
     // Estado do telefone de contato.
@@ -169,7 +170,7 @@ function DashboardAdmConfiguracoes({ API }) {
                 {/* Grid principal */}
                 <div className={css.grid}>
 
-                    {/* LADO ESQUERDO */}
+                    {/* Lado esquerdo */}
                     <div className={css.esquerda}>
 
                         <h2>Logo</h2>
@@ -192,6 +193,7 @@ function DashboardAdmConfiguracoes({ API }) {
                                 value={corPrimaria}
                                 onChange={(e) => setCorPrimaria(e.target.value)}
                             />
+
                             <Input
                                 label="Cor Secundária"
                                 type="color"
@@ -215,7 +217,7 @@ function DashboardAdmConfiguracoes({ API }) {
 
                     </div>
 
-                    {/* LADO DIREITO */}
+                    {/* Lado direito */}
                     <div className={css.direita}>
 
                         <h2>Dados da Empresa</h2>
@@ -236,9 +238,9 @@ function DashboardAdmConfiguracoes({ API }) {
 
                         <h2>Contato</h2>
 
-                        {/* Email */}
+                        {/* E-mail */}
                         <Input
-                            label="Email"
+                            label="E-mail"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />

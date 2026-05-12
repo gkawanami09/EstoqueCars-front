@@ -37,6 +37,47 @@
     font-weight: 800;
 }
 
+.paginacao_compacta {
+    gap: 8px;
+    margin-top: 8px !important;
+}
+
+.paginacao_compacta button {
+    min-width: auto;
+    width: 18px;
+    height: 24px;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    padding: 0;
+    color: #111111;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.paginacao_compacta button:hover:not(:disabled) {
+    background: transparent;
+    border-color: transparent;
+    color: #000000;
+}
+
+.paginacao_compacta button:disabled {
+    opacity: 1;
+    cursor: default;
+}
+
+.paginacao_compacta span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 26px;
+    background: #dddddd;
+    color: #111111;
+    font-size: 16px;
+    font-weight: 800;
+}
+
 @media (max-width: 480px) {
     .paginacao {
         gap: 8px;
@@ -50,5 +91,14 @@
         width: 100%;
         text-align: center;
         order: -1;
+    }
+
+    .paginacao_compacta span {
+        width: auto;
+        order: 0;
+    }
+
+    .paginacao_compacta button {
+        flex: 0 0 auto;
     }
 }

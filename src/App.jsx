@@ -25,12 +25,17 @@ import CadastroVeiculos from "./pages/CadastroVeiculos.jsx";
 import CadastroServicos from "./pages/CadastroServicos.jsx";
 import CadastroManutencao from "./pages/CadastroManutencao.jsx";
 
+import Vendas from "./pages/Vendas.jsx";
+
+
 import EdicaoServicos from "./pages/EdicaoServicos.jsx";
 import DetalhesVeiculos from "./pages/DetalhesVeiculos.jsx";
 import DashboardAdmMarcas from "./pages/DashboardAdmMarcas.jsx";
 import CadastroCliente from "./pages/CadastroCliente.jsx";
 import DashboardAdmConfiguracoes from "./pages/DashboardAdmConfiguracoes.jsx";
 import DashboardADMFinanceiros from "./pages/DashboardADMFinanceiros.jsx";
+
+import DasbhoardAdmVendas from "./pages/DasbhoardAdmVendas.jsx";
 
 
 
@@ -72,8 +77,11 @@ function App({ API }) {
             <Route path="/editarVeiculos/:id" element={<CadastroVeiculos API={API}/>} />
             <Route path="/detalhesVeiculos/:id" element={<DetalhesVeiculos API={API} />} />
             <Route path="/dashboardAdmMarcas" element={<DashboardAdmMarcas API={API} />} />
+            <Route path="/dashboardAdmVendas" element={<DasbhoardAdmVendas />} />
             <Route path="/dashboardADMFinanceiros" element={<DashboardADMFinanceiros API={API} />} />
-
+            <Route path="/venda" element={<Vendas API={API} />}/>
+            
+            
             <Route path="/CadastroServicos" element={<CadastroServicos API={API} />} />
 
             <Route path="/manutencoes" element={<CadastroManutencao API={API} />} />
