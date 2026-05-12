@@ -265,7 +265,7 @@
     align-items: center;
     justify-content: center;
     min-width: 160px;
-    color: #fff;
+    color: var(--cor-texto-botao);
     background: var(--cor-secundaria);
 }
 

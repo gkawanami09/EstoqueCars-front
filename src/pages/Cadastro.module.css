@@ -109,7 +109,7 @@
 /* Estilo exato do botão "Criar Conta" da imagem */
 .botao_criar {
     background-color: var(--cor-secundaria);
-    color: #ffffff;
+    color: var(--cor-texto-botao);
     border: none;
     width: 180px;
     height: 50px;
@@ -139,7 +139,7 @@
     border: 3px solid #d8d8d8;
     border-radius: 10px;
     background-color: #f2f2f2;
-    color: var(--cor-secundaria);
+    color: var(--preto);
     font-size: 14px;
     font-weight: 500;
     display: inline-flex;

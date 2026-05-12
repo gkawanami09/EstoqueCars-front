@@ -259,12 +259,12 @@
 
 .botaoPrimario {
     background: var(--cor-secundaria);
-    color: #fff;
+    color: var(--cor-texto-botao);
 }
 
 .botaoSecundario {
-    background: #fff;
-    color: var(--cor-secundaria);
+    background: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     border: 1px solid #d7d7d7;
 }
 
@@ -276,7 +276,7 @@
 
 .btnDetalhes {
     background: var(--cor-secundaria);
-    color: #fff;
+    color: var(--cor-texto-botao);
 }
 
 .btnEditar {
