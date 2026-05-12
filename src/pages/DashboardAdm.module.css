@@ -46,8 +46,8 @@
     min-height: 38px;
     border: none;
     border-radius: 8px;
-    background: var(--preto);
-    color: #ffffff;
+    background: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     padding: 0 16px;
     font-size: 12px;
     font-weight: 800;
