@@ -82,7 +82,7 @@
     align-items: center;
     gap: 18px;
     flex-wrap: wrap;
-    margin-bottom: 8px !important;
+    margin-bottom: 12px !important;
 }
 
 .filtros select {
@@ -166,7 +166,8 @@
 }
 
 .pago {
-    background: #2e7d48;
+    background: #2e7d4831;
+    color: #2e7d48;
 }
 
 .pendente {

@@ -48,11 +48,11 @@ function App({ API }) {
             <Route path="/" element={<Home />} />
             <Route path="/cadastro" element={<Cadastro API={API} />} />
             <Route path="/login" element={<Login API={API} />} />
-            <Route path="/CarrosSedan" element={<CarrosSedan />} />
-            <Route path="/CarrosEletricos" element={<CarrosEletricos />} />
-            <Route path="/CarrosEsportivos" element={<CarrosEsportivos />} />
-            <Route path="/CarrosCaminhonetes" element={<CarrosCaminhonetes />} />
-            <Route path="/CarrosSUV" element={<CarrosSUV />} />
+            <Route path="/CarrosSedan" element={<CarrosSedan API={API} />} />
+            <Route path="/CarrosEletricos" element={<CarrosEletricos API={API} />} />
+            <Route path="/CarrosEsportivos" element={<CarrosEsportivos API={API} />} />
+            <Route path="/CarrosCaminhonetes" element={<CarrosCaminhonetes API={API} />} />
+            <Route path="/CarrosSUV" element={<CarrosSUV API={API} />} />
             <Route
                 path="/confirmar-email"
                 element={<ConfirmarEmail API={API} />}
