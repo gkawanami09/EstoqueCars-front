@@ -19,7 +19,7 @@
 
 .codigo {
     font-size: 64px;
-    color: var(--vermelho);
+    color: var(--cor-msg-erro);
     margin-bottom: 8px;
 }
 

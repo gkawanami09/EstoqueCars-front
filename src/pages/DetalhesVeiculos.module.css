@@ -41,7 +41,7 @@
 .voltar {
     padding: 0;
     background: transparent;
-    color: var(--vermelho);
+    color: var(--cor-principal);
 }
 
 .editar {
@@ -109,7 +109,7 @@
 
 .preco_bloco strong {
     display: block;
-    color: var(--vermelho);
+    color: var(--cor-texto-preco);
     font-size: 2.1rem;
     font-weight: 900;
     line-height: 1.1;
@@ -139,7 +139,7 @@
 
 .status_indisponivel {
     background: #fee2e2;
-    color: var(--vermelho);
+    color: var(--cor-letra-nestoque);
 }
 
 .status_vendido {
@@ -269,7 +269,7 @@
 }
 
 .valor_manutencao {
-    color: var(--vermelho) !important;
+    color: var(--cor-texto-preco) !important;
     text-align: right;
     white-space: nowrap;
 }

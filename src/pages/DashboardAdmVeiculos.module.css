@@ -229,7 +229,7 @@
 
 .status_indisponivel {
     background: #fee2e2;
-    color: var(--vermelho);
+    color: var(--cor-letra-nestoque);
 }
 
 .status_estoque {
@@ -339,7 +339,7 @@
 }
 
 .mensagem_erro {
-    color: var(--vermelho);
+    color: var(--cor-msg-erro);
     background-color: #ffecee;
     border: 1px solid #f5b8c0;
     border-radius: 8px;

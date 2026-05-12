@@ -268,7 +268,7 @@
 }
 
 .mensagem_erro {
-    color: #991b1b;
+    color: var(--cor-msg-erro);
     background: #fff1f2;
     border-color: #fecdd3;
 }
@@ -315,7 +315,7 @@
     justify-content: center;
     border-radius: 999px;
     background: #fff1f2;
-    color: var(--vermelho);
+    color: var(--cor-msg-erro);
     font-size: 20px;
     font-weight: 900;
 }
@@ -379,7 +379,7 @@
 }
 
 .alert_excluir:hover {
-    background: var(--vermelho);
+    background: var(--cor-msg-erro);
 }
 
 @media (max-width: 760px) {

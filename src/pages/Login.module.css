@@ -56,7 +56,7 @@
 }
 
 .titulo span {
-    color: var(--vermelho);
+    color: var(--cor-principal);
 }
 
 .subtitulo {
@@ -68,7 +68,7 @@
 
 .erro_api {
     margin-top: 10px;
-    color: var(--vermelho);
+    color: var(--cor-msg-erro);
     background-color: #ffecee;
     border: 1px solid #f5b8c0;
     border-radius: 8px;
@@ -88,7 +88,7 @@
 }
 
 .link_esqueceu {
-    color: var(--vermelho);
+    color: var(--cor-msg-erro);
     text-decoration: none;
     font-size: 13px;
     transition: opacity 0.2s;
