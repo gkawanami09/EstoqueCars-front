@@ -42,8 +42,8 @@
     width: 170px;
     height: 42px;
     border-radius: 8px;
-    background-color: var(--preto);
-    color: #fff;
+    background-color: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     font-weight: 700;
 }
 

@@ -24,7 +24,7 @@ import DashboardAdmClientes from "./pages/DashboardAdmClientes.jsx";
 import CadastroVeiculos from "./pages/CadastroVeiculos.jsx";
 import CadastroServicos from "./pages/CadastroServicos.jsx";
 import CadastroManutencao from "./pages/CadastroManutencao.jsx";
-import CadastroEdicaoManutencao from "./pages/CadastroEdicaoManutencao.jsx";
+
 import EdicaoServicos from "./pages/EdicaoServicos.jsx";
 import DetalhesVeiculos from "./pages/DetalhesVeiculos.jsx";
 import DashboardAdmMarcas from "./pages/DashboardAdmMarcas.jsx";
@@ -77,7 +77,7 @@ function App({ API }) {
             <Route path="/CadastroServicos" element={<CadastroServicos API={API} />} />
 
             <Route path="/manutencoes" element={<CadastroManutencao API={API} />} />
-            <Route path="/cadastroManutencao" element={<CadastroManutencao API={API} />} />
+
             <Route path="/EdicaoServicos" element={<EdicaoServicos API={API} />} />
             <Route path="/CadastroCliente" element={<CadastroCliente API={API} />} />
             <Route path="/DashboardAdmConfiguracoes" element={<DashboardAdmConfiguracoes API={API} />} />

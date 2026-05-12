@@ -42,7 +42,7 @@
 
 .menu_item {
     background: transparent;
-    color: #fff;
+    color: var(--cor-texto-botao);
     border: none;
     padding: 12px 20px;
     border-radius: 8px;
@@ -69,7 +69,7 @@
 
 .menu_ativo {
     background-color: var(--cor-principal);
-    color: #fff;
+    color: var(--cor-texto-botao);
 }
 
 .menu_ativo .icone_img {
@@ -83,7 +83,7 @@
 
 .botao_sair {
     background: transparent;
-    color: #fff;
+    color: var(--cor-texto-botao);
     border: none;
     width: 100%;
     padding: 12px 20px;

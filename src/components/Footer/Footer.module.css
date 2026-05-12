@@ -62,7 +62,7 @@
 }
 
 .menu a {
-    color: #e7e7e7;
+    color: var(--cor-texto-botao);
     font-size: 14px;
     font-weight: 500;
 }
@@ -125,7 +125,7 @@
 .botaoLogout {
     border: none;
     background: var(--cor-principal);
-    color: #ffffff;
+    color: var(--cor-texto-botao);
     border-radius: 8px;
     min-width: 110px;
     height: 40px;

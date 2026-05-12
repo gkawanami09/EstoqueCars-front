@@ -106,8 +106,8 @@
 }
 
 .botao_entrar {
-    background: var(--preto);
-    color: white;
+    background: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     text-decoration: none;
     display: flex;
     justify-content: center;

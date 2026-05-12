@@ -9,7 +9,7 @@
 
 .preto {
     background-color: var(--cor-secundaria);
-    color: #fff;
+    color: var(--cor-texto-botao);
 }
 
 .preto:hover {
@@ -18,7 +18,7 @@
 
 .vermelho {
     background-color: var(--cor-principal);
-    color: #fff;
+    color: var(--cor-texto-botao);
 }
 
 .vermelho:hover {

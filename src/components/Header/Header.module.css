@@ -63,13 +63,13 @@
 
 .botaoDashboardDesktop:hover {
     background: var(--cor-principal);
-    color: #ffffff;
+    color: var(--cor-texto-botao);
 }
 
 .botaoLogoutDesktop {
     border: none;
     background: var(--cor-principal);
-    color: #ffffff;
+    color: var(--cor-texto-botao);
     height: 36px;
     padding: 0 18px;
     border-radius: 8px;

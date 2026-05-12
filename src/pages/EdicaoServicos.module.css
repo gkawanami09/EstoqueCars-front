@@ -77,8 +77,8 @@
 }
 
 .anexar {
-    background: var(--preto);
-    color: #fff;
+    background: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     padding: 10px 20px;
     border-radius: 8px;
     border: none;
@@ -104,8 +104,8 @@
 }
 
 .salvar {
-    background: var(--preto);
-    color: #fff;
+    background: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     padding: 12px 40px;
     border-radius: 8px;
     border: none;

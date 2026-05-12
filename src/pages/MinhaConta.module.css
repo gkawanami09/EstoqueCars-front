@@ -23,7 +23,7 @@
 .titulo {
     font-size: 2.2rem;
     font-weight: 800;
-    color: #000;
+    color: var(--cor-secundaria);
     margin: 0;
 }
 
@@ -53,7 +53,7 @@
 .nome_perfil_topo {
     font-weight: 600;
     font-size: 1.1rem;
-    color: #000;
+    color: var(--cor-secundaria);
 }
 
 .container_cards {
@@ -169,7 +169,7 @@
     font-weight: 800;
     margin-top: 0;
     margin-bottom: 30px;
-    color: #000;
+    color: var(--cor-secundaria);
 }
 
 .grupo_input {
@@ -239,7 +239,7 @@
 
 .botao_salvar {
     background-color: #000;
-    color: #fff;
+    color: var(--cor-texto-botao);
     border: none;
     padding: 12px 30px;
     border-radius: 8px;

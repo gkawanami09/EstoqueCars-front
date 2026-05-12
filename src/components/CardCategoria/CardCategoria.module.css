@@ -51,7 +51,7 @@
     width: fit-content;
     font-size: 10px;
     font-weight: bold;
-    color: var(--cinza-fundo);
+    color: var(--cor-texto-botao);
     background-color: var(--preto);
     padding: 5px 15px;
     border-radius: 15px;
