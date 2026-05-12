@@ -136,7 +136,7 @@
     min-height: 48px;
     border-radius: 8px;
     background: var(--cor-secundaria);
-    color: #fff;
+    color: var(--cor-texto-botao);
     padding: 0 16px;
     text-align: center;
     font-size: 14px;
@@ -174,7 +174,7 @@
 .salvar {
     border: none;
     background: var(--cor-secundaria);
-    color: #fff;
+    color: var(--cor-texto-botao);
 }
 
 .salvar:hover {

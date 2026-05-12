@@ -69,8 +69,8 @@
 }
 
 .salvar {
-    background: black;
-    color: white;
+    background: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     padding: 10px 24px;
     border-radius: 8px;
     border: none;

@@ -233,7 +233,7 @@
 .salvar {
     border: none;
     background: var(--cor-secundaria);
-    color: #fff;
+    color: var(--cor-texto-botao);
 }
 
 .salvar:hover {
@@ -261,7 +261,7 @@
     height: 40px;
     border: 1px solid #d7d7d7;
     border-radius: 8px;
-    background: #fff;
+    background: var(--cor-texto-botao);
     color: var(--cor-secundaria);
     padding: 0 16px;
     font-size: 13px;

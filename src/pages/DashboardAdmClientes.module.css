@@ -34,8 +34,8 @@
     height: 48px;
     border: none;
     border-radius: 8px;
-    background: #000;
-    color: #fff;
+    background: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     padding: 0 28px;
     font-size: 14px;
     font-weight: 800;
@@ -92,8 +92,8 @@
     height: 48px;
     border: none;
     border-radius: 8px;
-    background: #111;
-    color: #fff;
+    background: var(--cor-secundaria);
+    color: var(--cor-texto-botao);
     padding: 0 24px;
     font-size: 15px;
     font-weight: 900;
@@ -281,8 +281,8 @@
 }
 
 .btn_editar {
-    color: #222;
-    background: #f2f2f2;
+    color: var(--cor-secundaria);
+    background: var(--cor-texto-botao);
 }
 
 .acoes img {
