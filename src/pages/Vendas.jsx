@@ -1,24 +1,14 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import css from "./Vendas.module.css";
-
-const veiculos = [
-    {
-        id: 1,
-        nome: "Hyundai HB20",
-        modelo: "2025",
-        marca: "Hyundai",
-        quilometragem: "25.000km",
-        cor: "Chumbo",
-        preco: 113000,
-        placa: "FFI8H29",
-        imagem: "/CarHyundaiHb20.png"
-    }
-];
 
 const clientes = ["Joao Silva", "Jorge Silva", "Roberto Faria", "Marcos Jose"];
 const formasPagamento = ["Financiamento", "Pix"];
 const statusPagamento = ["Pago", "Pendente"];
+
+function numeroDoCampo(valor) {
+    return Number(String(valor || "0").replace(",", ".")) || 0;
+}
 
 function formatarMoeda(valor) {
     return Number(valor || 0).toLocaleString("pt-BR", {
@@ -28,17 +18,56 @@ function formatarMoeda(valor) {
     });
 }
 
+function formatarQuilometragem(valor) {
+    const numero = Number(valor);
+
+    if (!Number.isFinite(numero)) {
+        return valor || "-";
+    }
+
+    return `${numero.toLocaleString("pt-BR")} km`;
+}
+
+function idVeiculo(veiculo) {
+    return veiculo?.id || veiculo?.id_veiculo || veiculo?.id_carro;
+}
+
+function nomeVeiculo(veiculo) {
+    return veiculo?.nome || [veiculo?.marca, veiculo?.modelo].filter(Boolean).join(" ") || "Veiculo";
+}
+
+function montarUrlImagem(API, veiculo) {
+    const imagem = veiculo?.imagem || veiculo?.foto || veiculo?.foto_veiculo;
+
+    if (!imagem) {
+        return "/IconCar.png";
+    }
+
+    if (String(imagem).startsWith("http")) {
+        return imagem;
+    }
+
+    if (String(imagem).startsWith("/")) {
+        return `${API}${imagem}`;
+    }
+
+    return `${API}/${imagem}`;
+}
+
 function Vendas({ API }) {
     const navigate = useNavigate();
+    const [veiculos, setVeiculos] = useState([]);
+    const [carregandoVeiculos, setCarregandoVeiculos] = useState(true);
+    const [erroVeiculos, setErroVeiculos] = useState("");
     const [cliente, setCliente] = useState(clientes[0]);
-    const [veiculoId, setVeiculoId] = useState(String(veiculos[0].id));
+    const [veiculoId, setVeiculoId] = useState("");
     const [formaPagamento, setFormaPagamento] = useState(formasPagamento[0]);
     const [dataVenda, setDataVenda] = useState("2026-03-25");
-    const [valorVenda, setValorVenda] = useState(String(veiculos[0].preco));
-    const [valorRecebido, setValorRecebido] = useState(String(veiculos[0].preco));
+    const [valorVenda, setValorVenda] = useState("");
+    const [valorRecebido, setValorRecebido] = useState("");
     const [status, setStatus] = useState(statusPagamento[0]);
     const [comentarios, setComentarios] = useState("");
-    const [descontos, setDescontos] = useState("");
+    const [desconto, setDesconto] = useState("");
     const [arquivo, setArquivo] = useState("");
     const [chavePix, setChavePix] = useState("");
     const [transacaoPix, setTransacaoPix] = useState("");
@@ -48,19 +77,65 @@ function Vendas({ API }) {
     const ehFinanciamento = formaPagamento === "Financiamento";
     const ehPix = formaPagamento === "Pix";
 
-    const veiculoSelecionado = useMemo(() => {
-        return veiculos.find((veiculo) => String(veiculo.id) === veiculoId) || veiculos[0];
-    }, [veiculoId]);
+    const carregarVeiculos = useCallback(async () => {
+        setCarregandoVeiculos(true);
+        setErroVeiculos("");
 
-    const valorNumerico = Number(String(valorVenda).replace(",", ".")) || 0;
-    const valorFinanciado = valorNumerico;
+        try {
+            const resposta = await fetch(`${API}/listar_carro`, {
+                method: "GET",
+                credentials: "include"
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setErroVeiculos(dados.erro || "Erro ao carregar veiculos.");
+                setVeiculos([]);
+                return;
+            }
+
+            const lista = dados.carros || [];
+            setVeiculos(lista);
+
+            if (lista.length > 0) {
+                const primeiro = lista[0];
+                setVeiculoId(String(idVeiculo(primeiro)));
+                setValorVenda(String(primeiro.preco || 0));
+                setValorRecebido(String(primeiro.preco || 0));
+            }
+        } catch {
+            setErroVeiculos("Erro de conexao com o servidor.");
+            setVeiculos([]);
+        } finally {
+            setCarregandoVeiculos(false);
+        }
+    }, [API]);
+
+    useEffect(() => {
+        carregarVeiculos();
+    }, [carregarVeiculos]);
+
+    const veiculoSelecionado = useMemo(() => {
+        return veiculos.find((veiculo) => String(idVeiculo(veiculo)) === veiculoId) || null;
+    }, [veiculoId, veiculos]);
+
+    const valorNumerico = numeroDoCampo(valorVenda);
+    const descontoNumerico = numeroDoCampo(desconto);
+    const valorComDesconto = Math.max(valorNumerico - descontoNumerico, 0);
+    const valorFinanciado = valorComDesconto;
     const valorParcelaFinanciamento = useMemo(() => {
-        return valorFinanciado * juros / (1 - (1 + juros) ** -parcelasFinanciamento);
+        const parcelas = Number(parcelasFinanciamento) || 1;
+
+        if (!valorFinanciado) {
+            return 0;
+        }
+
+        return valorFinanciado * juros / (1 - (1 + juros) ** -parcelas);
     }, [juros, parcelasFinanciamento, valorFinanciado]);
 
     function trocarVeiculo(e) {
         const id = e.target.value;
-        const veiculo = veiculos.find((item) => String(item.id) === id);
+        const veiculo = veiculos.find((item) => String(idVeiculo(item)) === id);
 
         setVeiculoId(id);
 
@@ -73,16 +148,22 @@ function Vendas({ API }) {
     function salvarVenda(e) {
         e.preventDefault();
 
+        if (!veiculoSelecionado) {
+            setErroVeiculos("Selecione um veiculo antes de salvar a venda.");
+            return;
+        }
+
         const venda = {
             cliente,
             veiculo: veiculoSelecionado,
             formaPagamento,
             dataVenda,
             valorVenda: valorNumerico,
-            valorRecebido: Number(String(valorRecebido).replace(",", ".")) || 0,
+            valorComDesconto,
+            valorRecebido: numeroDoCampo(valorRecebido),
             status,
             comentarios,
-            descontos,
+            desconto: descontoNumerico,
             juros: ehFinanciamento ? juros : 0,
             parcelas: ehFinanciamento ? parcelasFinanciamento : 0,
             chavePix: ehPix ? chavePix : "",
@@ -113,41 +194,54 @@ function Vendas({ API }) {
 
                     <label className={css.campo}>
                         <span>Veiculo Vendido</span>
-                        <select value={veiculoId} onChange={trocarVeiculo}>
+                        <select value={veiculoId} onChange={trocarVeiculo} disabled={carregandoVeiculos || veiculos.length === 0}>
+                            <option value="">
+                                {carregandoVeiculos ? "Carregando veiculos..." : "Selecione um veiculo"}
+                            </option>
                             {veiculos.map((veiculo) => (
-                                <option key={veiculo.id} value={veiculo.id}>
-                                    {veiculo.nome}
+                                <option key={idVeiculo(veiculo)} value={idVeiculo(veiculo)}>
+                                    {nomeVeiculo(veiculo)}
                                 </option>
                             ))}
                         </select>
                     </label>
 
-                    <article className={css.veiculoCard}>
-                        <img src={veiculoSelecionado.imagem} alt={veiculoSelecionado.nome} />
+                    {erroVeiculos && <p className={css.mensagemErro}>{erroVeiculos}</p>}
 
-                        <div className={css.veiculoInfo}>
-                            <p>
-                                <strong>Modelo:</strong>
-                                <span>{veiculoSelecionado.modelo}</span>
-                            </p>
-                            <p>
-                                <strong>Marca:</strong>
-                                <span>{veiculoSelecionado.marca}</span>
-                            </p>
-                            <p>
-                                <strong>Quilometragem:</strong>
-                                <span>{veiculoSelecionado.quilometragem}</span>
-                            </p>
-                            <p>
-                                <strong>Cor:</strong>
-                                <span>{veiculoSelecionado.cor}</span>
-                            </p>
-                            <p>
-                                <strong>Preco de Venda:</strong>
-                                <b>{formatarMoeda(veiculoSelecionado.preco)}</b>
-                            </p>
-                        </div>
-                    </article>
+                    {veiculoSelecionado && (
+                        <article className={css.veiculoCard}>
+                            <img
+                                src={montarUrlImagem(API, veiculoSelecionado)}
+                                alt={nomeVeiculo(veiculoSelecionado)}
+                                onError={(e) => {
+                                    e.currentTarget.src = "/IconCar.png";
+                                }}
+                            />
+
+                            <div className={css.veiculoInfo}>
+                                <p>
+                                    <strong>Modelo:</strong>
+                                    <span>{veiculoSelecionado.modelo || "-"}</span>
+                                </p>
+                                <p>
+                                    <strong>Marca:</strong>
+                                    <span>{veiculoSelecionado.marca || "-"}</span>
+                                </p>
+                                <p>
+                                    <strong>Quilometragem:</strong>
+                                    <span>{formatarQuilometragem(veiculoSelecionado.quilometragem)}</span>
+                                </p>
+                                <p>
+                                    <strong>Cor:</strong>
+                                    <span>{veiculoSelecionado.cor || "-"}</span>
+                                </p>
+                                <p>
+                                    <strong>Preco de Venda:</strong>
+                                    <b>{formatarMoeda(veiculoSelecionado.preco)}</b>
+                                </p>
+                            </div>
+                        </article>
+                    )}
 
                     <label className={`${css.campo} ${css.comentarios}`}>
                         <span>Comentarios</span>
@@ -241,7 +335,7 @@ function Vendas({ API }) {
 
                         <label className={css.campo}>
                             <span>Placa</span>
-                            <input type="text" value={veiculoSelecionado.placa} readOnly />
+                            <input type="text" value={veiculoSelecionado?.placa || ""} readOnly />
                         </label>
                     </div>
 
@@ -255,6 +349,23 @@ function Vendas({ API }) {
                             onChange={(e) => setValorVenda(e.target.value)}
                         />
                     </label>
+
+                    <label className={css.campo}>
+                        <span>Desconto</span>
+                        <input
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            value={desconto}
+                            onChange={(e) => setDesconto(e.target.value)}
+                            placeholder="0,00"
+                        />
+                    </label>
+
+                    <div className={css.resumoDesconto}>
+                        <span>Valor com desconto</span>
+                        <strong>{formatarMoeda(valorComDesconto)}</strong>
+                    </div>
 
                     <label className={css.campo}>
                         <span>Valor Recebido</span>
@@ -278,14 +389,6 @@ function Vendas({ API }) {
                         </label>
                     </div>
 
-                    <label className={`${css.campo} ${css.descontos}`}>
-                        <span>Descontos</span>
-                        <textarea
-                            value={descontos}
-                            onChange={(e) => setDescontos(e.target.value)}
-                            placeholder="Digite uma observacao..."
-                        />
-                    </label>
                 </section>
 
                 <div className={css.acoes}>

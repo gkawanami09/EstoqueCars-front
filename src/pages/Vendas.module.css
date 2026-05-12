@@ -135,6 +135,17 @@
     font-weight: 900;
 }
 
+.mensagemErro {
+    margin: 0;
+    border: 1px solid #f0b8b8;
+    border-radius: 8px;
+    background: #fff7f7;
+    color: #9c1c1c;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
 .comentarios {
     margin-top: 6px;
 }
@@ -184,10 +195,6 @@
     align-items: center;
 }
 
-.descontos textarea {
-    min-height: 55px;
-}
-
 .areaPagamento {
     display: grid;
     grid-template-columns: minmax(140px, 180px) minmax(220px, 1fr);
@@ -230,6 +237,29 @@
     color: #666;
     font-size: 12px;
     font-weight: 700;
+}
+
+.resumoDesconto {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid #e9e9e9;
+    border-radius: 8px;
+    padding: 10px;
+}
+
+.resumoDesconto span {
+    color: #000;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.resumoDesconto strong {
+    color: #258243;
+    font-size: 15px;
+    font-weight: 900;
+    text-align: right;
 }
 
 .acoes {
