@@ -17,7 +17,7 @@ const veiculos = [
 ];
 
 const clientes = ["Joao Silva", "Jorge Silva", "Roberto Faria", "Marcos Jose"];
-const formasPagamento = ["Cartao de Credito", "Financiamento", "Pix", "Dinheiro"];
+const formasPagamento = ["Financiamento", "Pix"];
 const statusPagamento = ["Pago", "Pendente"];
 
 function formatarMoeda(valor) {
@@ -40,19 +40,23 @@ function Vendas({ API }) {
     const [comentarios, setComentarios] = useState("");
     const [descontos, setDescontos] = useState("");
     const [arquivo, setArquivo] = useState("");
-    const [parcelas, setParcelas] = useState(48);
+    const [chavePix, setChavePix] = useState("");
+    const [transacaoPix, setTransacaoPix] = useState("");
+    const [parcelasFinanciamento, setParcelasFinanciamento] = useState(48);
 
     const juros = 0.04;
-    const ehCartaoCredito = formaPagamento === "Cartao de Credito";
+    const ehFinanciamento = formaPagamento === "Financiamento";
+    const ehPix = formaPagamento === "Pix";
 
     const veiculoSelecionado = useMemo(() => {
         return veiculos.find((veiculo) => String(veiculo.id) === veiculoId) || veiculos[0];
     }, [veiculoId]);
 
     const valorNumerico = Number(String(valorVenda).replace(",", ".")) || 0;
-    const valorParcela = useMemo(() => {
-        return valorNumerico * juros / (1 - (1 + juros) ** -parcelas);
-    }, [juros, parcelas, valorNumerico]);
+    const valorFinanciado = valorNumerico;
+    const valorParcelaFinanciamento = useMemo(() => {
+        return valorFinanciado * juros / (1 - (1 + juros) ** -parcelasFinanciamento);
+    }, [juros, parcelasFinanciamento, valorFinanciado]);
 
     function trocarVeiculo(e) {
         const id = e.target.value;
@@ -79,9 +83,12 @@ function Vendas({ API }) {
             status,
             comentarios,
             descontos,
-            valorParcela: ehCartaoCredito ? valorParcela : 0,
-            juros: ehCartaoCredito ? juros : 0,
-            parcelas: ehCartaoCredito ? parcelas : 0,
+            juros: ehFinanciamento ? juros : 0,
+            parcelas: ehFinanciamento ? parcelasFinanciamento : 0,
+            chavePix: ehPix ? chavePix : "",
+            transacaoPix: ehPix ? transacaoPix : "",
+            valorFinanciado: ehFinanciamento ? valorFinanciado : 0,
+            valorParcelaFinanciamento: ehFinanciamento ? valorParcelaFinanciamento : 0,
             api: API
         };
 
@@ -164,6 +171,55 @@ function Vendas({ API }) {
                         </select>
                     </label>
 
+                    {ehFinanciamento && (
+                        <div className={css.financiamento}>
+                            <div className={css.areaPagamento}>
+                                <label className={css.campo}>
+                                    <span>Quantidade de parcelas</span>
+                                    <input
+                                        type="number"
+                                        min="1"
+                                        max="120"
+                                        value={parcelasFinanciamento}
+                                        onChange={(e) => setParcelasFinanciamento(Number(e.target.value) || 1)}
+                                    />
+                                </label>
+
+                                <div className={css.parcela}>
+                                    <span>Valor financiado</span>
+                                    <strong>{formatarMoeda(valorFinanciado)}</strong>
+                                    <small>
+                                        {parcelasFinanciamento} parcelas de {formatarMoeda(valorParcelaFinanciamento)}
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {ehPix && (
+                        <div className={css.areaPagamento}>
+                            <label className={css.campo}>
+                                <span>Chave Pix</span>
+                                <input
+                                    type="text"
+                                    value={chavePix}
+                                    onChange={(e) => setChavePix(e.target.value)}
+                                    placeholder="Digite a chave Pix"
+                                />
+                            </label>
+
+                            <label className={css.campo}>
+                                <span>ID da transacao</span>
+                                <input
+                                    type="text"
+                                    value={transacaoPix}
+                                    onChange={(e) => setTransacaoPix(e.target.value)}
+                                    placeholder="Digite o codigo da transacao"
+                                />
+                            </label>
+                        </div>
+                    )}
+
                     <label className={`${css.campo} ${css.campoCurto}`}>
                         <span>Data da Venda</span>
                         <input type="date" value={dataVenda} onChange={(e) => setDataVenda(e.target.value)} />
@@ -230,27 +286,6 @@ function Vendas({ API }) {
                             placeholder="Digite uma observacao..."
                         />
                     </label>
-
-                    {ehCartaoCredito && (
-                        <div className={css.parcelamento}>
-                            <label className={css.campo}>
-                                <span>Quantidade de parcelas</span>
-                                <input
-                                    type="number"
-                                    min="1"
-                                    max="120"
-                                    value={parcelas}
-                                    onChange={(e) => setParcelas(Number(e.target.value) || 1)}
-                                />
-                            </label>
-
-                            <div className={css.parcela}>
-                                <span>Valor da parcela</span>
-                                <strong>{formatarMoeda(valorParcela)}</strong>
-                                <small>{parcelas} parcelas com juros de {(juros * 100).toFixed(0)}% ao mes</small>
-                            </div>
-                        </div>
-                    )}
                 </section>
 
                 <div className={css.acoes}>
