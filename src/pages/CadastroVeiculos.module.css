@@ -105,8 +105,8 @@
 }
 
 .status {
-    color: #b45309;
-    background: #fffbeb;
+    color: var(--cor-letra-estoque);
+    background: var(--cor-fundo-estoque);
     border: 1px solid #fde68a;
     border-radius: 8px;
     padding: 10px 12px;
@@ -135,7 +135,7 @@
     justify-content: center;
     min-height: 48px;
     border-radius: 8px;
-    background: var(--preto);
+    background: var(--cor-secundaria;
     color: #fff;
     padding: 0 16px;
     text-align: center;
@@ -173,7 +173,7 @@
 
 .salvar {
     border: none;
-    background: var(--preto);
+    background: var(--cor-secundaria);
     color: #fff;
 }
 
@@ -225,8 +225,8 @@
 }
 
 .mensagem_erro {
-    color: var(--vermelho-escuro);
-    background: #fff1f2;
+    color: var(--cor-msg-erro);
+    background: var(--cor-borda-erro);
     border-color: #fecdd3;
 }
 

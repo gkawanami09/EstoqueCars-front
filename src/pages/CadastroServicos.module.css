@@ -187,8 +187,8 @@
 }
 
 .mensagem_erro {
-    color: var(--vermelho-escuro);
-    background: #fff1f2;
+    color: var(--cor-msg-erro);
+    background: var(--cor-borda-erro);
     border-color: #fecdd3;
 }
 
@@ -232,7 +232,7 @@
 
 .salvar {
     border: none;
-    background: var(--preto);
+    background: var(--cor-secundaria);
     color: #fff;
 }
 
@@ -262,7 +262,7 @@
     border: 1px solid #d7d7d7;
     border-radius: 8px;
     background: #fff;
-    color: var(--preto);
+    color: var(--cor-secundaria);
     padding: 0 16px;
     font-size: 13px;
     font-weight: 800;
@@ -335,7 +335,7 @@
 .acoesLinha .botaoPerigo {
     border-color: #fecdd3;
     background: #fff1f2;
-    color: var(--vermelho-escuro);
+    color: var(--cor-msg-erro);
 }
 
 .acoesLinha .botaoPerigo:hover {
@@ -390,7 +390,7 @@
     justify-content: center;
     margin-bottom: 18px;
     background: #fff1f2;
-    color: var(--vermelho-escuro);
+    color: var(--cor-msg-erro);
     font-size: 22px;
     font-weight: 900;
 }
@@ -448,12 +448,12 @@
 
 .modalConfirmar {
     border: none;
-    background: var(--vermelho-vivo);
+    background: var(--cor-borda-erro);
     color: #ffffff;
 }
 
 .modalConfirmar:hover {
-    background: var(--vermelho-medio);
+    background: var(--cor-msg-erro);
 }
 
 .modalConfirmar:disabled {

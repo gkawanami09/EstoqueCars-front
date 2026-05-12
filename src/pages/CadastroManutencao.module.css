@@ -74,7 +74,7 @@
 }
 
 .formCabecalho strong {
-    color: var(--vermelho-claro);
+    color: var(--cor-principal);
     font-size: 22px;
     white-space: nowrap;
 }
@@ -159,7 +159,7 @@
     border: none;
     border-bottom: 1px solid #eeeeee;
     background: #fff;
-    color: var(--preto);
+    color: var(--cor-secundaria);
     padding: 12px 14px;
     text-align: left;
     cursor: pointer;
@@ -258,30 +258,30 @@
 }
 
 .botaoPrimario {
-    background: var(--preto);
+    background: var(--cor-secundaria);
     color: #fff;
 }
 
 .botaoSecundario {
     background: #fff;
-    color: var(--preto);
+    color: var(--cor-secundaria);
     border: 1px solid #d7d7d7;
 }
 
 .botaoRemover,
 .btnExcluir {
-    background: var(--vermelho-claro);
+    background: var(--cor-msg-erro);
     color: #fff;
 }
 
 .btnDetalhes {
-    background: var(--preto);
+    background: var(--cor-secundaria);
     color: #fff;
 }
 
 .btnEditar {
     background: #f4f4f4;
-    color: var(--preto);
+    color: var(--cor-secundaria);
     border: 1px solid #d7d7d7;
 }
 
@@ -375,8 +375,8 @@
 }
 
 .mensagem_erro {
-    color: var(--vermelho-escuro);
-    background: #fff1f2;
+    color: var(--cor-msg-erro);
+    background: var(--cor-borda-erro);
     border-color: #fecdd3;
 }
 
@@ -470,7 +470,7 @@
 }
 
 .valor {
-    color: var(--vermelho-salmão);
+    color: var(--cor-texto-preco);
     font-weight: 800;
 }
 
@@ -493,13 +493,13 @@
 }
 
 .status_proxima {
-    background: #fef3c7;
-    color: #92400e;
+    background: var(--cor-fundo-estoque);
+    color: var(--cor-letra-estoque);
 }
 
 .status_realizada {
-    background: #dcfce7;
-    color: #166534;
+    background: var(--cor-fundo-vendido);
+    color: var(--cor-letra-vendido);
 }
 
 .acoes {

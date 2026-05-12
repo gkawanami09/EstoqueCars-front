@@ -22,7 +22,7 @@
 }
 
 .titulo {
-    color: var(--vermelho-claro);
+    color: var(--cor-principal);
     font-size: 2rem;
     font-weight: 900;
     line-height: 1.15;
@@ -100,20 +100,20 @@
     height: 30px;
     cursor: pointer;
     font-weight: 800;
-    color: var(--preto);
+    color: var(--cor-secundaria);
     flex-shrink: 0;
 }
 
 .mensagem_erro {
-    color: var(--vermelho-escuro);
+    color: var(--cor-msg-erro);
     background: #fff1f2;
     border-color: #fecdd3;
-    border-left-color: var(--vermelho-vivo);
+    border-left-color: var(--cor-borda-erro);
 }
 
 .mensagem_erro .mensagem_icone {
     color: #fff;
-    background: var(--vermelho-vivo);
+    background: #fecdd3;
 }
 
 .mensagem_sucesso {
@@ -237,7 +237,7 @@
 
 .botao_remover_foto {
     background: #fff1f2;
-    color: var(--vermelho-vivo);
+    color: var(--cor-msg-erro);
     border: 1px solid #fecdd3;
     border-radius: 6px;
     padding: 6px 12px;
@@ -266,7 +266,7 @@
     justify-content: center;
     min-width: 160px;
     color: #fff;
-    background: var(--preto);
+    background: var(--cor-secundaria);
 }
 
 .btn_salvar:disabled {
