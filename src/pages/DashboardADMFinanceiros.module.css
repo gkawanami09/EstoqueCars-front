@@ -56,7 +56,7 @@
 }
 
 .card_despesas {
-    background: #f43f43;
+    background: var(--cor-principal);
 }
 
 .card_saldo {
@@ -189,7 +189,7 @@
 }
 
 .saida {
-    background: #f43f43;
+    background: var(--cor-principal);
 }
 
 .valor_entrada {
@@ -197,7 +197,7 @@
 }
 
 .valor_saida {
-    color: #ff2d2d !important;
+    color: var(--cor-texto-preco) !important;
 }
 
 .acoes {
@@ -225,7 +225,7 @@
 
 .botao_excluir {
     border: none;
-    background: #f43f43;
+    background: var(--cor-principal);
 }
 
 .botao_editar img,
@@ -268,7 +268,7 @@
 }
 
 .modal_cabecalho {
-    background: #f43f43;
+    background: var(--cor-principal);
     color: #fff;
     border-radius: 7px;
     padding: 18px 24px;
@@ -324,8 +324,8 @@
 }
 
 .botao_saida {
-    border: 1px solid #f43f43;
-    color: #f43f43;
+    border: 1px solid var(--cor-principal);
+    color: var(--cor-principal);
 }
 
 .tipo_ativo.botao_entrada {

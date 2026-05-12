@@ -54,7 +54,7 @@
 }
 
 .botao_ver_mais_destaque:hover {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
 }
 
 .area_imagem_destaque {
@@ -142,14 +142,14 @@
 }
 
 .botao_filtro:hover {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
 }
 
 .filtro_ativo {
     background-color: var(--preto);
 }
 .filtro_ativo:hover {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
 }
 
 .lista_carros {
@@ -259,7 +259,7 @@
 }
 
 .botao_ver_mais_card:hover {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
 }
 
 @media (max-width: 900px) {

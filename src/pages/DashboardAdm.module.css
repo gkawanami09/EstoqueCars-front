@@ -109,7 +109,7 @@
 
 .mensagemErro {
     background: #fff1f2;
-    color: #991b1b;
+    color: var(--cor-msg-erro);
     border: 1px solid #fecdd3;
 }
 

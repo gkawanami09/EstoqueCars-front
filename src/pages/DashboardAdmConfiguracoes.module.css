@@ -58,7 +58,7 @@
 }
 
 .erro {
-    color: red;
+    color: var(--cor-msg-erro);
     margin-top: 10px;
 }
 

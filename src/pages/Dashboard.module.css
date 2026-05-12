@@ -28,7 +28,7 @@
 }
 
 .nome_usuario {
-    color: #f25555;
+    color: var(--cor-principal);
 }
 
 .perfil_usuario {
@@ -67,7 +67,7 @@
     border: 1px solid #ffd0d0;
     border-radius: 8px;
     background: #fff5f5;
-    color: var(--vermelho);
+    color: var(--cor-msg-erro);
     font-weight: 800;
 }
 
@@ -166,7 +166,7 @@
 }
 
 .area_preco button:hover {
-    background: #f25555;
+    background: var(--cor-principal);
 }
 
 @media (max-width: 768px) {
@@ -256,12 +256,12 @@
 }
 
 .botao_filtro:hover {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
     transform: translateY(-2px);
 }
 
 .filtro_ativo {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
 }
 
 .area_botao_central {
@@ -283,7 +283,7 @@
 }
 
 .botao_carregar_mais:hover {
-    background-color: var(--vermelho);
+    background-color: var(--cor-principal);
 }
 
 .area_busca {

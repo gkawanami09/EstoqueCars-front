@@ -49,7 +49,7 @@
 }
 
 .titulo span {
-    color: var(--vermelho);
+    color: var(--cor-principal);
 }
 
 .subtitulo {
@@ -90,7 +90,7 @@
 }
 
 .email_input:focus {
-    border-color: var(--vermelho);
+    border-color: var(--cor-principal);
     box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12);
 }
 
@@ -132,7 +132,7 @@
 }
 
 .erro_api {
-    color: var(--vermelho);
+    color: var(--cor-msg-erro);
     background-color: #ffecee;
     border: 1px solid #f5b8c0;
     border-radius: 8px;

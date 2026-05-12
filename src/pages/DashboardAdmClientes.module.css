@@ -112,7 +112,7 @@
 }
 
 .btn_filtro_ativo:hover {
-    background: #e94c4c;
+    background: var(--cor-principal);
 }
 
 .cards_container {
@@ -245,7 +245,7 @@
 }
 
 .status_bloqueado {
-    color: var(--vermelho);
+    color: var(--cor-texto-preco);
     background: #fee2e2;
 }
 
@@ -378,10 +378,10 @@
 }
 
 .mensagem_erro {
-    color: #991b1b;
+    color: var(--cor-texto-preco);
     background: #fff1f2;
     border-color: #fecdd3;
-    border-left-color: var(--vermelho);
+    border-left-color: var(--cor-principal);
 }
 
 .mensagem_erro .mensagem_icone {
