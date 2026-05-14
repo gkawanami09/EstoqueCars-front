@@ -62,6 +62,144 @@
     color: #888;
 }
 
+.secao_compras {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+.cabecalho_secao {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.cabecalho_secao span {
+    color: var(--cor-principal);
+    font-size: 0.85rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.cabecalho_secao h2 {
+    margin: 4px 0 0;
+    color: #000;
+    font-size: 1.6rem;
+    font-weight: 900;
+}
+
+.cabecalho_secao small {
+    color: #616568;
+    font-weight: 800;
+}
+
+.lista_compras {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+    gap: 16px;
+}
+
+.card_compra {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+}
+
+.topo_compra {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.topo_compra span {
+    color: #616568;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.topo_compra h3 {
+    margin: 4px 0 0;
+    color: #000;
+    font-size: 1.1rem;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+}
+
+.status_compra {
+    flex: 0 0 auto;
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.compra_pago {
+    background: #dff8e8;
+    color: #087a3d;
+}
+
+.compra_andamento {
+    background: #fff2bf;
+    color: #9a4c00;
+}
+
+.grade_compra {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 14px;
+}
+
+.grade_compra p {
+    margin: 0;
+    color: #616568;
+    font-size: 0.9rem;
+    font-weight: 650;
+}
+
+.grade_compra strong {
+    color: #000;
+    font-weight: 900;
+}
+
+.acoes_compra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.acoes_compra button,
+.acoes_compra a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 16px;
+    background: var(--preto);
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 900;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 0.1s ease;
+}
+
+.acoes_compra button:hover,
+.acoes_compra a:hover {
+    background: var(--cor-principal);
+}
+
 .mensagem_erro {
     padding: 14px 16px;
     border: 1px solid #ffd0d0;
@@ -223,6 +361,12 @@
     background: var(--cor-principal);
 }
 
+.paginacao_area {
+    display: flex;
+    justify-content: center;
+    margin-top: 26px;
+}
+
 .secao_filtros {
     display: flex;
     gap: 39px;
@@ -364,6 +508,15 @@
         padding: 11px 14px;
         font-size: 0.85rem;
     }
+
+    .cabecalho_secao {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .grade_compra {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 425px) {
@@ -399,5 +552,14 @@
     .titulo_status {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .topo_compra {
+        flex-direction: column;
+    }
+
+    .acoes_compra button,
+    .acoes_compra a {
+        width: 100%;
     }
 }

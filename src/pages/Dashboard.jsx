@@ -1,9 +1,10 @@
 // Importa hooks do React usados para estado, efeito, memoizacao e funcao estavel.
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 // Importa o hook usado para navegar entre rotas.
 import { useNavigate } from "react-router-dom";
 // Importa o CSS module exclusivo desta tela.
 import css from "./Dashboard.module.css";
+import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Lista fixa de categorias exibidas nos botoes de filtro.
 const categorias = ["Sedan", "Elétrico", "Esportivo", "Caminhonete", "SUV"];
@@ -17,10 +18,18 @@ function Dashboard({ API }) {
     const [busca, setBusca] = useState("");
     // Guarda a categoria escolhida nos filtros.
     const [categoria, setCategoria] = useState("");
+    // Guarda a pagina atual dos cards da vitrine.
+    const [paginaAtual, setPaginaAtual] = useState(1);
     // Controla o estado de carregamento da lista.
     const [carregando, setCarregando] = useState(true);
     // Guarda mensagens de erro da API ou conexao.
     const [erro, setErro] = useState("");
+    // Guarda as compras do cliente logado.
+    const [compras, setCompras] = useState([]);
+    // Controla o carregamento da area de minhas compras.
+    const [carregandoCompras, setCarregandoCompras] = useState(true);
+    // Guarda erro separado para nao atrapalhar a vitrine.
+    const [erroCompras, setErroCompras] = useState("");
    // Cria a funcao para navegar para outras paginas.
     const navigate = useNavigate();
     // Cria um objeto vazio para receber o usuario salvo.
@@ -37,6 +46,8 @@ function Dashboard({ API }) {
 
     // Define o nome exibido no cabecalho; usa fallback se nao existir nome.
     const nomeUsuario = usuario.nome || "Usuário";
+    // Pega o ID do usuario logado para buscar suas compras.
+    const idUsuario = usuario.id_usuario || usuario.id_user || usuario.id || usuario.ID_USUARIO;
 
     // Lê o status do estoque aceitando nomes diferentes vindos da API.
     function statusEstoqueCarro(carro) {
@@ -138,6 +149,57 @@ function Dashboard({ API }) {
         carregarCarros();
     }, [carregarCarros]); // Roda novamente quando carregarCarros for recriada.
 
+    // Busca as compras do cliente logado para exibir no resumo do dashboard.
+    const carregarCompras = useCallback(async () => {
+        if (!idUsuario) {
+            setCompras([]);
+            setCarregandoCompras(false);
+            return;
+        }
+
+        setCarregandoCompras(true);
+        setErroCompras("");
+
+        const rotas = [
+            `/listar_compras_usuario?id_usuario=${idUsuario}`,
+            `/listar_vendas_usuario?id_usuario=${idUsuario}`,
+            `/minhas_compras?id_usuario=${idUsuario}`
+        ];
+
+        for (const rota of rotas) {
+            try {
+                const resposta = await fetch(`${API}${rota}`, {
+                    method: "GET",
+                    credentials: "include"
+                });
+
+                if (!resposta.ok) {
+                    continue;
+                }
+
+                const dados = await resposta.json();
+                const lista = Array.isArray(dados)
+                    ? dados
+                    : dados.compras || dados.vendas || dados.pedidos || [];
+
+                setCompras(Array.isArray(lista) ? lista : []);
+                setCarregandoCompras(false);
+                return;
+            } catch {
+                // Tenta a proxima rota conhecida.
+            }
+        }
+
+        setCompras([]);
+        setErroCompras("Ainda não foi possível carregar suas compras.");
+        setCarregandoCompras(false);
+    }, [API, idUsuario]);
+
+    // Executa o carregamento das compras do cliente.
+    useEffect(() => {
+        carregarCompras();
+    }, [carregarCompras]);
+
     // Mostra na vitrine do cliente apenas veículos disponíveis para compra.
     const carrosDisponiveis = carros.filter((carro) => tipoStatusEstoque(carro) === "estoque");
 
@@ -166,6 +228,27 @@ function Dashboard({ API }) {
             return campos.some((campo) => String(campo || "").toLowerCase().includes(termoBusca));
         })
         : carrosDisponiveis;
+
+    // Total de paginas considerando a busca e a categoria atual.
+    const totalPaginas = Math.max(1, Math.ceil(carrosFiltrados.length / ITENS_POR_PAGINA));
+
+    // Volta para a primeira pagina quando o cliente muda busca ou categoria.
+    useEffect(() => {
+        setPaginaAtual(1);
+    }, [busca, categoria]);
+
+    // Mantem a pagina atual dentro do limite quando a lista muda.
+    useEffect(() => {
+        if (paginaAtual > totalPaginas) {
+            setPaginaAtual(totalPaginas);
+        }
+    }, [paginaAtual, totalPaginas]);
+
+    // Mostra somente os carros da pagina atual.
+    const carrosPaginados = useMemo(() => {
+        const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        return carrosFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
+    }, [carrosFiltrados, paginaAtual]);
 
     // Mensagem exibida quando a vitrine nao tem cards para mostrar.
     const mensagemListaVazia = carros.length === 0
@@ -211,6 +294,85 @@ function Dashboard({ API }) {
 
         // Se nao reconheceu, retorna o proprio valor ou traco.
         return valor || "-";
+    }
+
+    // Formata datas vindas da API para o padrao brasileiro.
+    function formatarData(valor) {
+        if (!valor) {
+            return "-";
+        }
+
+        const data = new Date(valor);
+
+        if (Number.isNaN(data.getTime())) {
+            return String(valor);
+        }
+
+        return data.toLocaleDateString("pt-BR");
+    }
+
+    // Converte a forma de pagamento salva no banco em texto.
+    function textoFormaPagamento(valor) {
+        const forma = String(valor ?? "").trim().toLowerCase();
+
+        if (forma === "0" || forma.includes("pix")) {
+            return "Pix";
+        }
+
+        if (forma === "1" || forma.includes("parcel")) {
+            return "Parcelamento";
+        }
+
+        return valor || "-";
+    }
+
+    // Converte o status de pagamento salvo no banco em texto.
+    function textoStatusPagamento(valor) {
+        const status = String(valor ?? "").trim().toLowerCase();
+
+        if (status === "0" || status.includes("pago")) {
+            return "Pago";
+        }
+
+        if (status === "1" || status.includes("andamento") || status.includes("pendente")) {
+            return "Em andamento";
+        }
+
+        return valor || "-";
+    }
+
+    // Define a classe visual do status de pagamento.
+    function classeStatusPagamento(valor) {
+        return textoStatusPagamento(valor) === "Pago" ? css.compra_pago : css.compra_andamento;
+    }
+
+    // Nome do veiculo comprado aceitando formatos diferentes da API.
+    function nomeVeiculoCompra(compra) {
+        return compra?.veiculo || compra?.nome_veiculo || compra?.modelo || compra?.nome || "Veículo";
+    }
+
+    // ID do veiculo comprado para abrir a tela de detalhes quando existir.
+    function idVeiculoCompra(compra) {
+        return compra?.id_veiculo || compra?.ID_VEICULO || compra?.id_carro || compra?.ID_CARRO;
+    }
+
+    // Monta a URL do comprovante quando o backend retornar arquivo.
+    function comprovanteCompra(compra) {
+        const arquivo = compra?.comprovante || compra?.comprovante_url || compra?.arquivo_comprovante;
+
+        if (!arquivo) {
+            return "";
+        }
+
+        if (String(arquivo).startsWith("http")) {
+            return arquivo;
+        }
+
+        if (String(arquivo).startsWith("/")) {
+            return `${API}${arquivo}`;
+        }
+
+        return `${API}/${arquivo}`;
     }
 
     // Pega o ID do carro aceitando nomes diferentes vindos da API.
@@ -265,6 +427,82 @@ function Dashboard({ API }) {
                         </div>
                     </div>
                 </header>
+
+                {/* Area para o cliente acompanhar compras, parcelas e comprovantes. */}
+                <section className={css.secao_compras}>
+                    <div className={css.cabecalho_secao}>
+                        <div>
+                            <span>Área do cliente</span>
+                            <h2>Minhas compras</h2>
+                        </div>
+                        <small>{compras.length} compra{compras.length === 1 ? "" : "s"}</small>
+                    </div>
+
+                    {carregandoCompras && (
+                        <div className={css.estado_lista}>Carregando suas compras...</div>
+                    )}
+
+                    {!carregandoCompras && erroCompras && (
+                        <div className={css.estado_lista}>
+                            <strong>Não foi possível carregar suas compras agora.</strong>
+                            <span>{erroCompras}</span>
+                        </div>
+                    )}
+
+                    {!carregandoCompras && !erroCompras && compras.length === 0 && (
+                        <div className={css.estado_lista}>
+                            <strong>Você ainda não possui compras registradas.</strong>
+                            <span>Quando uma venda for cadastrada no seu nome, ela aparecerá aqui.</span>
+                        </div>
+                    )}
+
+                    {!carregandoCompras && !erroCompras && compras.length > 0 && (
+                        <div className={css.lista_compras}>
+                            {compras.map((compra) => {
+                                const idVeiculo = idVeiculoCompra(compra);
+                                const comprovante = comprovanteCompra(compra);
+                                const parcelas = compra.quantidade_parcelas || compra.parcelas || compra.QUANTIDADE_PARCELAS;
+                                const valor = compra.valor_venda || compra.valor_total || compra.VALOR_VENDA;
+                                const recebido = compra.valor_recebido || compra.VALOR_RECEBIDO;
+
+                                return (
+                                    <article key={compra.id_venda || compra.ID_VENDA || `${nomeVeiculoCompra(compra)}-${compra.data_venda}`} className={css.card_compra}>
+                                        <div className={css.topo_compra}>
+                                            <div>
+                                                <span>Veículo</span>
+                                                <h3>{nomeVeiculoCompra(compra)}</h3>
+                                            </div>
+                                            <strong className={`${css.status_compra} ${classeStatusPagamento(compra.status_pagamento || compra.STATUS_PAGAMENTO)}`}>
+                                                {textoStatusPagamento(compra.status_pagamento || compra.STATUS_PAGAMENTO)}
+                                            </strong>
+                                        </div>
+
+                                        <div className={css.grade_compra}>
+                                            <p><strong>Data:</strong> {formatarData(compra.data_venda || compra.DATA_VENDA)}</p>
+                                            <p><strong>Pagamento:</strong> {textoFormaPagamento(compra.forma_pagamento || compra.FORMA_PAGAMENTO)}</p>
+                                            <p><strong>Valor:</strong> {formatarPreco(valor)}</p>
+                                            <p><strong>Recebido:</strong> {formatarPreco(recebido)}</p>
+                                            <p><strong>Parcelas:</strong> {parcelas || "À vista"}</p>
+                                        </div>
+
+                                        <div className={css.acoes_compra}>
+                                            {idVeiculo && (
+                                                <button type="button" onClick={() => navigate(`/detalhesVeiculos/${idVeiculo}`)}>
+                                                    Ver veículo
+                                                </button>
+                                            )}
+                                            {comprovante && (
+                                                <a href={comprovante} target="_blank" rel="noreferrer">
+                                                    Ver comprovante
+                                                </a>
+                                            )}
+                                        </div>
+                                    </article>
+                                );
+                            })}
+                        </div>
+                    )}
+                </section>
 
                 {/* Area de busca por texto. */}
                 <div className={css.area_busca}>
@@ -327,8 +565,8 @@ function Dashboard({ API }) {
                         </div>
                     )}
 
-                    {/* Renderiza um card para cada carro filtrado. */}
-                    {!carregando && carrosFiltrados.map((carro) => (
+                    {/* Renderiza um card para cada carro filtrado na pagina atual. */}
+                    {!carregando && carrosPaginados.map((carro) => (
                         <article key={idCarro(carro) || carro.modelo} className={css.card_carro}>
                             {/* Area da imagem do card. */}
                             <div className={css.area_imagem_card}>
@@ -380,6 +618,16 @@ function Dashboard({ API }) {
                         </article>
                     ))}
                 </section>
+
+                {!carregando && !erro && carrosFiltrados.length > 0 && (
+                    <div className={css.paginacao_area}>
+                        <Paginacao
+                            paginaAtual={paginaAtual}
+                            totalItens={carrosFiltrados.length}
+                            onMudarPagina={setPaginaAtual}
+                        />
+                    </div>
+                )}
             </main>
         </div>
     );
