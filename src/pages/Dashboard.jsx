@@ -1,5 +1,5 @@
 // Importa hooks do React usados para estado, efeito, memoizacao e funcao estavel.
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 // Importa o hook usado para navegar entre rotas.
 import { useNavigate } from "react-router-dom";
 // Importa o CSS module exclusivo desta tela.
@@ -36,7 +36,52 @@ function Dashboard({ API }) {
     }
 
     // Define o nome exibido no cabecalho; usa fallback se nao existir nome.
-    const nomeUsuario = usuario.nome || "Usuario";
+    const nomeUsuario = usuario.nome || "Usuário";
+
+    // Lê o status do estoque aceitando nomes diferentes vindos da API.
+    function statusEstoqueCarro(carro) {
+        return carro?.status_estoque ?? carro?.STATUS_ESTOQUE ?? carro?.statusEstoque ?? carro?.status ?? "";
+    }
+
+    // Normaliza o status para usar nas regras da vitrine e no selo visual.
+    function tipoStatusEstoque(carro) {
+        const status = String(statusEstoqueCarro(carro) || "").trim().toLowerCase();
+
+        if (status === "1" || status.includes("estoque") || (status.includes("dispon") && !status.includes("indispon"))) {
+            return "estoque";
+        }
+
+        if (status === "2" || status.includes("vend")) {
+            return "vendido";
+        }
+
+        if (status === "3" || status.includes("indispon")) {
+            return "indisponivel";
+        }
+
+        return "indisponivel";
+    }
+
+    // Texto exibido no card para o status do veículo.
+    function textoStatusEstoque(carro) {
+        const status = tipoStatusEstoque(carro);
+
+        if (status === "vendido") {
+            return "Vendido";
+        }
+
+        if (status === "indisponivel") {
+            return "Indisponível";
+        }
+
+        return "Em estoque";
+    }
+
+    // Classe visual do selo de status.
+    function classeStatusEstoque(carro) {
+        const status = tipoStatusEstoque(carro);
+        return status === "estoque" ? css.status_estoque : status === "vendido" ? css.status_vendido : css.status_indisponivel;
+    }
 
     // Busca os carros da API para montar a vitrine do usuario.
     const carregarCarros = useCallback(async () => {
@@ -67,7 +112,7 @@ function Dashboard({ API }) {
             // Trata respostas com status de erro.
             if (!resposta.ok) {
                 // Mostra erro enviado pela API ou uma mensagem padrao.
-                setErro(dados.erro || "Erro ao carregar veiculos.");
+                setErro(dados.erro || "Erro ao carregar veículos.");
                 // Limpa a lista para nao exibir dados antigos.
                 setCarros([]);
                 // Para a execucao da funcao.
@@ -78,7 +123,7 @@ function Dashboard({ API }) {
             setCarros(dados.carros || []);
         } catch {
             // Mostra erro quando nao consegue conectar ao servidor.
-            setErro("Erro de conexao com o servidor.");
+            setErro("Erro de conexão com o servidor.");
             // Limpa a lista em caso de falha.
             setCarros([]);
         } finally {
@@ -93,44 +138,50 @@ function Dashboard({ API }) {
         carregarCarros();
     }, [carregarCarros]); // Roda novamente quando carregarCarros for recriada.
 
+    // Mostra na vitrine do cliente apenas veículos disponíveis para compra.
+    const carrosDisponiveis = carros.filter((carro) => tipoStatusEstoque(carro) === "estoque");
+
+    // Normaliza o texto da busca para comparar sem diferenciar maiusculas.
+    const termoBusca = busca.trim().toLowerCase();
+
     // Aplica a busca digitada sem fazer nova chamada para a API.
-    const carrosFiltrados = useMemo(() => {
-        // Normaliza o texto da busca para comparar sem diferenciar maiusculas.
-        const termo = busca.trim().toLowerCase();
-
-        // Se nao houver busca, retorna a lista completa.
-        if (!termo) {
-            return carros;
-        }
-
-        // Filtra os carros procurando o termo em varios campos.
-        return carros.filter((carro) => {
+    const carrosFiltrados = termoBusca
+        ? carrosDisponiveis.filter((carro) => {
             // Campos do carro que podem ser pesquisados.
             const campos = [
-                // Nome alternativo do veiculo.
                 carro.nome,
-                // Modelo do veiculo.
                 carro.modelo,
-                // Marca do veiculo.
                 carro.marca,
-                // Placa do veiculo.
                 carro.placa,
-                // Cor do veiculo.
                 carro.cor,
-                // Ano de fabricacao.
                 carro.ano_fabricacao,
-                // Ano do modelo.
                 carro.ano_modelo,
-                // Categoria em formato simples.
+                `${carro.ano_fabricacao || ""}/${carro.ano_modelo || ""}`,
                 carro.categoria,
-                // Categoria em formato alternativo vindo da API.
-                carro.nome_categoria
+                carro.nome_categoria,
+                carro.quilometragem
             ];
 
             // Retorna true quando algum campo contem o termo pesquisado.
-            return campos.some((campo) => String(campo || "").toLowerCase().includes(termo));
-        });
-    }, [busca, carros]); // Recalcula apenas quando busca ou carros mudarem.
+            return campos.some((campo) => String(campo || "").toLowerCase().includes(termoBusca));
+        })
+        : carrosDisponiveis;
+
+    // Mensagem exibida quando a vitrine nao tem cards para mostrar.
+    const mensagemListaVazia = carros.length === 0
+        ? {
+            titulo: "Nenhum veículo cadastrado no momento.",
+            texto: "Assim que novos veículos forem adicionados, eles aparecerão aqui."
+        }
+        : carrosDisponiveis.length === 0
+            ? {
+                titulo: "Nenhum veículo disponível em estoque.",
+                texto: "Os veículos vendidos ou indisponíveis ficam escondidos da vitrine do cliente."
+            }
+            : {
+                titulo: "Nenhum veículo disponível encontrado.",
+                texto: "Tente buscar por outra marca, modelo, cor, categoria ou ano."
+            };
 
     // Formata numero como moeda brasileira.
     function formatarPreco(valor) {
@@ -150,7 +201,7 @@ function Dashboard({ API }) {
 
         // Aceita codigo 1 ou texto que contenha automatico.
         if (cambio === "1" || cambio.includes("auto")) {
-            return "Automatico";
+            return "Automático";
         }
 
         // Aceita codigo 2 ou texto que contenha manual.
@@ -226,7 +277,7 @@ function Dashboard({ API }) {
                     {/* Input controlado pela variavel busca. */}
                     <input
                         type="text"
-                        placeholder="Buscar veiculos"
+                        placeholder="Buscar por marca, modelo, cor, categoria ou ano"
                         className={css.input_busca}
                         value={busca}
                         onChange={(e) => setBusca(e.target.value)}
@@ -266,11 +317,14 @@ function Dashboard({ API }) {
                 {/* Lista de cards dos carros. */}
                 <section className={css.lista_carros}>
                     {/* Estado exibido enquanto a lista esta carregando. */}
-                    {carregando && <div className={css.estado_lista}>Carregando veiculos...</div>}
+                    {carregando && <div className={css.estado_lista}>Carregando veículos...</div>}
 
                     {/* Estado vazio quando nao carregou, nao tem erro e nao tem carros filtrados. */}
                     {!carregando && !erro && carrosFiltrados.length === 0 && (
-                        <div className={css.estado_lista}>Nenhum veículo encontrado.</div>
+                        <div className={css.estado_lista}>
+                            <strong>{mensagemListaVazia.titulo}</strong>
+                            <span>{mensagemListaVazia.texto}</span>
+                        </div>
                     )}
 
                     {/* Renderiza um card para cada carro filtrado. */}
@@ -281,7 +335,7 @@ function Dashboard({ API }) {
                                 {/* Imagem do carro vinda do backend ou icone padrao. */}
                                 <img
                                     src={imagemCarro(carro)}
-                                    alt={carro.modelo || "Veiculo"}
+                                    alt={carro.modelo || "Veículo"}
                                     onError={(e) => {
                                         // Se a imagem falhar, troca para icone padrao.
                                         e.currentTarget.src = "/IconCar.png";
@@ -292,7 +346,12 @@ function Dashboard({ API }) {
                             {/* Bloco de informacoes principais do carro. */}
                             <div className={css.info_carro}>
                                 {/* Modelo ou nome do veiculo. */}
-                                <h2>{carro.modelo || carro.nome || "Veiculo"}</h2>
+                                <div className={css.titulo_status}>
+                                    <h2>{carro.modelo || carro.nome || "Veículo"}</h2>
+                                    <span className={`${css.status_veiculo} ${classeStatusEstoque(carro)}`}>
+                                        {textoStatusEstoque(carro)}
+                                    </span>
+                                </div>
                                 {/* Grade com dados resumidos do carro. */}
                                 <div className={css.grade_info}>
                                     {/* Marca do veiculo. */}
@@ -300,7 +359,7 @@ function Dashboard({ API }) {
                                     {/* Ano de fabricacao e ano modelo. */}
                                     <p><strong>Ano:</strong> {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
                                     {/* Cambio formatado. */}
-                                    <p><strong>Cambio:</strong> {formatarCambio(carro.cambio)}</p>
+                                    <p><strong>Câmbio:</strong> {formatarCambio(carro.cambio)}</p>
                                     {/* Cor do veiculo. */}
                                     <p><strong>Cor:</strong> {carro.cor || "-"}</p>
                                 </div>

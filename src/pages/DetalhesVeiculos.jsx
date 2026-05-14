@@ -95,7 +95,7 @@ function DetalhesVeiculos({ API }) {
                 }
 
                 // Para outros erros, mostra a mensagem na tela.
-                setErroManutencoes(dados.erro || "Nao foi possivel carregar as manutencoes.");
+                setErroManutencoes(dados.erro || "Não foi possível carregar as manutenções.");
                 return;
             }
 
@@ -103,7 +103,7 @@ function DetalhesVeiculos({ API }) {
             setManutencoes(Array.isArray(dados) ? dados : []);
         } catch {
             // Erro de rede ou servidor fora do ar.
-            setErroManutencoes("Erro de conexao ao carregar manutencoes.");
+            setErroManutencoes("Erro de conexão ao carregar manutenções.");
             setManutencoes([]);
         } finally {
             // Desliga o carregamento no sucesso ou no erro.
@@ -134,7 +134,7 @@ function DetalhesVeiculos({ API }) {
 
             // Se a API retornou erro, mostra a mensagem e interrompe.
             if (!resposta.ok) {
-                setErro(dados.erro || "Nao foi possivel carregar o veiculo.");
+                setErro(dados.erro || "Não foi possível carregar o veículo.");
                 return;
             }
 
@@ -147,7 +147,7 @@ function DetalhesVeiculos({ API }) {
 
             // Se nao encontrou, mostra tela de erro.
             if (!veiculoEncontrado) {
-                setErro("Veiculo nao encontrado.");
+                setErro("Veículo não encontrado.");
                 return;
             }
 
@@ -158,7 +158,7 @@ function DetalhesVeiculos({ API }) {
             await carregarManutencoes(id);
         } catch {
             // Erro quando nao consegue conectar com o backend.
-            setErro("Erro de conexao com o servidor.");
+            setErro("Erro de conexão com o servidor.");
         } finally {
             // Desliga o carregamento principal.
             setCarregando(false);
@@ -293,7 +293,7 @@ function DetalhesVeiculos({ API }) {
         const cambio = String(valor || "").toLowerCase();
 
         if (cambio === "1" || cambio.includes("auto")) {
-            return "Automatico";
+            return "Automático";
         }
 
         if (cambio === "2" || cambio.includes("manual")) {
@@ -363,7 +363,7 @@ function DetalhesVeiculos({ API }) {
     if (carregando) {
         return (
             <main className={css.container}>
-                <div className={css.estado}>Carregando detalhes do veiculo...</div>
+                <div className={css.estado}>Carregando detalhes do veículo...</div>
             </main>
         );
     }
@@ -373,10 +373,10 @@ function DetalhesVeiculos({ API }) {
         return (
             <main className={css.container}>
                 <div className={css.estado_erro}>
-                    <strong>Ops, nao encontramos esse veiculo.</strong>
+                    <strong>Ops, não encontramos esse veículo.</strong>
                     <span>{erro || "Tente voltar para a lista e abrir novamente."}</span>
                     <button type="button" onClick={() => navigate(rotaVoltar)}>
-                        Voltar para veiculos
+                        Voltar para veículos
                     </button>
                 </div>
             </main>
@@ -398,7 +398,7 @@ function DetalhesVeiculos({ API }) {
                         Voltar
                     </button>
                     {/* Mostra o modelo do carro; se nao tiver, usa um texto padrao. */}
-                    <h1>{carro.modelo || carro.nome || "Detalhes do veiculo"}</h1>
+                    <h1>{carro.modelo || carro.nome || "Detalhes do veículo"}</h1>
                     {/* Mostra marca e anos do veiculo no cabecalho. */}
                     <p>{valor(carro.marca)} - {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
                 </div>
@@ -410,7 +410,7 @@ function DetalhesVeiculos({ API }) {
                         className={css.editar}
                         onClick={() => navigate(`/editarVeiculos/${idCarro()}`)}
                     >
-                        Editar veiculo
+                        Editar veículo
                     </button>
                 )}
             </header>
@@ -421,7 +421,7 @@ function DetalhesVeiculos({ API }) {
                 <div className={css.imagem_area}>
                     <img
                         src={imagemVeiculo()}
-                        alt={carro.modelo || "Veiculo"}
+                        alt={carro.modelo || "Veículo"}
                         onError={(e) => {
                             // Se a imagem falhar, troca pelo icone padrao.
                             e.currentTarget.src = "/IconCar.png";
@@ -442,7 +442,7 @@ function DetalhesVeiculos({ API }) {
                     </div>
                     {/* Descricao cadastrada no veiculo. */}
                     <div className={css.descricao_bloco}>
-                        <span>Descricao</span>
+                        <span>Descrição</span>
                         <p>{valor(carro.descricao)}</p>
                     </div>
 
@@ -453,7 +453,7 @@ function DetalhesVeiculos({ API }) {
             <section className={css.ficha}>
                 {/* Titulo da ficha tecnica. */}
                 <div className={css.ficha_cabecalho}>
-                    <h2>Ficha tecnica</h2>
+                    <h2>Ficha técnica</h2>
                     <span>Dados cadastrados do veículo</span>
                 </div>
 
@@ -462,7 +462,7 @@ function DetalhesVeiculos({ API }) {
                     <Info titulo="Marca" valor={valor(carro.marca)} />
                     <Info titulo="Modelo" valor={valor(carro.modelo)} />
                     <Info titulo="Categoria" valor={valor(carro.categoria || carro.nome_categoria)} />
-                    <Info titulo="Cambio" valor={formatarCambio(carro.cambio)} />
+                    <Info titulo="Câmbio" valor={formatarCambio(carro.cambio)} />
                     <Info titulo="Ano fabricação" valor={valor(carro.ano_fabricacao)} />
                     <Info titulo="Ano modelo" valor={valor(carro.ano_modelo)} />
                     <Info titulo="Quilometragem" valor={`${formatarNumero(carro.quilometragem)} km`} />
@@ -517,7 +517,7 @@ function DetalhesVeiculos({ API }) {
                                 <div className={css.servicos_manutencao}>
                                     {(manutencao.servicos_realizados || []).map((servico, index) => (
                                         <div key={`${servico.servico}-${index}`} className={css.servico_item}>
-                                            <span>{servico.servico || servico.nome_servico || "Servico"}</span>
+                                            <span>{servico.servico || servico.nome_servico || "Serviço"}</span>
                                             <small>
                                                 Qtd. {servico.quantidade || 1} - {formatarPreco(servico.valor_unitario)}
                                             </small>

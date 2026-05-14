@@ -171,6 +171,34 @@
 
 .mensagem {
     grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin: 0 0 16px !important;
+}
+
+.mensagem span {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.mensagem button {
+    flex: 0 0 auto;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: currentColor;
+    font-size: 18px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.mensagem button:hover {
+    background: rgba(0, 0, 0, 0.08);
 }
 
 .mensagemSucesso {
@@ -182,6 +210,10 @@
     padding: 10px;
     font-size: 13px;
     font-weight: 800;
+}
+
+.mensagem.mensagemSucesso {
+    margin-bottom: 16px;
 }
 
 .comentarios {

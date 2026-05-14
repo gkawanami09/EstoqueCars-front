@@ -13,11 +13,7 @@ const statusPagamento = [
 const situacaoParcelamento = {
     emAndamento: "1"
 };
-const CHAVE_CONFIG_JUROS = "config_taxa_juros_empresa";
-const configJurosPadrao = {
-    taxaMensal: "2.5",
-    tipoJuros: "composto"
-};
+const juros = 0.04;
 
 function numeroDoCampo(valor) {
     return Number(String(valor || "0").replace(",", ".")) || 0;
@@ -92,7 +88,7 @@ function veiculoDisponivel(veiculo) {
 }
 
 function nomeVeiculo(veiculo) {
-    return veiculo?.nome || [veiculo?.marca, veiculo?.modelo].filter(Boolean).join(" ") || "Veiculo";
+    return veiculo?.nome || [veiculo?.marca, veiculo?.modelo].filter(Boolean).join(" ") || "Veículo";
 }
 
 function montarUrlImagem(API, veiculo) {
@@ -121,41 +117,6 @@ function calcularValorParcela(valor, parcelas, juros) {
     return valor * juros / (1 - (1 + juros) ** -parcelas);
 }
 
-function carregarConfigJuros() {
-    const salvo = localStorage.getItem(CHAVE_CONFIG_JUROS);
-
-    if (!salvo) {
-        return configJurosPadrao;
-    }
-
-    try {
-        return {
-            ...configJurosPadrao,
-            ...JSON.parse(salvo)
-        };
-    } catch {
-        return configJurosPadrao;
-    }
-}
-
-function calcularParcelaComConfiguracao(valor, parcelas, configuracaoJuros) {
-    const taxa = numeroDoCampo(configuracaoJuros.taxaMensal) / 100;
-
-    if (!valor || !parcelas) {
-        return 0;
-    }
-
-    if (!taxa) {
-        return valor / parcelas;
-    }
-
-    if (configuracaoJuros.tipoJuros === "simples") {
-        return (valor * (1 + taxa * parcelas)) / parcelas;
-    }
-
-    return calcularValorParcela(valor, parcelas, taxa);
-}
-
 function Vendas({ API }) {
     const navigate = useNavigate();
     const [clientes, setClientes] = useState([]);
@@ -177,25 +138,12 @@ function Vendas({ API }) {
     const [chavePix, setChavePix] = useState("");
     const [transacaoPix, setTransacaoPix] = useState("");
     const [parcelasFinanciamento, setParcelasFinanciamento] = useState(48);
-    const [configuracaoJuros, setConfiguracaoJuros] = useState(() => carregarConfigJuros());
     const [modalParcelasAberto, setModalParcelasAberto] = useState(false);
     const [salvando, setSalvando] = useState(false);
     const [mensagem, setMensagem] = useState(null);
 
     const ehParcelamento = formaPagamento === "1";
     const ehPix = formaPagamento === "0";
-
-    useEffect(() => {
-        function atualizarJuros() {
-            setConfiguracaoJuros(carregarConfigJuros());
-        }
-
-        window.addEventListener("storage", atualizarJuros);
-
-        return () => {
-            window.removeEventListener("storage", atualizarJuros);
-        };
-    }, []);
 
     const carregarClientes = useCallback(async () => {
         setCarregandoClientes(true);
@@ -222,7 +170,7 @@ function Vendas({ API }) {
                 setClienteId(String(lista[0].id_usuario || lista[0].id || ""));
             }
         } catch {
-            setErroClientes("Erro de conexao com o servidor.");
+            setErroClientes("Erro de conexão com o servidor.");
             setClientes([]);
         } finally {
             setCarregandoClientes(false);
@@ -241,7 +189,7 @@ function Vendas({ API }) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                setErroVeiculos(dados.erro || "Erro ao carregar veiculos.");
+                setErroVeiculos(dados.erro || "Erro ao carregar veículos.");
                 setVeiculos([]);
                 return;
             }
@@ -259,10 +207,10 @@ function Vendas({ API }) {
                 setVeiculoId("");
                 setValorVenda("");
                 setValorRecebido("");
-                setErroVeiculos("Nenhum veiculo disponivel para venda.");
+                setErroVeiculos("Nenhum veículo disponível para venda.");
             }
         } catch {
-            setErroVeiculos("Erro de conexao com o servidor.");
+            setErroVeiculos("Erro de conexão com o servidor.");
             setVeiculos([]);
         } finally {
             setCarregandoVeiculos(false);
@@ -285,13 +233,13 @@ function Vendas({ API }) {
     const valorParcelaParcelamento = useMemo(() => {
         const parcelas = Number(parcelasFinanciamento) || 1;
 
-        return calcularParcelaComConfiguracao(valorParcelado, parcelas, configuracaoJuros);
-    }, [configuracaoJuros, parcelasFinanciamento, valorParcelado]);
+        return calcularValorParcela(valorParcelado, parcelas, juros);
+    }, [parcelasFinanciamento, valorParcelado]);
 
     const opcoesParcelamento = useMemo(() => {
         return Array.from({ length: 120 }, (_, indice) => {
             const quantidade = indice + 1;
-            const valorParcela = calcularParcelaComConfiguracao(valorParcelado, quantidade, configuracaoJuros);
+            const valorParcela = calcularValorParcela(valorParcelado, quantidade, juros);
 
             return {
                 quantidade,
@@ -299,7 +247,7 @@ function Vendas({ API }) {
                 total: valorParcela * quantidade
             };
         });
-    }, [configuracaoJuros, valorParcelado]);
+    }, [valorParcelado]);
 
     function trocarVeiculo(e) {
         const id = e.target.value;
@@ -321,6 +269,15 @@ function Vendas({ API }) {
     function selecionarQuantidadeParcelas(quantidade) {
         setParcelasFinanciamento(quantidade);
         setModalParcelasAberto(false);
+    }
+
+    function subirParaTopo() {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    function mostrarMensagem(tipo, texto) {
+        setMensagem({ tipo, texto });
+        subirParaTopo();
     }
 
     function montarFormData() {
@@ -347,8 +304,6 @@ function Vendas({ API }) {
             formData.append("valor_total_parcelado", String((valorParcelaParcelamento * parcelasFinanciamento).toFixed(2)));
             formData.append("quantidade_parcelas", String(parcelasFinanciamento));
             formData.append("situacao_parcelamento", situacaoParcelamento.emAndamento);
-            formData.append("taxa_juros", String(numeroDoCampo(configuracaoJuros.taxaMensal)));
-            formData.append("tipo_juros", configuracaoJuros.tipoJuros);
         }
 
         return formData;
@@ -357,24 +312,25 @@ function Vendas({ API }) {
     async function salvarVenda(e) {
         e.preventDefault();
         setMensagem(null);
+        subirParaTopo();
 
         if (!clienteId) {
-            setMensagem({ tipo: "erro", texto: "Selecione um cliente antes de salvar a venda." });
+            mostrarMensagem("erro", "Selecione um cliente antes de salvar a venda.");
             return;
         }
 
         if (!veiculoSelecionado) {
-            setMensagem({ tipo: "erro", texto: "Selecione um veiculo antes de salvar a venda." });
+            mostrarMensagem("erro", "Selecione um veículo antes de salvar a venda.");
             return;
         }
 
         if (!dataVenda || !valorNumerico || !numeroDoCampo(valorRecebido) || !status) {
-            setMensagem({ tipo: "erro", texto: "Preencha todos os campos obrigatorios da venda." });
+            mostrarMensagem("erro", "Preencha todos os campos obrigatórios da venda.");
             return;
         }
 
         if (descontoNumerico > 10) {
-            setMensagem({ tipo: "erro", texto: "O desconto pode ser de no maximo 10%." });
+            mostrarMensagem("erro", "O desconto pode ser de no máximo 10%.");
             return;
         }
 
@@ -390,26 +346,17 @@ function Vendas({ API }) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                setMensagem({
-                    tipo: "erro",
-                    texto: dados.erro || dados.error || dados.mensagem || "Erro ao cadastrar venda."
-                });
+                mostrarMensagem("erro", dados.erro || dados.error || dados.mensagem || "Erro ao cadastrar venda.");
                 return;
             }
 
-            setMensagem({
-                tipo: "sucesso",
-                texto: dados.mensagem || "Venda cadastrada com sucesso."
-            });
+            mostrarMensagem("sucesso", dados.mensagem || "Venda cadastrada com sucesso.");
 
             setTimeout(() => {
                 navigate("/dashboardAdmVendas");
             }, 900);
         } catch {
-            setMensagem({
-                tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
-            });
+            mostrarMensagem("erro", "Não foi possível conectar ao servidor.");
         } finally {
             setSalvando(false);
         }
@@ -418,6 +365,15 @@ function Vendas({ API }) {
     return (
         <main className={css.pagina}>
             <h1>Vendas</h1>
+
+            {mensagem && (
+                <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagemSucesso : css.mensagemErro}`}>
+                    <span>{mensagem.texto}</span>
+                    <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
+                        x
+                    </button>
+                </div>
+            )}
 
             <form className={css.card} onSubmit={salvarVenda}>
                 <section className={css.coluna}>
@@ -438,10 +394,10 @@ function Vendas({ API }) {
                     {erroClientes && <p className={css.mensagemErro}>{erroClientes}</p>}
 
                     <label className={css.campo}>
-                        <span>Veiculo Vendido</span>
+                        <span>Veículo Vendido</span>
                         <select value={veiculoId} onChange={trocarVeiculo} disabled={carregandoVeiculos || veiculos.length === 0}>
                             <option value="">
-                                {carregandoVeiculos ? "Carregando veiculos..." : "Selecione um veiculo"}
+                                {carregandoVeiculos ? "Carregando veículos..." : "Selecione um veículo"}
                             </option>
                             {veiculos.map((veiculo) => (
                                 <option key={idVeiculo(veiculo)} value={idVeiculo(veiculo)}>
@@ -481,7 +437,7 @@ function Vendas({ API }) {
                                     <span>{veiculoSelecionado.cor || "-"}</span>
                                 </p>
                                 <p>
-                                    <strong>Preco de Venda:</strong>
+                                    <strong>Preço de Venda:</strong>
                                     <b>{formatarMoeda(veiculoSelecionado.preco)}</b>
                                 </p>
                             </div>
@@ -489,11 +445,11 @@ function Vendas({ API }) {
                     )}
 
                     <label className={`${css.campo} ${css.comentarios}`}>
-                        <span>Comentarios</span>
+                        <span>Comentários</span>
                         <textarea
                             value={comentarios}
                             onChange={(e) => setComentarios(e.target.value)}
-                            placeholder="Digite uma observacao sobre a venda..."
+                            placeholder="Digite uma observação sobre a venda..."
                         />
                     </label>
                 </section>
@@ -518,9 +474,6 @@ function Vendas({ API }) {
                                 <small>
                                     {parcelasFinanciamento} parcelas, total de {formatarMoeda(valorParcelaParcelamento * parcelasFinanciamento)}
                                 </small>
-                                <small>
-                                    Juros {numeroDoCampo(configuracaoJuros.taxaMensal).toLocaleString("pt-BR")}% ao mes ({configuracaoJuros.tipoJuros})
-                                </small>
                                 <button type="button" className={css.verParcelas} onClick={() => setModalParcelasAberto(true)}>
                                     Ver todas as parcelas
                                 </button>
@@ -541,12 +494,12 @@ function Vendas({ API }) {
                             </label>
 
                             <label className={css.campo}>
-                                <span>ID da transacao</span>
+                                <span>ID da transação</span>
                                 <input
                                     type="text"
                                     value={transacaoPix}
                                     onChange={(e) => setTransacaoPix(e.target.value)}
-                                    placeholder="Digite o codigo da transacao"
+                                    placeholder="Digite o código da transação"
                                 />
                             </label>
                         </div>
@@ -630,12 +583,6 @@ function Vendas({ API }) {
 
                 </section>
 
-                {mensagem && (
-                    <p className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagemSucesso : css.mensagemErro}`}>
-                        {mensagem.texto}
-                    </p>
-                )}
-
                 <div className={css.acoes}>
                     <button type="submit" className={css.salvar} disabled={salvando}>
                         {salvando ? "Salvando..." : "Salvar"}
@@ -675,7 +622,7 @@ function Vendas({ API }) {
                                         <b>
                                             {String(opcao.quantidade).padStart(2, "0")}x de {formatarMoeda(opcao.valorParcela)}
                                         </b>
-                                        <small>{numeroDoCampo(configuracaoJuros.taxaMensal).toLocaleString("pt-BR")}% ao mes</small>
+                                        <small>com juros</small>
                                     </span>
                                     <strong>{formatarMoeda(opcao.total)}</strong>
                                 </button>
