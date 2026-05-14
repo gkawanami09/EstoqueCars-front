@@ -183,8 +183,36 @@ function DetalhesVeiculos({ API }) {
         return Number(valor || 0).toLocaleString("pt-BR");
     }
 
+    function tipoStatusEstoque(valor) {
+        const status = String(valor || "").toLowerCase();
+
+        if (status === "2" || status.includes("vend")) {
+            return "vendido";
+        }
+
+        if (status === "3" || status.includes("indispon")) {
+            return "indisponivel";
+        }
+
+        return "estoque";
+    }
+
     // Converte o status do estoque para um texto legivel.
     function formatarStatusEstoque(valor) {
+        const tipoStatus = tipoStatusEstoque(valor);
+
+        if (tipoStatus === "indisponivel") {
+            return "Indisponivel";
+        }
+
+        if (tipoStatus === "vendido") {
+            return "Vendido";
+        }
+
+        if (tipoStatus === "estoque") {
+            return "Em estoque";
+        }
+
         const status = String(valor || "").toLowerCase();
 
         // 2 ou texto com indisponivel vira "Indisponivel".
@@ -203,6 +231,20 @@ function DetalhesVeiculos({ API }) {
 
     // Escolhe a cor do status usando a mesma regra da listagem administrativa.
     function classeStatusEstoque(valor) {
+        const tipoStatus = tipoStatusEstoque(valor);
+
+        if (tipoStatus === "indisponivel") {
+            return css.status_indisponivel;
+        }
+
+        if (tipoStatus === "vendido") {
+            return css.status_vendido;
+        }
+
+        if (tipoStatus === "estoque") {
+            return css.status_estoque;
+        }
+
         const statusFormatado = formatarStatusEstoque(valor);
 
         if (statusFormatado === "Indisponível") {
@@ -403,6 +445,7 @@ function DetalhesVeiculos({ API }) {
                         <span>Descricao</span>
                         <p>{valor(carro.descricao)}</p>
                     </div>
+
                 </aside>
             </section>
 

@@ -8,6 +8,12 @@ import Input from "../components/Input/Input.jsx";
 import { useEffect, useState } from "react";
 
 // Função que monta o header de autorização com token JWT.
+const CHAVE_CONFIG_JUROS = "config_taxa_juros_empresa";
+const configuracaoJurosInicial = {
+    taxaMensal: "2.5",
+    tipoJuros: "composto"
+};
+
 function cabecalhoAutorizacao() {
 
     // Pega o token salvo no localStorage.
@@ -46,6 +52,7 @@ function DashboardAdmConfiguracoes({ API }) {
 
     // Estado do telefone de contato.
     const [telefone, setTelefone] = useState("");
+    const [configuracaoJuros, setConfiguracaoJuros] = useState(configuracaoJurosInicial);
 
     // Estado da mensagem de sucesso/erro.
     const [mensagem, setMensagem] = useState(null);
@@ -55,6 +62,18 @@ function DashboardAdmConfiguracoes({ API }) {
 
     // useEffect executa ao carregar a tela.
     useEffect(() => {
+        const jurosSalvo = localStorage.getItem(CHAVE_CONFIG_JUROS);
+
+        if (jurosSalvo) {
+            try {
+                setConfiguracaoJuros({
+                    ...configuracaoJurosInicial,
+                    ...JSON.parse(jurosSalvo)
+                });
+            } catch {
+                setConfiguracaoJuros(configuracaoJurosInicial);
+            }
+        }
 
         // Função que busca as configurações da API.
         async function carregar() {
@@ -85,6 +104,13 @@ function DashboardAdmConfiguracoes({ API }) {
     }, [API]); // Executa sempre que a API mudar.
 
     // Função chamada ao alterar a logo.
+    function atualizarJuros(campo, valor) {
+        setConfiguracaoJuros((dadosAtuais) => ({
+            ...dadosAtuais,
+            [campo]: valor
+        }));
+    }
+
     function alterarLogo(e) {
 
         // Pega o arquivo selecionado.
@@ -123,6 +149,13 @@ function DashboardAdmConfiguracoes({ API }) {
         formData.append("cnpj", cnpj);
         formData.append("email", email);
         formData.append("telefone", telefone);
+        formData.append("taxaJurosMensal", configuracaoJuros.taxaMensal);
+        formData.append("tipoJuros", configuracaoJuros.tipoJuros);
+
+        if (Number(String(configuracaoJuros.taxaMensal || "0").replace(",", ".")) < 0) {
+            setErro("A taxa de juros nao pode ser negativa.");
+            return;
+        }
 
         // Envia requisição PUT para salvar configurações.
         const res = await fetch(`${API}/configuracoes`, {
@@ -142,6 +175,8 @@ function DashboardAdmConfiguracoes({ API }) {
         }
 
         // Se sucesso, mostra mensagem positiva.
+        localStorage.setItem(CHAVE_CONFIG_JUROS, JSON.stringify(configuracaoJuros));
+
         setMensagem({
             tipo: "sucesso",
             texto: "Configurações salvas com sucesso!"
@@ -251,6 +286,32 @@ function DashboardAdmConfiguracoes({ API }) {
                             value={telefone}
                             onChange={(e) => setTelefone(e.target.value)}
                         />
+
+                        <h2>Juros da Empresa</h2>
+
+                        <div className={css.duplo}>
+                            <label className={css.campo}>
+                                <span>Taxa mensal (%)</span>
+                                <input
+                                    type="number"
+                                    min="0"
+                                    step="0.01"
+                                    value={configuracaoJuros.taxaMensal}
+                                    onChange={(e) => atualizarJuros("taxaMensal", e.target.value)}
+                                />
+                            </label>
+
+                            <label className={css.campo}>
+                                <span>Tipo de juros</span>
+                                <select
+                                    value={configuracaoJuros.tipoJuros}
+                                    onChange={(e) => atualizarJuros("tipoJuros", e.target.value)}
+                                >
+                                    <option value="composto">Composto</option>
+                                    <option value="simples">Simples</option>
+                                </select>
+                            </label>
+                        </div>
 
                     </div>
 

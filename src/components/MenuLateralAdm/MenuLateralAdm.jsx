@@ -90,8 +90,6 @@ function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
                     Financeiro
                 </button>
 
-               
-
                 <button type="button"
                         className={css.menu_item}
         

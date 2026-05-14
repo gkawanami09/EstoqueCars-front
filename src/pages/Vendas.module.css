@@ -70,6 +70,18 @@
     border-color: #111;
 }
 
+.campo input[type="number"] {
+    appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.campo input[type="number"]::-webkit-outer-spin-button,
+.campo input[type="number"]::-webkit-inner-spin-button {
+    margin: 0;
+    appearance: none;
+    -webkit-appearance: none;
+}
+
 .campo textarea {
     min-height: 42px;
     padding-top: 9px;
@@ -82,6 +94,10 @@
 
 .campoCurto {
     max-width: 168px;
+}
+
+.campoDataHora {
+    max-width: 235px;
 }
 
 .veiculoCard {
@@ -105,29 +121,36 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    gap: 10px;
+    gap: 8px;
     min-width: 0;
 }
 
 .veiculoInfo p {
     display: grid;
-    grid-template-columns: 92px minmax(0, 1fr);
+    grid-template-columns: 118px minmax(90px, 1fr);
     align-items: baseline;
+    column-gap: 14px;
     margin: 0;
     color: #111;
     font-size: 13px;
-    line-height: 1;
+    line-height: 1.15;
     min-width: 0;
 }
 
 .veiculoInfo span,
 .veiculoInfo b {
+    justify-self: end;
     min-width: 0;
+    max-width: 100%;
     overflow-wrap: anywhere;
+    line-height: 1.15;
+    text-align: right;
 }
 
 .veiculoInfo strong {
     font-weight: 900;
+    line-height: 1.15;
+    white-space: nowrap;
 }
 
 .veiculoInfo b {
@@ -141,6 +164,21 @@
     border-radius: 8px;
     background: #fff7f7;
     color: #9c1c1c;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.mensagem {
+    grid-column: 1 / -1;
+}
+
+.mensagemSucesso {
+    margin: 0;
+    border: 1px solid #a8dfb7;
+    border-radius: 8px;
+    background: #f1fff5;
+    color: #14652b;
     padding: 10px;
     font-size: 13px;
     font-weight: 800;
@@ -239,6 +277,18 @@
     font-weight: 700;
 }
 
+.verParcelas {
+    grid-column: 1 / -1;
+    justify-self: start;
+    border: none;
+    background: transparent;
+    color: #0a66c2;
+    padding: 2px 0 0;
+    font-size: 12px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
 .resumoDesconto {
     display: flex;
     align-items: center;
@@ -291,10 +341,142 @@
     color: #111;
 }
 
-@media (max-width: 860px) {
+.acoes button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.modalFundo {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    display: grid;
+    place-items: center;
+    background: rgba(20, 27, 34, 0.38);
+    padding: 18px;
+}
+
+.modalParcelas {
+    width: min(760px, 100%);
+    max-height: min(760px, 92vh);
+    overflow: hidden;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 20px 70px rgba(0, 0, 0, 0.22);
+}
+
+.modalTopo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border-bottom: 1px solid #e8edf1;
+    padding: 16px 22px;
+}
+
+.modalTopo h2 {
+    margin: 0;
+    color: #111;
+    font-size: 20px;
+    font-weight: 900;
+}
+
+.modalTopo button {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: #eef3f5;
+    color: #34404a;
+    font-size: 20px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.modalCabecalho {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 190px);
+    gap: 16px;
+    background: #f4f7f8;
+    color: #34404a;
+    padding: 14px 40px 14px 24px;
+    font-size: 14px;
+}
+
+.modalCabecalho strong:last-child {
+    text-align: right;
+    justify-self: end;
+    min-width: 118px;
+}
+
+.listaParcelas {
+    max-height: min(610px, calc(92vh - 118px));
+    overflow-y: auto;
+    scrollbar-gutter: stable;
+}
+
+.itemParcela {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(150px, 190px);
+    gap: 16px;
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid #edf1f3;
+    background: #fff;
+    color: #26313a;
+    padding: 14px 24px;
+    text-align: left;
+    cursor: pointer;
+}
+
+.itemParcela:hover,
+.itemParcelaAtivo {
+    background: #f5fbff;
+}
+
+.itemParcela span {
+    display: grid;
+    gap: 4px;
+}
+
+.itemParcela b {
+    font-size: 15px;
+    font-weight: 900;
+}
+
+.itemParcela small {
+    color: #258243;
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.itemParcela strong {
+    align-self: center;
+    justify-self: end;
+    min-width: 118px;
+    color: #6a757d;
+    font-size: 13px;
+    font-weight: 900;
+    text-align: right;
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum";
+}
+
+@media (max-width: 1100px) {
+    .pagina {
+        padding: 0 14px 24px;
+    }
+
+    .pagina h1 {
+        margin-bottom: 20px !important;
+    }
+
     .card {
         grid-template-columns: 1fr;
         padding: 18px 14px;
+        gap: 18px;
     }
 
     .linhaDupla,
@@ -304,8 +486,24 @@
         gap: 12px;
     }
 
-    .campoCurto {
+    .campoCurto,
+    .campoDataHora {
         max-width: none;
+    }
+
+    .acoes {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 720px) {
+    .veiculoCard {
+        grid-template-columns: minmax(130px, 180px) minmax(0, 1fr);
+    }
+
+    .veiculoInfo p {
+        grid-template-columns: 108px minmax(0, 1fr);
+        column-gap: 8px;
     }
 }
 
@@ -351,6 +549,22 @@
     }
 
     .parcela strong {
+        text-align: left;
+    }
+
+    .modalFundo {
+        padding: 10px;
+    }
+
+    .modalCabecalho,
+    .itemParcela {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 13px 16px;
+    }
+
+    .modalCabecalho strong:last-child,
+    .itemParcela strong {
         text-align: left;
     }
 }

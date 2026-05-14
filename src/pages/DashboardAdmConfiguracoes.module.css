@@ -35,10 +35,26 @@
     gap: 12px;
 }
 
-.select {
+.select,
+.campo input,
+.campo select {
     padding: 10px;
     border-radius: 8px;
     border: 1px solid #ccc;
+    background: #fff;
+    color: #111;
+}
+
+.campo {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.campo span {
+    font-size: 14px;
+    font-weight: 800;
+    color: #111;
 }
 
 .logoPreview {

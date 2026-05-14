@@ -29,7 +29,7 @@ function Dashboard({ API }) {
     // Tenta recuperar o usuario logado do localStorage.
     try {
         // Converte o JSON salvo no login para objeto JavaScript.
-        usuario = JSON.parse(localStorage.getItem("usuario_logado")) || {};
+        usuario = JSON.parse(localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado")) || {};
     } catch {
         // Se o JSON estiver invalido, evita quebrar a tela.
         usuario = {};
@@ -165,7 +165,7 @@ function Dashboard({ API }) {
     // Pega o ID do carro aceitando nomes diferentes vindos da API.
     function idCarro(carro) {
         // Tenta id, depois id_carro, depois id_veiculo.
-        return carro?.id || carro?.id_carro || carro?.id_veiculo;
+        return carro?.id || carro?.id_carro || carro?.id_veiculo || carro?.ID_VEICULO || carro?.ID_CARRO;
     }
 
     // Monta a URL da imagem salva no backend ou usa um icone padrao.

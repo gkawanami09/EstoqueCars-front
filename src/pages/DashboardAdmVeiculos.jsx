@@ -185,6 +185,14 @@ function DashboardAdmVeiculos({ API }) {
         // Converte o valor para texto minusculo para comparar melhor.
         const status = String(valor || "").toLowerCase();
 
+        if (status === "2") {
+            return "Vendido";
+        }
+
+        if (status === "3") {
+            return "Indisponí­vel";
+        }
+
         // Status 2 ou texto parecido com indisponivel.
         if (status === "2" || status.includes("indispon")) {
             return "Indisponível";
@@ -199,8 +207,36 @@ function DashboardAdmVeiculos({ API }) {
         return "Em estoque";
     }
 
+    function tipoStatusEstoque(valor) {
+        const status = String(valor || "").toLowerCase();
+
+        if (status === "2" || status.includes("vend")) {
+            return "vendido";
+        }
+
+        if (status === "3" || status.includes("indispon")) {
+            return "indisponível";
+        }
+
+        return "estoque";
+    }
+
     // Escolhe a classe CSS correta para cada status.
     function classeStatusEstoque(valor) {
+        const tipoStatus = tipoStatusEstoque(valor);
+
+        if (tipoStatus === "indisponível") {
+            return `${css.status} ${css.status_indisponivel}`;
+        }
+
+        if (tipoStatus === "vendido") {
+            return `${css.status} ${css.status_vendido}`;
+        }
+
+        if (tipoStatus === "estoque") {
+            return `${css.status} ${css.status_estoque}`;
+        }
+
         // Reaproveita a funcao que padroniza o texto do status.
         const statusFormatado = formatarStatusEstoque(valor);
 
@@ -220,6 +256,20 @@ function DashboardAdmVeiculos({ API }) {
 
     // Define o texto que aparece dentro da etiqueta de status.
     function textoStatusEstoque(valor) {
+        const tipoStatus = tipoStatusEstoque(valor);
+
+        if (tipoStatus === "indisponivel") {
+            return "Indisponivel";
+        }
+
+        if (tipoStatus === "vendido") {
+            return "Vendido";
+        }
+
+        if (tipoStatus === "estoque") {
+            return "Em estoque";
+        }
+
         // Busca o status ja formatado.
         const statusFormatado = formatarStatusEstoque(valor);
 

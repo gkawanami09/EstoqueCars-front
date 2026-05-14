@@ -58,7 +58,7 @@ function DashboardAdmJuros() {
             <header className={css.cabecalho}>
                 <div>
                     <h1>Taxa de Juros</h1>
-                    <p>Configure a taxa usada pela empresa para financiamentos.</p>
+                    <p>Configure a taxa usada pela empresa para vendas parceladas.</p>
                 </div>
             </header>
 
