@@ -201,7 +201,17 @@
     background: rgba(0, 0, 0, 0.08);
 }
 
-.mensagemSucesso {
+.mensagemAlertaErro {
+    border: 1px solid #f0b8b8;
+    border-radius: 8px;
+    background: #fff7f7;
+    color: #9c1c1c;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.mensagemAlertaSucesso {
     margin: 0;
     border: 1px solid #a8dfb7;
     border-radius: 8px;
@@ -212,7 +222,17 @@
     font-weight: 800;
 }
 
-.mensagem.mensagemSucesso {
+.mensagemAlertaSucesso span,
+.mensagemAlertaSucesso button {
+    color: #14652b;
+}
+
+.mensagemAlertaErro span,
+.mensagemAlertaErro button {
+    color: #9c1c1c;
+}
+
+.mensagem.mensagemAlertaSucesso {
     margin-bottom: 16px;
 }
 

@@ -217,7 +217,7 @@
     font-weight: 700;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1180px) {
     .pagina {
         padding: 18px 16px 26px;
     }

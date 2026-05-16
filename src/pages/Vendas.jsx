@@ -367,7 +367,7 @@ function Vendas({ API }) {
             <h1>Vendas</h1>
 
             {mensagem && (
-                <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagemSucesso : css.mensagemErro}`}>
+                <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagemAlertaSucesso : css.mensagemAlertaErro}`}>
                     <span>{mensagem.texto}</span>
                     <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
                         x

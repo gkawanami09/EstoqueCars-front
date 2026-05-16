@@ -101,7 +101,7 @@
     background-color: var(--cor-principal);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1180px) {
     .menu_lateral {
         position: fixed;
         transform: translateX(-100%);
