@@ -6,7 +6,7 @@ const TEMA_PADRAO = {
     corPrimaria: "#EF4444",
     corSecundaria: "#171414",
     fonte: "Montserrat",
-    logo: "/Logo.png"
+    logo: "/ImgNavBar/LogoNav.png"
 };
 
 function cabecalhoAutorizacao() {
@@ -20,14 +20,14 @@ function montarUrlLogo(API, url) {
     }
 
     if (String(url).includes("seu-servidor.com/uploads/")) {
-        return `${API}/uploads/${String(url).split("/uploads/")[1]}`;
+        return `${API}/uploads/${String(url).split("/uploads/")[1]}?v=${Date.now()}`;
     }
 
     if (String(url).startsWith("/")) {
-        return `${API}${url}`;
+        return `${API}${url}?v=${Date.now()}`;
     }
 
-    return url;
+    return String(url).includes("/uploads/") ? `${url}?v=${Date.now()}` : url;
 }
 
 function somenteNumeros(valor) {
@@ -69,11 +69,18 @@ function salvarLogoSite(url) {
         return;
     }
 
+    localStorage.removeItem("logo_padrao_ativo");
     localStorage.setItem("logo_site_url", url);
     window.dispatchEvent(new Event("logo-atualizada"));
 }
 
+function salvarTaxaJurosSite(taxa) {
+    localStorage.setItem("taxa_juro_mensal", String(taxa || 0).replace(",", "."));
+    window.dispatchEvent(new Event("juros-atualizado"));
+}
+
 function voltarLogoPadraoSite() {
+    localStorage.setItem("logo_padrao_ativo", "1");
     localStorage.removeItem("logo_site_url");
     window.dispatchEvent(new Event("logo-atualizada"));
 }
@@ -114,8 +121,11 @@ function DashboardAdmConfiguracoes({ API }) {
                 }
 
                 const logoUrl = montarUrlLogo(API, dados.logo_url);
-                setPreviewLogo(logoUrl);
-                salvarLogoSite(logoUrl);
+                const usandoPadrao = localStorage.getItem("logo_padrao_ativo") === "1";
+                setPreviewLogo(usandoPadrao ? TEMA_PADRAO.logo : logoUrl);
+                if (!usandoPadrao) {
+                    salvarLogoSite(logoUrl);
+                }
                 setUsarLogoPadrao(false);
                 setCorPrimaria(dados.cor_primaria || TEMA_PADRAO.corPrimaria);
                 setCorSecundaria(dados.cor_secundaria || TEMA_PADRAO.corSecundaria);
@@ -124,8 +134,9 @@ function DashboardAdmConfiguracoes({ API }) {
                 setNomeEmpresa(dados.nome_empresa || "");
                 setCnpj(formatarCnpj(dados.cnpj || ""));
                 setEmail(dados.email_contato || "");
-                setTelefone(formatarTelefone(dados.telefone_contato || ""));
-                setTaxaJuros(String(dados.taxa_juros ?? 0));
+                setTelefone(formatarTelefone(dados.telefone_empresa || dados.telefone_contato || ""));
+                setTaxaJuros(String(dados.taxa_juro ?? dados.taxa_juros ?? 0));
+                salvarTaxaJurosSite(dados.taxa_juro ?? dados.taxa_juros ?? 0);
             } catch {
                 setErro("Erro de conexao com o servidor.");
             } finally {
@@ -154,10 +165,12 @@ function DashboardAdmConfiguracoes({ API }) {
         setCorPrimaria(TEMA_PADRAO.corPrimaria);
         setCorSecundaria(TEMA_PADRAO.corSecundaria);
         setFonte(TEMA_PADRAO.fonte);
+        setTaxaJuros("0");
         setLogo(null);
         setUsarLogoPadrao(true);
         setPreviewLogo(TEMA_PADRAO.logo);
         voltarLogoPadraoSite();
+        salvarTaxaJurosSite(0);
         aplicarCores(TEMA_PADRAO.corPrimaria, TEMA_PADRAO.corSecundaria, TEMA_PADRAO.fonte);
         setMensagem({
             tipo: "sucesso",
@@ -174,8 +187,10 @@ function DashboardAdmConfiguracoes({ API }) {
         const formData = new FormData();
         formData.append("nome_empresa", nomeEmpresa);
         formData.append("cnpj", somenteNumeros(cnpj));
+        formData.append("telefone_empresa", somenteNumeros(telefone));
         formData.append("telefone_contato", somenteNumeros(telefone));
         formData.append("email_contato", email);
+        formData.append("taxa_juro", String(taxaJuros || 0).replace(",", "."));
         formData.append("taxa_juros", String(taxaJuros || 0).replace(",", "."));
         formData.append("cor_primaria", corPrimaria);
         formData.append("cor_secundaria", corSecundaria);
@@ -184,11 +199,6 @@ function DashboardAdmConfiguracoes({ API }) {
         try {
             if (logo) {
                 formData.append("logo", logo);
-            } else if (usarLogoPadrao) {
-                const respostaLogoPadrao = await fetch(TEMA_PADRAO.logo);
-                const blobLogoPadrao = await respostaLogoPadrao.blob();
-                const arquivoLogoPadrao = new File([blobLogoPadrao], "logo_empresa.png", { type: blobLogoPadrao.type || "image/png" });
-                formData.append("logo", arquivoLogoPadrao);
             }
 
             const resposta = await fetch(`${API}/configuracoes`, {
@@ -209,6 +219,7 @@ function DashboardAdmConfiguracoes({ API }) {
                 texto: dados.mensagem || "Configuracoes atualizadas com sucesso!"
             });
             aplicarCores(corPrimaria, corSecundaria, fonte);
+            salvarTaxaJurosSite(taxaJuros);
 
             if (logo || usarLogoPadrao) {
                 const logoAtualizada = `${API}/uploads/logo_empresa.png?v=${Date.now()}`;

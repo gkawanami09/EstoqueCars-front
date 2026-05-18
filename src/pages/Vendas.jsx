@@ -13,10 +13,20 @@ const statusPagamento = [
 const situacaoParcelamento = {
     emAndamento: "1"
 };
-const juros = 0.04;
+const JUROS_PADRAO = 0;
 
 function numeroDoCampo(valor) {
     return Number(String(valor || "0").replace(",", ".")) || 0;
+}
+
+function taxaJurosParaDecimal(valor) {
+    const taxa = numeroDoCampo(valor);
+
+    if (!Number.isFinite(taxa) || taxa <= 0) {
+        return 0;
+    }
+
+    return taxa / 100;
 }
 
 function formatarMoeda(valor) {
@@ -68,6 +78,17 @@ function formatarDataParaApi(data) {
     return `${dia}/${mes}/${ano} ${horaCampo}`;
 }
 
+function dataHoraAtualParaInput() {
+    const agora = new Date();
+    const ano = agora.getFullYear();
+    const mes = String(agora.getMonth() + 1).padStart(2, "0");
+    const dia = String(agora.getDate()).padStart(2, "0");
+    const hora = String(agora.getHours()).padStart(2, "0");
+    const minuto = String(agora.getMinutes()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
+}
+
 function idVeiculo(veiculo) {
     return veiculo?.id || veiculo?.id_veiculo || veiculo?.id_carro;
 }
@@ -109,9 +130,31 @@ function montarUrlImagem(API, veiculo) {
     return `${API}/${imagem}`;
 }
 
+function montarUrlPix(API, caminhoPix) {
+    if (!caminhoPix) {
+        return "";
+    }
+
+    const caminho = String(caminhoPix);
+
+    if (caminho.startsWith("http") || caminho.startsWith("data:")) {
+        return caminho;
+    }
+
+    if (caminho.startsWith("/")) {
+        return `${API}${caminho}`;
+    }
+
+    return `${API}/${caminho}`;
+}
+
 function calcularValorParcela(valor, parcelas, juros) {
     if (!valor || !parcelas) {
         return 0;
+    }
+
+    if (!juros) {
+        return valor / parcelas;
     }
 
     return valor * juros / (1 - (1 + juros) ** -parcelas);
@@ -128,7 +171,7 @@ function Vendas({ API }) {
     const [clienteId, setClienteId] = useState("");
     const [veiculoId, setVeiculoId] = useState("");
     const [formaPagamento, setFormaPagamento] = useState(formasPagamento[0].id);
-    const [dataVenda, setDataVenda] = useState("");
+    const [dataVenda, setDataVenda] = useState(() => dataHoraAtualParaInput());
     const [valorVenda, setValorVenda] = useState("");
     const [valorRecebido, setValorRecebido] = useState("");
     const [status, setStatus] = useState(statusPagamento[0].id);
@@ -142,6 +185,8 @@ function Vendas({ API }) {
     const [modalParcelasAberto, setModalParcelasAberto] = useState(false);
     const [salvando, setSalvando] = useState(false);
     const [mensagem, setMensagem] = useState(null);
+    const [vendaFinalizada, setVendaFinalizada] = useState(false);
+    const [jurosMensal, setJurosMensal] = useState(() => taxaJurosParaDecimal(localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO));
 
     const ehParcelamento = formaPagamento === "1";
     const ehPix = formaPagamento === "0";
@@ -223,6 +268,38 @@ function Vendas({ API }) {
         carregarVeiculos();
     }, [carregarClientes, carregarVeiculos]);
 
+    useEffect(() => {
+        function aplicarJurosSalvo() {
+            setJurosMensal(taxaJurosParaDecimal(localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO));
+        }
+
+        async function carregarJuros() {
+            try {
+                const resposta = await fetch(`${API}/configuracoes`, {
+                    method: "GET",
+                    headers: cabecalhoAutorizacao(),
+                    credentials: "include"
+                });
+
+                if (!resposta.ok) {
+                    aplicarJurosSalvo();
+                    return;
+                }
+
+                const dados = await resposta.json();
+                const taxa = dados.taxa_juro ?? dados.taxa_juros ?? JUROS_PADRAO;
+                localStorage.setItem("taxa_juro_mensal", String(taxa));
+                setJurosMensal(taxaJurosParaDecimal(taxa));
+            } catch {
+                aplicarJurosSalvo();
+            }
+        }
+
+        carregarJuros();
+        window.addEventListener("juros-atualizado", aplicarJurosSalvo);
+        return () => window.removeEventListener("juros-atualizado", aplicarJurosSalvo);
+    }, [API]);
+
     const veiculoSelecionado = useMemo(() => {
         return veiculos.find((veiculo) => String(idVeiculo(veiculo)) === veiculoId) || null;
     }, [veiculoId, veiculos]);
@@ -231,22 +308,24 @@ function Vendas({ API }) {
     const descontoNumerico = numeroDoCampo(desconto);
     const valorComDesconto = Math.max(valorNumerico - (valorNumerico * descontoNumerico / 100), 0);
     const valorParcelado = valorComDesconto;
+    const taxaJurosPercentual = jurosMensal * 100;
 
     useEffect(() => {
         setPixGerado(null);
         setErroPix("");
-    }, [formaPagamento, valorComDesconto]);
+        setVendaFinalizada(false);
+    }, [formaPagamento, valorComDesconto, veiculoId]);
 
     const valorParcelaParcelamento = useMemo(() => {
         const parcelas = Number(parcelasFinanciamento) || 1;
 
-        return calcularValorParcela(valorParcelado, parcelas, juros);
-    }, [parcelasFinanciamento, valorParcelado]);
+        return calcularValorParcela(valorParcelado, parcelas, jurosMensal);
+    }, [jurosMensal, parcelasFinanciamento, valorParcelado]);
 
     const opcoesParcelamento = useMemo(() => {
         return Array.from({ length: 120 }, (_, indice) => {
             const quantidade = indice + 1;
-            const valorParcela = calcularValorParcela(valorParcelado, quantidade, juros);
+            const valorParcela = calcularValorParcela(valorParcelado, quantidade, jurosMensal);
 
             return {
                 quantidade,
@@ -254,7 +333,7 @@ function Vendas({ API }) {
                 total: valorParcela * quantidade
             };
         });
-    }, [valorParcelado]);
+    }, [jurosMensal, valorParcelado]);
 
     function trocarVeiculo(e) {
         const id = e.target.value;
@@ -285,46 +364,6 @@ function Vendas({ API }) {
     function mostrarMensagem(tipo, texto) {
         setMensagem({ tipo, texto });
         subirParaTopo();
-    }
-
-    async function gerarPix() {
-        if (!valorComDesconto) {
-            setErroPix("Informe o valor da venda para gerar o Pix.");
-            return;
-        }
-
-        setGerandoPix(true);
-        setErroPix("");
-        setPixGerado(null);
-
-        try {
-            const resposta = await fetch(`${API}/gerar_pix`, {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    ...cabecalhoAutorizacao()
-                },
-                credentials: "include",
-                body: JSON.stringify({
-                    valor_venda: valorComDesconto.toFixed(2)
-                })
-            });
-            const dados = await resposta.json();
-
-            if (!resposta.ok) {
-                setErroPix(dados.erro || dados.mensagem || "Erro ao gerar Pix.");
-                return;
-            }
-
-            setPixGerado({
-                copiaECola: dados.pix_copia_e_cola,
-                qrCode: dados.qr_code_base64
-            });
-        } catch {
-            setErroPix("Nao foi possivel conectar ao servidor para gerar o Pix.");
-        } finally {
-            setGerandoPix(false);
-        }
     }
 
     async function copiarPix() {
@@ -369,32 +408,59 @@ function Vendas({ API }) {
         return formData;
     }
 
-    async function salvarVenda(e) {
-        e.preventDefault();
+    function validarVenda() {
         setMensagem(null);
         subirParaTopo();
 
         if (!clienteId) {
             mostrarMensagem("erro", "Selecione um cliente antes de salvar a venda.");
-            return;
+            return false;
         }
 
         if (!veiculoSelecionado) {
             mostrarMensagem("erro", "Selecione um veículo antes de salvar a venda.");
-            return;
+            return false;
         }
 
         if (!dataVenda || !valorNumerico || !numeroDoCampo(valorRecebido) || !status) {
             mostrarMensagem("erro", "Preencha todos os campos obrigatórios da venda.");
-            return;
+            return false;
         }
 
         if (descontoNumerico > 10) {
             mostrarMensagem("erro", "O desconto pode ser de no máximo 10%.");
+            return false;
+        }
+
+        return true;
+    }
+
+    function aplicarPixDaVenda(dados) {
+        const qrCode = montarUrlPix(API, dados.pix_qrcode || dados.qr_code || dados.qr_code_base64);
+        const copiaECola = dados.pix_copia_cola || dados.pix_copia_e_cola || dados.payload;
+
+        if (!qrCode && !copiaECola) {
+            return false;
+        }
+
+        setPixGerado({ qrCode, copiaECola });
+        return true;
+    }
+
+    async function enviarVenda({ gerarPixVenda = false } = {}) {
+        if (vendaFinalizada) {
+            mostrarMensagem("sucesso", "Esta venda ja foi cadastrada.");
+            return;
+        }
+
+        if (!validarVenda()) {
             return;
         }
 
         setSalvando(true);
+        setGerandoPix(gerarPixVenda);
+        setErroPix("");
+        setPixGerado(null);
 
         try {
             const resposta = await fetch(`${API}/cadastrar_venda`, {
@@ -407,19 +473,40 @@ function Vendas({ API }) {
 
             if (!resposta.ok) {
                 mostrarMensagem("erro", dados.erro || dados.error || dados.mensagem || "Erro ao cadastrar venda.");
+                if (gerarPixVenda) {
+                    setErroPix(dados.erro || dados.error || dados.mensagem || "Erro ao gerar Pix.");
+                }
                 return;
             }
 
+            setVendaFinalizada(true);
             mostrarMensagem("sucesso", dados.mensagem || "Venda cadastrada com sucesso.");
+
+            if (ehPix && aplicarPixDaVenda(dados)) {
+                return;
+            }
 
             setTimeout(() => {
                 navigate("/dashboardAdmVendas");
             }, 900);
         } catch {
+            if (gerarPixVenda) {
+                setErroPix("Nao foi possivel conectar ao servidor para gerar o Pix.");
+            }
             mostrarMensagem("erro", "Não foi possível conectar ao servidor.");
         } finally {
             setSalvando(false);
+            setGerandoPix(false);
         }
+    }
+
+    async function gerarPix() {
+        await enviarVenda({ gerarPixVenda: true });
+    }
+
+    async function salvarVenda(e) {
+        e.preventDefault();
+        await enviarVenda();
     }
 
     return (
@@ -532,7 +619,7 @@ function Vendas({ API }) {
                                 <span>Valor da parcela</span>
                                 <strong>{formatarMoeda(valorParcelaParcelamento)}</strong>
                                 <small>
-                                    {parcelasFinanciamento} parcelas, total de {formatarMoeda(valorParcelaParcelamento * parcelasFinanciamento)}
+                                    {parcelasFinanciamento} parcelas, {taxaJurosPercentual.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}% ao mes, total de {formatarMoeda(valorParcelaParcelamento * parcelasFinanciamento)}
                                 </small>
                                 <button type="button" className={css.verParcelas} onClick={() => setModalParcelasAberto(true)}>
                                     Ver todas as parcelas
@@ -540,6 +627,7 @@ function Vendas({ API }) {
                             </div>
                         </div>
                     )}
+
 
                     {/*
                         <div className={css.areaPagamento}>
@@ -554,12 +642,12 @@ function Vendas({ API }) {
                             </label>
 
                             <label className={css.campo}>
-                                <span>ID da transação</span>
+                                <span>ID da transacao</span>
                                 <input
                                     type="text"
                                     value={transacaoPix}
                                     onChange={(e) => setTransacaoPix(e.target.value)}
-                                    placeholder="Digite o código da transação"
+                                    placeholder="Digite o codigo da transacao"
                                 />
                             </label>
                         </div>
@@ -576,9 +664,9 @@ function Vendas({ API }) {
                                 type="button"
                                 className={css.botaoGerarPix}
                                 onClick={gerarPix}
-                                disabled={gerandoPix || !valorComDesconto}
+                                disabled={gerandoPix || salvando || vendaFinalizada || !valorComDesconto}
                             >
-                                {gerandoPix ? "Gerando Pix..." : "Gerar Pix"}
+                                {gerandoPix ? "Gerando Pix..." : "Salvar e gerar Pix"}
                             </button>
 
                             {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
@@ -611,9 +699,9 @@ function Vendas({ API }) {
                                 type="button"
                                 className={css.botaoGerarPix}
                                 onClick={gerarPix}
-                                disabled={gerandoPix || !valorComDesconto}
+                                disabled={gerandoPix || salvando || vendaFinalizada || !valorComDesconto}
                             >
-                                {gerandoPix ? "Gerando Pix..." : "Gerar Pix"}
+                                {gerandoPix ? "Gerando Pix..." : "Salvar e gerar Pix"}
                             </button>
 
                             {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
@@ -714,8 +802,8 @@ function Vendas({ API }) {
                 </section>
 
                 <div className={css.acoes}>
-                    <button type="submit" className={css.salvar} disabled={salvando}>
-                        {salvando ? "Salvando..." : "Salvar"}
+                    <button type="submit" className={css.salvar} disabled={salvando || vendaFinalizada}>
+                        {vendaFinalizada ? "Venda salva" : salvando ? "Salvando..." : "Salvar"}
                     </button>
                     <button type="button" className={css.cancelar} onClick={() => navigate("/dashboardAdmVendas")}>
                         Cancelar

@@ -1,9 +1,20 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import css from "./MenuLateral.module.css";
+import { useEffect, useState } from "react";
 
 function MenuLateral({ aberto = false, aoNavegar }) {
     const navigate = useNavigate();
     const location = useLocation();
+    const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem("logo_site_url") || "/ImgNavBar/LogoNav.png");
+
+    useEffect(() => {
+        function atualizarLogo() {
+            setLogoUrl(localStorage.getItem("logo_site_url") || "/ImgNavBar/LogoNav.png");
+        }
+
+        window.addEventListener("logo-atualizada", atualizarLogo);
+        return () => window.removeEventListener("logo-atualizada", atualizarLogo);
+    }, []);
 
     function sair() {
         localStorage.removeItem("usuario_logado");
@@ -26,7 +37,14 @@ function MenuLateral({ aberto = false, aoNavegar }) {
             <div className={css.logo_container}   onClick={() => navegar('/')} >
                 
                 
-                <img src="/ImgNavBar/LogoNav.png" alt="Estoque Cars" className={css.logo} />
+                <img
+                    src={logoUrl}
+                    alt="Estoque Cars"
+                    className={css.logo}
+                    onError={(e) => {
+                        e.currentTarget.src = "/ImgNavBar/LogoNav.png";
+                    }}
+                />
             </div> <br />
 
             <nav className={css.menu}>

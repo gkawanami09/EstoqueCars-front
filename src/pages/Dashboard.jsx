@@ -30,6 +30,9 @@ function Dashboard({ API }) {
     const [carregandoCompras, setCarregandoCompras] = useState(true);
     // Guarda erro separado para nao atrapalhar a vitrine.
     const [erroCompras, setErroCompras] = useState("");
+    const [pixParcelas, setPixParcelas] = useState({});
+    const [carregandoPixParcelas, setCarregandoPixParcelas] = useState({});
+    const [erroPixParcelas, setErroPixParcelas] = useState({});
    // Cria a funcao para navegar para outras paginas.
     const navigate = useNavigate();
     // Cria um objeto vazio para receber o usuario salvo.
@@ -326,6 +329,82 @@ function Dashboard({ API }) {
         return valor || "-";
     }
 
+    function ehVendaParcelada(compra) {
+        const forma = String(compra?.forma_pagamento ?? compra?.FORMA_PAGAMENTO ?? "").trim().toLowerCase();
+        return forma === "1" || forma.includes("parcel");
+    }
+
+    function idVendaCompra(compra) {
+        return compra?.id_venda || compra?.ID_VENDA;
+    }
+
+    function montarUrlPix(caminhoPix) {
+        if (!caminhoPix) {
+            return "";
+        }
+
+        const caminho = String(caminhoPix);
+
+        if (caminho.startsWith("http") || caminho.startsWith("data:")) {
+            return caminho;
+        }
+
+        if (caminho.startsWith("/")) {
+            return `${API}${caminho}`;
+        }
+
+        return `${API}/${caminho}`;
+    }
+
+    async function carregarPixParcelas(idVenda) {
+        if (!idVenda) {
+            return;
+        }
+
+        if (pixParcelas[idVenda]?.length) {
+            return;
+        }
+
+        setCarregandoPixParcelas((estado) => ({ ...estado, [idVenda]: true }));
+        setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+
+        try {
+            const resposta = await fetch(`${API}/listar_pix_parcelas/${idVenda}`, {
+                method: "GET",
+                credentials: "include"
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setErroPixParcelas((estado) => ({
+                    ...estado,
+                    [idVenda]: dados.erro || dados.mensagem || "Erro ao carregar Pix das parcelas."
+                }));
+                return;
+            }
+
+            setPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: Array.isArray(dados.parcelas) ? dados.parcelas : []
+            }));
+        } catch {
+            setErroPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: "Nao foi possivel conectar ao servidor para carregar o Pix das parcelas."
+            }));
+        } finally {
+            setCarregandoPixParcelas((estado) => ({ ...estado, [idVenda]: false }));
+        }
+    }
+
+    async function copiarPixParcela(codigo) {
+        if (!codigo) {
+            return;
+        }
+
+        await navigator.clipboard.writeText(codigo);
+    }
+
     // Converte o status de pagamento salvo no banco em texto.
     function textoStatusPagamento(valor) {
         const status = String(valor ?? "").trim().toLowerCase();
@@ -459,14 +538,19 @@ function Dashboard({ API }) {
                     {!carregandoCompras && !erroCompras && compras.length > 0 && (
                         <div className={css.lista_compras}>
                             {compras.map((compra) => {
+                                const idVenda = idVendaCompra(compra);
                                 const idVeiculo = idVeiculoCompra(compra);
                                 const comprovante = comprovanteCompra(compra);
                                 const parcelas = compra.quantidade_parcelas || compra.parcelas || compra.QUANTIDADE_PARCELAS;
                                 const valor = compra.valor_venda || compra.valor_total || compra.VALOR_VENDA;
                                 const recebido = compra.valor_recebido || compra.VALOR_RECEBIDO;
+                                const vendaParcelada = ehVendaParcelada(compra);
+                                const parcelasComPix = pixParcelas[idVenda] || [];
+                                const carregandoPix = carregandoPixParcelas[idVenda];
+                                const erroPix = erroPixParcelas[idVenda];
 
                                 return (
-                                    <article key={compra.id_venda || compra.ID_VENDA || `${nomeVeiculoCompra(compra)}-${compra.data_venda}`} className={css.card_compra}>
+                                    <article key={idVenda || `${nomeVeiculoCompra(compra)}-${compra.data_venda}`} className={css.card_compra}>
                                         <div className={css.topo_compra}>
                                             <div>
                                                 <span>Veículo</span>
@@ -496,7 +580,38 @@ function Dashboard({ API }) {
                                                     Ver comprovante
                                                 </a>
                                             )}
+                                            {vendaParcelada && idVenda && (
+                                                <button type="button" onClick={() => carregarPixParcelas(idVenda)} disabled={carregandoPix}>
+                                                    {carregandoPix ? "Carregando Pix..." : "Pix das parcelas"}
+                                                </button>
+                                            )}
                                         </div>
+
+                                        {erroPix && <p className={css.erro_pix_parcelas}>{erroPix}</p>}
+
+                                        {parcelasComPix.length > 0 && (
+                                            <div className={css.lista_pix_parcelas}>
+                                                {parcelasComPix.map((parcela) => (
+                                                    <div key={parcela.id_item_parcelamento} className={css.pix_parcela}>
+                                                        <div className={css.pix_parcela_topo}>
+                                                            <div>
+                                                                <span>Parcela {parcela.numero_parcela}</span>
+                                                                <strong>{formatarPreco(parcela.valor_parcela)}</strong>
+                                                            </div>
+                                                            <small>Vence em {parcela.data_vencimento}</small>
+                                                        </div>
+
+                                                        <img src={montarUrlPix(parcela.pix_qrcode)} alt={`QR Code Pix da parcela ${parcela.numero_parcela}`} />
+
+                                                        <textarea value={parcela.pix_copia_cola || ""} readOnly />
+
+                                                        <button type="button" onClick={() => copiarPixParcela(parcela.pix_copia_cola)}>
+                                                            Copiar Pix
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        )}
                                     </article>
                                 );
                             })}

@@ -77,6 +77,17 @@
     padding: 10px 12px 8px;
 }
 
+.erro {
+    margin: 0 0 12px !important;
+    border: 1px solid #f0b8b8;
+    border-radius: 8px;
+    background: #fff7f7;
+    color: #9c1c1c;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
 .filtros {
     display: flex;
     align-items: center;

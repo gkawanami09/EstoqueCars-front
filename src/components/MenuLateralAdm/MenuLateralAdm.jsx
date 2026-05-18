@@ -1,10 +1,21 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import css from "./MenuLateralAdm.module.css";
+import { useEffect, useState } from "react";
 
 function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
     const navigate = useNavigate();
     const location = useLocation();
     const isAdm = Number(tipoUsuario) === 2;
+    const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem("logo_site_url") || "/ImgNavBar/LogoNav.png");
+
+    useEffect(() => {
+        function atualizarLogo() {
+            setLogoUrl(localStorage.getItem("logo_site_url") || "/ImgNavBar/LogoNav.png");
+        }
+
+        window.addEventListener("logo-atualizada", atualizarLogo);
+        return () => window.removeEventListener("logo-atualizada", atualizarLogo);
+    }, []);
 
     function sair() {
         localStorage.removeItem("usuario_logado");
@@ -27,7 +38,14 @@ function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
         <aside className={`${css.menu_lateral} ${aberto ? css.menu_aberto : ""}`}>
             <div className={css.logo_container}>
                 <Link to = "/">
-                <img src="/ImgNavBar/LogoNav.png" alt="Estoque Cars" className={css.logo} />
+                <img
+                    src={logoUrl}
+                    alt="Estoque Cars"
+                    className={css.logo}
+                    onError={(e) => {
+                        e.currentTarget.src = "/ImgNavBar/LogoNav.png";
+                    }}
+                />
                 </Link>
             </div> <br />
 

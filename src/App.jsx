@@ -45,15 +45,15 @@ function App({ API }) {
       if (!logoUrl) return "";
 
       // Se o backend mandar "/uploads/logo.png", junta com a URL da API.
-      if (logoUrl.startsWith("/")) return `${API}${logoUrl}`;
+      if (logoUrl.startsWith("/")) return `${API}${logoUrl}?v=${Date.now()}`;
 
       // Se ainda estiver com o exemplo "seu-servidor.com", troca pela API real.
       if (logoUrl.includes("seu-servidor.com/uploads/")) {
-        return `${API}/uploads/${logoUrl.split("/uploads/")[1]}`;
+        return `${API}/uploads/${logoUrl.split("/uploads/")[1]}?v=${Date.now()}`;
       }
 
       // Se ja vier uma URL completa correta, usa como veio.
-      return logoUrl;
+      return logoUrl.includes("/uploads/") ? `${logoUrl}?v=${Date.now()}` : logoUrl;
     }
 
     // Aplica cores, fonte e logo recebidas das configuracoes.
@@ -64,8 +64,14 @@ function App({ API }) {
       document.documentElement.style.setProperty("--fonte-site", dados.fonte_visual || "Montserrat");
 
       const logoUrl = montarLogoUrl(dados.logo_url);
+      const taxaJuro = dados.taxa_juro ?? dados.taxa_juros;
 
-      if (logoUrl) {
+      if (taxaJuro !== undefined && taxaJuro !== null) {
+        localStorage.setItem("taxa_juro_mensal", String(taxaJuro));
+        window.dispatchEvent(new Event("juros-atualizado"));
+      }
+
+      if (logoUrl && localStorage.getItem("logo_padrao_ativo") !== "1") {
         localStorage.setItem("logo_site_url", logoUrl);
         window.dispatchEvent(new Event("logo-atualizada"));
       }
@@ -132,7 +138,7 @@ function App({ API }) {
             <Route path="/editarVeiculos/:id" element={<CadastroVeiculos API={API}/>} />
             <Route path="/detalhesVeiculos/:id" element={<DetalhesVeiculos API={API} />} />
             <Route path="/dashboardAdmMarcas" element={<DashboardAdmMarcas API={API} />} />
-            <Route path="/dashboardAdmVendas" element={<DasbhoardAdmVendas />} />
+            <Route path="/dashboardAdmVendas" element={<DasbhoardAdmVendas API={API} />} />
             <Route path="/dashboardADMFinanceiros" element={<DashboardADMFinanceiros API={API} />} />
             <Route path="/venda" element={<Vendas API={API} />}/>
             
