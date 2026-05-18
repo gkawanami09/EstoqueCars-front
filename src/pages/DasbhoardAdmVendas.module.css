@@ -228,6 +228,10 @@
     font-weight: 700;
 }
 
+.cardsMobile {
+    display: none;
+}
+
 @media (max-width: 1180px) {
     .pagina {
         padding: 18px 16px 26px;
@@ -241,8 +245,110 @@
         padding: 12px;
     }
 
-    .tabela {
-        min-width: 760px;
+    .tabelaWrapper {
+        display: none;
+    }
+
+    .cardsMobile {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+    }
+
+    .cardVenda,
+    .cardEstado {
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.06);
+    }
+
+    .cardEstado {
+        grid-column: 1 / -1;
+        color: #777;
+        padding: 22px 14px;
+        text-align: center;
+        font-size: 14px;
+        font-weight: 900;
+    }
+
+    .cardVenda {
+        display: grid;
+        gap: 14px;
+        padding: 14px;
+        min-width: 0;
+    }
+
+    .cardVendaTopo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cardVendaTopo div,
+    .cardVendaInfo div {
+        display: grid;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .cardVendaTopo span,
+    .cardVendaInfo span {
+        color: #fff;
+        font-size: 11px;
+        font-weight: 900;
+        line-height: 1;
+        text-transform: uppercase;
+    }
+
+    .cardVendaTopo strong,
+    .cardVendaInfo strong {
+        color: #111;
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
+    }
+
+    .cardVendaInfo {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .cardVendaInfo div:nth-child(3) {
+        grid-column: 1 / -1;
+    }
+
+    .status {
+        flex: 0 0 auto;
+        min-width: 0;
+        height: auto;
+        min-height: 28px;
+        border-radius: 6px;
+        padding: 6px 9px;
+        font-size: 12px;
+        line-height: 1;
+        white-space: nowrap;
+    }
+
+    .botaoDetalheMobile {
+        width: 100%;
+        min-height: 42px;
+        border: none;
+        border-radius: 8px;
+        background: #000;
+        color: #fff;
+        font-size: 14px;
+        font-weight: 900;
+        cursor: pointer;
+    }
+
+    .botaoDetalheMobile:hover {
+        background: var(--cor-principal);
     }
 }
 
@@ -281,64 +387,60 @@
         height: 40px;
     }
 
-    .tabelaWrapper {
-        overflow-x: visible;
+    .cardsMobile {
+        grid-template-columns: 1fr;
+        gap: 12px;
     }
 
-    .tabela {
+    .cardEstado {
+        color: #777;
+    }
+
+    .cardVenda {
+        display: grid;
+        gap: 14px;
+        padding: 14px;
+    }
+
+    .cardVendaTopo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .cardVendaTopo div,
+    .cardVendaInfo div {
+        display: grid;
+        gap: 4px;
         min-width: 0;
     }
 
-    .tabela thead {
-        display: none;
-    }
-
-    .tabela,
-    .tabela tbody,
-    .tabela tr,
-    .tabela td {
-        display: block;
-        width: 100%;
-    }
-
-    .tabela tr {
-        border: 1px solid #eeeeee;
-        border-radius: 8px;
-        padding: 12px;
-        margin-bottom: 12px;
-        background: #fff;
-    }
-
-    .tabela td {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 14px;
-        padding: 8px 0;
-        font-size: 14px;
-        text-align: right;
-    }
-
-    .tabela td::before {
-        content: attr(data-label);
-        color: #555;
-        font-size: 12px;
+    .cardVendaTopo span,
+    .cardVendaInfo span {
+        color: #fff;
+        font-size: 11px;
         font-weight: 900;
-        text-align: left;
+        line-height: 1;
         text-transform: uppercase;
     }
 
-    .botaoDetalhe {
-        min-height: 34px;
-        padding: 0 12px;
+    .cardVendaTopo strong,
+    .cardVendaInfo strong {
+        color: #111;
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.2;
+        overflow-wrap: anywhere;
     }
 
-    .vazio {
-        display: block !important;
-        text-align: center !important;
+    .cardVendaInfo {
+        grid-template-columns: 1fr;
     }
 
-    .vazio::before {
-        content: none !important;
+    .cardVendaInfo div:nth-child(3) {
+        grid-column: auto;
     }
 }

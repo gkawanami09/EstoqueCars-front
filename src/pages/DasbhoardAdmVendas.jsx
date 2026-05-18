@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
-import css from "./DasbhoardAdmVendas.module.css";
 import { useNavigate } from "react-router-dom";
+import css from "./DasbhoardAdmVendas.module.css";
 
-const filtrosPeriodo = ["Ultimos 30 dias", "Ultimos 15 dias", "Ultimos 7 dias"];
+const filtrosPeriodo = ["Últimos 30 dias", "Últimos 15 dias", "Últimos 7 dias"];
 const filtrosStatus = ["Status", "Pago", "Pendente"];
 const filtrosPagamento = ["Forma de Pagamento", "Pix", "Parcelado", "Cartão de débito", "Boleto", "Dinheiro"];
 
@@ -92,9 +92,10 @@ function DasbhoardAdmVendas({ API }) {
         <main className={css.pagina}>
             <header className={css.cabecalho}>
                 <h1>Vendas</h1>
-                <button type="button" 
-                        className={css.botaoCadastrar}
-                        onClick={() => navigate("/venda")}
+                <button
+                    type="button"
+                    className={css.botaoCadastrar}
+                    onClick={() => navigate("/venda")}
                 >
                     Cadastrar Venda
                 </button>
@@ -117,7 +118,7 @@ function DasbhoardAdmVendas({ API }) {
                     <select
                         value={periodo}
                         onChange={(e) => setPeriodo(e.target.value)}
-                        aria-label="Periodo"
+                        aria-label="Período"
                     >
                         {filtrosPeriodo.map((filtro) => (
                             <option key={filtro}>{filtro}</option>
@@ -171,14 +172,14 @@ function DasbhoardAdmVendas({ API }) {
                                 <tr key={venda.id || `${venda.data}-${venda.cliente}-${venda.veiculo}`}>
                                     <td data-label="Data">{venda.data}</td>
                                     <td data-label="Cliente">{venda.cliente}</td>
-                                    <td data-label="Veiculo">{venda.veiculo}</td>
+                                    <td data-label="Veículo">{venda.veiculo}</td>
                                     <td data-label="Forma de Pagamento">{venda.pagamento}</td>
                                     <td data-label="Status">
                                         <span className={`${css.status} ${venda.status === "Pago" ? css.pago : css.pendente}`}>
                                             {venda.status}
                                         </span>
                                     </td>
-                                    <td data-label="Acoes">
+                                    <td data-label="Ações">
                                         <button type="button" className={css.botaoDetalhe}>
                                             Ver Detalhe
                                         </button>
@@ -195,6 +196,49 @@ function DasbhoardAdmVendas({ API }) {
                             )}
                         </tbody>
                     </table>
+                </div>
+
+                <div className={css.cardsMobile}>
+                    {carregando && (
+                        <div className={css.cardEstado}>Carregando vendas...</div>
+                    )}
+
+                    {!carregando && vendasFiltradas.map((venda) => (
+                        <article key={`mobile-${venda.id || `${venda.data}-${venda.cliente}-${venda.veiculo}`}`} className={css.cardVenda}>
+                            <div className={css.cardVendaTopo}>
+                                <div>
+                                    <span>Data</span>
+                                    <strong>{venda.data}</strong>
+                                </div>
+                                <span className={`${css.status} ${venda.status === "Pago" ? css.pago : css.pendente}`}>
+                                    {venda.status}
+                                </span>
+                            </div>
+
+                            <div className={css.cardVendaInfo}>
+                                <div>
+                                    <span>Cliente</span>
+                                    <strong>{venda.cliente}</strong>
+                                </div>
+                                <div>
+                                    <span>Veículo</span>
+                                    <strong>{venda.veiculo}</strong>
+                                </div>
+                                <div>
+                                    <span>Pagamento</span>
+                                    <strong>{venda.pagamento}</strong>
+                                </div>
+                            </div>
+
+                            <button type="button" className={css.botaoDetalheMobile}>
+                                Ver Detalhe
+                            </button>
+                        </article>
+                    ))}
+
+                    {!carregando && vendasFiltradas.length === 0 && (
+                        <div className={css.cardEstado}>Nenhuma venda encontrada.</div>
+                    )}
                 </div>
             </section>
         </main>
