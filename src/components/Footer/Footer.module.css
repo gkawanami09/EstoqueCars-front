@@ -1,5 +1,5 @@
 ﻿.footer {
-    background-color: var(--preto);
+    background-color: var(--preto-nav);
     color: #ffffff;
     padding: 28px 50px;
     margin-top: 60px;
@@ -23,6 +23,11 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+.logoLink {
+    display: inline-block;
+    width: fit-content;
 }
 
 .logo {

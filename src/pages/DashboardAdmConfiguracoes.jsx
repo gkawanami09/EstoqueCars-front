@@ -1,199 +1,274 @@
-// Importa o CSS modular da tela de configurações.
+import { useEffect, useState } from "react";
+import Input from "../components/Input/Input.jsx";
 import css from "./DashboardAdmConfiguracoes.module.css";
 
-// Importa o componente de input reutilizável do projeto.
-import Input from "../components/Input/Input.jsx";
+const TEMA_PADRAO = {
+    corPrimaria: "#EF4444",
+    corSecundaria: "#171414",
+    fonte: "Montserrat",
+    logo: "/Logo.png"
+};
 
-// Importa hooks do React para estado e efeitos colaterais.
-import { useEffect, useState } from "react";
-
-// Função que monta o header de autorização com token JWT.
 function cabecalhoAutorizacao() {
-
-    // Pega o token salvo no localStorage.
     const token = localStorage.getItem("access_token");
-
-    // Se existir token, retorna no formato Bearer; senão, retorna undefined.
     return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
-// Componente principal da tela de configurações.
+function montarUrlLogo(API, url) {
+    if (!url) {
+        return "";
+    }
+
+    if (String(url).includes("seu-servidor.com/uploads/")) {
+        return `${API}/uploads/${String(url).split("/uploads/")[1]}`;
+    }
+
+    if (String(url).startsWith("/")) {
+        return `${API}${url}`;
+    }
+
+    return url;
+}
+
+function somenteNumeros(valor) {
+    return String(valor || "").replace(/\D/g, "");
+}
+
+function formatarCnpj(valor) {
+    return somenteNumeros(valor)
+        .slice(0, 14)
+        .replace(/^(\d{2})(\d)/, "$1.$2")
+        .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1/$2")
+        .replace(/(\d{4})(\d)/, "$1-$2");
+}
+
+function formatarTelefone(valor) {
+    const numeros = somenteNumeros(valor).slice(0, 11);
+
+    if (numeros.length <= 10) {
+        return numeros
+            .replace(/^(\d{2})(\d)/, "($1) $2")
+            .replace(/(\d{4})(\d)/, "$1-$2");
+    }
+
+    return numeros
+        .replace(/^(\d{2})(\d)/, "($1) $2")
+        .replace(/(\d{5})(\d)/, "$1-$2");
+}
+
+function aplicarCores(corPrimaria, corSecundaria, fonte) {
+    document.documentElement.style.setProperty("--cor-principal", corPrimaria || "#EF4444");
+    document.documentElement.style.setProperty("--cor-secundaria", corSecundaria || "#171414");
+    document.documentElement.style.setProperty("--preto-nav", corSecundaria || "#171414");
+    document.documentElement.style.setProperty("--fonte-site", fonte || "Montserrat");
+}
+
+function salvarLogoSite(url) {
+    if (!url) {
+        return;
+    }
+
+    localStorage.setItem("logo_site_url", url);
+    window.dispatchEvent(new Event("logo-atualizada"));
+}
+
+function voltarLogoPadraoSite() {
+    localStorage.removeItem("logo_site_url");
+    window.dispatchEvent(new Event("logo-atualizada"));
+}
+
 function DashboardAdmConfiguracoes({ API }) {
-
-    // Estado que guarda o arquivo da logo.
     const [logo, setLogo] = useState(null);
-
-    // Estado que guarda a URL de preview da logo.
+    const [usarLogoPadrao, setUsarLogoPadrao] = useState(false);
     const [previewLogo, setPreviewLogo] = useState("");
-
-    // Estado da cor primária do sistema.
-    const [corPrimaria, setCorPrimaria] = useState("#000000");
-
-    // Estado da cor secundária do sistema.
-    const [corSecundaria, setCorSecundaria] = useState("#ffffff");
-
-    // Estado da fonte escolhida.
-    const [fonte, setFonte] = useState("Arial");
-
-    // Estado do nome da empresa.
+    const [corPrimaria, setCorPrimaria] = useState(TEMA_PADRAO.corPrimaria);
+    const [corSecundaria, setCorSecundaria] = useState(TEMA_PADRAO.corSecundaria);
+    const [fonte, setFonte] = useState(TEMA_PADRAO.fonte);
     const [nomeEmpresa, setNomeEmpresa] = useState("");
-
-    // Estado do CNPJ da empresa.
     const [cnpj, setCnpj] = useState("");
-
-    // Estado do e-mail de contato.
     const [email, setEmail] = useState("");
-
-    // Estado do telefone de contato.
     const [telefone, setTelefone] = useState("");
-
-    // Estado da mensagem de sucesso/erro.
+    const [taxaJuros, setTaxaJuros] = useState("0");
+    const [carregando, setCarregando] = useState(true);
+    const [salvando, setSalvando] = useState(false);
     const [mensagem, setMensagem] = useState(null);
-
-    // Estado de erro simples.
     const [erro, setErro] = useState("");
 
-    // useEffect executa ao carregar a tela.
     useEffect(() => {
-        // Função que busca as configurações da API.
-        async function carregar() {
+        async function carregarConfiguracoes() {
+            setCarregando(true);
+            setErro("");
 
-            // Faz requisição GET para buscar configurações.
-            const res = await fetch(`${API}/configuracoes`, {
-                headers: cabecalhoAutorizacao(),
-                credentials: "include"
-            });
+            try {
+                const resposta = await fetch(`${API}/configuracoes`, {
+                    method: "GET",
+                    headers: cabecalhoAutorizacao(),
+                    credentials: "include"
+                });
+                const dados = await resposta.json();
 
-            // Converte resposta para JSON.
-            const dados = await res.json();
+                if (!resposta.ok) {
+                    setErro(dados.erro || "Erro ao carregar configuracoes.");
+                    return;
+                }
 
-            // Preenche os estados com os dados da API.
-            setPreviewLogo(dados.logo);
-            setCorPrimaria(dados.corPrimaria);
-            setCorSecundaria(dados.corSecundaria);
-            setFonte(dados.fonte);
-            setNomeEmpresa(dados.nomeEmpresa);
-            setCnpj(dados.cnpj);
-            setEmail(dados.email);
-            setTelefone(dados.telefone);
+                const logoUrl = montarUrlLogo(API, dados.logo_url);
+                setPreviewLogo(logoUrl);
+                salvarLogoSite(logoUrl);
+                setUsarLogoPadrao(false);
+                setCorPrimaria(dados.cor_primaria || TEMA_PADRAO.corPrimaria);
+                setCorSecundaria(dados.cor_secundaria || TEMA_PADRAO.corSecundaria);
+                setFonte(dados.fonte_visual || TEMA_PADRAO.fonte);
+                aplicarCores(dados.cor_primaria, dados.cor_secundaria, dados.fonte_visual);
+                setNomeEmpresa(dados.nome_empresa || "");
+                setCnpj(formatarCnpj(dados.cnpj || ""));
+                setEmail(dados.email_contato || "");
+                setTelefone(formatarTelefone(dados.telefone_contato || ""));
+                setTaxaJuros(String(dados.taxa_juros ?? 0));
+            } catch {
+                setErro("Erro de conexao com o servidor.");
+            } finally {
+                setCarregando(false);
+            }
         }
 
-        // Executa a função.
-        carregar();
+        carregarConfiguracoes();
+    }, [API]);
 
-    }, [API]); // Executa sempre que a API mudar.
+    useEffect(() => {
+        aplicarCores(corPrimaria, corSecundaria, fonte);
+    }, [corPrimaria, corSecundaria, fonte]);
 
-    // Função chamada ao alterar a logo.
     function alterarLogo(e) {
+        const arquivo = e.target.files?.[0] || null;
+        setLogo(arquivo);
+        setUsarLogoPadrao(false);
 
-        // Pega o arquivo selecionado.
-        const file = e.target.files[0];
-
-        // Salva o arquivo no estado.
-        setLogo(file);
-
-        // Se existir arquivo, cria preview local.
-        if (file) {
-            setPreviewLogo(URL.createObjectURL(file));
+        if (arquivo) {
+            setPreviewLogo(URL.createObjectURL(arquivo));
         }
     }
 
-    // Função que salva as configurações.
-    async function salvar(e) {
-
-        // Impede o reload da página.
-        e.preventDefault();
-
-        // Limpa erro anterior.
-        setErro("");
-
-        // Limpa mensagem anterior.
-        setMensagem(null);
-
-        // Cria objeto FormData para enviar arquivos + dados.
-        const formData = new FormData();
-
-        // Adiciona todos os campos no FormData.
-        formData.append("logo", logo);
-        formData.append("corPrimaria", corPrimaria);
-        formData.append("corSecundaria", corSecundaria);
-        formData.append("fonte", fonte);
-        formData.append("nomeEmpresa", nomeEmpresa);
-        formData.append("cnpj", cnpj);
-        formData.append("email", email);
-        formData.append("telefone", telefone);
-        // Envia requisição PUT para salvar configurações.
-        const res = await fetch(`${API}/configuracoes`, {
-            method: "PUT",
-            headers: cabecalhoAutorizacao(), // NÃO usa JSON aqui
-            credentials: "include",
-            body: formData
-        });
-
-        // Converte resposta para JSON.
-        const resposta = await res.json();
-
-        // Se der erro, mostra mensagem e interrompe.
-        if (!res.ok) {
-            setErro(resposta.erro || "Erro ao salvar");
-            return;
-        }
-
-        // Se sucesso, mostra mensagem positiva.
+    function voltarPadrao() {
+        setCorPrimaria(TEMA_PADRAO.corPrimaria);
+        setCorSecundaria(TEMA_PADRAO.corSecundaria);
+        setFonte(TEMA_PADRAO.fonte);
+        setLogo(null);
+        setUsarLogoPadrao(true);
+        setPreviewLogo(TEMA_PADRAO.logo);
+        voltarLogoPadraoSite();
+        aplicarCores(TEMA_PADRAO.corPrimaria, TEMA_PADRAO.corSecundaria, TEMA_PADRAO.fonte);
         setMensagem({
             tipo: "sucesso",
-            texto: "Configurações salvas com sucesso!"
+            texto: "Padrao aplicado. Clique em Salvar para gravar."
         });
     }
 
-    // Renderização da tela.
+    async function salvar(e) {
+        e.preventDefault();
+        setErro("");
+        setMensagem(null);
+        setSalvando(true);
+
+        const formData = new FormData();
+        formData.append("nome_empresa", nomeEmpresa);
+        formData.append("cnpj", somenteNumeros(cnpj));
+        formData.append("telefone_contato", somenteNumeros(telefone));
+        formData.append("email_contato", email);
+        formData.append("taxa_juros", String(taxaJuros || 0).replace(",", "."));
+        formData.append("cor_primaria", corPrimaria);
+        formData.append("cor_secundaria", corSecundaria);
+        formData.append("fonte_visual", fonte);
+
+        try {
+            if (logo) {
+                formData.append("logo", logo);
+            } else if (usarLogoPadrao) {
+                const respostaLogoPadrao = await fetch(TEMA_PADRAO.logo);
+                const blobLogoPadrao = await respostaLogoPadrao.blob();
+                const arquivoLogoPadrao = new File([blobLogoPadrao], "logo_empresa.png", { type: blobLogoPadrao.type || "image/png" });
+                formData.append("logo", arquivoLogoPadrao);
+            }
+
+            const resposta = await fetch(`${API}/configuracoes`, {
+                method: "PUT",
+                headers: cabecalhoAutorizacao(),
+                credentials: "include",
+                body: formData
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setErro(dados.erro || "Erro ao salvar configuracoes.");
+                return;
+            }
+
+            setMensagem({
+                tipo: "sucesso",
+                texto: dados.mensagem || "Configuracoes atualizadas com sucesso!"
+            });
+            aplicarCores(corPrimaria, corSecundaria, fonte);
+
+            if (logo || usarLogoPadrao) {
+                const logoAtualizada = `${API}/uploads/logo_empresa.png?v=${Date.now()}`;
+                setPreviewLogo(logoAtualizada);
+                if (usarLogoPadrao) {
+                    voltarLogoPadraoSite();
+                    setPreviewLogo(TEMA_PADRAO.logo);
+                } else {
+                    salvarLogoSite(logoAtualizada);
+                }
+            }
+
+            setLogo(null);
+            setUsarLogoPadrao(false);
+        } catch {
+            setErro("Erro de conexao com o servidor.");
+        } finally {
+            setSalvando(false);
+        }
+    }
+
     return (
-
-        // Container principal.
         <main className={css.container}>
+            <h1 className={css.titulo}>Configuracoes da Plataforma</h1>
 
-            {/* Título da página */}
-            <h1 className={css.titulo}>Configurações da Plataforma</h1>
-
-            {/* Exibe mensagem se existir */}
             {mensagem && (
                 <div className={css.mensagem}>
                     {mensagem.texto}
                 </div>
             )}
 
-            {/* Formulário principal */}
+            {carregando && (
+                <div className={css.mensagem}>
+                    Carregando configuracoes...
+                </div>
+            )}
+
             <form className={css.formulario} onSubmit={salvar}>
-
-                {/* Grid principal */}
                 <div className={css.grid}>
-
-                    {/* Lado esquerdo */}
                     <div className={css.esquerda}>
-
                         <h2>Logo</h2>
 
-                        {/* Preview da logo */}
                         {previewLogo && (
-                            <img src={previewLogo} className={css.logoPreview} />
+                            <img src={previewLogo} className={css.logoPreview} alt="Logo da empresa" />
                         )}
 
-                        {/* Input de upload */}
-                        <input type="file" onChange={alterarLogo} />
+                        <input type="file" accept="image/*" onChange={alterarLogo} />
 
                         <h2>Cores</h2>
 
-                        {/* Inputs de cores */}
                         <div className={css.duplo}>
                             <Input
-                                label="Cor Primária"
+                                label="Cor primaria"
                                 type="color"
                                 value={corPrimaria}
                                 onChange={(e) => setCorPrimaria(e.target.value)}
                             />
 
                             <Input
-                                label="Cor Secundária"
+                                label="Cor secundaria"
                                 type="color"
                                 value={corSecundaria}
                                 onChange={(e) => setCorSecundaria(e.target.value)}
@@ -202,7 +277,6 @@ function DashboardAdmConfiguracoes({ API }) {
 
                         <h2>Fonte</h2>
 
-                        {/* Select de fonte */}
                         <select
                             className={css.select}
                             value={fonte}
@@ -212,77 +286,70 @@ function DashboardAdmConfiguracoes({ API }) {
                             <option>Roboto</option>
                             <option>Montserrat</option>
                         </select>
-
                     </div>
 
-                    {/* Lado direito */}
                     <div className={css.direita}>
-
                         <h2>Dados da Empresa</h2>
 
-                        {/* Nome da empresa */}
                         <Input
                             label="Nome"
                             value={nomeEmpresa}
                             onChange={(e) => setNomeEmpresa(e.target.value)}
                         />
 
-                        {/* CNPJ */}
                         <Input
                             label="CNPJ"
                             value={cnpj}
-                            onChange={(e) => setCnpj(e.target.value)}
+                            inputMode="numeric"
+                            maxLength={18}
+                            onChange={(e) => setCnpj(formatarCnpj(e.target.value))}
                         />
 
                         <h2>Contato</h2>
 
-                        {/* E-mail */}
                         <Input
                             label="E-mail"
+                            type="email"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
 
-                        {/* Telefone */}
                         <Input
                             label="Telefone"
                             value={telefone}
-                            onChange={(e) => setTelefone(e.target.value)}
+                            inputMode="numeric"
+                            maxLength={15}
+                            onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
                         />
 
                         <h2>Juros da Empresa</h2>
 
-                        <div className={css.duplo}>
-                            <label className={css.campo}>
-                                <span>Taxa mensal (%)</span>
-                                <input type="text" defaultValue="2,5" />
-                            </label>
-
-                            <label className={css.campo}>
-                                <span>Tipo de juros</span>
-                                <select defaultValue="composto">
-                                    <option value="composto">Composto</option>
-                                    <option value="simples">Simples</option>
-                                </select>
-                            </label>
-                        </div>
-
+                        <label className={css.campo}>
+                            <span>Taxa mensal (%)</span>
+                            <input
+                                type="number"
+                                min="0"
+                                step="0.01"
+                                value={taxaJuros}
+                                onChange={(e) => setTaxaJuros(e.target.value)}
+                            />
+                        </label>
                     </div>
-
                 </div>
 
-                {/* Exibe erro */}
                 {erro && <p className={css.erro}>{erro}</p>}
 
-                {/* Botões */}
                 <div className={css.botoes}>
-                    <button className={css.salvar}>Salvar</button>
+                    <button className={css.botaoPadrao} type="button" onClick={voltarPadrao} disabled={salvando || carregando}>
+                        Voltar ao padrão
+                    </button>
+                    <button className={css.salvar} type="submit" disabled={salvando || carregando}>
+                        {salvando ? "Salvando..." : "Salvar"}
+                    </button>
                 </div>
-
             </form>
         </main>
     );
 }
 
-// Exporta o componente para uso nas rotas.
 export default DashboardAdmConfiguracoes;

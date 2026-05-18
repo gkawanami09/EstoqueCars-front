@@ -102,10 +102,10 @@ function DasbhoardAdmVendas() {
                             <tr>
                                 <th>Data</th>
                                 <th>Cliente</th>
-                                <th>Veículo</th>
+                                <th>VeÃ­culo</th>
                                 <th>Forma de Pagamento</th>
                                 <th>Status</th>
-                                <th>Ações</th>
+                                <th>AÃ§Ãµes</th>
                             </tr>
                         </thead>
 

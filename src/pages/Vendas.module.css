@@ -293,6 +293,79 @@
     min-width: 0;
 }
 
+.pixBox {
+    display: grid;
+    gap: 10px;
+    border: 1px solid #e9e9e9;
+    border-radius: 8px;
+    background: #fbfbfb;
+    padding: 12px;
+}
+
+.pixTopo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.pixTopo span {
+    color: #000;
+    font-size: 13px;
+    font-weight: 900;
+}
+
+.pixTopo strong {
+    color: #258243;
+    font-size: 15px;
+    font-weight: 900;
+    text-align: right;
+}
+
+.botaoGerarPix,
+.botaoCopiarPix {
+    min-height: 34px;
+    border: none;
+    border-radius: 6px;
+    background: #000;
+    color: #fff;
+    padding: 0 14px;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.botaoGerarPix:disabled,
+.botaoCopiarPix:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.pixResultado {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+}
+
+.pixResultado img {
+    width: 150px;
+    height: 150px;
+    border: 1px solid #ededed;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.pixResultado textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.pixResultado .botaoCopiarPix {
+    grid-column: 2;
+    justify-self: start;
+}
+
 .financiamento {
     display: flex;
     flex-direction: column;
@@ -602,6 +675,19 @@
 
     .parcela strong {
         text-align: left;
+    }
+
+    .pixResultado {
+        grid-template-columns: 1fr;
+    }
+
+    .pixResultado img {
+        justify-self: center;
+    }
+
+    .pixResultado .botaoCopiarPix {
+        grid-column: 1;
+        justify-self: stretch;
     }
 
     .modalFundo {

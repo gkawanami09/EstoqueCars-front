@@ -135,8 +135,9 @@ function Vendas({ API }) {
     const [comentarios, setComentarios] = useState("");
     const [desconto, setDesconto] = useState("");
     const [comprovante, setComprovante] = useState(null);
-    const [chavePix, setChavePix] = useState("");
-    const [transacaoPix, setTransacaoPix] = useState("");
+    const [pixGerado, setPixGerado] = useState(null);
+    const [gerandoPix, setGerandoPix] = useState(false);
+    const [erroPix, setErroPix] = useState("");
     const [parcelasFinanciamento, setParcelasFinanciamento] = useState(48);
     const [modalParcelasAberto, setModalParcelasAberto] = useState(false);
     const [salvando, setSalvando] = useState(false);
@@ -230,6 +231,12 @@ function Vendas({ API }) {
     const descontoNumerico = numeroDoCampo(desconto);
     const valorComDesconto = Math.max(valorNumerico - (valorNumerico * descontoNumerico / 100), 0);
     const valorParcelado = valorComDesconto;
+
+    useEffect(() => {
+        setPixGerado(null);
+        setErroPix("");
+    }, [formaPagamento, valorComDesconto]);
+
     const valorParcelaParcelamento = useMemo(() => {
         const parcelas = Number(parcelasFinanciamento) || 1;
 
@@ -278,6 +285,59 @@ function Vendas({ API }) {
     function mostrarMensagem(tipo, texto) {
         setMensagem({ tipo, texto });
         subirParaTopo();
+    }
+
+    async function gerarPix() {
+        if (!valorComDesconto) {
+            setErroPix("Informe o valor da venda para gerar o Pix.");
+            return;
+        }
+
+        setGerandoPix(true);
+        setErroPix("");
+        setPixGerado(null);
+
+        try {
+            const resposta = await fetch(`${API}/gerar_pix`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...cabecalhoAutorizacao()
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    valor_venda: valorComDesconto.toFixed(2)
+                })
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setErroPix(dados.erro || dados.mensagem || "Erro ao gerar Pix.");
+                return;
+            }
+
+            setPixGerado({
+                copiaECola: dados.pix_copia_e_cola,
+                qrCode: dados.qr_code_base64
+            });
+        } catch {
+            setErroPix("Nao foi possivel conectar ao servidor para gerar o Pix.");
+        } finally {
+            setGerandoPix(false);
+        }
+    }
+
+    async function copiarPix() {
+        if (!pixGerado?.copiaECola) {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(pixGerado.copiaECola);
+            mostrarMensagem("sucesso", "Codigo Pix copiado.");
+        } catch {
+            mostrarMensagem("erro", "Nao foi possivel copiar o codigo Pix automaticamente.");
+        }
     }
 
     function montarFormData() {
@@ -481,7 +541,7 @@ function Vendas({ API }) {
                         </div>
                     )}
 
-                    {ehPix && (
+                    {/*
                         <div className={css.areaPagamento}>
                             <label className={css.campo}>
                                 <span>Chave Pix</span>
@@ -502,6 +562,76 @@ function Vendas({ API }) {
                                     placeholder="Digite o código da transação"
                                 />
                             </label>
+                        </div>
+                    )}
+
+                    {ehPix && (
+                        <div className={css.pixBox}>
+                            <div className={css.pixTopo}>
+                                <span>Pix da venda</span>
+                                <strong>{formatarMoeda(valorComDesconto)}</strong>
+                            </div>
+
+                            <button
+                                type="button"
+                                className={css.botaoGerarPix}
+                                onClick={gerarPix}
+                                disabled={gerandoPix || !valorComDesconto}
+                            >
+                                {gerandoPix ? "Gerando Pix..." : "Gerar Pix"}
+                            </button>
+
+                            {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
+
+                            {pixGerado && (
+                                <div className={css.pixResultado}>
+                                    <img src={pixGerado.qrCode} alt="QR Code Pix" />
+
+                                    <label className={css.campo}>
+                                        <span>Pix copia e cola</span>
+                                        <textarea value={pixGerado.copiaECola} readOnly />
+                                    </label>
+
+                                    <button type="button" className={css.botaoCopiarPix} onClick={copiarPix}>
+                                        Copiar codigo
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+                    */}
+
+                    {ehPix && (
+                        <div className={css.pixBox}>
+                            <div className={css.pixTopo}>
+                                <span>Pix da venda</span>
+                                <strong>{formatarMoeda(valorComDesconto)}</strong>
+                            </div>
+
+                            <button
+                                type="button"
+                                className={css.botaoGerarPix}
+                                onClick={gerarPix}
+                                disabled={gerandoPix || !valorComDesconto}
+                            >
+                                {gerandoPix ? "Gerando Pix..." : "Gerar Pix"}
+                            </button>
+
+                            {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
+
+                            {pixGerado && (
+                                <div className={css.pixResultado}>
+                                    <img src={pixGerado.qrCode} alt="QR Code Pix" />
+
+                                    <label className={css.campo}>
+                                        <span>Pix copia e cola</span>
+                                        <textarea value={pixGerado.copiaECola} readOnly />
+                                    </label>
+
+                                    <button type="button" className={css.botaoCopiarPix} onClick={copiarPix}>
+                                        Copiar codigo
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     )}
 

@@ -6,7 +6,7 @@
 }
 
 .titulo {
-    margin: 0 0 22px;
+    margin: 0 0 22px !important;
     color: #000000;
     font-size: 30px;
     font-weight: 900;
@@ -14,7 +14,7 @@
 }
 
 .mensagem {
-    margin-bottom: 16px;
+    margin-bottom: 16px !important;
     border: 1px solid #a8dfb7;
     border-radius: 8px;
     background: #f1fff5;
@@ -144,7 +144,22 @@
 .botoes {
     display: flex;
     justify-content: flex-end;
+    gap: 10px;
     margin-top: 18px !important;
+}
+
+.botaoPadrao {
+    min-width: 148px;
+    min-height: 40px;
+    border: 1px solid #111111;
+    border-radius: 8px;
+    background: #ffffff;
+    color: #111111;
+    padding: 0 18px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+    transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
 .salvar {
@@ -162,9 +177,17 @@
     transition: transform 0.15s ease, opacity 0.15s ease;
 }
 
-.salvar:hover {
+.salvar:hover,
+.botaoPadrao:hover {
     opacity: 0.88;
     transform: translateY(-1px);
+}
+
+.salvar:disabled,
+.botaoPadrao:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
 }
 
 .textarea_motivo {
@@ -185,7 +208,7 @@
 
     .titulo {
         font-size: 26px;
-        margin-bottom: 16px;
+        margin-bottom: 16px !important;
     }
 
     .formulario {
@@ -221,9 +244,11 @@
 
     .botoes {
         justify-content: stretch;
+        flex-direction: column;
     }
 
-    .salvar {
+    .salvar,
+    .botaoPadrao {
         width: 100%;
     }
 }

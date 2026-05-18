@@ -11,6 +11,14 @@
     border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+.logoBotao {
+    display: block;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+}
+
 .logo {
     width: 155px;
     display: block;

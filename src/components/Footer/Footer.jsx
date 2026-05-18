@@ -1,10 +1,12 @@
 ﻿import css from './Footer.module.css'
 import ButtonLink from '../ButtonLink/ButtonLink'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
 
 function Footer({ API }) {
     const location = useLocation()
     const navigate = useNavigate()
+    const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem("logo_site_url") || "/ImgFooter/logo.png")
     const usuarioLogado = !3
     !localStorage.getItem('usuario_logado')
 
@@ -13,6 +15,15 @@ function Footer({ API }) {
         location.pathname === '/login' ||
         location.pathname === '/CodigoRecupera' ||
         location.pathname === '/confirmar-email'
+
+    useEffect(() => {
+        function atualizarLogo() {
+            setLogoUrl(localStorage.getItem("logo_site_url") || "/ImgFooter/logo.png")
+        }
+
+        window.addEventListener("logo-atualizada", atualizarLogo)
+        return () => window.removeEventListener("logo-atualizada", atualizarLogo)
+    }, [])
 
     async function sair() {
         await fetch(`${API}/logout`, {
@@ -28,7 +39,16 @@ function Footer({ API }) {
         <footer className={`${css.footer} ${semMargemTopo ? css.sem_margem_topo : ''}`}>
             <div className={css.conteudo}>
                 <div className={css.esquerda}>
-                    <img className={css.logo} src="/ImgFooter/logo.png" alt="Estoque Cars" />
+                    <Link to="/" className={css.logoLink}>
+                        <img
+                            className={css.logo}
+                            src={logoUrl}
+                            alt="Estoque Cars"
+                            onError={(e) => {
+                                e.currentTarget.src = "/ImgFooter/logo.png"
+                            }}
+                        />
+                    </Link>
                     <div className={css.endereco}>
                         <p>Rua Diamante negro,</p>
                         <p>1903,</p>

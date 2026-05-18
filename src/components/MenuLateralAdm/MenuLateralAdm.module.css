@@ -1,7 +1,7 @@
 .menu_lateral {
     width: 250px;
     height: 100vh;
-    background-color: var(--preto);
+    background-color: var(--preto-nav);
     display: flex;
     flex-direction: column;
     padding: 24px 20px;

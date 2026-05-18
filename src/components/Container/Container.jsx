@@ -7,7 +7,7 @@ export default function Container({ API }) {
     <>
       <Header API={API} />
       <Outlet />
-      <Footer />
+      <Footer API={API} />
     </>
   );
 }

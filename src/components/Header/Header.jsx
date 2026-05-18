@@ -1,10 +1,11 @@
 ﻿import { Link, useNavigate } from 'react-router-dom'
 import css from './Header.module.css'
 import ButtonLink from '../ButtonLink/ButtonLink'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 function Header({ API }) {
     const [menuAberto, setMenuAberto] = useState(false)
+    const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem("logo_site_url") || "/Logo.png")
     const navigate = useNavigate()
     const usuarioSalvo = localStorage.getItem('usuario_logado')
     const usuarioLogado = !!usuarioSalvo
@@ -23,6 +24,15 @@ function Header({ API }) {
     }
 
     const rotaDashboard = buscarRotaDashboard()
+
+    useEffect(() => {
+        function atualizarLogo() {
+            setLogoUrl(localStorage.getItem("logo_site_url") || "/Logo.png")
+        }
+
+        window.addEventListener("logo-atualizada", atualizarLogo)
+        return () => window.removeEventListener("logo-atualizada", atualizarLogo)
+    }, [])
 
     function toggleMenu() {
         setMenuAberto(!menuAberto)
@@ -47,7 +57,14 @@ function Header({ API }) {
         <header className={css.container}>
             <Link className={css.logoBox} to="/">
                 <div>
-                    <img className={css.logo} src="/Logo.png" alt="Logo" />
+                    <img
+                        className={css.logo}
+                        src={logoUrl}
+                        alt="Logo"
+                        onError={(e) => {
+                            e.currentTarget.src = "/Logo.png"
+                        }}
+                    />
                 </div>
             </Link>
 

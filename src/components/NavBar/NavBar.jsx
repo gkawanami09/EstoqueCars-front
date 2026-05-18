@@ -1,8 +1,19 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import css from "./NavBar.module.css";
+import { useEffect, useState } from "react";
 
 function NavBar() {
     const navigate = useNavigate();
+    const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem("logo_site_url") || "/ImgNavBar/LogoNav.png");
+
+    useEffect(() => {
+        function atualizarLogo() {
+            setLogoUrl(localStorage.getItem("logo_site_url") || "/ImgNavBar/LogoNav.png");
+        }
+
+        window.addEventListener("logo-atualizada", atualizarLogo);
+        return () => window.removeEventListener("logo-atualizada", atualizarLogo);
+    }, []);
 
     function sair() {
         localStorage.removeItem("usuario_logado");
@@ -12,7 +23,16 @@ function NavBar() {
     return (
         <aside className={css.sidebar}>
             <div>
-                <img className={css.logo} src="/ImgNavBar/LogoNav.png" alt="Estoque Cars" />
+                <button type="button" className={css.logoBotao} onClick={() => navigate("/")}>
+                    <img
+                        className={css.logo}
+                        src={logoUrl}
+                        alt="Estoque Cars"
+                        onError={(e) => {
+                            e.currentTarget.src = "/ImgNavBar/LogoNav.png";
+                        }}
+                    />
+                </button>
 
                 <nav className={css.nav}>
                     <NavLink
