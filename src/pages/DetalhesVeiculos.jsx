@@ -24,6 +24,11 @@ async function lerRespostaJson(resposta) {
     }
 }
 
+function cabecalhoAutorizacao() {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 // Tela que mostra todos os detalhes de um veiculo especifico.
 function DetalhesVeiculos({ API }) {
     // Pega o parametro ":id" da rota /detalhesVeiculos/:id.
@@ -58,6 +63,10 @@ function DetalhesVeiculos({ API }) {
 
     // Guarda erro ao buscar o veiculo.
     const [erro, setErro] = useState("");
+
+    const [reservando, setReservando] = useState(false);
+
+    const [mensagemReserva, setMensagemReserva] = useState(null);
 
     // Guarda erro ao buscar as manutencoes.
     const [erroManutencoes, setErroManutencoes] = useState("");
@@ -202,7 +211,7 @@ function DetalhesVeiculos({ API }) {
         const tipoStatus = tipoStatusEstoque(valor);
 
         if (tipoStatus === "indisponivel") {
-            return "Indisponível";
+            return "Reservado";
         }
 
         if (tipoStatus === "vendido") {
@@ -215,13 +224,13 @@ function DetalhesVeiculos({ API }) {
 
         const status = String(valor || "").toLowerCase();
 
-        // 2 ou texto com indisponivel vira "Indisponivel".
-        if (status === "2" || status.includes("indispon")) {
-            return "Indisponível";
+        // Texto com indisponivel/reservado vira "Reservado".
+        if (status.includes("indispon") || status.includes("reserv")) {
+            return "Reservado";
         }
 
-        // 3 ou texto com vendido vira "Vendido".
-        if (status === "3" || status.includes("vend")) {
+        // Texto com vendido vira "Vendido".
+        if (status.includes("vend")) {
             return "Vendido";
         }
 
@@ -247,7 +256,7 @@ function DetalhesVeiculos({ API }) {
 
         const statusFormatado = formatarStatusEstoque(valor);
 
-        if (statusFormatado === "Indisponível") {
+        if (statusFormatado === "Reservado") {
             return css.status_indisponivel;
         }
 
@@ -359,6 +368,56 @@ function DetalhesVeiculos({ API }) {
         return carro?.id || carro?.id_carro || carro?.id_veiculo || carro?.ID_VEICULO || carro?.ID_CARRO;
     }
 
+    async function reservarVeiculo() {
+        const idVeiculo = idCarro();
+
+        if (!idVeiculo || tipoStatusEstoque(carro?.status_estoque) !== "estoque") {
+            return;
+        }
+
+        setReservando(true);
+        setMensagemReserva(null);
+
+        try {
+            const resposta = await fetch(`${API}/reservar_carro/${idVeiculo}`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...cabecalhoAutorizacao()
+                },
+                credentials: "include",
+                body: JSON.stringify({
+                    id_usuario: usuarioLogado.id_usuario || usuarioLogado.id_user || usuarioLogado.id || usuarioLogado.ID_USUARIO
+                })
+            });
+            const dados = await lerRespostaJson(resposta);
+
+            if (!resposta.ok) {
+                setMensagemReserva({
+                    tipo: "erro",
+                    texto: dados.erro || dados.mensagem || "Nao foi possivel reservar este veiculo."
+                });
+                return;
+            }
+
+            setCarro((veiculoAtual) => ({
+                ...veiculoAtual,
+                status_estoque: 3
+            }));
+            setMensagemReserva({
+                tipo: "sucesso",
+                texto: dados.mensagem || "Veiculo reservado com sucesso."
+            });
+        } catch {
+            setMensagemReserva({
+                tipo: "erro",
+                texto: "Erro de conexao ao reservar o veiculo."
+            });
+        } finally {
+            setReservando(false);
+        }
+    }
+
     // Enquanto a API ainda busca o carro, mostra uma mensagem de carregamento.
     if (carregando) {
         return (
@@ -445,6 +504,24 @@ function DetalhesVeiculos({ API }) {
                         <span>Descrição</span>
                         <p>{valor(carro.descricao)}</p>
                     </div>
+
+                    {!isPainelAdm && (
+                        <div className={css.reserva_area}>
+                            {mensagemReserva && (
+                                <p className={`${css.mensagem_reserva} ${mensagemReserva.tipo === "erro" ? css.mensagem_reserva_erro : ""}`}>
+                                    {mensagemReserva.texto}
+                                </p>
+                            )}
+                            <button
+                                type="button"
+                                className={css.reservar}
+                                onClick={reservarVeiculo}
+                                disabled={reservando || tipoStatusEstoque(carro.status_estoque) !== "estoque"}
+                            >
+                                {reservando ? "Reservando..." : tipoStatusEstoque(carro.status_estoque) === "estoque" ? "Reservar veiculo" : "Veiculo reservado"}
+                            </button>
+                        </div>
+                    )}
 
                 </aside>
             </section>

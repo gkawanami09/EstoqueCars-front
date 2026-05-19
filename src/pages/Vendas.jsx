@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { IMaskInput } from "react-imask";
 import css from "./Vendas.module.css";
 
 const formasPagamento = [
@@ -19,7 +20,13 @@ const situacaoParcelamento = {
 const JUROS_PADRAO = 0;
 
 function numeroDoCampo(valor) {
-    return Number(String(valor || "0").replace(",", ".")) || 0;
+    const texto = String(valor || "0").replace(/[^\d,.-]/g, "");
+
+    if (texto.includes(",")) {
+        return Number(texto.replace(/\./g, "").replace(",", ".")) || 0;
+    }
+
+    return Number(texto) || 0;
 }
 
 function taxaJurosParaDecimal(valor) {
@@ -321,7 +328,6 @@ function Vendas({ API }) {
 
     useEffect(() => {
         if (ehPix) {
-            setStatus(statusEmAndamento);
             setValorRecebido(String(valorComDesconto.toFixed(2)));
         }
     }, [ehPix, valorComDesconto]);
@@ -398,7 +404,7 @@ function Vendas({ API }) {
         formData.append("data_venda", formatarDataParaApi(dataVenda));
         formData.append("valor_venda", String(valorNumerico));
         formData.append("valor_recebido", String(ehPix ? valorComDesconto.toFixed(2) : numeroDoCampo(valorRecebido)));
-        formData.append("status_pagamento", ehPix ? statusEmAndamento : status);
+        formData.append("status_pagamento", status);
         formData.append("comentarios", comentarios);
         formData.append("desconto", String(descontoNumerico));
 
@@ -756,12 +762,19 @@ function Vendas({ API }) {
 
                     <label className={css.campo}>
                         <span>Valor da Venda</span>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.01"
+                        <IMaskInput
+                            mask={Number}
+                            scale={2}
+                            thousandsSeparator="."
+                            radix=","
+                            mapToRadix={["."]}
+                            normalizeZeros
+                            padFractionalZeros
+                            min={0}
+                            prefix="R$ "
+                            inputMode="decimal"
                             value={valorVenda}
-                            onChange={(e) => setValorVenda(e.target.value)}
+                            onAccept={(valor) => setValorVenda(valor)}
                         />
                     </label>
 
@@ -785,12 +798,19 @@ function Vendas({ API }) {
 
                     <label className={css.campo}>
                         <span>Valor Recebido</span>
-                        <input
-                            type="number"
-                            min="0"
-                            step="0.01"
+                        <IMaskInput
+                            mask={Number}
+                            scale={2}
+                            thousandsSeparator="."
+                            radix=","
+                            mapToRadix={["."]}
+                            normalizeZeros
+                            padFractionalZeros
+                            min={0}
+                            prefix="R$ "
+                            inputMode="decimal"
                             value={valorRecebido}
-                            onChange={(e) => setValorRecebido(e.target.value)}
+                            onAccept={(valor) => setValorRecebido(valor)}
                             readOnly={ehPix}
                         />
                     </label>
@@ -799,9 +819,8 @@ function Vendas({ API }) {
                         <label className={css.campo}>
                             <span>Status de Pagamento</span>
                             <select
-                                value={ehPix ? statusEmAndamento : status}
+                                value={status}
                                 onChange={(e) => setStatus(e.target.value)}
-                                disabled={ehPix}
                             >
                                 {statusPagamento.map((item) => (
                                     <option key={item.id} value={item.id}>{item.nome}</option>

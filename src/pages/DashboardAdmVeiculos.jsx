@@ -22,7 +22,7 @@ function DashboardAdmVeiculos({ API }) {
     const [carregando, setCarregando] = useState(true);
     // Guarda mensagens de erro vindas da API ou da conexao.
     const [erro, setErro] = useState("");
-   // Guarda qual carro o usuario quer excluir.
+    // Guarda qual carro o usuario quer excluir.
     const [carroParaExcluir, setCarroParaExcluir] = useState(null);
     // Guarda o id do carro que esta sendo excluido no momento.
     const [excluindoId, setExcluindoId] = useState(null);

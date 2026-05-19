@@ -29,7 +29,7 @@ function Paginacao({ paginaAtual, totalItens, onMudarPagina, sempreMostrar = fal
                     type="button"
                     onClick={() => onMudarPagina(paginaAtual + 1)}
                     disabled={paginaAtual === ultimaPagina}
-                    aria-label="Proxima pagina"
+                    aria-label="Próxima pagina"
                 >
                     {">"}
                 </button>

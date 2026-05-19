@@ -124,6 +124,47 @@
     overflow-wrap: anywhere;
 }
 
+.reserva_area {
+    display: grid;
+    gap: 10px;
+    margin-top: auto;
+}
+
+.reservar {
+    min-height: 46px;
+    border: none;
+    border-radius: 8px;
+    background: var(--cor-principal);
+    color: #fff;
+    padding: 0 18px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.reservar:disabled {
+    background: #9ca3af;
+    cursor: not-allowed;
+    opacity: 0.75;
+}
+
+.mensagem_reserva {
+    margin: 0;
+    border: 1px solid #b9e5c8;
+    border-radius: 8px;
+    background: #f0fff4;
+    color: #087a3d;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.mensagem_reserva_erro {
+    border-color: #f0b8b8;
+    background: #fff7f7;
+    color: #9c1c1c;
+}
+
 .status {
     width: fit-content;
     border-radius: 999px;

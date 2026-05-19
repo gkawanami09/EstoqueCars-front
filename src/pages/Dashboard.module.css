@@ -113,6 +113,10 @@
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
 }
 
+.card_compra_parcelada {
+    grid-column: 1 / -1;
+}
+
 .topo_compra {
     display: flex;
     align-items: flex-start;
@@ -205,6 +209,185 @@
     opacity: 0.65;
 }
 
+.area_pix_parcelas {
+    display: grid;
+    gap: 16px;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    background: #fbfbfb;
+    padding: 16px;
+}
+
+.topo_pix_parcelas {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.topo_pix_parcelas span {
+    color: #616568;
+    font-size: 0.84rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.topo_pix_parcelas h3 {
+    margin: 2px 0 0;
+    color: #000;
+    font-size: 1.35rem;
+    font-weight: 900;
+}
+
+.topo_pix_parcelas button {
+    min-height: 46px;
+    border: none;
+    border-radius: 8px;
+    background: var(--preto);
+    color: #fff;
+    padding: 0 20px;
+    font-size: 1rem;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.topo_pix_parcelas button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.estado_pix_parcelas {
+    margin: 0;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    color: #616568;
+    padding: 12px;
+    font-size: 0.9rem;
+    font-weight: 800;
+}
+
+.pix_parcela_unica {
+    display: grid;
+    gap: 14px;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    background: #fff;
+    padding: 14px;
+}
+
+.seletor_pix_parcela {
+    display: grid;
+    gap: 6px;
+    max-width: 520px;
+}
+
+.seletor_pix_parcela span,
+.pix_resumo_parcela span,
+.pix_copia_cola span {
+    color: #616568;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.seletor_pix_parcela select {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    padding: 0 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    outline: none;
+}
+
+.pix_resumo_parcela {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    background: #f8f8f8;
+    padding: 12px;
+}
+
+.pix_resumo_parcela div {
+    display: grid;
+    gap: 4px;
+}
+
+.pix_resumo_parcela strong {
+    color: #087a3d;
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+.pix_conteudo_unico {
+    display: grid;
+    grid-template-columns: minmax(190px, 230px) minmax(0, 1fr);
+    gap: 16px;
+    align-items: stretch;
+}
+
+.pix_qrcode_area {
+    display: grid;
+    place-items: center;
+    min-height: 230px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    color: #616568;
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-align: center;
+}
+
+.pix_qrcode_area img {
+    width: 200px;
+    height: 200px;
+    border-radius: 8px;
+}
+
+.pix_copia_cola {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.pix_copia_cola textarea {
+    width: 100%;
+    min-height: 144px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: 750;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+.pix_copia_cola button {
+    min-height: 44px;
+    border: none;
+    border-radius: 8px;
+    background: var(--preto);
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.pix_copia_cola button:hover {
+    background: var(--cor-principal);
+}
+
 .erro_pix_parcelas {
     margin: 0;
     border: 1px solid #ffd0d0;
@@ -218,7 +401,7 @@
 
 .lista_pix_parcelas {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
     gap: 12px;
 }
 
@@ -260,8 +443,8 @@
 }
 
 .pix_parcela img {
-    width: 132px;
-    height: 132px;
+    width: 156px;
+    height: 156px;
     justify-self: center;
     border: 1px solid #e6e6e6;
     border-radius: 8px;
@@ -613,6 +796,23 @@
     .grade_compra {
         grid-template-columns: 1fr;
     }
+
+    .topo_pix_parcelas {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .topo_pix_parcelas button {
+        width: 100%;
+    }
+
+    .pix_conteudo_unico {
+        grid-template-columns: 1fr;
+    }
+
+    .pix_qrcode_area {
+        min-height: 220px;
+    }
 }
 
 @media (max-width: 425px) {
@@ -651,6 +851,11 @@
     }
 
     .topo_compra {
+        flex-direction: column;
+    }
+
+    .pix_resumo_parcela {
+        align-items: stretch;
         flex-direction: column;
     }
 

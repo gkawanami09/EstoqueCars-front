@@ -4,7 +4,7 @@ import css from "./DasbhoardAdmVendas.module.css";
 
 const filtrosPeriodo = ["Últimos 30 dias", "Últimos 15 dias", "Últimos 7 dias"];
 const filtrosStatus = ["Status", "Pago", "Pendente"];
-const filtrosPagamento = ["Forma de Pagamento", "Pix", "Parcelado", "Cartão de débito", "Boleto", "Dinheiro"];
+const filtrosPagamento = ["Forma de Pagamento", "Pix", "Parcelado",];
 
 function cabecalhoAutorizacao() {
     const token = localStorage.getItem("access_token");
@@ -75,14 +75,43 @@ function formatarMoeda(valor) {
     });
 }
 
+function montarUrlPix(API, caminhoPix) {
+    if (!caminhoPix) {
+        return "";
+    }
+
+    const caminho = String(caminhoPix);
+
+    if (caminho.startsWith("http") || caminho.startsWith("data:")) {
+        return caminho;
+    }
+
+    if (caminho.startsWith("/")) {
+        return `${API}${caminho}`;
+    }
+
+    return `${API}/${caminho}`;
+}
+
+function normalizarParcelaPix(parcela) {
+    return {
+        id: parcela.id_item_parcelamento ?? parcela.ID_ITEM_PARCELAMENTO ?? parcela.id ?? parcela.ID,
+        numero: parcela.numero_parcela ?? parcela.NUMERO_PARCELA ?? parcela.parcela ?? parcela.PARCELA,
+        valor: parcela.valor_parcela ?? parcela.VALOR_PARCELA ?? parcela.valor ?? parcela.VALOR ?? 0,
+        vencimento: parcela.data_vencimento ?? parcela.DATA_VENCIMENTO ?? parcela.vencimento ?? parcela.VENCIMENTO,
+        qrcode: parcela.pix_qrcode ?? parcela.PIX_QRCODE ?? parcela.qrcode ?? parcela.qr_code ?? parcela.imagem_pix ?? parcela.imagem,
+        copiaCola: parcela.pix_copia_cola ?? parcela.PIX_COPIA_COLA ?? parcela.copia_cola ?? parcela.payload ?? parcela.pix_payload
+    };
+}
+
 function normalizarVenda(venda) {
     return {
         id: venda.id_venda || venda.ID_VENDA,
         data: formatarData(venda.data_venda || venda.DATA_VENDA),
         cliente: venda.cliente || venda.nome_cliente || venda.nome_usuario || `Cliente ${venda.id_usuario || venda.ID_USUARIO || "-"}`,
         veiculo: venda.veiculo || venda.nome_veiculo || venda.modelo || `Veículo ${venda.id_veiculo || venda.ID_VEICULO || "-"}`,
-        pagamento: venda.forma_pagamento_texto || venda.forma_pagamento || venda.FORMA_PAGAMENTO || "Não informado",
-        status: venda.status_pagamento_texto || venda.status_pagamento || venda.STATUS_PAGAMENTO || "Não informado",
+        pagamento: textoFormaPagamento(venda.forma_pagamento_texto ?? venda.forma_pagamento ?? venda.FORMA_PAGAMENTO),
+        status: textoStatusPagamento(venda.status_pagamento_texto ?? venda.status_pagamento ?? venda.STATUS_PAGAMENTO),
         valorVenda: venda.valor_venda ?? venda.VALOR_VENDA ?? 0,
         valorRecebido: venda.valor_recebido ?? venda.VALOR_RECEBIDO ?? 0,
         desconto: venda.desconto ?? venda.DESCONTOS ?? 0,
@@ -101,8 +130,8 @@ function normalizarVendaUsuario(venda) {
         data: formatarData(venda.data_venda || venda.DATA_VENDA),
         cliente: venda.nome_cliente || venda.cliente || venda.nome_usuario || `Cliente ${venda.id_usuario || venda.ID_USUARIO || "-"}`,
         veiculo: venda.veiculo || venda.nome_veiculo || venda.modelo || `Veículo ${venda.id_veiculo || venda.ID_VEICULO || "-"}`,
-        pagamento: textoFormaPagamento(venda.forma_pagamento_texto || venda.forma_pagamento || venda.FORMA_PAGAMENTO),
-        status: textoStatusPagamento(venda.status_pagamento_texto || venda.status_pagamento || venda.STATUS_PAGAMENTO),
+        pagamento: textoFormaPagamento(venda.forma_pagamento_texto ?? venda.forma_pagamento ?? venda.FORMA_PAGAMENTO),
+        status: textoStatusPagamento(venda.status_pagamento_texto ?? venda.status_pagamento ?? venda.STATUS_PAGAMENTO),
         valorVenda: venda.valor_venda ?? venda.VALOR_VENDA ?? 0,
         valorRecebido: venda.valor_recebido ?? venda.VALOR_RECEBIDO ?? 0,
         desconto: venda.desconto ?? venda.DESCONTOS ?? 0,
@@ -121,8 +150,10 @@ function DasbhoardAdmVendas({ API }) {
     const [status, setStatus] = useState(filtrosStatus[0]);
     const [pagamento, setPagamento] = useState(filtrosPagamento[0]);
     const [vendaDetalhe, setVendaDetalhe] = useState(null);
-    const [vendaParaExcluir, setVendaParaExcluir] = useState(null);
-    const [excluindoId, setExcluindoId] = useState(null);
+    const [pixParcelas, setPixParcelas] = useState({});
+    const [carregandoPixParcelas, setCarregandoPixParcelas] = useState({});
+    const [erroPixParcelas, setErroPixParcelas] = useState({});
+    const [pixPagamentoDetalhe, setPixPagamentoDetalhe] = useState(null);
 
     useEffect(() => {
         async function carregarVendas() {
@@ -198,53 +229,79 @@ function DasbhoardAdmVendas({ API }) {
         });
     }, [busca, pagamento, status, vendas]);
 
-    async function confirmarExclusaoVenda(venda) {
-        if (!venda?.id) {
-            setErro("Não foi possível identificar a venda para excluir.");
-            return;
-        }
-
-        setVendaParaExcluir(venda);
+    function ehVendaParcelada(venda) {
+        const forma = String(venda?.pagamento || venda?.forma_pagamento || venda?.FORMA_PAGAMENTO || "").trim().toLowerCase();
+        const quantidadeParcelas = Number(String(venda?.parcelas || venda?.quantidade_parcelas || venda?.QUANTIDADE_PARCELAS || 0).replace(",", "."));
+        return forma === "1" || forma.includes("parcel") || quantidadeParcelas > 1;
     }
 
-    async function deletarVenda() {
-        const venda = vendaParaExcluir;
-
-        if (!venda?.id) {
-            setVendaParaExcluir(null);
-            setErro("Não foi possível identificar a venda para excluir.");
+    async function carregarPixParcelas(idVenda, forcar = false) {
+        if (!idVenda) {
             return;
         }
 
-        setExcluindoId(venda.id);
-        setErro("");
+        if (!forcar && pixParcelas[idVenda]?.length) {
+            return;
+        }
+
+        setCarregandoPixParcelas((estado) => ({ ...estado, [idVenda]: true }));
+        setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
 
         try {
-            const resposta = await fetch(`${API}/deletar_venda/${venda.id}`, {
-                method: "DELETE",
+            const resposta = await fetch(`${API}/listar_pix_parcelas/${idVenda}`, {
+                method: "GET",
                 headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                setErro(dados.erro || dados.mensagem || "Não foi possível excluir a venda.");
+                setPixParcelas((estado) => ({ ...estado, [idVenda]: [] }));
+                setErroPixParcelas((estado) => ({
+                    ...estado,
+                    [idVenda]: dados.erro || dados.mensagem || "Erro ao carregar Pix das parcelas."
+                }));
                 return;
             }
 
-            setVendas((listaAtual) => listaAtual.filter((item) => item.id !== venda.id));
+            const listaParcelas = Array.isArray(dados)
+                ? dados
+                : dados.parcelas || dados.pix_parcelas || dados.faturas || dados.itens || [];
 
-            if (vendaDetalhe?.id === venda.id) {
-                setVendaDetalhe(null);
-            }
-
-            setVendaParaExcluir(null);
+            setPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: Array.isArray(listaParcelas) ? listaParcelas.map(normalizarParcelaPix) : []
+            }));
         } catch {
-            setErro("Não foi possível conectar ao servidor.");
+            setErroPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: "Nao foi possivel conectar ao servidor para carregar o Pix das parcelas."
+            }));
         } finally {
-            setExcluindoId(null);
+            setCarregandoPixParcelas((estado) => ({ ...estado, [idVenda]: false }));
         }
     }
+
+    async function copiarPixParcela(codigo) {
+        if (!codigo) {
+            return;
+        }
+
+        await navigator.clipboard.writeText(codigo);
+    }
+
+    useEffect(() => {
+        if (vendaDetalhe?.id) {
+            carregarPixParcelas(vendaDetalhe.id);
+        }
+    }, [vendaDetalhe]);
+
+    const vendaDetalheParcelada = vendaDetalhe && ehVendaParcelada(vendaDetalhe);
+    const idVendaDetalhe = vendaDetalhe?.id;
+    const mostrarPixDetalhe = Boolean(idVendaDetalhe);
+    const parcelasPixDetalhe = idVendaDetalhe ? pixParcelas[idVendaDetalhe] || [] : [];
+    const carregandoPixDetalhe = idVendaDetalhe ? carregandoPixParcelas[idVendaDetalhe] : false;
+    const erroPixDetalhe = idVendaDetalhe ? erroPixParcelas[idVendaDetalhe] : "";
 
     return (
         <main className={css.pagina}>
@@ -342,14 +399,6 @@ function DasbhoardAdmVendas({ API }) {
                                             <button type="button" className={css.botaoDetalhe} onClick={() => setVendaDetalhe(venda)}>
                                                 Ver detalhe
                                             </button>
-                                            <button
-                                                type="button"
-                                                className={css.botaoExcluir}
-                                                onClick={() => confirmarExclusaoVenda(venda)}
-                                                disabled={excluindoId === venda.id}
-                                            >
-                                                {excluindoId === venda.id ? "Excluindo..." : "Excluir"}
-                                            </button>
                                         </div>
                                     </td>
                                 </tr>
@@ -402,14 +451,6 @@ function DasbhoardAdmVendas({ API }) {
                                 <button type="button" className={css.botaoDetalheMobile} onClick={() => setVendaDetalhe(venda)}>
                                     Ver detalhe
                                 </button>
-                                <button
-                                    type="button"
-                                    className={css.botaoExcluirMobile}
-                                    onClick={() => confirmarExclusaoVenda(venda)}
-                                    disabled={excluindoId === venda.id}
-                                >
-                                    {excluindoId === venda.id ? "Excluindo..." : "Excluir"}
-                                </button>
                             </div>
                         </article>
                     ))}
@@ -428,7 +469,14 @@ function DasbhoardAdmVendas({ API }) {
                                 <span>Venda #{vendaDetalhe.id || "-"}</span>
                                 <h2 id="tituloDetalheVenda">Detalhe da venda</h2>
                             </div>
-                            <button type="button" onClick={() => setVendaDetalhe(null)} aria-label="Fechar detalhe">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setVendaDetalhe(null);
+                                    setPixPagamentoDetalhe(null);
+                                }}
+                                aria-label="Fechar detalhe"
+                            >
                                 x
                             </button>
                         </div>
@@ -477,50 +525,137 @@ function DasbhoardAdmVendas({ API }) {
                             <p>{vendaDetalhe.comentarios || "Sem observações."}</p>
                         </div>
 
+                        {mostrarPixDetalhe && (
+                            <div className={css.pixParcelasDetalhe}>
+                                <div className={css.pixParcelasTopo}>
+                                    <div>
+                                        <span>{vendaDetalheParcelada ? "Pagamento parcelado" : "Parcelas da venda"}</span>
+                                        <h3>Pix das parcelas</h3>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => carregarPixParcelas(idVendaDetalhe, true)}
+                                        disabled={carregandoPixDetalhe}
+                                    >
+                                        {carregandoPixDetalhe ? "Carregando..." : "Atualizar Pix"}
+                                    </button>
+                                </div>
+
+                                {erroPixDetalhe && <p className={css.erroPixParcelas}>{erroPixDetalhe}</p>}
+
+                                {carregandoPixDetalhe && parcelasPixDetalhe.length === 0 && (
+                                    <p className={css.estadoPixParcelas}>Carregando Pix das parcelas...</p>
+                                )}
+
+                                {!carregandoPixDetalhe && !erroPixDetalhe && parcelasPixDetalhe.length === 0 && (
+                                    <p className={css.estadoPixParcelas}>Nenhum Pix de parcela encontrado para esta venda.</p>
+                                )}
+
+                                {parcelasPixDetalhe.length > 0 && (
+                                    <div className={css.listaPixPagamento}>
+                                        {parcelasPixDetalhe.map((parcela, indice) => (
+                                            <div key={parcela.id || parcela.numero || indice} className={css.linhaPixPagamento}>
+                                                <div>
+                                                    <span>Parcela</span>
+                                                    <strong>{parcela.numero || indice + 1}</strong>
+                                                </div>
+                                                <div>
+                                                    <span>Vencimento</span>
+                                                    <strong>{parcela.vencimento || "-"}</strong>
+                                                </div>
+                                                <div>
+                                                    <span>Valor</span>
+                                                    <strong>{formatarMoeda(parcela.valor)}</strong>
+                                                </div>
+                                                <span className={css.statusPixPendente}>Pendente</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setPixPagamentoDetalhe({
+                                                        venda: vendaDetalhe,
+                                                        parcela
+                                                    })}
+                                                >
+                                                    Pagar
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
                         <div className={css.modalAcoes}>
-                            <button type="button" className={css.botaoDetalhe} onClick={() => setVendaDetalhe(null)}>
-                                Fechar
-                            </button>
                             <button
                                 type="button"
-                                className={css.botaoExcluir}
-                                onClick={() => confirmarExclusaoVenda(vendaDetalhe)}
-                                disabled={excluindoId === vendaDetalhe.id}
+                                className={css.botaoDetalhe}
+                                onClick={() => {
+                                    setVendaDetalhe(null);
+                                    setPixPagamentoDetalhe(null);
+                                }}
                             >
-                                {excluindoId === vendaDetalhe.id ? "Excluindo..." : "Excluir venda"}
+                                Fechar
                             </button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {vendaParaExcluir && (
-                <div className={css.modalFundo} role="dialog" aria-modal="true" aria-labelledby="tituloExcluirVenda">
-                    <div className={css.modalConfirmacao}>
-                        <div className={css.confirmacaoTopo}>
-                            <h2 id="tituloExcluirVenda">Excluir venda</h2>
-                            <button type="button" onClick={() => setVendaParaExcluir(null)} aria-label="Fechar confirmação">
+            {pixPagamentoDetalhe && (
+                <div className={css.pixModalFundo} role="dialog" aria-modal="true" aria-labelledby="tituloPagamentoPix">
+                    <div className={css.pixModal}>
+                        <div className={css.pixModalTopo}>
+                            <div>
+                                <span>Pagamento Pix</span>
+                                <h2 id="tituloPagamentoPix">Parcela {pixPagamentoDetalhe.parcela.numero || "-"}</h2>
+                            </div>
+                            <button type="button" onClick={() => setPixPagamentoDetalhe(null)} aria-label="Fechar pagamento Pix">
                                 x
                             </button>
                         </div>
 
-                        <div className={css.confirmacaoConteudo}>
-                            <span className={css.vendaBadge}>Venda #{vendaParaExcluir.id}</span>
-                            <p>Tem certeza que deseja excluir esta venda?</p>
-                            <small>As parcelas, comprovantes e o Pix vinculados também serão removidos. Essa ação não pode ser desfeita.</small>
+                        <div className={css.pixModalResumo}>
+                            <div>
+                                <span>Cliente</span>
+                                <strong>{pixPagamentoDetalhe.venda.cliente || "-"}</strong>
+                            </div>
+                            <div>
+                                <span>Veiculo</span>
+                                <strong>{pixPagamentoDetalhe.venda.veiculo || "-"}</strong>
+                            </div>
+                            <div>
+                                <span>Valor</span>
+                                <strong>{formatarMoeda(pixPagamentoDetalhe.parcela.valor)}</strong>
+                            </div>
+                            <div>
+                                <span>Vencimento</span>
+                                <strong>{pixPagamentoDetalhe.parcela.vencimento || "-"}</strong>
+                            </div>
                         </div>
 
-                        <div className={css.confirmacaoAcoes}>
-                            <button type="button" className={css.botaoCancelarExclusao} onClick={() => setVendaParaExcluir(null)}>
-                                Cancelar
+                        <div className={css.pixModalConteudo}>
+                            <div className={css.pixModalQr}>
+                                {pixPagamentoDetalhe.parcela.qrcode ? (
+                                    <img
+                                        src={montarUrlPix(API, pixPagamentoDetalhe.parcela.qrcode)}
+                                        alt={`QR Code Pix da parcela ${pixPagamentoDetalhe.parcela.numero || ""}`}
+                                    />
+                                ) : (
+                                    <span>QR Code indisponivel</span>
+                                )}
+                            </div>
+
+                            <label className={css.pixModalCopia}>
+                                <span>Pix copia e cola</span>
+                                <textarea value={pixPagamentoDetalhe.parcela.copiaCola || ""} readOnly />
+                            </label>
+                        </div>
+
+                        <div className={css.pixModalAcoes}>
+                            <button type="button" onClick={() => copiarPixParcela(pixPagamentoDetalhe.parcela.copiaCola)}>
+                                Copiar Pix
                             </button>
-                            <button
-                                type="button"
-                                className={css.botaoExcluir}
-                                onClick={deletarVenda}
-                                disabled={excluindoId === vendaParaExcluir.id}
-                            >
-                                {excluindoId === vendaParaExcluir.id ? "Excluindo..." : "Excluir"}
+                            <button type="button" onClick={() => setPixPagamentoDetalhe(null)}>
+                                Fechar
                             </button>
                         </div>
                     </div>

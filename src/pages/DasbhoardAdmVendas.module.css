@@ -167,7 +167,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-width: 67px;
+    min-width: 80px;
     height: 21px;
     border-radius: 3px;
     color: #fff;
@@ -199,26 +199,6 @@
     display: flex;
     align-items: center;
     gap: 8px;
-}
-
-.botaoExcluir,
-.botaoExcluirMobile {
-    min-height: 22px;
-    border: none;
-    border-radius: 6px;
-    background: #d92d20;
-    color: #fff;
-    padding: 3px 8px;
-    font-size: 13px;
-    font-weight: 900;
-    cursor: pointer;
-    white-space: nowrap;
-}
-
-.botaoExcluir:disabled,
-.botaoExcluirMobile:disabled {
-    cursor: not-allowed;
-    opacity: 0.65;
 }
 
 .vazio {
@@ -356,98 +336,285 @@
     overflow-wrap: anywhere;
 }
 
-.modalAcoes {
-    justify-content: flex-end;
-    border-top: 1px solid #ededed;
-    padding: 14px 20px 18px;
-}
-
-.modalConfirmacao {
-    width: min(430px, 100%);
+.pixParcelasDetalhe {
+    display: grid;
+    gap: 14px;
+    margin: 0 20px 20px;
+    border: 1px solid #ededed;
     border-radius: 8px;
-    background: #fff;
-    color: #111;
-    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+    background: #fbfbfb;
+    padding: 14px;
 }
 
-.confirmacaoTopo {
+.pixParcelasTopo {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 14px;
-    border-bottom: 1px solid #ededed;
-    padding: 16px 18px;
+    gap: 12px;
 }
 
-.confirmacaoTopo h2 {
-    margin: 0;
+.pixParcelasTopo span {
+    color: #666;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.pixParcelasTopo h3 {
+    margin: 2px 0 0;
     color: #111;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 900;
 }
 
-.confirmacaoTopo button {
-    width: 32px;
-    height: 32px;
+.pixParcelasTopo button,
+.linhaPixPagamento button,
+.pixModalTopo button,
+.pixModalAcoes button {
     border: none;
+    border-radius: 8px;
+    background: #000;
+    color: #fff;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.pixParcelasTopo button {
+    min-height: 38px;
+    padding: 0 14px;
+    white-space: nowrap;
+}
+
+.pixParcelasTopo button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.erroPixParcelas,
+.estadoPixParcelas {
+    margin: 0;
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.erroPixParcelas {
+    border: 1px solid #f0b8b8;
+    background: #fff7f7;
+    color: #9c1c1c;
+}
+
+.estadoPixParcelas {
+    border: 1px solid #e8e8e8;
+    background: #fff;
+    color: #666;
+}
+
+.listaPixPagamento {
+    display: grid;
+    gap: 8px;
+}
+
+.linhaPixPagamento {
+    display: grid;
+    grid-template-columns: 0.7fr 1.2fr 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    padding: 10px 12px;
+}
+
+.linhaPixPagamento div {
+    display: grid;
+    gap: 3px;
+}
+
+.linhaPixPagamento span {
+    color: #666;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.linhaPixPagamento strong {
+    color: #111;
+    font-size: 14px;
+    font-weight: 900;
+}
+
+.linhaPixPagamento div:nth-child(3) strong {
+    color: #087a3d;
+}
+
+.statusPixPendente {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    border-radius: 7px;
+    background: #fff2bf;
+    color: #9a4c00 !important;
+    padding: 5px 10px;
+    font-size: 11px !important;
+    font-weight: 900;
+}
+
+.linhaPixPagamento button {
+    min-height: 34px;
+    padding: 0 12px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.pixModalFundo {
+    position: fixed;
+    inset: 0;
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.52);
+    padding: 18px;
+}
+
+.pixModal {
+    width: min(720px, 100%);
+    max-height: min(760px, 92vh);
+    overflow-y: auto;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+}
+
+.pixModalTopo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid #ededed;
+    padding: 18px 20px;
+}
+
+.pixModalTopo span,
+.pixModalResumo span,
+.pixModalCopia span {
+    color: #666;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.pixModalTopo h2 {
+    margin: 4px 0 0;
+    color: #111;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.pixModalTopo button {
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
     background: #f0f0f0;
     color: #111;
     font-size: 20px;
-    font-weight: 900;
     line-height: 1;
-    cursor: pointer;
 }
 
-.confirmacaoConteudo {
+.pixModalResumo {
     display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 10px;
-    padding: 18px;
+    padding: 16px 20px;
 }
 
-.vendaBadge {
-    justify-self: start;
-    border-radius: 999px;
-    background: #fef3f2;
-    color: #b42318;
-    padding: 6px 10px;
-    font-size: 12px;
+.pixModalResumo div {
+    display: grid;
+    gap: 5px;
+    border: 1px solid #ededed;
+    border-radius: 8px;
+    background: #fbfbfb;
+    padding: 10px;
+    min-width: 0;
+}
+
+.pixModalResumo strong {
+    color: #111;
+    font-size: 14px;
     font-weight: 900;
+    overflow-wrap: anywhere;
 }
 
-.modalConfirmacao p {
-    margin: 0;
-    color: #222;
-    font-size: 16px;
-    font-weight: 900;
-    line-height: 1.45;
+.pixModalResumo div:nth-child(3) strong {
+    color: #087a3d;
 }
 
-.modalConfirmacao small {
+.pixModalConteudo {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 16px;
+    padding: 0 20px 18px;
+}
+
+.pixModalQr {
+    display: grid;
+    place-items: center;
+    min-height: 250px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
     color: #666;
     font-size: 13px;
-    font-weight: 700;
-    line-height: 1.45;
+    font-weight: 900;
+    text-align: center;
 }
 
-.confirmacaoAcoes {
-    display: flex;
-    justify-content: flex-end;
+.pixModalQr img {
+    width: 220px;
+    height: 220px;
+}
+
+.pixModalCopia {
+    display: grid;
     gap: 8px;
-    border-top: 1px solid #ededed;
-    padding: 14px 18px 18px;
+    min-width: 0;
 }
 
-.botaoCancelarExclusao {
-    min-height: 34px;
-    border: 1px solid #d6d6d6;
-    border-radius: 6px;
+.pixModalCopia textarea {
+    width: 100%;
+    min-height: 190px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
     background: #fff;
     color: #111;
-    padding: 0 14px;
+    padding: 10px;
     font-size: 13px;
-    font-weight: 900;
-    cursor: pointer;
+    font-weight: 700;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+.pixModalAcoes {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-top: 1px solid #ededed;
+    padding: 14px 20px 18px;
+}
+
+.pixModalAcoes button {
+    min-height: 38px;
+    padding: 0 16px;
+    font-size: 13px;
+}
+
+.modalAcoes {
+    justify-content: flex-end;
+    border-top: 1px solid #ededed;
+    padding: 14px 20px 18px;
 }
 
 @media (max-width: 1180px) {
@@ -571,14 +738,8 @@
 
     .acoesCard {
         display: grid;
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
         gap: 8px;
-    }
-
-    .botaoExcluirMobile {
-        width: 100%;
-        min-height: 42px;
-        font-size: 14px;
     }
 }
 
@@ -691,15 +852,67 @@
         margin: 0 16px 16px;
     }
 
+    .pixParcelasDetalhe {
+        margin: 0 16px 16px;
+    }
+
+    .pixParcelasTopo {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .pixParcelasTopo button {
+        width: 100%;
+    }
+
+    .linhaPixPagamento {
+        grid-template-columns: 1fr;
+        align-items: stretch;
+    }
+
+    .linhaPixPagamento button {
+        width: 100%;
+    }
+
+    .pixModalFundo {
+        padding: 10px;
+    }
+
+    .pixModalTopo {
+        padding: 16px;
+    }
+
+    .pixModalResumo {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .pixModalConteudo {
+        grid-template-columns: 1fr;
+        padding: 0 16px 16px;
+    }
+
+    .pixModalQr {
+        min-height: 230px;
+    }
+
+    .pixModalAcoes {
+        display: grid;
+        grid-template-columns: 1fr;
+        padding: 14px 16px 16px;
+    }
+
+    .pixModalAcoes button {
+        width: 100%;
+    }
+
     .modalAcoes,
-    .acoesCard,
-    .confirmacaoAcoes {
+    .acoesCard {
         display: grid;
         grid-template-columns: 1fr;
     }
 
-    .modalAcoes button,
-    .confirmacaoAcoes button {
+    .modalAcoes button {
         width: 100%;
         min-height: 40px;
     }
