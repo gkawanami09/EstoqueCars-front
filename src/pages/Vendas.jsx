@@ -17,7 +17,7 @@ const statusEmAndamento = "1";
 const situacaoParcelamento = {
     emAndamento: "1"
 };
-const JUROS_PADRAO = 0;
+const JUROS_PADRAO = 4; // Ajustado de 0 para 4 (4% de juros padrão)
 
 function numeroDoCampo(valor) {
     const texto = String(valor || "0").replace(/[^\d,.-]/g, "");
@@ -280,7 +280,9 @@ function Vendas({ API }) {
 
     useEffect(() => {
         function aplicarJurosSalvo() {
-            setJurosMensal(taxaJurosParaDecimal(localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO));
+            const taxaSalva = localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO;
+            console.log("Taxa de juros aplicada na venda (salva/padrão):", taxaSalva, "%");
+            setJurosMensal(taxaJurosParaDecimal(taxaSalva));
         }
 
         async function carregarJuros() {
@@ -299,6 +301,7 @@ function Vendas({ API }) {
                 const dados = await resposta.json();
                 const taxa = dados.taxa_juro ?? dados.taxa_juros ?? JUROS_PADRAO;
                 localStorage.setItem("taxa_juro_mensal", String(taxa));
+                console.log("Taxa de juros aplicada na venda (via API):", taxa, "%");
                 setJurosMensal(taxaJurosParaDecimal(taxa));
             } catch {
                 aplicarJurosSalvo();
