@@ -111,7 +111,7 @@ function normalizarCliente(cliente) {
 // Funcao que padroniza o objeto "servico" recebido da API.
 function normalizarServico(servico) {
     const id = servico.id_servico ?? servico.ID_SERVICO ?? servico.id;
-    const nome = servico.descricao ?? servico.nome_servico ?? servico.NOME_SERVICO ?? servico.nome ?? "Servico";
+    const nome = servico.descricao ?? servico.nome_servico ?? servico.NOME_SERVICO ?? servico.nome ?? "Serviço";
 
     return {
         id,
@@ -263,7 +263,7 @@ function DashboardAdm({ API }) {
                 }
             } catch {
                 // Em caso de excecao (API fora do ar, problema de conexao, etc), seta a msg de erro.
-                setErro("Nao foi possivel carregar os dados do dashboard.");
+                setErro("Não foi possível carregar os dados do dashboard.");
             } finally {
                 // Independente de dar erro ou sucesso, desliga o carregamento no final.
                 setCarregando(false);

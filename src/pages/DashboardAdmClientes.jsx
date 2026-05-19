@@ -64,7 +64,7 @@ function DashboardAdmClientes({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Não foi possivel carregar os clientes."
+                    texto: dados.erro || "Não foi possível carregar os clientes."
                 });
                 return;
             }
@@ -77,7 +77,7 @@ function DashboardAdmClientes({ API }) {
         } catch {
             setMensagem({
                 tipo: "erro",
-                texto: "Não foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             setCarregando(false);
@@ -180,7 +180,7 @@ function DashboardAdmClientes({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Não foi possivel editar o cliente."
+                    texto: dados.erro || "Não foi possível editar o cliente."
                 });
                 return;
             }
@@ -208,7 +208,7 @@ function DashboardAdmClientes({ API }) {
         } catch {
             setMensagem({
                 tipo: "erro",
-                texto: "Não foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             setSalvando(false);
@@ -230,7 +230,7 @@ function DashboardAdmClientes({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Não foi possivel excluir o cliente."
+                    texto: dados.erro || "Não foi possível excluir o cliente."
                 });
                 return;
             }
@@ -246,7 +246,7 @@ function DashboardAdmClientes({ API }) {
         } catch {
             setMensagem({
                 tipo: "erro",
-                texto: "Não foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         }
     }
@@ -271,7 +271,7 @@ function DashboardAdmClientes({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || `Não foi possivel ${acao} o cliente.`
+                    texto: dados.erro || `Não foi possível ${acao} o cliente.`
                 });
                 return;
             }
@@ -288,7 +288,7 @@ function DashboardAdmClientes({ API }) {
         } catch {
             setMensagem({
                 tipo: "erro",
-                texto: "Não foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         }
     }

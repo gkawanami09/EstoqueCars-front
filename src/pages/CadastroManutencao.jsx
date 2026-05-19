@@ -57,7 +57,7 @@ function normalizarServico(servico) {
         servico.nome ??
         servico.nomeServico ??
         servico.servico ??
-        `Servico ${id || ""}`;
+        `Serviço ${id || ""}`;
     // Aceita varios nomes possiveis para o valor do servico.
     const valor = servico.valor ?? servico.VALOR ?? servico.preco ?? servico.valor_unitario ?? 0;
 
@@ -406,7 +406,7 @@ function CadastroManutencao({ API }) {
                 // Qualquer outro erro aparece como alerta na tela.
                 setMensagem({
                     tipo: "erro",
-                    texto: texto || "Nao foi possivel carregar as manutencoes."
+                    texto: texto || "Não foi possível carregar as manutenções."
                 });
                 return;
             }
@@ -417,7 +417,7 @@ function CadastroManutencao({ API }) {
             // Erro de rede ou servidor fora do ar.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga o carregamento no fim da requisicao.
@@ -540,7 +540,7 @@ function CadastroManutencao({ API }) {
                 // Outros erros aparecem na mensagem visual.
                 setMensagem({
                     tipo: "erro",
-                    texto: texto || "Nao foi possivel carregar os itens da manutencao."
+                    texto: texto || "Não foi possível carregar os itens da manutenção."
                 });
                 return;
             }
@@ -560,7 +560,7 @@ function CadastroManutencao({ API }) {
             // Mensagem quando nao consegue conectar ao servidor.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga carregamento dos itens.
@@ -707,7 +707,7 @@ function CadastroManutencao({ API }) {
         if (!String(formulario.id_veiculo).trim() || !formulario.data_manutencao || servicosPayload.length === 0) {
             setMensagem({
                 tipo: "erro",
-                texto: "Selecione um veiculo da lista, informe a data e escolha pelo menos um servico."
+                texto: "Selecione um veículo da lista, informe a data e escolha pelo menos um serviço."
             });
             return;
         }
@@ -748,7 +748,7 @@ function CadastroManutencao({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Nao foi possivel salvar a manutencao."
+                    texto: dados.erro || "Não foi possível salvar a manutenção."
                 });
                 return;
             }
@@ -768,7 +768,7 @@ function CadastroManutencao({ API }) {
             // Erro de rede ou servidor desligado.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga carregamento do botao.
@@ -844,7 +844,7 @@ function CadastroManutencao({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Nao foi possivel excluir a manutencao."
+                    texto: dados.erro || "Não foi possível excluir a manutenção."
                 });
                 return;
             }
@@ -866,7 +866,7 @@ function CadastroManutencao({ API }) {
             // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga carregamento do modal.
@@ -922,7 +922,7 @@ function CadastroManutencao({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Nao foi possivel adicionar o item."
+                    texto: dados.erro || "Não foi possível adicionar o item."
                 });
                 return;
             }
@@ -941,7 +941,7 @@ function CadastroManutencao({ API }) {
             // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga carregamento do botao.
@@ -980,7 +980,7 @@ function CadastroManutencao({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Nao foi possivel editar o item."
+                    texto: dados.erro || "Não foi possível editar o item."
                 });
                 return;
             }
@@ -997,7 +997,7 @@ function CadastroManutencao({ API }) {
             // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         }
     }
@@ -1034,7 +1034,7 @@ function CadastroManutencao({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Nao foi possivel excluir o item."
+                    texto: dados.erro || "Não foi possível excluir o item."
                 });
                 return;
             }
@@ -1053,7 +1053,7 @@ function CadastroManutencao({ API }) {
             // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga carregamento do modal.
@@ -1107,7 +1107,7 @@ function CadastroManutencao({ API }) {
             // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga carregamento do historico.
@@ -1407,7 +1407,7 @@ function CadastroManutencao({ API }) {
                     {!carregando && manutencoesPaginadas.map((manutencao) => (
                         <tr key={manutencao.id_manutencao}>
                             <td data-label="Veículo">
-                                <strong>{manutencao.modelo || "Veiculo"}</strong>
+                                <strong>{manutencao.modelo || "Veículo"}</strong>
                                 <span className={css.textoApoio}>{manutencao.marca}</span>
                             </td>
                             <td data-label="Placa">{manutencao.placa || "-"}</td>

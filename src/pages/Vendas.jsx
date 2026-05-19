@@ -6,10 +6,13 @@ const formasPagamento = [
     { id: "0", nome: "Pix" },
     { id: "1", nome: "Parcelamento" }
 ];
+const formaPagamentoPix = "0";
+const formaPagamentoParcelamento = "1";
 const statusPagamento = [
     { id: "0", nome: "Pago" },
     { id: "1", nome: "Em andamento" }
 ];
+const statusEmAndamento = "1";
 const situacaoParcelamento = {
     emAndamento: "1"
 };
@@ -174,7 +177,7 @@ function Vendas({ API }) {
     const [dataVenda, setDataVenda] = useState(() => dataHoraAtualParaInput());
     const [valorVenda, setValorVenda] = useState("");
     const [valorRecebido, setValorRecebido] = useState("");
-    const [status, setStatus] = useState(statusPagamento[0].id);
+    const [status, setStatus] = useState(statusEmAndamento);
     const [comentarios, setComentarios] = useState("");
     const [desconto, setDesconto] = useState("");
     const [comprovante, setComprovante] = useState(null);
@@ -188,8 +191,8 @@ function Vendas({ API }) {
     const [vendaFinalizada, setVendaFinalizada] = useState(false);
     const [jurosMensal, setJurosMensal] = useState(() => taxaJurosParaDecimal(localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO));
 
-    const ehParcelamento = formaPagamento === "1";
-    const ehPix = formaPagamento === "0";
+    const ehParcelamento = formaPagamento === formaPagamentoParcelamento;
+    const ehPix = formaPagamento === formaPagamentoPix;
 
     const carregarClientes = useCallback(async () => {
         setCarregandoClientes(true);
@@ -316,6 +319,13 @@ function Vendas({ API }) {
         setVendaFinalizada(false);
     }, [formaPagamento, valorComDesconto, veiculoId]);
 
+    useEffect(() => {
+        if (ehPix) {
+            setStatus(statusEmAndamento);
+            setValorRecebido(String(valorComDesconto.toFixed(2)));
+        }
+    }, [ehPix, valorComDesconto]);
+
     const valorParcelaParcelamento = useMemo(() => {
         const parcelas = Number(parcelasFinanciamento) || 1;
 
@@ -373,9 +383,9 @@ function Vendas({ API }) {
 
         try {
             await navigator.clipboard.writeText(pixGerado.copiaECola);
-            mostrarMensagem("sucesso", "Codigo Pix copiado.");
+            mostrarMensagem("sucesso", "Código Pix copiado.");
         } catch {
-            mostrarMensagem("erro", "Nao foi possivel copiar o codigo Pix automaticamente.");
+            mostrarMensagem("erro", "Não foi possível copiar o código Pix automaticamente.");
         }
     }
 
@@ -387,8 +397,8 @@ function Vendas({ API }) {
         formData.append("forma_pagamento", formaPagamento);
         formData.append("data_venda", formatarDataParaApi(dataVenda));
         formData.append("valor_venda", String(valorNumerico));
-        formData.append("valor_recebido", String(numeroDoCampo(valorRecebido)));
-        formData.append("status_pagamento", status);
+        formData.append("valor_recebido", String(ehPix ? valorComDesconto.toFixed(2) : numeroDoCampo(valorRecebido)));
+        formData.append("status_pagamento", ehPix ? statusEmAndamento : status);
         formData.append("comentarios", comentarios);
         formData.append("desconto", String(descontoNumerico));
 
@@ -422,7 +432,7 @@ function Vendas({ API }) {
             return false;
         }
 
-        if (!dataVenda || !valorNumerico || !numeroDoCampo(valorRecebido) || !status) {
+        if (!dataVenda || !valorNumerico || (!ehPix && !numeroDoCampo(valorRecebido)) || (!ehPix && !status)) {
             mostrarMensagem("erro", "Preencha todos os campos obrigatórios da venda.");
             return false;
         }
@@ -485,13 +495,9 @@ function Vendas({ API }) {
             if (ehPix && aplicarPixDaVenda(dados)) {
                 return;
             }
-
-            setTimeout(() => {
-                navigate("/dashboardAdmVendas");
-            }, 900);
         } catch {
             if (gerarPixVenda) {
-                setErroPix("Nao foi possivel conectar ao servidor para gerar o Pix.");
+                setErroPix("Não foi possível conectar ao servidor para gerar o Pix.");
             }
             mostrarMensagem("erro", "Não foi possível conectar ao servidor.");
         } finally {
@@ -541,7 +547,7 @@ function Vendas({ API }) {
                     {erroClientes && <p className={css.mensagemErro}>{erroClientes}</p>}
 
                     <label className={css.campo}>
-                        <span>Veículo Vendido</span>
+                        <span>Veículo vendido</span>
                         <select value={veiculoId} onChange={trocarVeiculo} disabled={carregandoVeiculos || veiculos.length === 0}>
                             <option value="">
                                 {carregandoVeiculos ? "Carregando veículos..." : "Selecione um veículo"}
@@ -584,7 +590,7 @@ function Vendas({ API }) {
                                     <span>{veiculoSelecionado.cor || "-"}</span>
                                 </p>
                                 <p>
-                                    <strong>Preço de Venda:</strong>
+                                    <strong>Preço de venda:</strong>
                                     <b>{formatarMoeda(veiculoSelecionado.preco)}</b>
                                 </p>
                             </div>
@@ -619,7 +625,7 @@ function Vendas({ API }) {
                                 <span>Valor da parcela</span>
                                 <strong>{formatarMoeda(valorParcelaParcelamento)}</strong>
                                 <small>
-                                    {parcelasFinanciamento} parcelas, {taxaJurosPercentual.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}% ao mes, total de {formatarMoeda(valorParcelaParcelamento * parcelasFinanciamento)}
+                                    {parcelasFinanciamento} parcelas, {taxaJurosPercentual.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}% ao mês, total de {formatarMoeda(valorParcelaParcelamento * parcelasFinanciamento)}
                                 </small>
                                 <button type="button" className={css.verParcelas} onClick={() => setModalParcelasAberto(true)}>
                                     Ver todas as parcelas
@@ -642,12 +648,12 @@ function Vendas({ API }) {
                             </label>
 
                             <label className={css.campo}>
-                                <span>ID da transacao</span>
+                                <span>ID da transação</span>
                                 <input
                                     type="text"
                                     value={transacaoPix}
                                     onChange={(e) => setTransacaoPix(e.target.value)}
-                                    placeholder="Digite o codigo da transacao"
+                                    placeholder="Digite o código da transação"
                                 />
                             </label>
                         </div>
@@ -666,7 +672,7 @@ function Vendas({ API }) {
                                 onClick={gerarPix}
                                 disabled={gerandoPix || salvando || vendaFinalizada || !valorComDesconto}
                             >
-                                {gerandoPix ? "Gerando Pix..." : "Salvar e gerar Pix"}
+                                {vendaFinalizada ? "Venda salva" : gerandoPix ? "Gerando Pix..." : "Salvar e gerar Pix"}
                             </button>
 
                             {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
@@ -681,7 +687,7 @@ function Vendas({ API }) {
                                     </label>
 
                                     <button type="button" className={css.botaoCopiarPix} onClick={copiarPix}>
-                                        Copiar codigo
+                                        Copiar código
                                     </button>
                                 </div>
                             )}
@@ -701,7 +707,7 @@ function Vendas({ API }) {
                                 onClick={gerarPix}
                                 disabled={gerandoPix || salvando || vendaFinalizada || !valorComDesconto}
                             >
-                                {gerandoPix ? "Gerando Pix..." : "Salvar e gerar Pix"}
+                                {vendaFinalizada ? "Venda salva" : gerandoPix ? "Gerando Pix..." : "Salvar e gerar Pix"}
                             </button>
 
                             {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
@@ -716,7 +722,7 @@ function Vendas({ API }) {
                                     </label>
 
                                     <button type="button" className={css.botaoCopiarPix} onClick={copiarPix}>
-                                        Copiar codigo
+                                        Copiar código
                                     </button>
                                 </div>
                             )}
@@ -785,13 +791,18 @@ function Vendas({ API }) {
                             step="0.01"
                             value={valorRecebido}
                             onChange={(e) => setValorRecebido(e.target.value)}
+                            readOnly={ehPix}
                         />
                     </label>
 
                     <div className={css.linhaStatus}>
                         <label className={css.campo}>
                             <span>Status de Pagamento</span>
-                            <select value={status} onChange={(e) => setStatus(e.target.value)}>
+                            <select
+                                value={ehPix ? statusEmAndamento : status}
+                                onChange={(e) => setStatus(e.target.value)}
+                                disabled={ehPix}
+                            >
                                 {statusPagamento.map((item) => (
                                     <option key={item.id} value={item.id}>{item.nome}</option>
                                 ))}
@@ -806,7 +817,7 @@ function Vendas({ API }) {
                         {vendaFinalizada ? "Venda salva" : salvando ? "Salvando..." : "Salvar"}
                     </button>
                     <button type="button" className={css.cancelar} onClick={() => navigate("/dashboardAdmVendas")}>
-                        Cancelar
+                        {vendaFinalizada ? "Voltar" : "Cancelar"}
                     </button>
                 </div>
             </form>

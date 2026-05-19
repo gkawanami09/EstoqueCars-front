@@ -73,7 +73,7 @@ function DashboardAdmVeiculos({ API }) {
             setCarros(dados.carros || []);
         } catch {
             // Mostra erro quando o servidor nao respondeu.
-            setErro("Erro de conexao com o servidor.");
+            setErro("Erro de conexão com o servidor.");
         } finally {
             // Desliga o carregamento tanto em sucesso quanto em erro.
             setCarregando(false);
@@ -118,7 +118,7 @@ function DashboardAdmVeiculos({ API }) {
             setCarroParaExcluir(null);
         } catch {
             // Mostra erro quando nao conseguiu falar com o servidor.
-            setErro("Erro de conexao com o servidor.");
+            setErro("Erro de conexão com o servidor.");
         } finally {
             // Limpa o id de exclusao depois que a requisicao terminou.
             setExcluindoId(null);
@@ -259,7 +259,7 @@ function DashboardAdmVeiculos({ API }) {
         const tipoStatus = tipoStatusEstoque(valor);
 
         if (tipoStatus === "indisponivel") {
-            return "Indisponivel";
+            return "Indisponível";
         }
 
         if (tipoStatus === "vendido") {

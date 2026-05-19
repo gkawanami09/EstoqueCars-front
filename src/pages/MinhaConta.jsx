@@ -200,7 +200,7 @@ function MinhaConta({ API }) {
         if (!idUsuario) {
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel identificar sua conta. Faca login novamente."
+                texto: "Não foi possível identificar sua conta. Faça login novamente."
             });
             return;
         }
@@ -255,7 +255,7 @@ function MinhaConta({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Nao foi possivel atualizar sua conta."
+                    texto: dados.erro || "Não foi possível atualizar sua conta."
                 });
                 return;
             }
@@ -281,7 +281,7 @@ function MinhaConta({ API }) {
             // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga carregamento.

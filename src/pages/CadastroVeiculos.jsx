@@ -78,18 +78,18 @@ function formatarErroApi(texto) {
         mensagemLower.includes("stored procedure") ||
         mensagemLower.includes("conversion error")
     ) {
-        return "Nao foi possivel salvar o veículo. Confira os campos de categoria, marca, cambio, status e conservacao.";
+        return "Não foi possível salvar o veículo. Confira os campos de categoria, marca, câmbio, status e conservação.";
     }
 
     if (mensagemLower.includes("renavam")) {
-        return "RENAVAM invalido. Confira se ele possui 11 digitos e tente novamente.";
+        return "RENAVAM inválido. Confira se ele possui 11 dígitos e tente novamente.";
     }
 
     if (mensagemLower.includes("placa")) {
         return "A placa informada ja existe ou esta invalida. Confira os dados e tente novamente.";
     }
 
-    return mensagem || "Não foi possivel salvar o veículo. Tente novamente.";
+    return mensagem || "Não foi possível salvar o veículo. Tente novamente.";
 }
 
 function cabecalhoAutorizacao() {
@@ -224,7 +224,7 @@ function CadastroVeiculo({ API }) {
         } catch {
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor. Verifique sua conexao e tente novamente."
+                texto: "Não foi possível conectar ao servidor. Verifique sua conexão e tente novamente."
             });
         } finally {
             setCarregando(false);
@@ -310,7 +310,7 @@ function CadastroVeiculo({ API }) {
         if (String(formulario.renavam).replace(/\D/g, "").length !== 11) {
             setMensagem({
                 tipo: "erro",
-                texto: "O RENAVAM deve conter exatamente 11 digitos."
+                texto: "O RENAVAM deve conter exatamente 11 dígitos."
             });
             return;
         }
@@ -405,7 +405,7 @@ function CadastroVeiculo({ API }) {
                                 onChange={(e) => atualizarCampo("status_estoque", e.target.value)}
                             >
                                 <option value="1">Em estoque</option>
-                                <option value="2">Indisponivel</option>
+                                <option value="2">Indisponível</option>
                                 <option value="3">Vendido</option>
                             </select>
                         </div>
@@ -477,7 +477,7 @@ function CadastroVeiculo({ API }) {
                                 value={formulario.cambio}
                                 onChange={(e) => atualizarCampo("cambio", e.target.value)}
                             >
-                                <option value="">Cambio</option>
+                                <option value="">Câmbio</option>
                                 {cambios.map((cambio) => {
                                     return (
                                         <option key={cambio.id_cambio} value={cambio.id_cambio}>
@@ -559,7 +559,7 @@ function CadastroVeiculo({ API }) {
 
                         <textarea
                             className={css.descricao}
-                            placeholder="Descricao"
+                            placeholder="Descrição"
                             value={formulario.descricao}
                             onChange={(e) => atualizarCampo("descricao", e.target.value)}
                         />

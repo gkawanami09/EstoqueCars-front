@@ -95,7 +95,7 @@ function DashboardAdmMarcas({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || "Nao foi possivel carregar as marcas."
+                    texto: dados.erro || "Não foi possível carregar as marcas."
                 });
                 return false;
             }
@@ -110,7 +110,7 @@ function DashboardAdmMarcas({ API }) {
             // Mostra erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
             return false;
         } finally {
@@ -234,7 +234,7 @@ function DashboardAdmMarcas({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || dados.mensagem || `Nao foi possivel ${editando ? "editar" : "cadastrar"} a marca.`
+                    texto: dados.erro || dados.mensagem || `Não foi possível ${editando ? "editar" : "cadastrar"} a marca.`
                 });
                 return;
             }
@@ -256,7 +256,7 @@ function DashboardAdmMarcas({ API }) {
             // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         } finally {
             // Desliga carregamento do botao.
@@ -309,7 +309,7 @@ function DashboardAdmMarcas({ API }) {
             if (!resposta.ok) {
                 setMensagem({
                     tipo: "erro",
-                    texto: dados.erro || dados.mensagem || "Nao foi possivel excluir a marca."
+                    texto: dados.erro || dados.mensagem || "Não foi possível excluir a marca."
                 });
                 return;
             }
@@ -325,7 +325,7 @@ function DashboardAdmMarcas({ API }) {
             // Erro de conexao.
             setMensagem({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor."
+                texto: "Não foi possível conectar ao servidor."
             });
         }
     }
@@ -450,7 +450,7 @@ function DashboardAdmMarcas({ API }) {
                         <div className={css.alert_conteudo}>
                             <h3 id="titulo-alerta-marca">Excluir marca?</h3>
                             <p>
-                                Deseja excluir a marca <strong>{textoMarca(confirmacao.marca)}</strong>? Essa acao nao pode ser desfeita.
+                                Deseja excluir a marca <strong>{textoMarca(confirmacao.marca)}</strong>? Essa ação não pode ser desfeita.
                             </p>
                         </div>
                         <div className={css.alert_botoes}>

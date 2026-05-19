@@ -138,7 +138,7 @@ function DashboardAdmConfiguracoes({ API }) {
                 setTaxaJuros(String(dados.taxa_juro ?? dados.taxa_juros ?? 0));
                 salvarTaxaJurosSite(dados.taxa_juro ?? dados.taxa_juros ?? 0);
             } catch {
-                setErro("Erro de conexao com o servidor.");
+                setErro("Erro de conexão com o servidor.");
             } finally {
                 setCarregando(false);
             }
@@ -235,7 +235,7 @@ function DashboardAdmConfiguracoes({ API }) {
             setLogo(null);
             setUsarLogoPadrao(false);
         } catch {
-            setErro("Erro de conexao com o servidor.");
+            setErro("Erro de conexão com o servidor.");
         } finally {
             setSalvando(false);
         }

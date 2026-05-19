@@ -170,7 +170,7 @@ function DashboardADMFinanceiros() {
                         {transacoesFiltradas.map((transacao) => (
                             <tr key={transacao.id}>
                                 <td data-label="Data">{transacao.data}</td>
-                                <td data-label="Descricao">{transacao.descricao}</td>
+                                <td data-label="Descrição">{transacao.descricao}</td>
                                 <td data-label="Tipo">
                                     <span className={`${css.status} ${transacao.tipo === "entrada" ? css.entrada : css.saida}`}>
                                         {formatarTipo(transacao.tipo)}
@@ -184,10 +184,10 @@ function DashboardADMFinanceiros() {
                                 </td>
                                 <td data-label="Acoes">
                                     <div className={css.acoes}>
-                                        <button type="button" className={css.botao_editar} aria-label="Editar transacao">
+                                        <button type="button" className={css.botao_editar} aria-label="Editar transação">
                                             <img src="/Editar.png" alt="" />
                                         </button>
-                                        <button type="button" className={css.botao_excluir} aria-label="Excluir transacao">
+                                        <button type="button" className={css.botao_excluir} aria-label="Excluir transação">
                                             <img src="/Exculir.png" alt="" />
                                         </button>
                                     </div>

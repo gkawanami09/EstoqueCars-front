@@ -164,8 +164,8 @@ function Dashboard({ API }) {
         setErroCompras("");
 
         const rotas = [
-            `/listar_compras_usuario?id_usuario=${idUsuario}`,
             `/listar_vendas_usuario?id_usuario=${idUsuario}`,
+            `/listar_compras_usuario?id_usuario=${idUsuario}`,
             `/minhas_compras?id_usuario=${idUsuario}`
         ];
 
@@ -390,7 +390,7 @@ function Dashboard({ API }) {
         } catch {
             setErroPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: "Nao foi possivel conectar ao servidor para carregar o Pix das parcelas."
+                [idVenda]: "Não foi possível conectar ao servidor para carregar o Pix das parcelas."
             }));
         } finally {
             setCarregandoPixParcelas((estado) => ({ ...estado, [idVenda]: false }));

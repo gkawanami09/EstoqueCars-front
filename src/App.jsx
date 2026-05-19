@@ -1,5 +1,4 @@
 import "./App.css";
-import { useEffect } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Header from "./components/Header/Header";
@@ -37,72 +36,12 @@ import DashboardAdmConfiguracoes from "./pages/DashboardAdmConfiguracoes.jsx";
 import DashboardADMFinanceiros from "./pages/DashboardADMFinanceiros.jsx";
 
 import DasbhoardAdmVendas from "./pages/DasbhoardAdmVendas.jsx";
+import ConfiguracoesSite from "./components/ConfiguracoesSite/ConfiguracoesSite.jsx";
 
 function App({ API }) {
-  useEffect(() => {
-    // Monta a URL da logo vinda do backend.
-    function montarLogoUrl(logoUrl) {
-      if (!logoUrl) return "";
-
-      // Se o backend mandar "/uploads/logo.png", junta com a URL da API.
-      if (logoUrl.startsWith("/")) return `${API}${logoUrl}?v=${Date.now()}`;
-
-      // Se ainda estiver com o exemplo "seu-servidor.com", troca pela API real.
-      if (logoUrl.includes("seu-servidor.com/uploads/")) {
-        return `${API}/uploads/${logoUrl.split("/uploads/")[1]}?v=${Date.now()}`;
-      }
-
-      // Se ja vier uma URL completa correta, usa como veio.
-      return logoUrl.includes("/uploads/") ? `${logoUrl}?v=${Date.now()}` : logoUrl;
-    }
-
-    // Aplica cores, fonte e logo recebidas das configuracoes.
-    function aplicarConfiguracoes(dados) {
-      document.documentElement.style.setProperty("--cor-principal", dados.cor_primaria || "#EF4444");
-      document.documentElement.style.setProperty("--cor-secundaria", dados.cor_secundaria || "#171414");
-      document.documentElement.style.setProperty("--preto-nav", dados.cor_secundaria || "#171414");
-      document.documentElement.style.setProperty("--fonte-site", dados.fonte_visual || "Montserrat");
-
-      const logoUrl = montarLogoUrl(dados.logo_url);
-      const taxaJuro = dados.taxa_juro ?? dados.taxa_juros;
-
-      if (taxaJuro !== undefined && taxaJuro !== null) {
-        localStorage.setItem("taxa_juro_mensal", String(taxaJuro));
-        window.dispatchEvent(new Event("juros-atualizado"));
-      }
-
-      if (logoUrl && localStorage.getItem("logo_padrao_ativo") !== "1") {
-        localStorage.setItem("logo_site_url", logoUrl);
-        window.dispatchEvent(new Event("logo-atualizada"));
-      }
-    }
-
-    // Busca as configuracoes salvas no backend quando o app abre.
-    async function carregarConfiguracoes() {
-      try {
-        const token = localStorage.getItem("access_token");
-        const resposta = await fetch(`${API}/configuracoes`, {
-          method: "GET",
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-          credentials: "include"
-        });
-
-        if (!resposta.ok) {
-          return;
-        }
-
-        const dados = await resposta.json();
-        aplicarConfiguracoes(dados);
-      } catch {
-        // Mantem as cores padrao do index.css se a API nao responder.
-      }
-    }
-
-    carregarConfiguracoes();
-  }, [API]);
-
   return (
       <BrowserRouter>
+        <ConfiguracoesSite API={API} />
         <Routes>
 
           <Route element={<Container API={API} />}>

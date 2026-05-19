@@ -11,10 +11,74 @@ function cabecalhoAutorizacao() {
     return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
+function idUsuario(usuario) {
+    return usuario?.id_usuario || usuario?.ID_USUARIO || usuario?.id || usuario?.ID;
+}
+
+function nomeUsuario(usuario) {
+    return usuario?.nome || usuario?.NOME || usuario?.email || usuario?.EMAIL || `Cliente ${idUsuario(usuario) || "-"}`;
+}
+
+function extrairListaUsuarios(dados) {
+    const lista = Array.isArray(dados) ? dados : dados?.usuarios || dados?.clientes || [];
+    const clientes = lista.filter((usuario) => Number(usuario.tipo_usuario ?? usuario.TIPO_USUARIO) === 0);
+
+    return clientes.length > 0 ? clientes : lista.filter((usuario) => Number(usuario.tipo_usuario ?? usuario.TIPO_USUARIO) !== 2);
+}
+
+function textoFormaPagamento(valor) {
+    const forma = String(valor ?? "").trim().toLowerCase();
+
+    if (forma === "0" || forma.includes("pix")) {
+        return "Pix";
+    }
+
+    if (forma === "1" || forma.includes("parcel")) {
+        return "Parcelado";
+    }
+
+    return valor || "Não informado";
+}
+
+function textoStatusPagamento(valor) {
+    const status = String(valor ?? "").trim().toLowerCase();
+
+    if (status === "0" || status.includes("pago")) {
+        return "Pago";
+    }
+
+    if (status === "1" || status.includes("andamento") || status.includes("pendente")) {
+        return "Pendente";
+    }
+
+    return valor || "Não informado";
+}
+
+function formatarData(valor) {
+    if (!valor) {
+        return "-";
+    }
+
+    const data = new Date(valor);
+
+    if (Number.isNaN(data.getTime())) {
+        return String(valor);
+    }
+
+    return data.toLocaleDateString("pt-BR");
+}
+
+function formatarMoeda(valor) {
+    return Number(valor || 0).toLocaleString("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+    });
+}
+
 function normalizarVenda(venda) {
     return {
         id: venda.id_venda || venda.ID_VENDA,
-        data: venda.data_venda || venda.DATA_VENDA || "-",
+        data: formatarData(venda.data_venda || venda.DATA_VENDA),
         cliente: venda.cliente || venda.nome_cliente || venda.nome_usuario || `Cliente ${venda.id_usuario || venda.ID_USUARIO || "-"}`,
         veiculo: venda.veiculo || venda.nome_veiculo || venda.modelo || `Veículo ${venda.id_veiculo || venda.ID_VEICULO || "-"}`,
         pagamento: venda.forma_pagamento_texto || venda.forma_pagamento || venda.FORMA_PAGAMENTO || "Não informado",
@@ -22,12 +86,29 @@ function normalizarVenda(venda) {
         valorVenda: venda.valor_venda ?? venda.VALOR_VENDA ?? 0,
         valorRecebido: venda.valor_recebido ?? venda.VALOR_RECEBIDO ?? 0,
         desconto: venda.desconto ?? venda.DESCONTOS ?? 0,
+        parcelas: venda.quantidade_parcelas || venda.QUANTIDADE_PARCELAS || "",
         comentarios: venda.comentarios || venda.COMENTARIOS || ""
     };
 }
 
 function textoMinusculo(valor) {
     return String(valor || "").toLowerCase();
+}
+
+function normalizarVendaUsuario(venda) {
+    return {
+        id: venda.id_venda || venda.ID_VENDA,
+        data: formatarData(venda.data_venda || venda.DATA_VENDA),
+        cliente: venda.nome_cliente || venda.cliente || venda.nome_usuario || `Cliente ${venda.id_usuario || venda.ID_USUARIO || "-"}`,
+        veiculo: venda.veiculo || venda.nome_veiculo || venda.modelo || `Veículo ${venda.id_veiculo || venda.ID_VEICULO || "-"}`,
+        pagamento: textoFormaPagamento(venda.forma_pagamento_texto || venda.forma_pagamento || venda.FORMA_PAGAMENTO),
+        status: textoStatusPagamento(venda.status_pagamento_texto || venda.status_pagamento || venda.STATUS_PAGAMENTO),
+        valorVenda: venda.valor_venda ?? venda.VALOR_VENDA ?? 0,
+        valorRecebido: venda.valor_recebido ?? venda.VALOR_RECEBIDO ?? 0,
+        desconto: venda.desconto ?? venda.DESCONTOS ?? 0,
+        parcelas: venda.quantidade_parcelas || venda.QUANTIDADE_PARCELAS || "",
+        comentarios: venda.comentarios || venda.COMENTARIOS || ""
+    };
 }
 
 function DasbhoardAdmVendas({ API }) {
@@ -39,6 +120,7 @@ function DasbhoardAdmVendas({ API }) {
     const [periodo, setPeriodo] = useState(filtrosPeriodo[0]);
     const [status, setStatus] = useState(filtrosStatus[0]);
     const [pagamento, setPagamento] = useState(filtrosPagamento[0]);
+    const [vendaDetalhe, setVendaDetalhe] = useState(null);
 
     useEffect(() => {
         async function carregarVendas() {
@@ -46,7 +128,7 @@ function DasbhoardAdmVendas({ API }) {
             setErro("");
 
             try {
-                const resposta = await fetch(`${API}/listar_venda`, {
+                const resposta = await fetch(`${API}/listar_usuario`, {
                     method: "GET",
                     headers: cabecalhoAutorizacao(),
                     credentials: "include"
@@ -54,13 +136,39 @@ function DasbhoardAdmVendas({ API }) {
                 const dados = await resposta.json();
 
                 if (!resposta.ok) {
-                    setErro(dados.erro || dados.mensagem || "Erro ao carregar vendas.");
+                    setErro(dados.erro || dados.mensagem || "Erro ao carregar clientes.");
                     setVendas([]);
                     return;
                 }
 
-                const lista = Array.isArray(dados) ? dados : dados.vendas || [];
-                setVendas(lista.map(normalizarVenda));
+                const clientes = extrairListaUsuarios(dados);
+                const vendasPorCliente = await Promise.all(clientes.map(async (cliente) => {
+                    const id = idUsuario(cliente);
+
+                    if (!id) {
+                        return [];
+                    }
+
+                    const respostaVendas = await fetch(`${API}/listar_vendas_usuario?id_usuario=${encodeURIComponent(id)}`, {
+                        method: "GET",
+                        headers: cabecalhoAutorizacao(),
+                        credentials: "include"
+                    });
+
+                    if (!respostaVendas.ok) {
+                        return [];
+                    }
+
+                    const dadosVendas = await respostaVendas.json();
+                    const lista = Array.isArray(dadosVendas) ? dadosVendas : dadosVendas.vendas || [];
+
+                    return lista.map((venda) => ({
+                        ...venda,
+                        nome_cliente: nomeUsuario(cliente)
+                    }));
+                }));
+
+                setVendas(vendasPorCliente.flat().map(normalizarVendaUsuario));
             } catch {
                 setErro("Erro de conexão com o servidor.");
                 setVendas([]);
@@ -180,8 +288,8 @@ function DasbhoardAdmVendas({ API }) {
                                         </span>
                                     </td>
                                     <td data-label="Ações">
-                                        <button type="button" className={css.botaoDetalhe}>
-                                            Ver Detalhe
+                                        <button type="button" className={css.botaoDetalhe} onClick={() => setVendaDetalhe(venda)}>
+                                            Ver detalhe
                                         </button>
                                     </td>
                                 </tr>
@@ -230,8 +338,8 @@ function DasbhoardAdmVendas({ API }) {
                                 </div>
                             </div>
 
-                            <button type="button" className={css.botaoDetalheMobile}>
-                                Ver Detalhe
+                            <button type="button" className={css.botaoDetalheMobile} onClick={() => setVendaDetalhe(venda)}>
+                                Ver detalhe
                             </button>
                         </article>
                     ))}
@@ -241,6 +349,66 @@ function DasbhoardAdmVendas({ API }) {
                     )}
                 </div>
             </section>
+
+            {vendaDetalhe && (
+                <div className={css.modalFundo} role="dialog" aria-modal="true" aria-labelledby="tituloDetalheVenda">
+                    <div className={css.modalDetalhe}>
+                        <div className={css.modalTopo}>
+                            <div>
+                                <span>Venda #{vendaDetalhe.id || "-"}</span>
+                                <h2 id="tituloDetalheVenda">Detalhe da venda</h2>
+                            </div>
+                            <button type="button" onClick={() => setVendaDetalhe(null)} aria-label="Fechar detalhe">
+                                x
+                            </button>
+                        </div>
+
+                        <div className={css.detalheGrade}>
+                            <div>
+                                <span>Data</span>
+                                <strong>{vendaDetalhe.data}</strong>
+                            </div>
+                            <div>
+                                <span>Cliente</span>
+                                <strong>{vendaDetalhe.cliente}</strong>
+                            </div>
+                            <div>
+                                <span>Veículo</span>
+                                <strong>{vendaDetalhe.veiculo}</strong>
+                            </div>
+                            <div>
+                                <span>Forma de pagamento</span>
+                                <strong>{vendaDetalhe.pagamento}</strong>
+                            </div>
+                            <div>
+                                <span>Status</span>
+                                <strong>{vendaDetalhe.status}</strong>
+                            </div>
+                            <div>
+                                <span>Parcelas</span>
+                                <strong>{vendaDetalhe.parcelas || "À vista"}</strong>
+                            </div>
+                            <div>
+                                <span>Valor da venda</span>
+                                <strong>{formatarMoeda(vendaDetalhe.valorVenda)}</strong>
+                            </div>
+                            <div>
+                                <span>Valor recebido</span>
+                                <strong>{formatarMoeda(vendaDetalhe.valorRecebido)}</strong>
+                            </div>
+                            <div>
+                                <span>Desconto</span>
+                                <strong>{Number(vendaDetalhe.desconto || 0).toLocaleString("pt-BR")}%</strong>
+                            </div>
+                        </div>
+
+                        <div className={css.detalheComentarios}>
+                            <span>Observações</span>
+                            <p>{vendaDetalhe.comentarios || "Sem observações."}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
         </main>
     );
 }

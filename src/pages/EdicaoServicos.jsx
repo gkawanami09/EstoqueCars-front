@@ -71,7 +71,7 @@ function EdicaoServicos({ API }) {
                     setStatusDocumento(dados.statusDocumento);
                 } else {
                     // Se a API respondeu erro, mostra mensagem.
-                    setErro("Erro ao carregar dados do servico.");
+                    setErro("Erro ao carregar dados do serviço.");
                 }
             } catch {
                 // Se nao conectou no servidor, mostra erro.
@@ -114,14 +114,14 @@ function EdicaoServicos({ API }) {
         // Se a API retornou erro, mostra o erro.
         if (!resposta.ok) {
             const dados = await resposta.json();
-            setErro(dados.erro || "Erro ao atualizar servico.");
+            setErro(dados.erro || "Erro ao atualizar serviço.");
             return;
         }
 
         // Mostra mensagem de sucesso.
         setMensagem({
             tipo: "sucesso",
-            texto: "Servico atualizado com sucesso!"
+            texto: "Serviço atualizado com sucesso!"
         });
         // Volta para a tela de servicos depois de um pequeno tempo.
         setTimeout(() => navigate("/servicos"), 900);
@@ -210,7 +210,7 @@ function EdicaoServicos({ API }) {
                     {/* Campo de descricao detalhada. */}
                     <textarea
                         className={css.descricao}
-                        placeholder="Descricao detalhada do servico..."
+                        placeholder="Descrição detalhada do serviço..."
                         value={descricao}
                         onChange={(e) => setDescricao(e.target.value)}
                     />

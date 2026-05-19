@@ -202,7 +202,7 @@ function DetalhesVeiculos({ API }) {
         const tipoStatus = tipoStatusEstoque(valor);
 
         if (tipoStatus === "indisponivel") {
-            return "Indisponivel";
+            return "Indisponível";
         }
 
         if (tipoStatus === "vendido") {

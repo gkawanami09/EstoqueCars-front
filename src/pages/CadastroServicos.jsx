@@ -290,7 +290,7 @@ function CadastroServicos({ API }) {
                 setServicos([]);
                 // Mostra mensagem se a busca pediu mensagem ou se nao for 404.
                 if (mostrarMensagem || resposta.status !== 404) {
-                    exibirMensagem("erro", obterMensagemErro(dados, "Servico nao encontrado."));
+                    exibirMensagem("erro", obterMensagemErro(dados, "Serviço não encontrado."));
                 }
                 // Interrompe a funcao.
                 return;
@@ -305,11 +305,11 @@ function CadastroServicos({ API }) {
 
             // Opcionalmente mostra quantos resultados foram encontrados.
             if (mostrarMensagem) {
-                exibirMensagem("sucesso", `${lista.length} servico(s) encontrado(s).`);
+                exibirMensagem("sucesso", `${lista.length} serviço(s) encontrado(s).`);
             }
         } catch {
             // Mostra erro de conexao.
-            exibirMensagem("erro", "Nao foi possivel conectar ao servidor para buscar os servicos.");
+            exibirMensagem("erro", "Não foi possível conectar ao servidor para buscar os serviços.");
         } finally {
             // Desliga o carregamento ao final.
             setCarregando(false);
@@ -371,13 +371,13 @@ function CadastroServicos({ API }) {
 
         // Valida preenchimento obrigatorio.
         if (!formulario.nome_servico.trim() || !String(formulario.valor).trim()) {
-            exibirMensagem("erro", "O nome do servico e o valor sao obrigatorios.");
+            exibirMensagem("erro", "O nome do serviço e o valor são obrigatórios.");
             return;
         }
 
         // Valida se o valor e positivo.
         if (!valorPositivo(formulario.valor)) {
-            exibirMensagem("erro", "O valor do servico deve ser maior que zero.");
+            exibirMensagem("erro", "O valor do serviço deve ser maior que zero.");
             return;
         }
 
@@ -409,19 +409,19 @@ function CadastroServicos({ API }) {
 
             // Trata erro HTTP ou erro no corpo.
             if (!resposta.ok || dados.erro) {
-                exibirMensagem("erro", obterMensagemErro(dados, "Nao foi possivel cadastrar o servico."));
+                exibirMensagem("erro", obterMensagemErro(dados, "Não foi possível cadastrar o serviço."));
                 return;
             }
 
             // Mostra sucesso.
-            exibirMensagem("sucesso", dados.mensagem || "Servico cadastrado com sucesso.");
+            exibirMensagem("sucesso", dados.mensagem || "Serviço cadastrado com sucesso.");
             // Limpa campos do cadastro.
             limparFormulario();
             // Recarrega a lista sem mostrar mensagem de busca.
             buscarServicos(FILTROS_INICIAIS, false);
         } catch {
             // Mostra erro de conexao.
-            exibirMensagem("erro", "Nao foi possivel conectar ao servidor para cadastrar o servico.");
+            exibirMensagem("erro", "Não foi possível conectar ao servidor para cadastrar o serviço.");
         } finally {
             // Desliga carregamento do botao salvar.
             setSalvando(false);
@@ -469,7 +469,7 @@ function CadastroServicos({ API }) {
 
         // Valida valor positivo.
         if (!valorPositivo(edicao.valor)) {
-            exibirMensagem("erro", "O valor do servico deve ser maior que zero.");
+            exibirMensagem("erro", "O valor do serviço deve ser maior que zero.");
             return;
         }
 
@@ -500,19 +500,19 @@ function CadastroServicos({ API }) {
 
             // Trata erro da API.
             if (!resposta.ok || dados.erro) {
-                exibirMensagem("erro", obterMensagemErro(dados, "Nao foi possivel atualizar o servico."));
+                exibirMensagem("erro", obterMensagemErro(dados, "Não foi possível atualizar o serviço."));
                 return;
             }
 
             // Mostra sucesso.
-            exibirMensagem("sucesso", dados.mensagem || "Servico atualizado com sucesso.");
+            exibirMensagem("sucesso", dados.mensagem || "Serviço atualizado com sucesso.");
             // Sai do modo de edicao.
             cancelarEdicao();
             // Recarrega a lista mantendo filtros atuais.
             buscarServicos(filtros, false);
         } catch {
             // Mostra erro de conexao.
-            exibirMensagem("erro", "Nao foi possivel conectar ao servidor para atualizar o servico.");
+            exibirMensagem("erro", "Não foi possível conectar ao servidor para atualizar o serviço.");
         } finally {
             // Desliga carregamento do botao.
             setSalvando(false);
@@ -547,17 +547,17 @@ function CadastroServicos({ API }) {
             const dados = await lerResposta(resposta);
 
             if (!resposta.ok || dados.erro) {
-                exibirMensagem("erro", obterMensagemErro(dados, "Nao foi possivel deletar o servico."));
+                exibirMensagem("erro", obterMensagemErro(dados, "Não foi possível excluir o serviço."));
                 return;
             }
 
-            exibirMensagem("sucesso", dados.mensagem || "Servico deletado com sucesso.");
+            exibirMensagem("sucesso", dados.mensagem || "Serviço excluído com sucesso.");
             setServicos((listaAtual) => listaAtual.filter((item) => item.id_servico !== servico.id_servico));
             if (editandoId === servico.id_servico) {
                 cancelarEdicao();
             }
         } catch {
-            exibirMensagem("erro", "Nao foi possivel conectar ao servidor para deletar o servico.");
+            exibirMensagem("erro", "Não foi possível conectar ao servidor para excluir o serviço.");
         } finally {
             setExcluindoId(null);
         }
@@ -599,15 +599,15 @@ function CadastroServicos({ API }) {
             const dados = await lerResposta(resposta);
 
             if (!resposta.ok || dados.erro) {
-                exibirMensagem("erro", obterMensagemErro(dados, "Nao foi possivel reajustar os servicos."));
+                exibirMensagem("erro", obterMensagemErro(dados, "Não foi possível reajustar os serviços."));
                 return;
             }
 
-            exibirMensagem("sucesso", dados.mensagem || "Servicos reajustados com sucesso.");
+            exibirMensagem("sucesso", dados.mensagem || "Serviços reajustados com sucesso.");
             setReajuste(REAJUSTE_INICIAL);
             buscarServicos(filtros, false);
         } catch {
-            exibirMensagem("erro", "Nao foi possivel conectar ao servidor para reajustar os servicos.");
+            exibirMensagem("erro", "Não foi possível conectar ao servidor para reajustar os serviços.");
         } finally {
             setReajustando(false);
         }
@@ -662,7 +662,7 @@ function CadastroServicos({ API }) {
                             label="Nome do Serviço"
                             value={formulario.nome_servico}
                             onChange={(e) => atualizarCampo("nome_servico", e.target.value)}
-                            placeholder="Ex: Revisao completa"
+                            placeholder="Ex: Revisão completa"
                             required
                         />
 
@@ -703,7 +703,7 @@ function CadastroServicos({ API }) {
                 }}>
                     <div className={css.filtros}>
                         <Input
-                            label="Descricao"
+                            label="Descrição"
                             value={filtros.descricao}
                             onChange={(e) => atualizarFiltro("descricao", e.target.value)}
                             placeholder="Ex: alinhamento"

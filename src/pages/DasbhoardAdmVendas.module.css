@@ -232,6 +232,102 @@
     display: none;
 }
 
+.modalFundo {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    background: rgba(0, 0, 0, 0.42);
+    padding: 18px;
+}
+
+.modalDetalhe {
+    width: min(760px, 100%);
+    max-height: min(760px, 92vh);
+    overflow-y: auto;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, 0.24);
+}
+
+.modalTopo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 1px solid #ededed;
+    padding: 18px 20px;
+}
+
+.modalTopo span,
+.detalheGrade span,
+.detalheComentarios span {
+    color: #666;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.modalTopo h2 {
+    margin: 4px 0 0;
+    color: #111;
+    font-size: 22px;
+    font-weight: 900;
+}
+
+.modalTopo button {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: #f0f0f0;
+    color: #111;
+    font-size: 20px;
+    font-weight: 900;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.detalheGrade {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    padding: 18px 20px;
+}
+
+.detalheGrade div,
+.detalheComentarios {
+    display: grid;
+    gap: 6px;
+    border: 1px solid #ededed;
+    border-radius: 8px;
+    background: #fbfbfb;
+    padding: 12px;
+    min-width: 0;
+}
+
+.detalheGrade strong {
+    color: #111;
+    font-size: 15px;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+}
+
+.detalheComentarios {
+    margin: 0 20px 20px;
+}
+
+.detalheComentarios p {
+    margin: 0;
+    color: #111;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
 @media (max-width: 1180px) {
     .pagina {
         padding: 18px 16px 26px;
@@ -442,5 +538,22 @@
 
     .cardVendaInfo div:nth-child(3) {
         grid-column: auto;
+    }
+
+    .modalFundo {
+        padding: 10px;
+    }
+
+    .modalTopo {
+        padding: 16px;
+    }
+
+    .detalheGrade {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .detalheComentarios {
+        margin: 0 16px 16px;
     }
 }
