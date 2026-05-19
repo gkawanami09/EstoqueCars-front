@@ -121,6 +121,8 @@ function DasbhoardAdmVendas({ API }) {
     const [status, setStatus] = useState(filtrosStatus[0]);
     const [pagamento, setPagamento] = useState(filtrosPagamento[0]);
     const [vendaDetalhe, setVendaDetalhe] = useState(null);
+    const [vendaParaExcluir, setVendaParaExcluir] = useState(null);
+    const [excluindoId, setExcluindoId] = useState(null);
 
     useEffect(() => {
         async function carregarVendas() {
@@ -195,6 +197,54 @@ function DasbhoardAdmVendas({ API }) {
             return passaBusca && passaStatus && passaPagamento;
         });
     }, [busca, pagamento, status, vendas]);
+
+    async function confirmarExclusaoVenda(venda) {
+        if (!venda?.id) {
+            setErro("Não foi possível identificar a venda para excluir.");
+            return;
+        }
+
+        setVendaParaExcluir(venda);
+    }
+
+    async function deletarVenda() {
+        const venda = vendaParaExcluir;
+
+        if (!venda?.id) {
+            setVendaParaExcluir(null);
+            setErro("Não foi possível identificar a venda para excluir.");
+            return;
+        }
+
+        setExcluindoId(venda.id);
+        setErro("");
+
+        try {
+            const resposta = await fetch(`${API}/deletar_venda/${venda.id}`, {
+                method: "DELETE",
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setErro(dados.erro || dados.mensagem || "Não foi possível excluir a venda.");
+                return;
+            }
+
+            setVendas((listaAtual) => listaAtual.filter((item) => item.id !== venda.id));
+
+            if (vendaDetalhe?.id === venda.id) {
+                setVendaDetalhe(null);
+            }
+
+            setVendaParaExcluir(null);
+        } catch {
+            setErro("Não foi possível conectar ao servidor.");
+        } finally {
+            setExcluindoId(null);
+        }
+    }
 
     return (
         <main className={css.pagina}>
@@ -288,9 +338,19 @@ function DasbhoardAdmVendas({ API }) {
                                         </span>
                                     </td>
                                     <td data-label="Ações">
-                                        <button type="button" className={css.botaoDetalhe} onClick={() => setVendaDetalhe(venda)}>
-                                            Ver detalhe
-                                        </button>
+                                        <div className={css.acoesLinha}>
+                                            <button type="button" className={css.botaoDetalhe} onClick={() => setVendaDetalhe(venda)}>
+                                                Ver detalhe
+                                            </button>
+                                            <button
+                                                type="button"
+                                                className={css.botaoExcluir}
+                                                onClick={() => confirmarExclusaoVenda(venda)}
+                                                disabled={excluindoId === venda.id}
+                                            >
+                                                {excluindoId === venda.id ? "Excluindo..." : "Excluir"}
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             ))}
@@ -338,9 +398,19 @@ function DasbhoardAdmVendas({ API }) {
                                 </div>
                             </div>
 
-                            <button type="button" className={css.botaoDetalheMobile} onClick={() => setVendaDetalhe(venda)}>
-                                Ver detalhe
-                            </button>
+                            <div className={css.acoesCard}>
+                                <button type="button" className={css.botaoDetalheMobile} onClick={() => setVendaDetalhe(venda)}>
+                                    Ver detalhe
+                                </button>
+                                <button
+                                    type="button"
+                                    className={css.botaoExcluirMobile}
+                                    onClick={() => confirmarExclusaoVenda(venda)}
+                                    disabled={excluindoId === venda.id}
+                                >
+                                    {excluindoId === venda.id ? "Excluindo..." : "Excluir"}
+                                </button>
+                            </div>
                         </article>
                     ))}
 
@@ -405,6 +475,53 @@ function DasbhoardAdmVendas({ API }) {
                         <div className={css.detalheComentarios}>
                             <span>Observações</span>
                             <p>{vendaDetalhe.comentarios || "Sem observações."}</p>
+                        </div>
+
+                        <div className={css.modalAcoes}>
+                            <button type="button" className={css.botaoDetalhe} onClick={() => setVendaDetalhe(null)}>
+                                Fechar
+                            </button>
+                            <button
+                                type="button"
+                                className={css.botaoExcluir}
+                                onClick={() => confirmarExclusaoVenda(vendaDetalhe)}
+                                disabled={excluindoId === vendaDetalhe.id}
+                            >
+                                {excluindoId === vendaDetalhe.id ? "Excluindo..." : "Excluir venda"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {vendaParaExcluir && (
+                <div className={css.modalFundo} role="dialog" aria-modal="true" aria-labelledby="tituloExcluirVenda">
+                    <div className={css.modalConfirmacao}>
+                        <div className={css.confirmacaoTopo}>
+                            <h2 id="tituloExcluirVenda">Excluir venda</h2>
+                            <button type="button" onClick={() => setVendaParaExcluir(null)} aria-label="Fechar confirmação">
+                                x
+                            </button>
+                        </div>
+
+                        <div className={css.confirmacaoConteudo}>
+                            <span className={css.vendaBadge}>Venda #{vendaParaExcluir.id}</span>
+                            <p>Tem certeza que deseja excluir esta venda?</p>
+                            <small>As parcelas, comprovantes e o Pix vinculados também serão removidos. Essa ação não pode ser desfeita.</small>
+                        </div>
+
+                        <div className={css.confirmacaoAcoes}>
+                            <button type="button" className={css.botaoCancelarExclusao} onClick={() => setVendaParaExcluir(null)}>
+                                Cancelar
+                            </button>
+                            <button
+                                type="button"
+                                className={css.botaoExcluir}
+                                onClick={deletarVenda}
+                                disabled={excluindoId === vendaParaExcluir.id}
+                            >
+                                {excluindoId === vendaParaExcluir.id ? "Excluindo..." : "Excluir"}
+                            </button>
                         </div>
                     </div>
                 </div>
