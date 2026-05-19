@@ -64,6 +64,20 @@ function taxaJurosParaDecimal(valor) {
     return taxa / 100;
 }
 
+// Garante que taxa vazia ou zerada use o juros padrao da empresa.
+function taxaJurosConfigurada(valor) {
+    // Converte o valor recebido para numero.
+    const taxa = numeroDoCampo(valor);
+
+    // Se nao houver taxa valida, usa 4%.
+    if (!Number.isFinite(taxa) || taxa <= 0) {
+        return JUROS_PADRAO;
+    }
+
+    // Retorna a taxa configurada quando ela for maior que zero.
+    return taxa;
+}
+
 // Formata um numero como moeda brasileira.
 function formatarMoeda(valor) {
     // Usa Intl/toLocaleString para mostrar o valor como "R$ 1.234,56".
@@ -307,7 +321,7 @@ function Vendas({ API }) {
     // Indica se a venda ja foi finalizada para evitar cadastro duplicado.
     const [vendaFinalizada, setVendaFinalizada] = useState(false);
     // Guarda a taxa de juros mensal em decimal, usando localStorage ou valor padrao.
-    const [jurosMensal, setJurosMensal] = useState(() => taxaJurosParaDecimal(localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO));
+    const [jurosMensal, setJurosMensal] = useState(() => taxaJurosParaDecimal(taxaJurosConfigurada(localStorage.getItem("taxa_juro_mensal"))));
 
     // Facilita saber se a forma de pagamento atual e parcelamento.
     const ehParcelamento = formaPagamento === formaPagamentoParcelamento;
@@ -437,8 +451,9 @@ function Vendas({ API }) {
         // Aplica a taxa salva no navegador ou a taxa padrao.
         function aplicarJurosSalvo() {
             // Busca taxa salva no localStorage.
-            const taxaSalva = localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO;
+            const taxaSalva = taxaJurosConfigurada(localStorage.getItem("taxa_juro_mensal"));
             console.log("Taxa de juros aplicada na venda (salva/padrão):", taxaSalva, "%");
+            localStorage.setItem("taxa_juro_mensal", String(taxaSalva));
             // Atualiza o estado da taxa em formato decimal.
             setJurosMensal(taxaJurosParaDecimal(taxaSalva));
         }
@@ -466,7 +481,7 @@ function Vendas({ API }) {
                 // Converte a resposta para objeto JavaScript.
                 const dados = await resposta.json();
                 // Aceita nomes diferentes para a taxa retornada pela API.
-                const taxa = dados.taxa_juro ?? dados.taxa_juros ?? JUROS_PADRAO;
+                const taxa = taxaJurosConfigurada(dados.taxa_juro ?? dados.taxa_juros);
                 // Salva a taxa no navegador para reaproveitar depois.
                 localStorage.setItem("taxa_juro_mensal", String(taxa));
                 console.log("Taxa de juros aplicada na venda (via API):", taxa, "%");

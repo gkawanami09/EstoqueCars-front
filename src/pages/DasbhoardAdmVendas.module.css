@@ -462,6 +462,19 @@
     font-weight: 900;
 }
 
+.statusPixPago {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    border-radius: 7px;
+    background: #e8fff1;
+    color: #087a3d !important;
+    padding: 5px 10px;
+    font-size: 11px !important;
+    font-weight: 900;
+}
+
 .linhaPixPagamento button {
     min-height: 34px;
     padding: 0 12px;

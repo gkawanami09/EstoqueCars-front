@@ -9,6 +9,21 @@ import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 // Lista fixa de categorias exibidas nos botoes de filtro.
 const categorias = ["Sedan", "Elétrico", "Esportivo", "Caminhonete", "SUV"];
 
+function idPeloToken() {
+    const token = localStorage.getItem("access_token");
+
+    if (!token || !token.includes(".")) {
+        return "";
+    }
+
+    try {
+        const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
+        return payload.id_user || payload.id_usuario || payload.id || "";
+    } catch {
+        return "";
+    }
+}
+
 // Tela principal do usuario comum, mostrando a vitrine de veiculos.
 function Dashboard({ API }) {
     // Recebe a URL base da API Flask por props.
@@ -33,6 +48,8 @@ function Dashboard({ API }) {
     const [pixParcelas, setPixParcelas] = useState({});
     const [carregandoPixParcelas, setCarregandoPixParcelas] = useState({});
     const [erroPixParcelas, setErroPixParcelas] = useState({});
+    const [mensagemPixParcelas, setMensagemPixParcelas] = useState({});
+    const [pagandoPixParcelas, setPagandoPixParcelas] = useState({});
     const [parcelaPixSelecionada, setParcelaPixSelecionada] = useState({});
    // Cria a funcao para navegar para outras paginas.
     const navigate = useNavigate();
@@ -51,7 +68,7 @@ function Dashboard({ API }) {
     // Define o nome exibido no cabecalho; usa fallback se nao existir nome.
     const nomeUsuario = usuario.nome || "Usuário";
     // Pega o ID do usuario logado para buscar suas compras.
-    const idUsuario = usuario.id_usuario || usuario.id_user || usuario.id || usuario.ID_USUARIO;
+    const idUsuario = usuario.id_usuario || usuario.id_user || usuario.id || usuario.ID_USUARIO || idPeloToken();
 
     // Lê o status do estoque aceitando nomes diferentes vindos da API.
     function statusEstoqueCarro(carro) {
@@ -336,9 +353,23 @@ function Dashboard({ API }) {
             numero: parcela.numero_parcela ?? parcela.NUMERO_PARCELA ?? parcela.parcela ?? parcela.PARCELA,
             valor: parcela.valor_parcela ?? parcela.VALOR_PARCELA ?? parcela.valor ?? parcela.VALOR ?? 0,
             vencimento: parcela.data_vencimento ?? parcela.DATA_VENCIMENTO ?? parcela.vencimento ?? parcela.VENCIMENTO,
+            situacao: parcela.situacao_parcela ?? parcela.SITUACAO_PARCELA ?? parcela.status_parcela ?? parcela.STATUS_PARCELA ?? parcela.situacao ?? parcela.status ?? 0,
             qrcode: parcela.pix_qrcode ?? parcela.PIX_QRCODE ?? parcela.qrcode ?? parcela.qr_code ?? parcela.imagem_pix ?? parcela.imagem,
             copiaCola: parcela.pix_copia_cola ?? parcela.PIX_COPIA_COLA ?? parcela.copia_cola ?? parcela.payload ?? parcela.pix_payload
         };
+    }
+
+    function parcelaEstaPaga(parcela) {
+        const situacao = String(parcela?.situacao ?? "").trim().toLowerCase();
+        return situacao === "1" || situacao === "pago" || situacao === "paga" || situacao.includes("pago") || situacao.includes("paga");
+    }
+
+    function textoSituacaoParcela(parcela) {
+        return parcelaEstaPaga(parcela) ? "Pago" : "Pendente";
+    }
+
+    function chaveParcelaPix(idVenda, parcela) {
+        return `${idVenda}-${parcela?.id || parcela?.numero || "parcela"}`;
     }
 
     function ehVendaParcelada(compra) {
@@ -414,12 +445,68 @@ function Dashboard({ API }) {
         }
     }
 
-    async function copiarPixParcela(codigo) {
+    async function copiarPixParcela(codigo, idVenda, parcela) {
         if (!codigo) {
             return;
         }
 
-        await navigator.clipboard.writeText(codigo);
+        const chave = chaveParcelaPix(idVenda, parcela);
+        setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+        setMensagemPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+        setPagandoPixParcelas((estado) => ({ ...estado, [chave]: true }));
+
+        try {
+            await navigator.clipboard.writeText(codigo);
+
+            if (!parcela?.id || parcelaEstaPaga(parcela)) {
+                setMensagemPixParcelas((estado) => ({
+                    ...estado,
+                    [idVenda]: "Pix copiado. Esta parcela ja esta paga."
+                }));
+                return;
+            }
+
+            const resposta = await fetch(`${API}/pagar_parcela_pix/${parcela.id}`, {
+                method: "POST",
+                credentials: "include"
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || dados.mensagem || "Nao foi possivel marcar a parcela como paga.");
+            }
+
+            setPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: (estado[idVenda] || []).map((item) => (
+                    String(item.id) === String(parcela.id)
+                        ? { ...item, situacao: dados.situacao_parcela ?? 1 }
+                        : item
+                ))
+            }));
+
+            if (dados.compra_quitada) {
+                setCompras((estado) => estado.map((compra) => (
+                    String(idVendaCompra(compra)) === String(idVenda)
+                        ? { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 }
+                        : compra
+                )));
+            }
+
+            setMensagemPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: dados.compra_quitada
+                    ? "Pix copiado. Todas as parcelas foram pagas. Compra quitada."
+                    : "Pix copiado. Parcela marcada como paga."
+            }));
+        } catch (erro) {
+            setErroPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: erro.message || "Nao foi possivel copiar o Pix e marcar a parcela como paga."
+            }));
+        } finally {
+            setPagandoPixParcelas((estado) => ({ ...estado, [chave]: false }));
+        }
     }
 
     useEffect(() => {
@@ -575,11 +662,16 @@ function Dashboard({ API }) {
                                 const parcelasComPix = pixParcelas[idVenda] || [];
                                 const carregandoPix = carregandoPixParcelas[idVenda];
                                 const erroPix = erroPixParcelas[idVenda];
+                                const mensagemPix = mensagemPixParcelas[idVenda];
+                                const compraQuitadaParcelas = vendaParcelada && parcelasComPix.length > 0 && parcelasComPix.every(parcelaEstaPaga);
+                                const statusPagamentoCompra = compraQuitadaParcelas ? 0 : (compra.status_pagamento ?? compra.STATUS_PAGAMENTO);
                                 const indiceSalvoPix = Number(parcelaPixSelecionada[idVenda] ?? 0);
                                 const indiceParcelaPix = Number.isFinite(indiceSalvoPix)
                                     ? Math.min(Math.max(indiceSalvoPix, 0), Math.max(parcelasComPix.length - 1, 0))
                                     : 0;
                                 const parcelaPixAtual = parcelasComPix[indiceParcelaPix];
+                                const chavePixAtual = chaveParcelaPix(idVenda, parcelaPixAtual);
+                                const pagandoPixAtual = Boolean(pagandoPixParcelas[chavePixAtual]);
 
                                 return (
                                     <article key={idVenda || `${nomeVeiculoCompra(compra)}-${compra.data_venda}`} className={`${css.card_compra} ${vendaParcelada ? css.card_compra_parcelada : ""}`}>
@@ -588,8 +680,8 @@ function Dashboard({ API }) {
                                                 <span>Veículo</span>
                                                 <h3>{nomeVeiculoCompra(compra)}</h3>
                                             </div>
-                                            <strong className={`${css.status_compra} ${classeStatusPagamento(compra.status_pagamento ?? compra.STATUS_PAGAMENTO)}`}>
-                                                {textoStatusPagamento(compra.status_pagamento ?? compra.STATUS_PAGAMENTO)}
+                                            <strong className={`${css.status_compra} ${classeStatusPagamento(statusPagamentoCompra)}`}>
+                                                {textoStatusPagamento(statusPagamentoCompra)}
                                             </strong>
                                         </div>
 
@@ -614,7 +706,15 @@ function Dashboard({ API }) {
                                             )}
                                         </div>
 
-                                        {vendaParcelada && idVenda && (
+                                        {vendaParcelada && idVenda && compraQuitadaParcelas && (
+                                            <div className={css.area_pix_parcelas}>
+                                                <p className={css.sucesso_pix_parcelas}>
+                                                    Compra paga por completo. Todas as parcelas foram quitadas.
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {vendaParcelada && idVenda && !compraQuitadaParcelas && (
                                             <div className={css.area_pix_parcelas}>
                                                 <div className={css.topo_pix_parcelas}>
                                                     <div>
@@ -627,6 +727,7 @@ function Dashboard({ API }) {
                                                 </div>
 
                                                 {erroPix && <p className={css.erro_pix_parcelas}>{erroPix}</p>}
+                                                {mensagemPix && <p className={css.sucesso_pix_parcelas}>{mensagemPix}</p>}
 
                                                 {carregandoPix && parcelasComPix.length === 0 && (
                                                     <p className={css.estado_pix_parcelas}>Carregando Pix das parcelas...</p>
@@ -665,6 +766,12 @@ function Dashboard({ API }) {
                                                                 <span>Vencimento</span>
                                                                 <strong>{parcelaPixAtual.vencimento || "-"}</strong>
                                                             </div>
+                                                            <div>
+                                                                <span>Status</span>
+                                                                <strong className={parcelaEstaPaga(parcelaPixAtual) ? css.parcela_paga : css.parcela_pendente}>
+                                                                    {textoSituacaoParcela(parcelaPixAtual)}
+                                                                </strong>
+                                                            </div>
                                                         </div>
 
                                                         <div className={css.pix_conteudo_unico}>
@@ -679,8 +786,12 @@ function Dashboard({ API }) {
                                                             <label className={css.pix_copia_cola}>
                                                                 <span>Pix copia e cola</span>
                                                                 <textarea value={parcelaPixAtual.copiaCola || ""} readOnly />
-                                                                <button type="button" onClick={() => copiarPixParcela(parcelaPixAtual.copiaCola)}>
-                                                                    Copiar Pix
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => copiarPixParcela(parcelaPixAtual.copiaCola, idVenda, parcelaPixAtual)}
+                                                                    disabled={pagandoPixAtual}
+                                                                >
+                                                                    {pagandoPixAtual ? "Marcando..." : parcelaEstaPaga(parcelaPixAtual) ? "Copiar Pix pago" : "Copiar Pix"}
                                                                 </button>
                                                             </label>
                                                         </div>

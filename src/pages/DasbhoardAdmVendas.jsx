@@ -99,9 +99,19 @@ function normalizarParcelaPix(parcela) {
         numero: parcela.numero_parcela ?? parcela.NUMERO_PARCELA ?? parcela.parcela ?? parcela.PARCELA,
         valor: parcela.valor_parcela ?? parcela.VALOR_PARCELA ?? parcela.valor ?? parcela.VALOR ?? 0,
         vencimento: parcela.data_vencimento ?? parcela.DATA_VENCIMENTO ?? parcela.vencimento ?? parcela.VENCIMENTO,
+        situacao: parcela.situacao_parcela ?? parcela.SITUACAO_PARCELA ?? parcela.status_parcela ?? parcela.STATUS_PARCELA ?? parcela.situacao ?? parcela.status ?? 0,
         qrcode: parcela.pix_qrcode ?? parcela.PIX_QRCODE ?? parcela.qrcode ?? parcela.qr_code ?? parcela.imagem_pix ?? parcela.imagem,
         copiaCola: parcela.pix_copia_cola ?? parcela.PIX_COPIA_COLA ?? parcela.copia_cola ?? parcela.payload ?? parcela.pix_payload
     };
+}
+
+function parcelaEstaPaga(parcela) {
+    const situacao = String(parcela?.situacao ?? "").trim().toLowerCase();
+    return situacao === "1" || situacao === "pago" || situacao === "paga" || situacao.includes("pago") || situacao.includes("paga");
+}
+
+function textoSituacaoParcela(parcela) {
+    return parcelaEstaPaga(parcela) ? "Pago" : "Pendente";
 }
 
 function normalizarVenda(venda) {
@@ -553,32 +563,38 @@ function DasbhoardAdmVendas({ API }) {
 
                                 {parcelasPixDetalhe.length > 0 && (
                                     <div className={css.listaPixPagamento}>
-                                        {parcelasPixDetalhe.map((parcela, indice) => (
-                                            <div key={parcela.id || parcela.numero || indice} className={css.linhaPixPagamento}>
-                                                <div>
-                                                    <span>Parcela</span>
-                                                    <strong>{parcela.numero || indice + 1}</strong>
+                                        {parcelasPixDetalhe.map((parcela, indice) => {
+                                            const parcelaPaga = parcelaEstaPaga(parcela);
+
+                                            return (
+                                                <div key={parcela.id || parcela.numero || indice} className={css.linhaPixPagamento}>
+                                                    <div>
+                                                        <span>Parcela</span>
+                                                        <strong>{parcela.numero || indice + 1}</strong>
+                                                    </div>
+                                                    <div>
+                                                        <span>Vencimento</span>
+                                                        <strong>{parcela.vencimento || "-"}</strong>
+                                                    </div>
+                                                    <div>
+                                                        <span>Valor</span>
+                                                        <strong>{formatarMoeda(parcela.valor)}</strong>
+                                                    </div>
+                                                    <span className={parcelaPaga ? css.statusPixPago : css.statusPixPendente}>
+                                                        {textoSituacaoParcela(parcela)}
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setPixPagamentoDetalhe({
+                                                            venda: vendaDetalhe,
+                                                            parcela
+                                                        })}
+                                                    >
+                                                        {parcelaPaga ? "Ver Pix" : "Pagar"}
+                                                    </button>
                                                 </div>
-                                                <div>
-                                                    <span>Vencimento</span>
-                                                    <strong>{parcela.vencimento || "-"}</strong>
-                                                </div>
-                                                <div>
-                                                    <span>Valor</span>
-                                                    <strong>{formatarMoeda(parcela.valor)}</strong>
-                                                </div>
-                                                <span className={css.statusPixPendente}>Pendente</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setPixPagamentoDetalhe({
-                                                        venda: vendaDetalhe,
-                                                        parcela
-                                                    })}
-                                                >
-                                                    Pagar
-                                                </button>
-                                            </div>
-                                        ))}
+                                            );
+                                        })}
                                     </div>
                                 )}
                             </div>

@@ -8,6 +8,7 @@ const TEMA_PADRAO = {
     fonte: "Montserrat",
     logo: "/ImgNavBar/LogoNav.png"
 };
+const JUROS_PADRAO = 4;
 
 function cabecalhoAutorizacao() {
     const token = localStorage.getItem("access_token");
@@ -75,8 +76,17 @@ function salvarLogoSite(url) {
 }
 
 function salvarTaxaJurosSite(taxa) {
-    localStorage.setItem("taxa_juro_mensal", String(taxa || 0).replace(",", "."));
+    localStorage.setItem("taxa_juro_mensal", String(taxaJurosConfigurada(taxa)).replace(",", "."));
     window.dispatchEvent(new Event("juros-atualizado"));
+}
+
+function numeroDaTaxa(valor) {
+    return Number(String(valor ?? "").replace(",", "."));
+}
+
+function taxaJurosConfigurada(valor) {
+    const taxa = numeroDaTaxa(valor);
+    return Number.isFinite(taxa) && taxa > 0 ? taxa : JUROS_PADRAO;
 }
 
 function voltarLogoPadraoSite() {
@@ -96,7 +106,7 @@ function DashboardAdmConfiguracoes({ API }) {
     const [cnpj, setCnpj] = useState("");
     const [email, setEmail] = useState("");
     const [telefone, setTelefone] = useState("");
-    const [taxaJuros, setTaxaJuros] = useState("0");
+    const [taxaJuros, setTaxaJuros] = useState(String(JUROS_PADRAO));
     const [carregando, setCarregando] = useState(true);
     const [salvando, setSalvando] = useState(false);
     const [mensagem, setMensagem] = useState(null);
@@ -135,8 +145,9 @@ function DashboardAdmConfiguracoes({ API }) {
                 setCnpj(formatarCnpj(dados.cnpj || ""));
                 setEmail(dados.email_contato || "");
                 setTelefone(formatarTelefone(dados.telefone_empresa || dados.telefone_contato || ""));
-                setTaxaJuros(String(dados.taxa_juro ?? dados.taxa_juros ?? 0));
-                salvarTaxaJurosSite(dados.taxa_juro ?? dados.taxa_juros ?? 0);
+                const taxaConfigurada = taxaJurosConfigurada(dados.taxa_juro ?? dados.taxa_juros);
+                setTaxaJuros(String(taxaConfigurada));
+                salvarTaxaJurosSite(taxaConfigurada);
             } catch {
                 setErro("Erro de conexão com o servidor.");
             } finally {
@@ -165,12 +176,12 @@ function DashboardAdmConfiguracoes({ API }) {
         setCorPrimaria(TEMA_PADRAO.corPrimaria);
         setCorSecundaria(TEMA_PADRAO.corSecundaria);
         setFonte(TEMA_PADRAO.fonte);
-        setTaxaJuros("0");
+        setTaxaJuros(String(JUROS_PADRAO));
         setLogo(null);
         setUsarLogoPadrao(true);
         setPreviewLogo(TEMA_PADRAO.logo);
         voltarLogoPadraoSite();
-        salvarTaxaJurosSite(0);
+        salvarTaxaJurosSite(JUROS_PADRAO);
         aplicarCores(TEMA_PADRAO.corPrimaria, TEMA_PADRAO.corSecundaria, TEMA_PADRAO.fonte);
         setMensagem({
             tipo: "sucesso",
@@ -190,8 +201,9 @@ function DashboardAdmConfiguracoes({ API }) {
         formData.append("telefone_empresa", somenteNumeros(telefone));
         formData.append("telefone_contato", somenteNumeros(telefone));
         formData.append("email_contato", email);
-        formData.append("taxa_juro", String(taxaJuros || 0).replace(",", "."));
-        formData.append("taxa_juros", String(taxaJuros || 0).replace(",", "."));
+        const taxaParaSalvar = taxaJurosConfigurada(taxaJuros);
+        formData.append("taxa_juro", String(taxaParaSalvar).replace(",", "."));
+        formData.append("taxa_juros", String(taxaParaSalvar).replace(",", "."));
         formData.append("cor_primaria", corPrimaria);
         formData.append("cor_secundaria", corSecundaria);
         formData.append("fonte_visual", fonte);
@@ -216,10 +228,11 @@ function DashboardAdmConfiguracoes({ API }) {
 
             setMensagem({
                 tipo: "sucesso",
-                texto: dados.mensagem || "Configuracoes atualizadas com sucesso!"
+                texto: dados.mensagem || "Configurações atualizadas com sucesso!"
             });
+            setTaxaJuros(String(taxaParaSalvar));
             aplicarCores(corPrimaria, corSecundaria, fonte);
-            salvarTaxaJurosSite(taxaJuros);
+            salvarTaxaJurosSite(taxaParaSalvar);
 
             if (logo || usarLogoPadrao) {
                 const logoAtualizada = `${API}/uploads/logo_empresa.png?v=${Date.now()}`;
@@ -243,7 +256,7 @@ function DashboardAdmConfiguracoes({ API }) {
 
     return (
         <main className={css.container}>
-            <h1 className={css.titulo}>Configuracoes da Plataforma</h1>
+            <h1 className={css.titulo}>Configurações da Plataforma</h1>
 
             {mensagem && (
                 <div className={css.mensagem}>
@@ -253,7 +266,7 @@ function DashboardAdmConfiguracoes({ API }) {
 
             {carregando && (
                 <div className={css.mensagem}>
-                    Carregando configuracoes...
+                    Carregando configurações...
                 </div>
             )}
 

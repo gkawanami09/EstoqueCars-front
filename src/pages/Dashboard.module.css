@@ -388,6 +388,11 @@
     background: var(--cor-principal);
 }
 
+.pix_copia_cola button:disabled {
+    background: #8b8f94;
+    cursor: not-allowed;
+}
+
 .erro_pix_parcelas {
     margin: 0;
     border: 1px solid #ffd0d0;
@@ -397,6 +402,25 @@
     padding: 10px 12px;
     font-size: 0.86rem;
     font-weight: 800;
+}
+
+.sucesso_pix_parcelas {
+    margin: 0;
+    border: 1px solid #bfe8d0;
+    border-radius: 8px;
+    background: #f1fff6;
+    color: #087a3d;
+    padding: 10px 12px;
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.parcela_paga {
+    color: #087a3d !important;
+}
+
+.parcela_pendente {
+    color: #9a4c00 !important;
 }
 
 .lista_pix_parcelas {
