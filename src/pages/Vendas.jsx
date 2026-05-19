@@ -1,550 +1,847 @@
+// Importa hooks do React usados para estado, efeitos, memoizacao e funcoes memorizadas.
 import { useCallback, useEffect, useMemo, useState } from "react";
+// Importa o hook de navegacao para trocar de rota quando cancelar ou voltar.
 import { useNavigate } from "react-router-dom";
+// Importa o componente de mascara para campos monetarios.
 import { IMaskInput } from "react-imask";
+// Importa os estilos CSS Modules usados nesta pagina.
 import css from "./Vendas.module.css";
 
+// Lista as formas de pagamento que aparecem no select.
 const formasPagamento = [
+    // Opcao usada quando a venda sera paga por Pix.
     { id: "0", nome: "Pix" },
+    // Opcao usada quando a venda sera parcelada.
     { id: "1", nome: "Parcelamento" }
 ];
+// Guarda o id que representa Pix para evitar numeros soltos no codigo.
 const formaPagamentoPix = "0";
+// Guarda o id que representa parcelamento para comparar com o estado atual.
 const formaPagamentoParcelamento = "1";
+// Lista os status de pagamento exibidos no formulario.
 const statusPagamento = [
+    // Status para venda ja paga.
     { id: "0", nome: "Pago" },
+    // Status para venda ainda em andamento.
     { id: "1", nome: "Em andamento" }
 ];
+// Define o status inicial da venda como "Em andamento".
 const statusEmAndamento = "1";
+// Agrupa os valores usados para salvar a situacao do parcelamento.
 const situacaoParcelamento = {
+    // Valor enviado para a API quando o parcelamento ainda esta ativo.
     emAndamento: "1"
 };
+// Define a taxa de juros mensal padrao quando nao houver configuracao salva.
 const JUROS_PADRAO = 4; // Ajustado de 0 para 4 (4% de juros padrão)
 
+// Converte valores digitados em campos monetarios/texto para numero.
 function numeroDoCampo(valor) {
+    // Transforma o valor em texto e remove simbolos que nao sejam numero, virgula, ponto ou sinal.
     const texto = String(valor || "0").replace(/[^\d,.-]/g, "");
 
+    // Se o texto tiver virgula, assume o formato brasileiro, como "1.234,56".
     if (texto.includes(",")) {
+        // Remove pontos de milhar, troca virgula decimal por ponto e converte para Number.
         return Number(texto.replace(/\./g, "").replace(",", ".")) || 0;
     }
 
+    // Converte valores sem virgula diretamente para numero.
     return Number(texto) || 0;
 }
 
+// Transforma uma taxa percentual, como 4, em decimal, como 0.04.
 function taxaJurosParaDecimal(valor) {
+    // Primeiro normaliza o valor usando a mesma regra dos campos numericos.
     const taxa = numeroDoCampo(valor);
 
+    // Taxas invalidas, zeradas ou negativas viram 0 para nao quebrar o calculo.
     if (!Number.isFinite(taxa) || taxa <= 0) {
         return 0;
     }
 
+    // Divide por 100 para transformar porcentagem em decimal.
     return taxa / 100;
 }
 
+// Formata um numero como moeda brasileira.
 function formatarMoeda(valor) {
+    // Usa Intl/toLocaleString para mostrar o valor como "R$ 1.234,56".
     return Number(valor || 0).toLocaleString("pt-BR", {
+        // Define que a formatacao sera de moeda.
         style: "currency",
+        // Define a moeda como Real brasileiro.
         currency: "BRL",
+        // Limita a exibicao a duas casas decimais.
         maximumFractionDigits: 2
     });
 }
 
+// Formata a quilometragem do veiculo para exibir no card.
 function formatarQuilometragem(valor) {
+    // Converte o valor recebido para numero.
     const numero = Number(valor);
 
+    // Se nao for numero valido, mostra o valor original ou um traco.
     if (!Number.isFinite(numero)) {
         return valor || "-";
     }
 
+    // Exibe a quilometragem com separador brasileiro e sufixo "km".
     return `${numero.toLocaleString("pt-BR")} km`;
 }
 
+// Monta o cabecalho Authorization quando existe token salvo.
 function cabecalhoAutorizacao() {
+    // Busca o token de acesso gravado no navegador.
     const token = localStorage.getItem("access_token");
+    // Retorna o Bearer token ou undefined quando nao houver token.
     return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
+// Extrai apenas usuarios que podem ser clientes a partir da resposta da API.
 function extrairListaUsuarios(dados) {
+    // Aceita resposta como array direto ou dentro de "usuarios"/"clientes".
     const lista = Array.isArray(dados) ? dados : dados?.usuarios || dados?.clientes || [];
+    // Filtra usuarios cujo tipo_usuario indica cliente.
     const clientes = lista.filter((usuario) => Number(usuario.tipo_usuario) === 0);
 
+    // Se encontrou clientes explicitamente, usa essa lista.
     if (clientes.length > 0) {
         return clientes;
     }
 
+    // Caso contrario, remove apenas administradores/tipo 2 e usa o restante.
     return lista.filter((usuario) => Number(usuario.tipo_usuario) !== 2);
 }
 
+// Converte a data do input datetime-local para o formato esperado pela API.
 function formatarDataParaApi(data) {
+    // Se nao houver data, envia string vazia.
     if (!data) {
         return "";
     }
 
+    // Separa data e hora do formato "YYYY-MM-DDTHH:mm".
     const [dataCampo, horaCampo = "00:00"] = data.split("T");
+    // Separa ano, mes e dia para reorganizar no padrao brasileiro.
     const [ano, mes, dia] = dataCampo.split("-");
 
+    // Se a data nao estiver no formato esperado, devolve como veio.
     if (!ano || !mes || !dia) {
         return data;
     }
 
+    // Retorna "DD/MM/YYYY HH:mm" para a API.
     return `${dia}/${mes}/${ano} ${horaCampo}`;
 }
 
+// Gera a data e hora atual no formato aceito pelo input datetime-local.
 function dataHoraAtualParaInput() {
+    // Captura o momento atual.
     const agora = new Date();
+    // Pega o ano atual.
     const ano = agora.getFullYear();
+    // Pega o mes atual e garante dois digitos.
     const mes = String(agora.getMonth() + 1).padStart(2, "0");
+    // Pega o dia atual e garante dois digitos.
     const dia = String(agora.getDate()).padStart(2, "0");
+    // Pega a hora atual e garante dois digitos.
     const hora = String(agora.getHours()).padStart(2, "0");
+    // Pega o minuto atual e garante dois digitos.
     const minuto = String(agora.getMinutes()).padStart(2, "0");
 
+    // Retorna no formato "YYYY-MM-DDTHH:mm" usado pelo input.
     return `${ano}-${mes}-${dia}T${hora}:${minuto}`;
 }
 
+// Descobre o id do veiculo aceitando nomes diferentes vindos da API.
 function idVeiculo(veiculo) {
+    // Tenta id, id_veiculo e id_carro, nessa ordem.
     return veiculo?.id || veiculo?.id_veiculo || veiculo?.id_carro;
 }
 
+// Descobre o status de estoque do veiculo aceitando nomes diferentes de campo.
 function statusEstoqueVeiculo(veiculo) {
+    // Retorna uma string mesmo quando o status vier nulo ou indefinido.
     return String(
+        // Campo em snake_case.
         veiculo?.status_estoque ??
+        // Campo em maiusculo.
         veiculo?.STATUS_ESTOQUE ??
+        // Campo em camelCase.
         veiculo?.statusEstoque ??
+        // Valor padrao quando nenhum campo existe.
         ""
     );
 }
 
+// Verifica se o veiculo esta disponivel para venda.
 function veiculoDisponivel(veiculo) {
+    // Normaliza o status para minusculo antes de comparar.
     const status = statusEstoqueVeiculo(veiculo).toLowerCase();
 
+    // Considera disponivel quando status e "1" ou contem "dispon".
     return status === "1" || status.includes("dispon");
 }
 
+// Monta o nome que sera exibido no select de veiculos.
 function nomeVeiculo(veiculo) {
     return veiculo?.nome || [veiculo?.marca, veiculo?.modelo].filter(Boolean).join(" ") || "Veículo";
 }
 
+// Monta a URL da imagem do veiculo.
 function montarUrlImagem(API, veiculo) {
+    // Aceita diferentes nomes de campo para imagem/foto.
     const imagem = veiculo?.imagem || veiculo?.foto || veiculo?.foto_veiculo;
 
+    // Se nao houver imagem, usa o icone padrao.
     if (!imagem) {
         return "/IconCar.png";
     }
 
+    // Se a imagem ja for URL completa, usa como esta.
     if (String(imagem).startsWith("http")) {
         return imagem;
     }
 
+    // Se o caminho comecar com barra, junta direto com a base da API.
     if (String(imagem).startsWith("/")) {
         return `${API}${imagem}`;
     }
 
+    // Se for caminho relativo, adiciona uma barra entre API e caminho.
     return `${API}/${imagem}`;
 }
 
+// Monta a URL do QR Code Pix retornado pela API.
 function montarUrlPix(API, caminhoPix) {
+    // Sem caminho Pix, nao ha imagem para mostrar.
     if (!caminhoPix) {
         return "";
     }
 
+    // Garante que o caminho sera tratado como texto.
     const caminho = String(caminhoPix);
 
+    // URLs completas e imagens base64/data URL sao usadas diretamente.
     if (caminho.startsWith("http") || caminho.startsWith("data:")) {
         return caminho;
     }
 
+    // Caminhos absolutos sao juntados diretamente com a API.
     if (caminho.startsWith("/")) {
         return `${API}${caminho}`;
     }
 
+    // Caminhos relativos recebem barra entre API e caminho.
     return `${API}/${caminho}`;
 }
 
+// Calcula o valor de cada parcela usando juros compostos quando houver taxa.
 function calcularValorParcela(valor, parcelas, juros) {
+    // Sem valor ou sem parcelas, nao ha parcela a calcular.
     if (!valor || !parcelas) {
         return 0;
     }
 
+    // Sem juros, divide o valor igualmente pela quantidade de parcelas.
     if (!juros) {
         return valor / parcelas;
     }
 
+    // Com juros, aplica a formula de parcela fixa de financiamento.
     return valor * juros / (1 - (1 + juros) ** -parcelas);
 }
 
+// Componente principal da pagina de vendas.
 function Vendas({ API }) {
+    // Permite navegar para outra rota pelo codigo.
     const navigate = useNavigate();
+    // Guarda a lista de clientes carregada da API.
     const [clientes, setClientes] = useState([]);
+    // Controla se os clientes ainda estao sendo carregados.
     const [carregandoClientes, setCarregandoClientes] = useState(true);
+    // Guarda mensagem de erro ao carregar clientes.
     const [erroClientes, setErroClientes] = useState("");
+    // Guarda a lista de veiculos disponiveis carregada da API.
     const [veiculos, setVeiculos] = useState([]);
+    // Controla se os veiculos ainda estao sendo carregados.
     const [carregandoVeiculos, setCarregandoVeiculos] = useState(true);
+    // Guarda mensagem de erro ao carregar veiculos.
     const [erroVeiculos, setErroVeiculos] = useState("");
+    // Guarda o id do cliente selecionado no formulario.
     const [clienteId, setClienteId] = useState("");
+    // Guarda o id do veiculo selecionado no formulario.
     const [veiculoId, setVeiculoId] = useState("");
+    // Guarda a forma de pagamento escolhida, iniciando pela primeira opcao.
     const [formaPagamento, setFormaPagamento] = useState(formasPagamento[0].id);
+    // Guarda a data da venda, iniciando com a data e hora atuais.
     const [dataVenda, setDataVenda] = useState(() => dataHoraAtualParaInput());
+    // Guarda o valor bruto da venda digitado ou vindo do veiculo.
     const [valorVenda, setValorVenda] = useState("");
+    // Guarda o valor recebido; no Pix ele acompanha o valor com desconto.
     const [valorRecebido, setValorRecebido] = useState("");
+    // Guarda o status de pagamento selecionado.
     const [status, setStatus] = useState(statusEmAndamento);
+    // Guarda observacoes escritas sobre a venda.
     const [comentarios, setComentarios] = useState("");
+    // Guarda o percentual de desconto digitado.
     const [desconto, setDesconto] = useState("");
+    // Guarda o arquivo de comprovante/NF escolhido.
     const [comprovante, setComprovante] = useState(null);
+    // Guarda dados do Pix gerado, como QR Code e copia e cola.
     const [pixGerado, setPixGerado] = useState(null);
+    // Controla o estado de carregamento especifico da geracao do Pix.
     const [gerandoPix, setGerandoPix] = useState(false);
+    // Guarda mensagem de erro especifica do Pix.
     const [erroPix, setErroPix] = useState("");
+    // Guarda a quantidade de parcelas escolhida para financiamento.
     const [parcelasFinanciamento, setParcelasFinanciamento] = useState(48);
+    // Controla se o modal com todas as parcelas esta aberto.
     const [modalParcelasAberto, setModalParcelasAberto] = useState(false);
+    // Controla se a venda esta sendo enviada para a API.
     const [salvando, setSalvando] = useState(false);
+    // Guarda mensagens gerais de sucesso ou erro no topo da pagina.
     const [mensagem, setMensagem] = useState(null);
+    // Indica se a venda ja foi finalizada para evitar cadastro duplicado.
     const [vendaFinalizada, setVendaFinalizada] = useState(false);
+    // Guarda a taxa de juros mensal em decimal, usando localStorage ou valor padrao.
     const [jurosMensal, setJurosMensal] = useState(() => taxaJurosParaDecimal(localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO));
 
+    // Facilita saber se a forma de pagamento atual e parcelamento.
     const ehParcelamento = formaPagamento === formaPagamentoParcelamento;
+    // Facilita saber se a forma de pagamento atual e Pix.
     const ehPix = formaPagamento === formaPagamentoPix;
 
+    // Carrega clientes da API e memoriza a funcao para uso no useEffect.
     const carregarClientes = useCallback(async () => {
+        // Mostra estado de carregamento no select de clientes.
         setCarregandoClientes(true);
+        // Limpa erros antigos antes de tentar carregar novamente.
         setErroClientes("");
 
+        // Tenta buscar os usuarios no backend.
         try {
+            // Faz requisicao GET para listar usuarios.
             const resposta = await fetch(`${API}/listar_usuario`, {
+                // Define o metodo HTTP.
                 method: "GET",
+                // Envia o token quando existir.
                 headers: cabecalhoAutorizacao(),
+                // Inclui cookies/sessao na chamada.
                 credentials: "include"
             });
+            // Converte a resposta da API para objeto JavaScript.
             const dados = await resposta.json();
 
+            // Se a API retornou erro, mostra a mensagem e limpa a lista.
             if (!resposta.ok) {
                 setErroClientes(dados.erro || dados.mensagem || "Erro ao carregar clientes.");
                 setClientes([]);
                 return;
             }
 
+            // Filtra a resposta para manter apenas usuarios que podem ser clientes.
             const lista = extrairListaUsuarios(dados);
+            // Salva os clientes no estado.
             setClientes(lista);
 
+            // Seleciona automaticamente o primeiro cliente quando houver lista.
             if (lista.length > 0) {
                 setClienteId(String(lista[0].id_usuario || lista[0].id || ""));
             }
+        // Caso a requisicao falhe, mostra erro de conexao.
         } catch {
             setErroClientes("Erro de conexão com o servidor.");
             setClientes([]);
+        // No fim, remove o estado de carregamento.
         } finally {
             setCarregandoClientes(false);
         }
+    // Recria essa funcao apenas se a URL base da API mudar.
     }, [API]);
 
+    // Carrega os veiculos da API e deixa apenas os disponiveis para venda.
     const carregarVeiculos = useCallback(async () => {
+        // Mostra estado de carregamento no select de veiculos.
         setCarregandoVeiculos(true);
+        // Limpa erros antigos antes da nova busca.
         setErroVeiculos("");
 
+        // Tenta buscar carros no backend.
         try {
+            // Faz requisicao GET para listar carros.
             const resposta = await fetch(`${API}/listar_carro`, {
+                // Define o metodo HTTP.
                 method: "GET",
+                // Inclui cookies/sessao na chamada.
                 credentials: "include"
             });
+            // Converte a resposta da API para objeto JavaScript.
             const dados = await resposta.json();
 
+            // Se a API retornar erro, mostra mensagem e limpa os veiculos.
             if (!resposta.ok) {
                 setErroVeiculos(dados.erro || "Erro ao carregar veículos.");
                 setVeiculos([]);
                 return;
             }
 
+            // Pega o array de carros dentro da resposta.
             const lista = dados.carros || [];
+            // Mantem somente veiculos disponiveis.
             const disponiveis = lista.filter(veiculoDisponivel);
+            // Salva os veiculos disponiveis no estado.
             setVeiculos(disponiveis);
 
+            // Se houver veiculos, seleciona o primeiro e preenche valores.
             if (disponiveis.length > 0) {
+                // Guarda o primeiro veiculo disponivel.
                 const primeiro = disponiveis[0];
+                // Preenche o select com o id do primeiro veiculo.
                 setVeiculoId(String(idVeiculo(primeiro)));
+                // Preenche o valor da venda com o preco do veiculo.
                 setValorVenda(String(primeiro.preco || 0));
+                // Preenche o valor recebido inicialmente com o mesmo preco.
                 setValorRecebido(String(primeiro.preco || 0));
+            // Se nao houver veiculos disponiveis, limpa campos e mostra aviso.
             } else {
                 setVeiculoId("");
                 setValorVenda("");
                 setValorRecebido("");
                 setErroVeiculos("Nenhum veículo disponível para venda.");
             }
+        // Caso a requisicao falhe, mostra erro de conexao.
         } catch {
             setErroVeiculos("Erro de conexão com o servidor.");
             setVeiculos([]);
+        // No fim, remove o estado de carregamento.
         } finally {
             setCarregandoVeiculos(false);
         }
+    // Recria essa funcao apenas se a URL base da API mudar.
     }, [API]);
 
+    // Quando a tela monta, carrega clientes e veiculos.
     useEffect(() => {
+        // Busca clientes na API.
         carregarClientes();
+        // Busca veiculos na API.
         carregarVeiculos();
+    // Executa de novo se as funcoes de carregamento mudarem.
     }, [carregarClientes, carregarVeiculos]);
 
+    // Carrega e acompanha a taxa de juros usada no parcelamento.
     useEffect(() => {
+        // Aplica a taxa salva no navegador ou a taxa padrao.
         function aplicarJurosSalvo() {
+            // Busca taxa salva no localStorage.
             const taxaSalva = localStorage.getItem("taxa_juro_mensal") || JUROS_PADRAO;
             console.log("Taxa de juros aplicada na venda (salva/padrão):", taxaSalva, "%");
+            // Atualiza o estado da taxa em formato decimal.
             setJurosMensal(taxaJurosParaDecimal(taxaSalva));
         }
 
+        // Tenta buscar a taxa de juros mais recente na API.
         async function carregarJuros() {
+            // Protege a tela contra falhas de rede ou da API.
             try {
+                // Chama a rota de configuracoes.
                 const resposta = await fetch(`${API}/configuracoes`, {
+                    // Define o metodo HTTP.
                     method: "GET",
+                    // Envia token quando existir.
                     headers: cabecalhoAutorizacao(),
+                    // Inclui cookies/sessao na chamada.
                     credentials: "include"
                 });
 
+                // Se a API falhar, usa a taxa salva/local.
                 if (!resposta.ok) {
                     aplicarJurosSalvo();
                     return;
                 }
 
+                // Converte a resposta para objeto JavaScript.
                 const dados = await resposta.json();
+                // Aceita nomes diferentes para a taxa retornada pela API.
                 const taxa = dados.taxa_juro ?? dados.taxa_juros ?? JUROS_PADRAO;
+                // Salva a taxa no navegador para reaproveitar depois.
                 localStorage.setItem("taxa_juro_mensal", String(taxa));
                 console.log("Taxa de juros aplicada na venda (via API):", taxa, "%");
+                // Atualiza a taxa em decimal no estado.
                 setJurosMensal(taxaJurosParaDecimal(taxa));
+            // Se houver erro de conexao, usa a taxa salva/local.
             } catch {
                 aplicarJurosSalvo();
             }
         }
 
+        // Executa o carregamento da taxa ao montar a tela.
         carregarJuros();
+        // Atualiza a taxa se outra parte do app disparar esse evento.
         window.addEventListener("juros-atualizado", aplicarJurosSalvo);
+        // Remove o listener quando o componente desmontar.
         return () => window.removeEventListener("juros-atualizado", aplicarJurosSalvo);
+    // Reexecuta se a base da API mudar.
     }, [API]);
 
+    // Encontra o objeto completo do veiculo atualmente selecionado.
     const veiculoSelecionado = useMemo(() => {
+        // Procura no array pelo id escolhido no select.
         return veiculos.find((veiculo) => String(idVeiculo(veiculo)) === veiculoId) || null;
+    // Recalcula apenas quando id ou lista de veiculos mudarem.
     }, [veiculoId, veiculos]);
 
+    // Converte o valor da venda para numero.
     const valorNumerico = numeroDoCampo(valorVenda);
+    // Converte o desconto para numero.
     const descontoNumerico = numeroDoCampo(desconto);
+    // Calcula o valor final garantindo que nunca fique negativo.
     const valorComDesconto = Math.max(valorNumerico - (valorNumerico * descontoNumerico / 100), 0);
+    // Usa o valor com desconto como base do parcelamento.
     const valorParcelado = valorComDesconto;
+    // Converte juros decimal de volta para percentual para exibir na tela.
     const taxaJurosPercentual = jurosMensal * 100;
 
+    // Limpa informacoes do Pix quando mudam dados que alteram a venda.
     useEffect(() => {
+        // Remove Pix gerado anteriormente.
         setPixGerado(null);
+        // Limpa erro antigo do Pix.
         setErroPix("");
+        // Libera novo envio porque a venda mudou.
         setVendaFinalizada(false);
+    // Roda quando forma de pagamento, valor final ou veiculo mudarem.
     }, [formaPagamento, valorComDesconto, veiculoId]);
 
+    // Quando a venda e Pix, o valor recebido acompanha automaticamente o valor com desconto.
     useEffect(() => {
+        // So altera o valor recebido quando a forma atual for Pix.
         if (ehPix) {
+            // Grava o valor com duas casas decimais.
             setValorRecebido(String(valorComDesconto.toFixed(2)));
         }
+    // Recalcula quando Pix ou valor com desconto mudarem.
     }, [ehPix, valorComDesconto]);
 
+    // Calcula o valor da parcela da quantidade selecionada.
     const valorParcelaParcelamento = useMemo(() => {
+        // Garante que a quantidade de parcelas seja numerica e tenha valor minimo.
         const parcelas = Number(parcelasFinanciamento) || 1;
 
+        // Retorna o valor da parcela com base no valor, quantidade e juros.
         return calcularValorParcela(valorParcelado, parcelas, jurosMensal);
+    // Recalcula quando juros, parcelas ou valor base mudarem.
     }, [jurosMensal, parcelasFinanciamento, valorParcelado]);
 
+    // Monta a lista de opcoes de parcelamento de 1 ate 120 vezes.
     const opcoesParcelamento = useMemo(() => {
+        // Cria 120 opcoes de parcelamento.
         return Array.from({ length: 120 }, (_, indice) => {
+            // A quantidade de parcelas e o indice mais 1.
             const quantidade = indice + 1;
+            // Calcula o valor da parcela para esta quantidade.
             const valorParcela = calcularValorParcela(valorParcelado, quantidade, jurosMensal);
 
+            // Retorna o objeto usado para renderizar cada botao do modal.
             return {
+                // Quantidade de parcelas.
                 quantidade,
+                // Valor individual da parcela.
                 valorParcela,
+                // Total pago ao final do parcelamento.
                 total: valorParcela * quantidade
             };
         });
+    // Recria a lista quando juros ou valor parcelado mudarem.
     }, [jurosMensal, valorParcelado]);
 
+    // Atualiza o veiculo selecionado e seus valores quando o select muda.
     function trocarVeiculo(e) {
+        // Pega o id escolhido no select.
         const id = e.target.value;
+        // Procura o veiculo completo na lista.
         const veiculo = veiculos.find((item) => String(idVeiculo(item)) === id);
 
+        // Salva o novo id selecionado.
         setVeiculoId(id);
 
+        // Se encontrou o veiculo, atualiza valores com o preco dele.
         if (veiculo) {
             setValorVenda(String(veiculo.preco));
             setValorRecebido(String(veiculo.preco));
         }
     }
 
+    // Salva o arquivo escolhido no input de comprovante.
     function selecionarComprovante(e) {
+        // Pega o primeiro arquivo selecionado ou null.
         const arquivo = e.target.files?.[0] || null;
+        // Guarda o arquivo no estado para enviar no FormData.
         setComprovante(arquivo);
     }
 
+    // Define a quantidade de parcelas escolhida no modal.
     function selecionarQuantidadeParcelas(quantidade) {
+        // Atualiza a quantidade de parcelas.
         setParcelasFinanciamento(quantidade);
+        // Fecha o modal apos escolher.
         setModalParcelasAberto(false);
     }
 
+    // Rola a pagina para o topo para o usuario ver a mensagem.
     function subirParaTopo() {
+        // Usa rolagem suave ate o topo.
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // Mostra uma mensagem geral no topo da pagina.
     function mostrarMensagem(tipo, texto) {
+        // Salva tipo e texto da mensagem.
         setMensagem({ tipo, texto });
+        // Leva o usuario ate a mensagem.
         subirParaTopo();
     }
 
+    // Copia o codigo Pix copia e cola para a area de transferencia.
     async function copiarPix() {
+        // Se nao houver codigo Pix, nao faz nada.
         if (!pixGerado?.copiaECola) {
             return;
         }
 
+        // Tenta copiar usando a API do navegador.
         try {
+            // Escreve o codigo Pix na area de transferencia.
             await navigator.clipboard.writeText(pixGerado.copiaECola);
             mostrarMensagem("sucesso", "Código Pix copiado.");
+        // Se o navegador bloquear a copia, mostra erro.
         } catch {
             mostrarMensagem("erro", "Não foi possível copiar o código Pix automaticamente.");
         }
     }
 
+    // Monta o FormData que sera enviado para cadastrar a venda.
     function montarFormData() {
+        // Cria um FormData para suportar campos de texto e arquivo.
         const formData = new FormData();
 
+        // Adiciona o cliente selecionado.
         formData.append("id_usuario", clienteId);
+        // Adiciona o veiculo selecionado.
         formData.append("id_veiculo", veiculoId);
+        // Adiciona a forma de pagamento.
         formData.append("forma_pagamento", formaPagamento);
+        // Adiciona a data formatada para a API.
         formData.append("data_venda", formatarDataParaApi(dataVenda));
+        // Adiciona o valor bruto da venda.
         formData.append("valor_venda", String(valorNumerico));
+        // Adiciona o valor recebido, usando valor com desconto automaticamente no Pix.
         formData.append("valor_recebido", String(ehPix ? valorComDesconto.toFixed(2) : numeroDoCampo(valorRecebido)));
+        // Adiciona o status de pagamento.
         formData.append("status_pagamento", status);
+        // Adiciona os comentarios da venda.
         formData.append("comentarios", comentarios);
+        // Adiciona o percentual de desconto.
         formData.append("desconto", String(descontoNumerico));
 
+        // Se houver arquivo, anexa o comprovante/NF.
         if (comprovante) {
             formData.append("comprovante", comprovante);
         }
 
+        // Se for parcelamento, adiciona os campos extras do financiamento.
         if (ehParcelamento) {
+            // Data de inicio do parcelamento.
             formData.append("data_parcelamento", formatarDataParaApi(dataVenda));
+            // Valor original usado para calcular parcelas.
             formData.append("valor_original", String(valorComDesconto.toFixed(2)));
+            // Valor de cada parcela.
             formData.append("valor_parcelado", String(valorParcelaParcelamento.toFixed(2)));
+            // Valor total com juros.
             formData.append("valor_total_parcelado", String((valorParcelaParcelamento * parcelasFinanciamento).toFixed(2)));
+            // Quantidade de parcelas escolhida.
             formData.append("quantidade_parcelas", String(parcelasFinanciamento));
+            // Situacao inicial do parcelamento.
             formData.append("situacao_parcelamento", situacaoParcelamento.emAndamento);
         }
 
+        // Retorna o pacote pronto para enviar no body do fetch.
         return formData;
     }
 
+    // Valida os campos obrigatorios antes de enviar a venda.
     function validarVenda() {
+        // Limpa mensagem anterior.
         setMensagem(null);
+        // Sobe a tela para exibir possiveis alertas.
         subirParaTopo();
 
+        // Bloqueia envio se nenhum cliente foi selecionado.
         if (!clienteId) {
             mostrarMensagem("erro", "Selecione um cliente antes de salvar a venda.");
             return false;
         }
 
+        // Bloqueia envio se nenhum veiculo valido foi selecionado.
         if (!veiculoSelecionado) {
             mostrarMensagem("erro", "Selecione um veículo antes de salvar a venda.");
             return false;
         }
 
+        // Bloqueia envio se faltar data, valor ou dados obrigatorios de pagamento.
         if (!dataVenda || !valorNumerico || (!ehPix && !numeroDoCampo(valorRecebido)) || (!ehPix && !status)) {
             mostrarMensagem("erro", "Preencha todos os campos obrigatórios da venda.");
             return false;
         }
 
+        // Bloqueia desconto acima do limite permitido pela tela.
         if (descontoNumerico > 10) {
             mostrarMensagem("erro", "O desconto pode ser de no máximo 10%.");
             return false;
         }
 
+        // Se passou por todas as regras, a venda esta valida.
         return true;
     }
 
+    // Le os dados de Pix retornados pela API e joga no estado da tela.
     function aplicarPixDaVenda(dados) {
+        // Monta URL do QR Code aceitando nomes diferentes de campo.
         const qrCode = montarUrlPix(API, dados.pix_qrcode || dados.qr_code || dados.qr_code_base64);
+        // Pega o codigo copia e cola aceitando nomes diferentes de campo.
         const copiaECola = dados.pix_copia_cola || dados.pix_copia_e_cola || dados.payload;
 
+        // Se a API nao retornou nada de Pix, informa que nao aplicou.
         if (!qrCode && !copiaECola) {
             return false;
         }
 
+        // Salva os dados do Pix para renderizar na tela.
         setPixGerado({ qrCode, copiaECola });
+        // Informa que encontrou dados Pix validos.
         return true;
     }
 
+    // Envia a venda para a API e, se necessario, tambem trata o Pix retornado.
     async function enviarVenda({ gerarPixVenda = false } = {}) {
+        // Evita cadastrar a mesma venda novamente depois de finalizada.
         if (vendaFinalizada) {
             mostrarMensagem("sucesso", "Esta venda ja foi cadastrada.");
             return;
         }
 
+        // Para o fluxo se a validacao falhar.
         if (!validarVenda()) {
             return;
         }
 
+        // Ativa o estado de salvamento.
         setSalvando(true);
+        // Ativa o carregamento do Pix quando o botao de Pix foi usado.
         setGerandoPix(gerarPixVenda);
+        // Limpa erro antigo do Pix.
         setErroPix("");
+        // Remove Pix antigo antes de gerar/salvar de novo.
         setPixGerado(null);
 
+        // Tenta cadastrar a venda no backend.
         try {
+            // Envia os dados da venda por POST.
             const resposta = await fetch(`${API}/cadastrar_venda`, {
+                // Define o metodo HTTP.
                 method: "POST",
+                // Envia o token quando existir.
                 headers: cabecalhoAutorizacao(),
+                // Inclui cookies/sessao na chamada.
                 credentials: "include",
+                // Envia o FormData com campos e possivel arquivo.
                 body: montarFormData()
             });
+            // Converte a resposta para objeto JavaScript.
             const dados = await resposta.json();
 
+            // Se a API retornar erro, mostra mensagem e encerra.
             if (!resposta.ok) {
                 mostrarMensagem("erro", dados.erro || dados.error || dados.mensagem || "Erro ao cadastrar venda.");
+                // Se o fluxo era Pix, mostra erro tambem na area do Pix.
                 if (gerarPixVenda) {
                     setErroPix(dados.erro || dados.error || dados.mensagem || "Erro ao gerar Pix.");
                 }
                 return;
             }
 
+            // Marca a venda como finalizada para bloquear novo envio.
             setVendaFinalizada(true);
+            // Mostra mensagem de sucesso da API ou texto padrao.
             mostrarMensagem("sucesso", dados.mensagem || "Venda cadastrada com sucesso.");
 
+            // Se for Pix e a API retornou dados Pix, deixa o QR Code na tela.
             if (ehPix && aplicarPixDaVenda(dados)) {
                 return;
             }
+        // Trata erro de conexao ou falha inesperada.
         } catch {
+            // Se era geracao de Pix, mostra erro especifico.
             if (gerarPixVenda) {
                 setErroPix("Não foi possível conectar ao servidor para gerar o Pix.");
             }
             mostrarMensagem("erro", "Não foi possível conectar ao servidor.");
+        // Sempre desliga os estados de carregamento ao final.
         } finally {
             setSalvando(false);
             setGerandoPix(false);
         }
     }
 
+    // Atalho chamado pelo botao "Salvar e gerar Pix".
     async function gerarPix() {
+        // Envia a venda informando que tambem deve tratar Pix.
         await enviarVenda({ gerarPixVenda: true });
     }
 
+    // Handler do submit principal do formulario.
     async function salvarVenda(e) {
+        // Impede o reload padrao do formulario.
         e.preventDefault();
+        // Envia a venda normalmente.
         await enviarVenda();
     }
 
+    // Renderiza toda a interface da pagina.
     return (
         <main className={css.pagina}>
+            {/* Titulo principal da tela. */}
             <h1>Vendas</h1>
 
+            {/* Mostra alerta de sucesso ou erro quando existe mensagem no estado. */}
             {mensagem && (
                 <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagemAlertaSucesso : css.mensagemAlertaErro}`}>
+                    {/* Texto da mensagem mostrada ao usuario. */}
                     <span>{mensagem.texto}</span>
+                    {/* Botao para fechar/limpar a mensagem. */}
                     <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
                         x
                     </button>
                 </div>
             )}
 
+            {/* Formulario principal de cadastro da venda. */}
             <form className={css.card} onSubmit={salvarVenda}>
+                {/* Coluna esquerda com cliente, veiculo e comentarios. */}
                 <section className={css.coluna}>
+                    {/* Campo de selecao do cliente comprador. */}
                     <label className={css.campo}>
                         <span>Cliente</span>
+                        {/* Select controlado pelo estado clienteId. */}
                         <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} disabled={carregandoClientes || clientes.length === 0}>
+                            {/* Opcao inicial, mudando texto enquanto carrega. */}
                             <option value="">
                                 {carregandoClientes ? "Carregando clientes..." : "Selecione um cliente"}
                             </option>
+                            {/* Cria uma opcao para cada cliente carregado. */}
                             {clientes.map((item) => (
                                 <option key={item.id_usuario || item.id} value={item.id_usuario || item.id}>
                                     {item.nome || item.email || `Cliente ${item.id_usuario || item.id}`}
@@ -553,14 +850,19 @@ function Vendas({ API }) {
                         </select>
                     </label>
 
+                    {/* Exibe erro de clientes quando houver. */}
                     {erroClientes && <p className={css.mensagemErro}>{erroClientes}</p>}
 
+                    {/* Campo de selecao do veiculo vendido. */}
                     <label className={css.campo}>
                         <span>Veículo vendido</span>
+                        {/* Select controlado pelo estado veiculoId. */}
                         <select value={veiculoId} onChange={trocarVeiculo} disabled={carregandoVeiculos || veiculos.length === 0}>
+                            {/* Opcao inicial, mudando texto enquanto carrega. */}
                             <option value="">
                                 {carregandoVeiculos ? "Carregando veículos..." : "Selecione um veículo"}
                             </option>
+                            {/* Cria uma opcao para cada veiculo disponivel. */}
                             {veiculos.map((veiculo) => (
                                 <option key={idVeiculo(veiculo)} value={idVeiculo(veiculo)}>
                                     {nomeVeiculo(veiculo)}
@@ -569,10 +871,13 @@ function Vendas({ API }) {
                         </select>
                     </label>
 
+                    {/* Exibe erro de veiculos quando houver. */}
                     {erroVeiculos && <p className={css.mensagemErro}>{erroVeiculos}</p>}
 
+                    {/* Mostra o card do veiculo apenas quando existe veiculo selecionado. */}
                     {veiculoSelecionado && (
                         <article className={css.veiculoCard}>
+                            {/* Imagem do veiculo, com fallback caso carregue com erro. */}
                             <img
                                 src={montarUrlImagem(API, veiculoSelecionado)}
                                 alt={nomeVeiculo(veiculoSelecionado)}
@@ -581,23 +886,29 @@ function Vendas({ API }) {
                                 }}
                             />
 
+                            {/* Bloco com informacoes resumidas do veiculo. */}
                             <div className={css.veiculoInfo}>
+                                {/* Linha do modelo. */}
                                 <p>
                                     <strong>Modelo:</strong>
                                     <span>{veiculoSelecionado.modelo || "-"}</span>
                                 </p>
+                                {/* Linha da marca. */}
                                 <p>
                                     <strong>Marca:</strong>
                                     <span>{veiculoSelecionado.marca || "-"}</span>
                                 </p>
+                                {/* Linha da quilometragem formatada. */}
                                 <p>
                                     <strong>Quilometragem:</strong>
                                     <span>{formatarQuilometragem(veiculoSelecionado.quilometragem)}</span>
                                 </p>
+                                {/* Linha da cor. */}
                                 <p>
                                     <strong>Cor:</strong>
                                     <span>{veiculoSelecionado.cor || "-"}</span>
                                 </p>
+                                {/* Linha do preco de venda formatado. */}
                                 <p>
                                     <strong>Preço de venda:</strong>
                                     <b>{formatarMoeda(veiculoSelecionado.preco)}</b>
@@ -606,6 +917,7 @@ function Vendas({ API }) {
                         </article>
                     )}
 
+                    {/* Campo de texto livre para observacoes da venda. */}
                     <label className={`${css.campo} ${css.comentarios}`}>
                         <span>Comentários</span>
                         <textarea
@@ -616,26 +928,36 @@ function Vendas({ API }) {
                     </label>
                 </section>
 
+                {/* Coluna direita com dados financeiros e acoes de pagamento. */}
                 <section className={css.coluna}>
+                    {/* Titulo visual do grupo financeiro. */}
                     <div className={css.grupoTitulo}>Financeiro</div>
 
+                    {/* Campo para escolher Pix ou parcelamento. */}
                     <label className={css.campo}>
                         <span>Forma de Pagamento</span>
+                        {/* Select controlado pelo estado formaPagamento. */}
                         <select value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value)}>
+                            {/* Renderiza as opcoes definidas no array formasPagamento. */}
                             {formasPagamento.map((item) => (
                                 <option key={item.id} value={item.id}>{item.nome}</option>
                             ))}
                         </select>
                     </label>
 
+                    {/* Mostra resumo de financiamento apenas quando a forma e parcelamento. */}
                     {ehParcelamento && (
                         <div className={css.financiamento}>
+                            {/* Card com valor atual da parcela e total financiado. */}
                             <div className={css.parcela}>
                                 <span>Valor da parcela</span>
+                                {/* Valor calculado da parcela selecionada. */}
                                 <strong>{formatarMoeda(valorParcelaParcelamento)}</strong>
+                                {/* Texto com quantidade, juros mensal e total. */}
                                 <small>
                                     {parcelasFinanciamento} parcelas, {taxaJurosPercentual.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}% ao mês, total de {formatarMoeda(valorParcelaParcelamento * parcelasFinanciamento)}
                                 </small>
+                                {/* Abre o modal para escolher outra quantidade de parcelas. */}
                                 <button type="button" className={css.verParcelas} onClick={() => setModalParcelasAberto(true)}>
                                     Ver todas as parcelas
                                 </button>
@@ -703,13 +1025,16 @@ function Vendas({ API }) {
                         </div>
                     */}
 
+                    {/* Mostra a area de Pix apenas quando a forma de pagamento e Pix. */}
                     {ehPix && (
                         <div className={css.pixBox}>
+                            {/* Cabecalho da area Pix com valor final. */}
                             <div className={css.pixTopo}>
                                 <span>Pix da venda</span>
                                 <strong>{formatarMoeda(valorComDesconto)}</strong>
                             </div>
 
+                            {/* Botao que salva a venda e pede o Pix para a API. */}
                             <button
                                 type="button"
                                 className={css.botaoGerarPix}
@@ -719,17 +1044,22 @@ function Vendas({ API }) {
                                 {vendaFinalizada ? "Venda salva" : gerandoPix ? "Gerando Pix..." : "Salvar e gerar Pix"}
                             </button>
 
+                            {/* Exibe erro especifico de Pix quando houver. */}
                             {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
 
+                            {/* Mostra QR Code e copia e cola depois que o Pix for gerado. */}
                             {pixGerado && (
                                 <div className={css.pixResultado}>
+                                    {/* QR Code Pix retornado pela API. */}
                                     <img src={pixGerado.qrCode} alt="QR Code Pix" />
 
+                                    {/* Campo somente leitura com o codigo Pix copia e cola. */}
                                     <label className={css.campo}>
                                         <span>Pix copia e cola</span>
                                         <textarea value={pixGerado.copiaECola} readOnly />
                                     </label>
 
+                                    {/* Botao para copiar o codigo Pix para a area de transferencia. */}
                                     <button type="button" className={css.botaoCopiarPix} onClick={copiarPix}>
                                         Copiar código
                                     </button>
@@ -738,33 +1068,42 @@ function Vendas({ API }) {
                         </div>
                     )}
 
+                    {/* Campo de data e hora da venda. */}
                     <label className={`${css.campo} ${css.campoDataHora}`}>
                         <span>Data e hora</span>
+                        {/* Input controlado pelo estado dataVenda. */}
                         <input type="datetime-local" value={dataVenda} onChange={(e) => setDataVenda(e.target.value)} />
                     </label>
 
+                    {/* Linha com upload de comprovante e placa do veiculo. */}
                     <div className={css.linhaDupla}>
+                        {/* Campo visual para anexar comprovante ou nota fiscal. */}
                         <div className={css.campo}>
                             <span>Comprovante/NF</span>
+                            {/* Input real de arquivo, escondido pelo CSS. */}
                             <input
                                 type="file"
                                 id="comprovante"
                                 className={css.inputArquivo}
                                 onChange={selecionarComprovante}
                             />
+                            {/* Label usado como botao para abrir o seletor de arquivo. */}
                             <label htmlFor="comprovante" className={css.botaoArquivo}>
                                 + {comprovante?.name || "Anexar arquivo"}
                             </label>
                         </div>
 
+                        {/* Campo somente leitura com a placa do veiculo escolhido. */}
                         <label className={css.campo}>
                             <span>Placa</span>
                             <input type="text" value={veiculoSelecionado?.placa || ""} readOnly />
                         </label>
                     </div>
 
+                    {/* Campo monetario do valor bruto da venda. */}
                     <label className={css.campo}>
                         <span>Valor da Venda</span>
+                        {/* Input com mascara de moeda brasileira. */}
                         <IMaskInput
                             mask={Number}
                             scale={2}
@@ -781,6 +1120,7 @@ function Vendas({ API }) {
                         />
                     </label>
 
+                    {/* Campo numerico do percentual de desconto. */}
                     <label className={css.campo}>
                         <span>Desconto (%)</span>
                         <input
@@ -794,13 +1134,16 @@ function Vendas({ API }) {
                         />
                     </label>
 
+                    {/* Resumo mostrando o valor final depois do desconto. */}
                     <div className={css.resumoDesconto}>
                         <span>Valor com desconto</span>
                         <strong>{formatarMoeda(valorComDesconto)}</strong>
                     </div>
 
+                    {/* Campo monetario do valor recebido. */}
                     <label className={css.campo}>
                         <span>Valor Recebido</span>
+                        {/* No Pix, fica somente leitura porque o valor vem do total com desconto. */}
                         <IMaskInput
                             mask={Number}
                             scale={2}
@@ -818,13 +1161,16 @@ function Vendas({ API }) {
                         />
                     </label>
 
+                    {/* Linha do status de pagamento. */}
                     <div className={css.linhaStatus}>
+                        {/* Select com o status atual do pagamento. */}
                         <label className={css.campo}>
                             <span>Status de Pagamento</span>
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
                             >
+                                {/* Renderiza as opcoes de status de pagamento. */}
                                 {statusPagamento.map((item) => (
                                     <option key={item.id} value={item.id}>{item.nome}</option>
                                 ))}
@@ -834,32 +1180,42 @@ function Vendas({ API }) {
 
                 </section>
 
+                {/* Area de botoes finais do formulario. */}
                 <div className={css.acoes}>
+                    {/* Botao principal que envia o formulario. */}
                     <button type="submit" className={css.salvar} disabled={salvando || vendaFinalizada}>
                         {vendaFinalizada ? "Venda salva" : salvando ? "Salvando..." : "Salvar"}
                     </button>
+                    {/* Botao secundario que volta para a tela de vendas/cancela. */}
                     <button type="button" className={css.cancelar} onClick={() => navigate("/dashboardAdmVendas")}>
                         {vendaFinalizada ? "Voltar" : "Cancelar"}
                     </button>
                 </div>
             </form>
 
+            {/* Modal de parcelamento exibido apenas quando esta aberto. */}
             {modalParcelasAberto && (
                 <div className={css.modalFundo} role="dialog" aria-modal="true" aria-labelledby="tituloParcelamento">
+                    {/* Conteudo central do modal. */}
                     <div className={css.modalParcelas}>
+                        {/* Topo do modal com titulo e botao de fechar. */}
                         <div className={css.modalTopo}>
                             <h2 id="tituloParcelamento">Parcelamento</h2>
+                            {/* Fecha o modal sem alterar a parcela. */}
                             <button type="button" onClick={() => setModalParcelasAberto(false)} aria-label="Fechar">
                                 x
                             </button>
                         </div>
 
+                        {/* Cabecalho da lista de opcoes de parcelas. */}
                         <div className={css.modalCabecalho}>
                             <strong>Parcelas</strong>
                             <strong>Total</strong>
                         </div>
 
+                        {/* Lista de botoes com todas as opcoes de parcelamento. */}
                         <div className={css.listaParcelas}>
+                            {/* Renderiza uma opcao para cada quantidade de parcelas. */}
                             {opcoesParcelamento.map((opcao) => (
                                 <button
                                     type="button"
@@ -869,12 +1225,14 @@ function Vendas({ API }) {
                                     }`}
                                     onClick={() => selecionarQuantidadeParcelas(opcao.quantidade)}
                                 >
+                                    {/* Lado esquerdo: quantidade de parcelas e valor de cada uma. */}
                                     <span>
                                         <b>
                                             {String(opcao.quantidade).padStart(2, "0")}x de {formatarMoeda(opcao.valorParcela)}
                                         </b>
                                         <small>com juros</small>
                                     </span>
+                                    {/* Lado direito: total pago naquela opcao. */}
                                     <strong>{formatarMoeda(opcao.total)}</strong>
                                 </button>
                             ))}
