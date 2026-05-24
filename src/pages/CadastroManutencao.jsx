@@ -64,7 +64,7 @@ function normalizarServico(servico) {
     // Retorna sempre no formato que a tela entende.
     return {
         id: String(id ?? ""),
-        nome: String(nome || "Servico"),
+        nome: String(nome || "Serviço"),
         valor: Number(valor || 0)
     };
 }
@@ -86,7 +86,7 @@ function normalizarVeiculo(veiculo) {
         marca,
         modelo,
         placa,
-        label: [placa, modelo, marca].filter(Boolean).join(" - ") || `Veiculo ${id || ""}`
+        label: [placa, modelo, marca].filter(Boolean).join(" - ") || `Veículo ${id || ""}`
     };
 }
 
@@ -123,7 +123,7 @@ function normalizarItem(item) {
         id_item: id,
         id_manutencao: item.id_manutencao ?? item.ID_MANUTENCAO,
         id_servico: item.id_servico ?? item.ID_SERVICO,
-        nome_servico: item.nome_servico ?? item.servico ?? item.NOME_SERVICO ?? "Servico",
+        nome_servico: item.nome_servico ?? item.servico ?? item.NOME_SERVICO ?? "Serviço",
         quantidade,
         valor_unitario: valorUnitario,
         total: Number(item.total ?? quantidade * valorUnitario)
@@ -134,7 +134,7 @@ function normalizarItem(item) {
 function normalizarHistorico(registro) {
     // Retorna sempre os nomes que a tela usa.
     return {
-        servico: registro.servico ?? registro.nome_servico ?? registro.NOME_SERVICO ?? "Servico",
+        servico: registro.servico ?? registro.nome_servico ?? registro.NOME_SERVICO ?? "Serviço",
         valor_antigo: Number(registro.valor_antigo ?? registro.valor_unitario ?? registro.VALOR_UNITARIO ?? 0),
         data_alteracao: registro.data_alteracao ?? registro.data_historico ?? registro.DATA_HISTORICO ?? ""
     };
@@ -756,7 +756,7 @@ function CadastroManutencao({ API }) {
             // Mostra sucesso.
             setMensagem({
                 tipo: "sucesso",
-                texto: dados.mensagem || "Manutencao salva com sucesso."
+                texto: dados.mensagem || "Manutenção salva com sucesso."
             });
             // Limpa o formulario.
             setFormulario(formularioInicial());
@@ -852,7 +852,7 @@ function CadastroManutencao({ API }) {
             // Mostra mensagem de sucesso.
             setMensagem({
                 tipo: "sucesso",
-                texto: dados.mensagem || "Manutencao excluida com sucesso."
+                texto: dados.mensagem || "Manutenção excluída com sucesso."
             });
             // Fecha o painel de itens se ele estava mostrando a manutencao excluida.
             setManutencaoSelecionada((atual) =>
@@ -895,7 +895,7 @@ function CadastroManutencao({ API }) {
         if (!manutencaoSelecionada || !String(itemFormulario.id_servico).trim()) {
             setMensagem({
                 tipo: "erro",
-                texto: "Selecione uma manutencao e um servico para adicionar."
+                texto: "Selecione uma manutenção e um serviço para adicionar."
             });
             return;
         }
@@ -1156,7 +1156,7 @@ function CadastroManutencao({ API }) {
 
         // Classe proxima vira texto "Proxima".
         if (classeStatus(data) === css.status_proxima) {
-            return "Proxima";
+        return "Próxima";
         }
 
         // Texto padrao para manutencao futura.

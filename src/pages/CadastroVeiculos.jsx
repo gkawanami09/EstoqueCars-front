@@ -198,7 +198,7 @@ function CadastroVeiculo({ API }) {
             if (!carro) {
                 setMensagem({
                     tipo: "erro",
-                    texto: "Carro nao encontrado. Volte para a lista e tente novamente."
+                    texto: "Carro não encontrado. Volte para a lista e tente novamente."
                 });
                 return;
             }
@@ -348,7 +348,7 @@ function CadastroVeiculo({ API }) {
 
             setMensagem({
                 tipo: "sucesso",
-                texto: dados.mensagem || "Veiculo salvo com sucesso."
+                texto: dados.mensagem || "Veículo salvo com sucesso."
             });
 
             setTimeout(() => {
@@ -582,7 +582,7 @@ function CadastroVeiculo({ API }) {
                             {previewFoto && (
                                 <img
                                     src={previewFoto}
-                                    alt="Preview do veiculo"
+                                    alt="Preview do veículo"
                                     className={css.imagemPreview}
                                 />
                             )}

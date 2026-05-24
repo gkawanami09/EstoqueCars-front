@@ -269,7 +269,7 @@ function DasbhoardAdmVendas({ API }) {
         } catch {
             setErroPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: "Nao foi possivel conectar ao servidor para carregar o Pix das parcelas."
+                [idVenda]: "Não foi possível conectar ao servidor para carregar o Pix das parcelas."
             }));
         } finally {
             setCarregandoPixParcelas((estado) => ({ ...estado, [idVenda]: false }));
@@ -619,7 +619,7 @@ function DasbhoardAdmVendas({ API }) {
                                 <strong>{pixPagamentoDetalhe.venda.cliente || "-"}</strong>
                             </div>
                             <div>
-                                <span>Veiculo</span>
+                                <span>Veículo</span>
                                 <strong>{pixPagamentoDetalhe.venda.veiculo || "-"}</strong>
                             </div>
                             <div>
@@ -640,7 +640,7 @@ function DasbhoardAdmVendas({ API }) {
                                         alt={`QR Code Pix da parcela ${pixPagamentoDetalhe.parcela.numero || ""}`}
                                     />
                                 ) : (
-                                    <span>QR Code indisponivel</span>
+                                    <span>QR Code indisponível</span>
                                 )}
                             </div>
 

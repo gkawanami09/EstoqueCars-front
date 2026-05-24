@@ -182,7 +182,7 @@ function DashboardADMFinanceiros() {
                                 >
                                     {formatarMoeda(transacao.valor)}
                                 </td>
-                                <td data-label="Acoes">
+                                <td data-label="Ações">
                                     <div className={css.acoes}>
                                         <button type="button" className={css.botao_editar} aria-label="Editar transação">
                                             <img src="/Editar.png" alt="" />
@@ -231,7 +231,7 @@ function DashboardADMFinanceiros() {
                                         className={`${css.botao_tipo} ${css.botao_saida} ${formulario.tipo === "saida" ? css.tipo_ativo : ""}`}
                                         onClick={() => atualizarFormulario("tipo", "saida")}
                                     >
-                                        Saida
+                                                    Saída
                                     </button>
                                 </div>
                             </fieldset>

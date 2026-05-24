@@ -403,7 +403,7 @@ function DetalhesVeiculos({ API }) {
             if (!resposta.ok) {
                 setMensagemReserva({
                     tipo: "erro",
-                    texto: dados.erro || dados.mensagem || "Nao foi possivel reservar este veiculo."
+                    texto: dados.erro || dados.mensagem || "Não foi possível reservar este veículo."
                 });
                 return;
             }
@@ -414,12 +414,12 @@ function DetalhesVeiculos({ API }) {
             }));
             setMensagemReserva({
                 tipo: "sucesso",
-                texto: dados.mensagem || "Veiculo reservado com sucesso."
+                texto: dados.mensagem || "Veículo reservado com sucesso."
             });
         } catch {
             setMensagemReserva({
                 tipo: "erro",
-                texto: "Erro de conexao ao reservar o veiculo."
+                texto: "Erro de conexão ao reservar o veículo."
             });
         } finally {
             setReservando(false);
@@ -526,7 +526,7 @@ function DetalhesVeiculos({ API }) {
                                 onClick={reservarVeiculo}
                                 disabled={reservando || tipoStatusEstoque(carro.status_estoque) !== "estoque"}
                             >
-                                {!usuarioEstaLogado ? "Entrar para reservar" : reservando ? "Reservando..." : tipoStatusEstoque(carro.status_estoque) === "estoque" ? "Reservar veiculo" : "Veiculo reservado"}
+                                {!usuarioEstaLogado ? "Entrar para reservar" : reservando ? "Reservando..." : tipoStatusEstoque(carro.status_estoque) === "estoque" ? "Reservar veículo" : "Veículo reservado"}
                             </button>
                         </div>
                     )}

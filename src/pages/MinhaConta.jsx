@@ -334,7 +334,7 @@ function MinhaConta({ API }) {
                                 />
                             </div>
                             <div className={css.dados_usuario}>
-                                <h2>{formulario.nome || "Usuario"}</h2>
+                                <h2>{formulario.nome || "Usuário"}</h2>
                                 <p>{formulario.email || "E-mail não informado"}</p>
                                 <p>{formatarTelefone(formulario.telefone) || "Telefone não informado"}</p>
                             </div>

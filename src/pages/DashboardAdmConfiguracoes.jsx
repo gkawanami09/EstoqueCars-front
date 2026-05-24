@@ -217,7 +217,7 @@ function DashboardAdmConfiguracoes({ API }) {
                 const dados = await resposta.json();
 
                 if (!resposta.ok) {
-                    setErro(dados.erro || "Erro ao carregar configuracoes.");
+                    setErro(dados.erro || "Erro ao carregar configurações.");
                     return;
                 }
 
@@ -281,7 +281,7 @@ function DashboardAdmConfiguracoes({ API }) {
         aplicarCores(TEMA_PADRAO.corPrimaria, TEMA_PADRAO.corSecundaria, TEMA_PADRAO.fonte);
         setMensagem({
             tipo: "sucesso",
-            texto: "Padrao aplicado. Clique em Salvar para gravar."
+            texto: "Padrão aplicado. Clique em Salvar para gravar."
         });
     }
 
@@ -321,7 +321,7 @@ function DashboardAdmConfiguracoes({ API }) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                setErro(dados.erro || "Erro ao salvar configuracoes.");
+                setErro(dados.erro || "Erro ao salvar configurações.");
                 return;
             }
 
@@ -385,14 +385,14 @@ function DashboardAdmConfiguracoes({ API }) {
 
                         <div className={css.duplo}>
                             <Input
-                                label="Cor primaria"
+                                label="Cor primária"
                                 type="color"
                                 value={corPrimaria}
                                 onChange={(e) => setCorPrimaria(e.target.value)}
                             />
 
                             <Input
-                                label="Cor secundaria"
+                                label="Cor secundária"
                                 type="color"
                                 value={corSecundaria}
                                 onChange={(e) => setCorSecundaria(e.target.value)}

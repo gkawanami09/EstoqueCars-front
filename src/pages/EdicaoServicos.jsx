@@ -21,7 +21,7 @@ function headersJsonAutenticado() {
     };
 }
 
-// Tela de edicao de servico.
+// Tela de edição de serviço.
 function EdicaoServicos({ API }) {
     // Pega o id do servico pela URL.
     const { id } = useParams();
@@ -74,8 +74,8 @@ function EdicaoServicos({ API }) {
                     setErro("Erro ao carregar dados do serviço.");
                 }
             } catch {
-                // Se nao conectou no servidor, mostra erro.
-                setErro("Servidor indisponivel.");
+                // Se não conectou no servidor, mostra erro.
+                setErro("Servidor indisponível.");
             }
         }
 
@@ -83,7 +83,7 @@ function EdicaoServicos({ API }) {
         buscarDados();
     }, [id, API]);
 
-    // Envia as alteracoes do servico para a API.
+    // Envia as alterações do serviço para a API.
     async function atualizar(e) {
         // Impede refresh da pagina.
         e.preventDefault();
@@ -103,7 +103,7 @@ function EdicaoServicos({ API }) {
             statusDocumento
         };
 
-        // Envia o PUT para atualizar o servico.
+        // Envia o PUT para atualizar o serviço.
         const resposta = await fetch(`${API}/servicos/${id}`, {
             method: "PUT",
             headers: headersJsonAutenticado(),
@@ -123,7 +123,7 @@ function EdicaoServicos({ API }) {
             tipo: "sucesso",
             texto: "Serviço atualizado com sucesso!"
         });
-        // Volta para a tela de servicos depois de um pequeno tempo.
+        // Volta para a tela de serviços depois de um pequeno tempo.
         setTimeout(() => navigate("/servicos"), 900);
     }
 
@@ -132,7 +132,7 @@ function EdicaoServicos({ API }) {
         // Container principal.
         <main className={css.container}>
             {/* Titulo da tela. */}
-            <h1 className={css.titulo}>Edicao de Servico</h1>
+            <h1 className={css.titulo}>Edição de Serviço</h1>
 
             {/* Mensagem visual de sucesso ou erro. */}
             {mensagem && (
@@ -160,7 +160,7 @@ function EdicaoServicos({ API }) {
             {/* Formulario que envia a edicao. */}
             <form className={css.formulario} onSubmit={atualizar}>
                 <div className={css.gridSimples}>
-                    {/* Select de status do servico. */}
+                    {/* Select de status do serviço. */}
                     <div className={css.documento}>
                         <select
                             className={css.selectPequeno}
@@ -172,9 +172,9 @@ function EdicaoServicos({ API }) {
                         </select>
                     </div>
 
-                    {/* Campo do nome do servico. */}
+                    {/* Campo do nome do serviço. */}
                     <Input
-                        label="Nome do Servico"
+                        label="Nome do Serviço"
                         value={nomeServico}
                         onChange={(e) => setNomeServico(e.target.value)}
                     />
@@ -186,11 +186,11 @@ function EdicaoServicos({ API }) {
                             value={categoria}
                             onChange={(e) => setCategoria(e.target.value)}
                         >
-                            <option value="">Categoria do Servico</option>
-                            <option value="mecanica">Mecanica</option>
-                            <option value="eletrica">Eletrica</option>
-                            <option value="estetica">Estetica</option>
-                            <option value="revisao">Revisao</option>
+                            <option value="">Categoria do Serviço</option>
+                            <option value="mecanica">Mecânica</option>
+                            <option value="eletrica">Elétrica</option>
+                            <option value="estetica">Estética</option>
+                            <option value="revisao">Revisão</option>
                         </select>
 
                         <Input
@@ -207,7 +207,7 @@ function EdicaoServicos({ API }) {
                         onChange={(e) => setTempoEstimado(e.target.value)}
                     />
 
-                    {/* Campo de descricao detalhada. */}
+                    {/* Campo de descrição detalhada. */}
                     <textarea
                         className={css.descricao}
                         placeholder="Descrição detalhada do serviço..."
@@ -222,8 +222,8 @@ function EdicaoServicos({ API }) {
                             value={statusDocumento}
                             onChange={(e) => setStatusDocumento(e.target.value)}
                         >
-                            <option value="pendente">Documentacao: Pendente</option>
-                            <option value="regular">Documentacao: Ok</option>
+                            <option value="pendente">Documentação: Pendente</option>
+                            <option value="regular">Documentação: Ok</option>
                         </select>
 
                         <button type="button" className={css.anexar}>
@@ -235,9 +235,9 @@ function EdicaoServicos({ API }) {
                 {/* Erro simples da tela. */}
                 {erro && <p className={css.erro}>{erro}</p>}
 
-                {/* Botoes finais. */}
+                {/* Botões finais. */}
                 <div className={css.botoes}>
-                    <button type="submit" className={css.salvar}>Salvar Alteracoes</button>
+                    <button type="submit" className={css.salvar}>Salvar Alterações</button>
                     <button
                         type="button"
                         className={css.cancelar}

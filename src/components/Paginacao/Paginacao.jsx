@@ -13,12 +13,12 @@ function Paginacao({ paginaAtual, totalItens, onMudarPagina, sempreMostrar = fal
 
     if (compacto) {
         return (
-            <nav className={`${css.paginacao} ${css.paginacao_compacta}`} aria-label="Paginacao da listagem">
+            <nav className={`${css.paginacao} ${css.paginacao_compacta}`} aria-label="Paginação da listagem">
                 <button
                     type="button"
                     onClick={() => onMudarPagina(paginaAtual - 1)}
                     disabled={paginaAtual === 1}
-                    aria-label="Pagina anterior"
+                    aria-label="Página anterior"
                 >
                     {"<"}
                 </button>
@@ -29,7 +29,7 @@ function Paginacao({ paginaAtual, totalItens, onMudarPagina, sempreMostrar = fal
                     type="button"
                     onClick={() => onMudarPagina(paginaAtual + 1)}
                     disabled={paginaAtual === ultimaPagina}
-                    aria-label="Próxima pagina"
+                    aria-label="Próxima página"
                 >
                     {">"}
                 </button>
@@ -38,7 +38,7 @@ function Paginacao({ paginaAtual, totalItens, onMudarPagina, sempreMostrar = fal
     }
 
     return (
-        <nav className={css.paginacao} aria-label="Paginacao da listagem">
+        <nav className={css.paginacao} aria-label="Paginação da listagem">
             <button
                 type="button"
                 onClick={() => onMudarPagina(paginaAtual - 1)}
@@ -48,7 +48,7 @@ function Paginacao({ paginaAtual, totalItens, onMudarPagina, sempreMostrar = fal
             </button>
 
             <span>
-                Pagina {paginaAtual} de {totalPaginas}
+                Página {paginaAtual} de {totalPaginas}
             </span>
 
             <button
@@ -56,7 +56,7 @@ function Paginacao({ paginaAtual, totalItens, onMudarPagina, sempreMostrar = fal
                 onClick={() => onMudarPagina(paginaAtual + 1)}
                 disabled={paginaAtual === totalPaginas}
             >
-                Proxima
+                Próxima
             </button>
         </nav>
     );

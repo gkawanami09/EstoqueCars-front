@@ -461,7 +461,7 @@ function Dashboard({ API }) {
             if (!parcela?.id || parcelaEstaPaga(parcela)) {
                 setMensagemPixParcelas((estado) => ({
                     ...estado,
-                    [idVenda]: "Pix copiado. Esta parcela ja esta paga."
+                    [idVenda]: "Pix copiado. Esta parcela já está paga."
                 }));
                 return;
             }
@@ -473,7 +473,7 @@ function Dashboard({ API }) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                throw new Error(dados.erro || dados.mensagem || "Nao foi possivel marcar a parcela como paga.");
+                throw new Error(dados.erro || dados.mensagem || "Não foi possível marcar a parcela como paga.");
             }
 
             setPixParcelas((estado) => ({
@@ -502,7 +502,7 @@ function Dashboard({ API }) {
         } catch (erro) {
             setErroPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: erro.message || "Nao foi possivel copiar o Pix e marcar a parcela como paga."
+                [idVenda]: erro.message || "Não foi possível copiar o Pix e marcar a parcela como paga."
             }));
         } finally {
             setPagandoPixParcelas((estado) => ({ ...estado, [chave]: false }));
@@ -779,7 +779,7 @@ function Dashboard({ API }) {
                                                                 {parcelaPixAtual.qrcode ? (
                                                                     <img src={montarUrlPix(parcelaPixAtual.qrcode)} alt={`QR Code Pix da parcela ${parcelaPixAtual.numero || ""}`} />
                                                                 ) : (
-                                                                    <span>QR Code indisponivel</span>
+                                                                    <span>QR Code indisponível</span>
                                                                 )}
                                                             </div>
 

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import css from "./DashboardAdm.module.css";
 
 // Lista fixa de categorias usadas para filtrar os veiculos rapidamente.
-const categorias = ["Sedan", "Eletrico", "Esportivo", "Caminhonete", "SUV"];
+const categorias = ["Sedan", "Elétrico", "Esportivo", "Caminhonete", "SUV"];
 
 // Funcao auxiliar para extrair uma lista de dentro da resposta da API.
 // Procura nas propriedades do objeto pelas "chaves" possiveis ate encontrar um array.
@@ -68,7 +68,7 @@ function normalizarCarro(carro) {
 
     return {
         id,
-        modelo: carro.modelo ?? carro.nome ?? "Veiculo",
+        modelo: carro.modelo ?? carro.nome ?? "Veículo",
         marca: carro.marca ?? "",
         placa: carro.placa ?? "",
         cor: carro.cor ?? "",
