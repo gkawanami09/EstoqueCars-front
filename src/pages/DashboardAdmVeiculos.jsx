@@ -34,6 +34,21 @@ function DashboardAdmVeiculos({ API }) {
         return token ? { Authorization: `Bearer ${token}` } : undefined;
     }
 
+    function mensagemErroExclusao(mensagem) {
+        const texto = String(mensagem || "");
+        const textoNormalizado = texto.toLowerCase();
+
+        if (
+            textoNormalizado.includes("fk_vendas_veiculo") ||
+            textoNormalizado.includes("foreign key") ||
+            textoNormalizado.includes("venda")
+        ) {
+            return "Este veículo já possui venda cadastrada e não pode ser excluído. Para manter o histórico financeiro, altere o status do veículo em vez de excluir.";
+        }
+
+        return texto || "Erro ao excluir veículo.";
+    }
+
     // Funcao que busca os carros na API.
     const carregarCarros = useCallback(async () => {
         // Liga o carregamento antes da requisicao.
@@ -108,7 +123,7 @@ function DashboardAdmVeiculos({ API }) {
 
             // Se a API bloquear, por exemplo por manutencao vinculada, mostra erro.
             if (!resposta.ok) {
-                setErro(dados.erro || "Erro ao excluir veículo.");
+                setErro(mensagemErroExclusao(dados.erro));
                 return;
             }
 

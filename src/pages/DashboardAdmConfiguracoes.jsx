@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Input from "../components/Input/Input.jsx";
+import { IMaskInput } from "react-imask";
 import css from "./DashboardAdmConfiguracoes.module.css";
 
 const TEMA_PADRAO = {
@@ -44,8 +45,26 @@ function formatarCnpj(valor) {
         .replace(/(\d{4})(\d)/, "$1-$2");
 }
 
-function formatarTelefone(valor) {
-    const numeros = somenteNumeros(valor).slice(0, 11);
+function formatarCpf(valor) {
+    return somenteNumeros(valor)
+        .slice(0, 11)
+        .replace(/^(\d{3})(\d)/, "$1.$2")
+        .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
+        .replace(/\.(\d{3})(\d)/, ".$1-$2");
+}
+
+function formatarTelefonePix(valor) {
+    let numeros = somenteNumeros(valor).slice(0, 13);
+
+    if (!numeros) {
+        return "";
+    }
+
+    if (numeros.startsWith("55") && numeros.length > 11) {
+        numeros = numeros.slice(2);
+    }
+
+    numeros = numeros.slice(0, 11);
 
     if (numeros.length <= 10) {
         return numeros
@@ -56,6 +75,72 @@ function formatarTelefone(valor) {
     return numeros
         .replace(/^(\d{2})(\d)/, "($1) $2")
         .replace(/(\d{5})(\d)/, "$1-$2");
+}
+
+function mascaraChavePix(valor) {
+    const texto = String(valor || "");
+
+    if (texto.includes("@") || /[a-zA-Z]/.test(texto)) {
+        return /^.*$/;
+    }
+
+    if (texto.startsWith("+") || texto.includes("(") || texto.includes(")") || /\s/.test(texto)) {
+        return "(00) 00000-0000";
+    }
+
+    const numeros = somenteNumeros(texto);
+
+    if (numeros.length > 11) {
+        return "00.000.000/0000-00";
+    }
+
+    return "000.000.000-00";
+}
+
+function normalizarChavePix(valor) {
+    const texto = String(valor || "").trim();
+    const numeros = somenteNumeros(texto);
+
+    if (texto.startsWith("+") || texto.includes("(") || texto.includes(")") || /^\d{2}\s/.test(texto)) {
+        const telefone = numeros.startsWith("55") && numeros.length > 11 ? numeros.slice(2, 13) : numeros.slice(0, 11);
+        return telefone;
+    }
+
+    const textoSemMascara = texto.replace(/[.\-/()\s]/g, "");
+
+    if (/^\d+$/.test(textoSemMascara)) {
+        return textoSemMascara.slice(0, 14);
+    }
+
+    return texto;
+}
+
+function formatarChavePix(valor) {
+    const texto = String(valor || "").trim();
+
+    if (!texto) {
+        return "";
+    }
+
+    if (texto.startsWith("+")) {
+        return formatarTelefonePix(texto);
+    }
+
+    if (texto.includes("@")) {
+        return texto;
+    }
+
+    const textoSemMascara = texto.replace(/[.\-/()\s]/g, "");
+
+    if (!/^\d+$/.test(textoSemMascara)) {
+        return texto;
+    }
+
+    if (textoSemMascara.length <= 11) {
+        return formatarCpf(textoSemMascara);
+    }
+
+    return formatarCnpj(textoSemMascara);
 }
 
 function aplicarCores(corPrimaria, corSecundaria, fonte) {
@@ -78,6 +163,11 @@ function salvarLogoSite(url) {
 function salvarTaxaJurosSite(taxa) {
     localStorage.setItem("taxa_juro_mensal", String(taxaJurosConfigurada(taxa)).replace(",", "."));
     window.dispatchEvent(new Event("juros-atualizado"));
+}
+
+function salvarChavePixSite(chavePix) {
+    localStorage.setItem("chave_pix_empresa", String(chavePix || ""));
+    window.dispatchEvent(new Event("pix-empresa-atualizado"));
 }
 
 function numeroDaTaxa(valor) {
@@ -106,6 +196,7 @@ function DashboardAdmConfiguracoes({ API }) {
     const [cnpj, setCnpj] = useState("");
     const [email, setEmail] = useState("");
     const [telefone, setTelefone] = useState("");
+    const [chavePix, setChavePix] = useState("");
     const [taxaJuros, setTaxaJuros] = useState(String(JUROS_PADRAO));
     const [carregando, setCarregando] = useState(true);
     const [salvando, setSalvando] = useState(false);
@@ -144,7 +235,10 @@ function DashboardAdmConfiguracoes({ API }) {
                 setNomeEmpresa(dados.nome_empresa || "");
                 setCnpj(formatarCnpj(dados.cnpj || ""));
                 setEmail(dados.email_contato || "");
-                setTelefone(formatarTelefone(dados.telefone_empresa || dados.telefone_contato || ""));
+                setTelefone(dados.telefone_empresa || dados.telefone_contato || "");
+                const chavePixConfigurada = dados.chave_pix || dados.chave_pix_empresa || dados.pix_chave || "";
+                setChavePix(chavePixConfigurada);
+                salvarChavePixSite(chavePixConfigurada);
                 const taxaConfigurada = taxaJurosConfigurada(dados.taxa_juro ?? dados.taxa_juros);
                 setTaxaJuros(String(taxaConfigurada));
                 salvarTaxaJurosSite(taxaConfigurada);
@@ -177,11 +271,13 @@ function DashboardAdmConfiguracoes({ API }) {
         setCorSecundaria(TEMA_PADRAO.corSecundaria);
         setFonte(TEMA_PADRAO.fonte);
         setTaxaJuros(String(JUROS_PADRAO));
+        setChavePix("");
         setLogo(null);
         setUsarLogoPadrao(true);
         setPreviewLogo(TEMA_PADRAO.logo);
         voltarLogoPadraoSite();
         salvarTaxaJurosSite(JUROS_PADRAO);
+        salvarChavePixSite("");
         aplicarCores(TEMA_PADRAO.corPrimaria, TEMA_PADRAO.corSecundaria, TEMA_PADRAO.fonte);
         setMensagem({
             tipo: "sucesso",
@@ -201,6 +297,9 @@ function DashboardAdmConfiguracoes({ API }) {
         formData.append("telefone_empresa", somenteNumeros(telefone));
         formData.append("telefone_contato", somenteNumeros(telefone));
         formData.append("email_contato", email);
+        formData.append("chave_pix", chavePix.trim());
+        formData.append("chave_pix_empresa", chavePix.trim());
+        formData.append("pix_chave", chavePix.trim());
         const taxaParaSalvar = taxaJurosConfigurada(taxaJuros);
         formData.append("taxa_juro", String(taxaParaSalvar).replace(",", "."));
         formData.append("taxa_juros", String(taxaParaSalvar).replace(",", "."));
@@ -233,6 +332,7 @@ function DashboardAdmConfiguracoes({ API }) {
             setTaxaJuros(String(taxaParaSalvar));
             aplicarCores(corPrimaria, corSecundaria, fonte);
             salvarTaxaJurosSite(taxaParaSalvar);
+            salvarChavePixSite(chavePix.trim());
 
             if (logo || usarLogoPadrao) {
                 const logoAtualizada = `${API}/uploads/logo_empresa.png?v=${Date.now()}`;
@@ -342,9 +442,20 @@ function DashboardAdmConfiguracoes({ API }) {
                             label="Telefone"
                             value={telefone}
                             inputMode="numeric"
-                            maxLength={15}
-                            onChange={(e) => setTelefone(formatarTelefone(e.target.value))}
+                            onChange={(e) => setTelefone(e.target.value)}
                         />
+
+                        <h2>Pix da Empresa</h2>
+
+                        <label className={css.campo}>
+                            <span>Chave Pix</span>
+                            <IMaskInput
+                                mask={mascaraChavePix(chavePix)}
+                                value={formatarChavePix(chavePix)}
+                                onAccept={(valor) => setChavePix(normalizarChavePix(valor))}
+                                placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória"
+                            />
+                        </label>
 
                         <h2>Juros da Empresa</h2>
 

@@ -9,11 +9,11 @@ function Categoria({ subtitulo, titulo }) {
                 <h2><span>{titulo}</span> em Alta</h2>
             </div>
             <div className={css.carros}>
-                <CardCategoria imgSrc="/sedan.png" alt="sedan" categoria="Sedan" quantidade="10" />
-                <CardCategoria imgSrc="/eletrico.png" alt="elétrico" categoria="Elétrico" quantidade="10" />
-                <CardCategoria imgSrc="/esportivo.png" alt="esportivo" categoria="Esportivo" quantidade="10" />
-                <CardCategoria imgSrc="/caminhonete.png" alt="caminhonete" categoria="Caminhonete" quantidade="10" />
-                <CardCategoria imgSrc="/suv.png" alt="suv" categoria="SUV" quantidade="10" />
+                <CardCategoria imgSrc="/sedan.png" alt="sedan" categoria="Sedan" quantidade="10" rota="/CarrosSedan" />
+                <CardCategoria imgSrc="/eletrico.png" alt="elétrico" categoria="Elétrico" quantidade="10" rota="/CarrosEletricos" />
+                <CardCategoria imgSrc="/esportivo.png" alt="esportivo" categoria="Esportivo" quantidade="10" rota="/CarrosEsportivos" />
+                <CardCategoria imgSrc="/caminhonete.png" alt="caminhonete" categoria="Caminhonete" quantidade="10" rota="/CarrosCaminhonetes" />
+                <CardCategoria imgSrc="/suv.png" alt="suv" categoria="SUV" quantidade="10" rota="/CarrosSUV" />
             </div>
         </section>
     )

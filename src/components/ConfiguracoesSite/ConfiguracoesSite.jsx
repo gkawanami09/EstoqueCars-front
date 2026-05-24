@@ -22,10 +22,16 @@ function ConfiguracoesSite({ API }) {
 
       const logoUrl = montarLogoUrl(dados.logo_url);
       const taxaJuro = dados.taxa_juro ?? dados.taxa_juros;
+      const chavePix = dados.chave_pix ?? dados.chave_pix_empresa ?? dados.pix_chave;
 
       if (taxaJuro !== undefined && taxaJuro !== null) {
         localStorage.setItem("taxa_juro_mensal", String(taxaJuro));
         window.dispatchEvent(new Event("juros-atualizado"));
+      }
+
+      if (chavePix !== undefined && chavePix !== null) {
+        localStorage.setItem("chave_pix_empresa", String(chavePix));
+        window.dispatchEvent(new Event("pix-empresa-atualizado"));
       }
 
       if (logoUrl && localStorage.getItem("logo_padrao_ativo") !== "1") {

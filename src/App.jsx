@@ -1,14 +1,12 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
-import Header from "./components/Header/Header";
 import Cadastro from "./pages/Cadastro.jsx";
 import Login from "./pages/Login";
 import ConfirmarEmail from "./pages/ConfirmarEmail";
 import CodigoRecupera from "./pages/CodigoRecupera";
 import Favoritos from "./pages/Favoritos";
 import Erro404 from "./pages/Erro404";
-import Footer from "./components/Footer/Footer";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Container from "./components/Container/Container";
 import CarrosSedan from "./pages/CarrosSedan.jsx";
@@ -43,6 +41,7 @@ function App({ API }) {
       <BrowserRouter>
         <ConfiguracoesSite API={API} />
         <Routes>
+          <Route path="/detalhesVeiculos/:id" element={<DetalhesVeiculos API={API} />} />
 
           <Route element={<Container API={API} />}>
             <Route path="/" element={<Home />} />
@@ -75,7 +74,6 @@ function App({ API }) {
             <Route path="/dashboardAdmClientes" element={<DashboardAdmClientes API={API} />} />
             <Route path="/cadastroVeiculos" element={<CadastroVeiculos API={API}/>} />
             <Route path="/editarVeiculos/:id" element={<CadastroVeiculos API={API}/>} />
-            <Route path="/detalhesVeiculos/:id" element={<DetalhesVeiculos API={API} />} />
             <Route path="/dashboardAdmMarcas" element={<DashboardAdmMarcas API={API} />} />
             <Route path="/dashboardAdmVendas" element={<DasbhoardAdmVendas API={API} />} />
             <Route path="/dashboardADMFinanceiros" element={<DashboardADMFinanceiros API={API} />} />

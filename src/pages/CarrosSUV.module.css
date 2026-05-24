@@ -182,6 +182,12 @@
     gap: 40px;
     width: 100%;
     max-width: 1000px;
+    cursor: pointer;
+}
+
+.card_carro:focus-visible {
+    outline: 3px solid var(--cor-principal);
+    outline-offset: 6px;
 }
 
 .card_carro:last-child {

@@ -38,16 +38,19 @@ function DetalhesVeiculos({ API }) {
     const navigate = useNavigate();
 
     // Busca os dados do usuario logado no localStorage.
-    const usuarioSalvo = localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado") || "{}";
+    const usuarioSalvo = localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado");
 
     // Transforma os dados salvos em texto para objeto JavaScript.
-    const usuarioLogado = JSON.parse(usuarioSalvo);
+    const usuarioLogado = usuarioSalvo ? JSON.parse(usuarioSalvo) : {};
+
+    // Visitantes podem ver os detalhes, mas precisam entrar para reservar.
+    const usuarioEstaLogado = Boolean(usuarioSalvo);
 
     // Verifica se o usuario usa o painel administrativo: vendedor (1) ou administrador (2).
     const isPainelAdm = [1, 2].includes(Number(usuarioLogado.tipo_usuario || usuarioLogado["tipo_usuário"]));
 
     // Vendedor/admin volta para a tela de veiculos do admin; usuario comum volta para o dashboard.
-    const rotaVoltar = isPainelAdm ? "/dashboardAdmVeiculos" : "/dashboard";
+    const rotaVoltar = isPainelAdm ? "/dashboardAdmVeiculos" : "/";
 
     // Guarda o carro encontrado na API.
     const [carro, setCarro] = useState(null);
@@ -375,6 +378,11 @@ function DetalhesVeiculos({ API }) {
             return;
         }
 
+        if (!usuarioEstaLogado) {
+            navigate("/login");
+            return;
+        }
+
         setReservando(true);
         setMensagemReserva(null);
 
@@ -518,7 +526,7 @@ function DetalhesVeiculos({ API }) {
                                 onClick={reservarVeiculo}
                                 disabled={reservando || tipoStatusEstoque(carro.status_estoque) !== "estoque"}
                             >
-                                {reservando ? "Reservando..." : tipoStatusEstoque(carro.status_estoque) === "estoque" ? "Reservar veiculo" : "Veiculo reservado"}
+                                {!usuarioEstaLogado ? "Entrar para reservar" : reservando ? "Reservando..." : tipoStatusEstoque(carro.status_estoque) === "estoque" ? "Reservar veiculo" : "Veiculo reservado"}
                             </button>
                         </div>
                     )}

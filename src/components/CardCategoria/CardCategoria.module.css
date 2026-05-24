@@ -9,6 +9,12 @@
 
 .principal {
     border-radius: 15px;
+    cursor: pointer;
+}
+
+.principal:focus-visible {
+    outline: 3px solid var(--cor-principal);
+    outline-offset: 6px;
 }
 
 .container{

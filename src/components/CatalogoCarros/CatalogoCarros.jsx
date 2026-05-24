@@ -133,6 +133,23 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
         window.location.href = "/#Contato";
     }
 
+    function abrirDetalhes(carro) {
+        const id = idCarro(carro);
+
+        if (!id) {
+            return;
+        }
+
+        navigate(`/detalhesVeiculos/${id}`);
+    }
+
+    function abrirDetalhesPeloTeclado(event, carro) {
+        if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            abrirDetalhes(carro);
+        }
+    }
+
     return (
         <main className={css.container}>
             <section className={css.secao_destaque}>
@@ -184,7 +201,14 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
                 )}
 
                 {!carregando && !erro && carros.map((carro) => (
-                    <article key={idCarro(carro) || nomeCarro(carro)} className={css.card_carro}>
+                    <article
+                        key={idCarro(carro) || nomeCarro(carro)}
+                        className={css.card_carro}
+                        role="button"
+                        tabIndex={0}
+                        onClick={() => abrirDetalhes(carro)}
+                        onKeyDown={(event) => abrirDetalhesPeloTeclado(event, carro)}
+                    >
                         <div className={css.area_imagem_card}>
                             <img
                                 src={montarUrlImagem(API, carro)}
@@ -208,7 +232,14 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
 
                         <div className={css.area_preco_acao}>
                             <h2 className={css.preco_carro}>{formatarPreco(carro.preco)}</h2>
-                            <button type="button" className={css.botao_ver_mais_card} onClick={irParaContato}>
+                            <button
+                                type="button"
+                                className={css.botao_ver_mais_card}
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    abrirDetalhes(carro);
+                                }}
+                            >
                                 Ver Mais
                             </button>
                         </div>

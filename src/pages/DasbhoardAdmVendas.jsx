@@ -114,22 +114,6 @@ function textoSituacaoParcela(parcela) {
     return parcelaEstaPaga(parcela) ? "Pago" : "Pendente";
 }
 
-function normalizarVenda(venda) {
-    return {
-        id: venda.id_venda || venda.ID_VENDA,
-        data: formatarData(venda.data_venda || venda.DATA_VENDA),
-        cliente: venda.cliente || venda.nome_cliente || venda.nome_usuario || `Cliente ${venda.id_usuario || venda.ID_USUARIO || "-"}`,
-        veiculo: venda.veiculo || venda.nome_veiculo || venda.modelo || `Veículo ${venda.id_veiculo || venda.ID_VEICULO || "-"}`,
-        pagamento: textoFormaPagamento(venda.forma_pagamento_texto ?? venda.forma_pagamento ?? venda.FORMA_PAGAMENTO),
-        status: textoStatusPagamento(venda.status_pagamento_texto ?? venda.status_pagamento ?? venda.STATUS_PAGAMENTO),
-        valorVenda: venda.valor_venda ?? venda.VALOR_VENDA ?? 0,
-        valorRecebido: venda.valor_recebido ?? venda.VALOR_RECEBIDO ?? 0,
-        desconto: venda.desconto ?? venda.DESCONTOS ?? 0,
-        parcelas: venda.quantidade_parcelas || venda.QUANTIDADE_PARCELAS || "",
-        comentarios: venda.comentarios || venda.COMENTARIOS || ""
-    };
-}
-
 function textoMinusculo(valor) {
     return String(valor || "").toLowerCase();
 }

@@ -190,13 +190,50 @@ function statusEstoqueVeiculo(veiculo) {
     );
 }
 
-// Verifica se o veiculo esta disponivel para venda.
-function veiculoDisponivel(veiculo) {
+// Normaliza o status de estoque para a tela de venda.
+function tipoStatusEstoqueVeiculo(veiculo) {
     // Normaliza o status para minusculo antes de comparar.
     const status = statusEstoqueVeiculo(veiculo).toLowerCase();
 
-    // Considera disponivel quando status e "1" ou contem "dispon".
-    return status === "1" || status.includes("dispon");
+    // Status 2 ou texto vendido nao deve aparecer para uma nova venda.
+    if (status === "2" || status.includes("vend")) {
+        return "vendido";
+    }
+
+    // Status 3 e usado pelo fluxo de reserva do cliente.
+    if (status === "3" || status.includes("reserv") || status.includes("indispon")) {
+        return "reservado";
+    }
+
+    // Status 1 ou texto de disponibilidade continua vendavel.
+    if (status === "1" || status.includes("dispon") || status.includes("estoque")) {
+        return "estoque";
+    }
+
+    return "";
+}
+
+// Verifica se o veiculo pode aparecer na tela de vendas.
+function veiculoVendavel(veiculo) {
+    const status = tipoStatusEstoqueVeiculo(veiculo);
+
+    // Carros em estoque e carros reservados pelo cliente podem virar venda.
+    return status === "estoque" || status === "reservado";
+}
+
+// Mostra o status no select para diferenciar reserva de estoque normal.
+function textoStatusVenda(veiculo) {
+    const status = tipoStatusEstoqueVeiculo(veiculo);
+
+    if (status === "reservado") {
+        return "Reservado";
+    }
+
+    if (status === "estoque") {
+        return "Em estoque";
+    }
+
+    return "Status não informado";
 }
 
 // Monta o nome que sera exibido no select de veiculos.
@@ -322,6 +359,8 @@ function Vendas({ API }) {
     const [vendaFinalizada, setVendaFinalizada] = useState(false);
     // Guarda a taxa de juros mensal em decimal, usando localStorage ou valor padrao.
     const [jurosMensal, setJurosMensal] = useState(() => taxaJurosParaDecimal(taxaJurosConfigurada(localStorage.getItem("taxa_juro_mensal"))));
+    // Guarda a chave Pix configurada para a empresa.
+    const [chavePixEmpresa, setChavePixEmpresa] = useState(() => localStorage.getItem("chave_pix_empresa") || "");
 
     // Facilita saber se a forma de pagamento atual e parcelamento.
     const ehParcelamento = formaPagamento === formaPagamentoParcelamento;
@@ -376,7 +415,7 @@ function Vendas({ API }) {
     // Recria essa funcao apenas se a URL base da API mudar.
     }, [API]);
 
-    // Carrega os veiculos da API e deixa apenas os disponiveis para venda.
+    // Carrega os veiculos da API e deixa apenas os que podem virar venda.
     const carregarVeiculos = useCallback(async () => {
         // Mostra estado de carregamento no select de veiculos.
         setCarregandoVeiculos(true);
@@ -404,27 +443,27 @@ function Vendas({ API }) {
 
             // Pega o array de carros dentro da resposta.
             const lista = dados.carros || [];
-            // Mantem somente veiculos disponiveis.
-            const disponiveis = lista.filter(veiculoDisponivel);
-            // Salva os veiculos disponiveis no estado.
-            setVeiculos(disponiveis);
+            // Mantem veiculos em estoque e os reservados por cliente.
+            const vendaveis = lista.filter(veiculoVendavel);
+            // Salva os veiculos vendaveis no estado.
+            setVeiculos(vendaveis);
 
             // Se houver veiculos, seleciona o primeiro e preenche valores.
-            if (disponiveis.length > 0) {
-                // Guarda o primeiro veiculo disponivel.
-                const primeiro = disponiveis[0];
+            if (vendaveis.length > 0) {
+                // Guarda o primeiro veiculo vendavel.
+                const primeiro = vendaveis[0];
                 // Preenche o select com o id do primeiro veiculo.
                 setVeiculoId(String(idVeiculo(primeiro)));
                 // Preenche o valor da venda com o preco do veiculo.
                 setValorVenda(String(primeiro.preco || 0));
                 // Preenche o valor recebido inicialmente com o mesmo preco.
                 setValorRecebido(String(primeiro.preco || 0));
-            // Se nao houver veiculos disponiveis, limpa campos e mostra aviso.
+            // Se nao houver veiculos vendaveis, limpa campos e mostra aviso.
             } else {
                 setVeiculoId("");
                 setValorVenda("");
                 setValorRecebido("");
-                setErroVeiculos("Nenhum veículo disponível para venda.");
+                setErroVeiculos("Nenhum veículo em estoque ou reservado para venda.");
             }
         // Caso a requisicao falhe, mostra erro de conexao.
         } catch {
@@ -456,6 +495,7 @@ function Vendas({ API }) {
             localStorage.setItem("taxa_juro_mensal", String(taxaSalva));
             // Atualiza o estado da taxa em formato decimal.
             setJurosMensal(taxaJurosParaDecimal(taxaSalva));
+            setChavePixEmpresa(localStorage.getItem("chave_pix_empresa") || "");
         }
 
         // Tenta buscar a taxa de juros mais recente na API.
@@ -482,11 +522,14 @@ function Vendas({ API }) {
                 const dados = await resposta.json();
                 // Aceita nomes diferentes para a taxa retornada pela API.
                 const taxa = taxaJurosConfigurada(dados.taxa_juro ?? dados.taxa_juros);
+                const chavePixConfigurada = dados.chave_pix ?? dados.chave_pix_empresa ?? dados.pix_chave ?? "";
                 // Salva a taxa no navegador para reaproveitar depois.
                 localStorage.setItem("taxa_juro_mensal", String(taxa));
+                localStorage.setItem("chave_pix_empresa", String(chavePixConfigurada));
                 console.log("Taxa de juros aplicada na venda (via API):", taxa, "%");
                 // Atualiza a taxa em decimal no estado.
                 setJurosMensal(taxaJurosParaDecimal(taxa));
+                setChavePixEmpresa(String(chavePixConfigurada));
             // Se houver erro de conexao, usa a taxa salva/local.
             } catch {
                 aplicarJurosSalvo();
@@ -497,8 +540,12 @@ function Vendas({ API }) {
         carregarJuros();
         // Atualiza a taxa se outra parte do app disparar esse evento.
         window.addEventListener("juros-atualizado", aplicarJurosSalvo);
+        window.addEventListener("pix-empresa-atualizado", aplicarJurosSalvo);
         // Remove o listener quando o componente desmontar.
-        return () => window.removeEventListener("juros-atualizado", aplicarJurosSalvo);
+        return () => {
+            window.removeEventListener("juros-atualizado", aplicarJurosSalvo);
+            window.removeEventListener("pix-empresa-atualizado", aplicarJurosSalvo);
+        };
     // Reexecuta se a base da API mudar.
     }, [API]);
 
@@ -655,6 +702,10 @@ function Vendas({ API }) {
         formData.append("valor_venda", String(valorNumerico));
         // Adiciona o valor recebido, usando valor com desconto automaticamente no Pix.
         formData.append("valor_recebido", String(ehPix ? valorComDesconto.toFixed(2) : numeroDoCampo(valorRecebido)));
+        // Adiciona a chave Pix da empresa para o backend gerar o pagamento.
+        formData.append("chave_pix", chavePixEmpresa.trim());
+        formData.append("chave_pix_empresa", chavePixEmpresa.trim());
+        formData.append("pix_chave", chavePixEmpresa.trim());
         // Adiciona o status de pagamento.
         formData.append("status_pagamento", status);
         // Adiciona os comentarios da venda.
@@ -709,6 +760,12 @@ function Vendas({ API }) {
         // Bloqueia envio se faltar data, valor ou dados obrigatorios de pagamento.
         if (!dataVenda || !valorNumerico || (!ehPix && !numeroDoCampo(valorRecebido)) || (!ehPix && !status)) {
             mostrarMensagem("erro", "Preencha todos os campos obrigatórios da venda.");
+            return false;
+        }
+
+        if (ehPix && !chavePixEmpresa.trim()) {
+            mostrarMensagem("erro", "Configure a chave Pix da empresa antes de gerar uma venda por Pix.");
+            setErroPix("Configure a chave Pix da empresa nas configurações.");
             return false;
         }
 
@@ -877,10 +934,10 @@ function Vendas({ API }) {
                             <option value="">
                                 {carregandoVeiculos ? "Carregando veículos..." : "Selecione um veículo"}
                             </option>
-                            {/* Cria uma opcao para cada veiculo disponivel. */}
+                            {/* Cria uma opcao para cada veiculo vendavel. */}
                             {veiculos.map((veiculo) => (
                                 <option key={idVeiculo(veiculo)} value={idVeiculo(veiculo)}>
-                                    {nomeVeiculo(veiculo)}
+                                    {nomeVeiculo(veiculo)} - {textoStatusVenda(veiculo)}
                                 </option>
                             ))}
                         </select>
@@ -922,6 +979,10 @@ function Vendas({ API }) {
                                 <p>
                                     <strong>Cor:</strong>
                                     <span>{veiculoSelecionado.cor || "-"}</span>
+                                </p>
+                                <p>
+                                    <strong>Status:</strong>
+                                    <span>{textoStatusVenda(veiculoSelecionado)}</span>
                                 </p>
                                 {/* Linha do preco de venda formatado. */}
                                 <p>
