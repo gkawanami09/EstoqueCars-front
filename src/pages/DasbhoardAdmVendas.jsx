@@ -59,10 +59,18 @@ function formatarData(valor) {
         return "-";
     }
 
+    const texto = String(valor);
+    const dataIso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+    if (dataIso) {
+        const [, ano, mes, dia] = dataIso;
+        return `${dia}/${mes}/${ano}`;
+    }
+
     const data = new Date(valor);
 
     if (Number.isNaN(data.getTime())) {
-        return String(valor);
+        return texto;
     }
 
     return data.toLocaleDateString("pt-BR");
@@ -93,6 +101,21 @@ function montarUrlPix(API, caminhoPix) {
     return `${API}/${caminho}`;
 }
 
+function montarUrlPixAtualizada(API, caminhoPix, versao) {
+    const url = montarUrlPix(API, caminhoPix);
+
+    if (!url || !versao || url.startsWith("data:")) {
+        return url;
+    }
+
+    return `${url}${url.includes("?") ? "&" : "?"}v=${encodeURIComponent(versao)}`;
+}
+
+function parametroChavePixAtual() {
+    const chavePix = String(localStorage.getItem("chave_pix_empresa") || "").trim();
+    return chavePix ? `?chave_pix=${encodeURIComponent(chavePix)}` : "";
+}
+
 function normalizarParcelaPix(parcela) {
     return {
         id: parcela.id_item_parcelamento ?? parcela.ID_ITEM_PARCELAMENTO ?? parcela.id ?? parcela.ID,
@@ -102,6 +125,14 @@ function normalizarParcelaPix(parcela) {
         situacao: parcela.situacao_parcela ?? parcela.SITUACAO_PARCELA ?? parcela.status_parcela ?? parcela.STATUS_PARCELA ?? parcela.situacao ?? parcela.status ?? 0,
         qrcode: parcela.pix_qrcode ?? parcela.PIX_QRCODE ?? parcela.qrcode ?? parcela.qr_code ?? parcela.imagem_pix ?? parcela.imagem,
         copiaCola: parcela.pix_copia_cola ?? parcela.PIX_COPIA_COLA ?? parcela.copia_cola ?? parcela.payload ?? parcela.pix_payload
+    };
+}
+
+function normalizarPixVenda(dados) {
+    return {
+        qrcode: dados?.pix_qrcode ?? dados?.PIX_QRCODE ?? dados?.qrcode ?? dados?.qr_code ?? dados?.imagem_pix ?? dados?.imagem,
+        copiaCola: dados?.pix_copia_cola ?? dados?.PIX_COPIA_COLA ?? dados?.pix_copia_e_cola ?? dados?.copia_cola ?? dados?.payload ?? dados?.pix_payload,
+        valor: dados?.valor ?? dados?.valor_recebido ?? dados?.VALOR_RECEBIDO ?? dados?.valor_venda ?? dados?.VALOR_VENDA
     };
 }
 
@@ -130,6 +161,7 @@ function normalizarVendaUsuario(venda) {
         valorRecebido: venda.valor_recebido ?? venda.VALOR_RECEBIDO ?? 0,
         desconto: venda.desconto ?? venda.DESCONTOS ?? 0,
         parcelas: venda.quantidade_parcelas || venda.QUANTIDADE_PARCELAS || "",
+        pixVenda: normalizarPixVenda(venda),
         comentarios: venda.comentarios || venda.COMENTARIOS || ""
     };
 }
@@ -147,6 +179,9 @@ function DasbhoardAdmVendas({ API }) {
     const [pixParcelas, setPixParcelas] = useState({});
     const [carregandoPixParcelas, setCarregandoPixParcelas] = useState({});
     const [erroPixParcelas, setErroPixParcelas] = useState({});
+    const [pixVendas, setPixVendas] = useState({});
+    const [carregandoPixVendas, setCarregandoPixVendas] = useState({});
+    const [erroPixVendas, setErroPixVendas] = useState({});
     const [pixPagamentoDetalhe, setPixPagamentoDetalhe] = useState(null);
 
     useEffect(() => {
@@ -229,6 +264,11 @@ function DasbhoardAdmVendas({ API }) {
         return forma === "1" || forma.includes("parcel") || quantidadeParcelas > 1;
     }
 
+    function ehVendaPixAVista(venda) {
+        const forma = String(venda?.pagamento || venda?.forma_pagamento || venda?.FORMA_PAGAMENTO || "").trim().toLowerCase();
+        return (forma === "0" || forma.includes("pix")) && !ehVendaParcelada(venda);
+    }
+
     async function carregarPixParcelas(idVenda, forcar = false) {
         if (!idVenda) {
             return;
@@ -242,7 +282,7 @@ function DasbhoardAdmVendas({ API }) {
         setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
 
         try {
-            const resposta = await fetch(`${API}/listar_pix_parcelas/${idVenda}`, {
+            const resposta = await fetch(`${API}/listar_pix_parcelas/${idVenda}${parametroChavePixAtual()}`, {
                 method: "GET",
                 headers: cabecalhoAutorizacao(),
                 credentials: "include"
@@ -262,9 +302,13 @@ function DasbhoardAdmVendas({ API }) {
                 ? dados
                 : dados.parcelas || dados.pix_parcelas || dados.faturas || dados.itens || [];
 
+            const versaoPix = Date.now();
+
             setPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: Array.isArray(listaParcelas) ? listaParcelas.map(normalizarParcelaPix) : []
+                [idVenda]: Array.isArray(listaParcelas)
+                    ? listaParcelas.map((parcela) => ({ ...normalizarParcelaPix(parcela), versaoPix }))
+                    : []
             }));
         } catch {
             setErroPixParcelas((estado) => ({
@@ -273,6 +317,55 @@ function DasbhoardAdmVendas({ API }) {
             }));
         } finally {
             setCarregandoPixParcelas((estado) => ({ ...estado, [idVenda]: false }));
+        }
+    }
+
+    async function carregarPixVenda(venda, forcar = false) {
+        const idVenda = venda?.id;
+
+        if (!idVenda || !ehVendaPixAVista(venda)) {
+            return;
+        }
+
+        const pixJaCarregado = pixVendas[idVenda];
+
+        if (!forcar && (pixJaCarregado?.qrcode || pixJaCarregado?.copiaCola)) {
+            return;
+        }
+
+        if (!forcar && (venda.pixVenda?.qrcode || venda.pixVenda?.copiaCola)) {
+            setPixVendas((estado) => ({ ...estado, [idVenda]: venda.pixVenda }));
+            return;
+        }
+
+        setCarregandoPixVendas((estado) => ({ ...estado, [idVenda]: true }));
+        setErroPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
+
+        try {
+            const resposta = await fetch(`${API}/pix_venda/${idVenda}${parametroChavePixAtual()}`, {
+                method: "GET",
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setPixVendas((estado) => ({ ...estado, [idVenda]: null }));
+                setErroPixVendas((estado) => ({
+                    ...estado,
+                    [idVenda]: dados.erro || dados.mensagem || "Erro ao carregar Pix da venda."
+                }));
+                return;
+            }
+
+            setPixVendas((estado) => ({ ...estado, [idVenda]: { ...normalizarPixVenda(dados), versaoPix: Date.now() } }));
+        } catch {
+            setErroPixVendas((estado) => ({
+                ...estado,
+                [idVenda]: "Nao foi possivel conectar ao servidor para carregar o Pix da venda."
+            }));
+        } finally {
+            setCarregandoPixVendas((estado) => ({ ...estado, [idVenda]: false }));
         }
     }
 
@@ -285,17 +378,24 @@ function DasbhoardAdmVendas({ API }) {
     }
 
     useEffect(() => {
-        if (vendaDetalhe?.id) {
+        if (vendaDetalhe?.id && ehVendaParcelada(vendaDetalhe)) {
             carregarPixParcelas(vendaDetalhe.id);
+        }
+        if (vendaDetalhe?.id && ehVendaPixAVista(vendaDetalhe)) {
+            carregarPixVenda(vendaDetalhe);
         }
     }, [vendaDetalhe]);
 
     const vendaDetalheParcelada = vendaDetalhe && ehVendaParcelada(vendaDetalhe);
+    const vendaDetalhePixAVista = vendaDetalhe && ehVendaPixAVista(vendaDetalhe);
     const idVendaDetalhe = vendaDetalhe?.id;
-    const mostrarPixDetalhe = Boolean(idVendaDetalhe);
+    const mostrarPixDetalhe = Boolean(idVendaDetalhe && (vendaDetalheParcelada || vendaDetalhePixAVista));
     const parcelasPixDetalhe = idVendaDetalhe ? pixParcelas[idVendaDetalhe] || [] : [];
     const carregandoPixDetalhe = idVendaDetalhe ? carregandoPixParcelas[idVendaDetalhe] : false;
     const erroPixDetalhe = idVendaDetalhe ? erroPixParcelas[idVendaDetalhe] : "";
+    const pixVendaDetalhe = idVendaDetalhe ? pixVendas[idVendaDetalhe] : null;
+    const carregandoPixVendaDetalhe = idVendaDetalhe ? carregandoPixVendas[idVendaDetalhe] : false;
+    const erroPixVendaDetalhe = idVendaDetalhe ? erroPixVendas[idVendaDetalhe] : "";
 
     return (
         <main className={css.pagina}>
@@ -523,29 +623,36 @@ function DasbhoardAdmVendas({ API }) {
                             <div className={css.pixParcelasDetalhe}>
                                 <div className={css.pixParcelasTopo}>
                                     <div>
-                                        <span>{vendaDetalheParcelada ? "Pagamento parcelado" : "Parcelas da venda"}</span>
-                                        <h3>Pix das parcelas</h3>
+                                        <span>{vendaDetalheParcelada ? "Pagamento parcelado" : "Pagamento a vista"}</span>
+                                        <h3>{vendaDetalheParcelada ? "Pix das parcelas" : "Pix da venda"}</h3>
                                     </div>
                                     <button
                                         type="button"
-                                        onClick={() => carregarPixParcelas(idVendaDetalhe, true)}
-                                        disabled={carregandoPixDetalhe}
+                                        onClick={() => {
+                                            if (vendaDetalheParcelada) {
+                                                carregarPixParcelas(idVendaDetalhe, true);
+                                            } else {
+                                                carregarPixVenda(vendaDetalhe, true);
+                                            }
+                                        }}
+                                        disabled={vendaDetalheParcelada ? carregandoPixDetalhe : carregandoPixVendaDetalhe}
                                     >
-                                        {carregandoPixDetalhe ? "Carregando..." : "Atualizar Pix"}
+                                        {(vendaDetalheParcelada ? carregandoPixDetalhe : carregandoPixVendaDetalhe) ? "Carregando..." : "Atualizar Pix"}
                                     </button>
                                 </div>
 
-                                {erroPixDetalhe && <p className={css.erroPixParcelas}>{erroPixDetalhe}</p>}
+                                {vendaDetalheParcelada && erroPixDetalhe && <p className={css.erroPixParcelas}>{erroPixDetalhe}</p>}
+                                {vendaDetalhePixAVista && erroPixVendaDetalhe && <p className={css.erroPixParcelas}>{erroPixVendaDetalhe}</p>}
 
-                                {carregandoPixDetalhe && parcelasPixDetalhe.length === 0 && (
+                                {vendaDetalheParcelada && carregandoPixDetalhe && parcelasPixDetalhe.length === 0 && (
                                     <p className={css.estadoPixParcelas}>Carregando Pix das parcelas...</p>
                                 )}
 
-                                {!carregandoPixDetalhe && !erroPixDetalhe && parcelasPixDetalhe.length === 0 && (
+                                {vendaDetalheParcelada && !carregandoPixDetalhe && !erroPixDetalhe && parcelasPixDetalhe.length === 0 && (
                                     <p className={css.estadoPixParcelas}>Nenhum Pix de parcela encontrado para esta venda.</p>
                                 )}
 
-                                {parcelasPixDetalhe.length > 0 && (
+                                {vendaDetalheParcelada && parcelasPixDetalhe.length > 0 && (
                                     <div className={css.listaPixPagamento}>
                                         {parcelasPixDetalhe.map((parcela, indice) => {
                                             const parcelaPaga = parcelaEstaPaga(parcela);
@@ -579,6 +686,37 @@ function DasbhoardAdmVendas({ API }) {
                                                 </div>
                                             );
                                         })}
+                                    </div>
+                                )}
+
+                                {vendaDetalhePixAVista && carregandoPixVendaDetalhe && !pixVendaDetalhe && (
+                                    <p className={css.estadoPixParcelas}>Carregando Pix da venda...</p>
+                                )}
+
+                                {vendaDetalhePixAVista && !carregandoPixVendaDetalhe && !erroPixVendaDetalhe && !pixVendaDetalhe && (
+                                    <p className={css.estadoPixParcelas}>Pix da venda indisponivel.</p>
+                                )}
+
+                                {vendaDetalhePixAVista && pixVendaDetalhe && (
+                                    <div className={css.pixVendaConteudo}>
+                                        <div className={css.pixModalQr}>
+                                            {pixVendaDetalhe.qrcode ? (
+                                                <img
+                                                    src={montarUrlPixAtualizada(API, pixVendaDetalhe.qrcode, pixVendaDetalhe.versaoPix)}
+                                                    alt={`QR Code Pix da venda ${vendaDetalhe.id || ""}`}
+                                                />
+                                            ) : (
+                                                <span>QR Code indisponivel</span>
+                                            )}
+                                        </div>
+
+                                        <label className={css.pixModalCopia}>
+                                            <span>Pix copia e cola</span>
+                                            <textarea value={pixVendaDetalhe.copiaCola || ""} readOnly />
+                                            <button type="button" onClick={() => copiarPixParcela(pixVendaDetalhe.copiaCola)}>
+                                                Copiar Pix
+                                            </button>
+                                        </label>
                                     </div>
                                 )}
                             </div>
@@ -636,7 +774,7 @@ function DasbhoardAdmVendas({ API }) {
                             <div className={css.pixModalQr}>
                                 {pixPagamentoDetalhe.parcela.qrcode ? (
                                     <img
-                                        src={montarUrlPix(API, pixPagamentoDetalhe.parcela.qrcode)}
+                                        src={montarUrlPixAtualizada(API, pixPagamentoDetalhe.parcela.qrcode, pixPagamentoDetalhe.parcela.versaoPix)}
                                         alt={`QR Code Pix da parcela ${pixPagamentoDetalhe.parcela.numero || ""}`}
                                     />
                                 ) : (

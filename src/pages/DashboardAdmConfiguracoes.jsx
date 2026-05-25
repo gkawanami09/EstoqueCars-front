@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import Input from "../components/Input/Input.jsx";
-import { IMaskInput } from "react-imask";
 import css from "./DashboardAdmConfiguracoes.module.css";
 
 const TEMA_PADRAO = {
@@ -43,104 +42,6 @@ function formatarCnpj(valor) {
         .replace(/^(\d{2})\.(\d{3})(\d)/, "$1.$2.$3")
         .replace(/\.(\d{3})(\d)/, ".$1/$2")
         .replace(/(\d{4})(\d)/, "$1-$2");
-}
-
-function formatarCpf(valor) {
-    return somenteNumeros(valor)
-        .slice(0, 11)
-        .replace(/^(\d{3})(\d)/, "$1.$2")
-        .replace(/^(\d{3})\.(\d{3})(\d)/, "$1.$2.$3")
-        .replace(/\.(\d{3})(\d)/, ".$1-$2");
-}
-
-function formatarTelefonePix(valor) {
-    let numeros = somenteNumeros(valor).slice(0, 13);
-
-    if (!numeros) {
-        return "";
-    }
-
-    if (numeros.startsWith("55") && numeros.length > 11) {
-        numeros = numeros.slice(2);
-    }
-
-    numeros = numeros.slice(0, 11);
-
-    if (numeros.length <= 10) {
-        return numeros
-            .replace(/^(\d{2})(\d)/, "($1) $2")
-            .replace(/(\d{4})(\d)/, "$1-$2");
-    }
-
-    return numeros
-        .replace(/^(\d{2})(\d)/, "($1) $2")
-        .replace(/(\d{5})(\d)/, "$1-$2");
-}
-
-function mascaraChavePix(valor) {
-    const texto = String(valor || "");
-
-    if (texto.includes("@") || /[a-zA-Z]/.test(texto)) {
-        return /^.*$/;
-    }
-
-    if (texto.startsWith("+") || texto.includes("(") || texto.includes(")") || /\s/.test(texto)) {
-        return "(00) 00000-0000";
-    }
-
-    const numeros = somenteNumeros(texto);
-
-    if (numeros.length > 11) {
-        return "00.000.000/0000-00";
-    }
-
-    return "000.000.000-00";
-}
-
-function normalizarChavePix(valor) {
-    const texto = String(valor || "").trim();
-    const numeros = somenteNumeros(texto);
-
-    if (texto.startsWith("+") || texto.includes("(") || texto.includes(")") || /^\d{2}\s/.test(texto)) {
-        const telefone = numeros.startsWith("55") && numeros.length > 11 ? numeros.slice(2, 13) : numeros.slice(0, 11);
-        return telefone;
-    }
-
-    const textoSemMascara = texto.replace(/[.\-/()\s]/g, "");
-
-    if (/^\d+$/.test(textoSemMascara)) {
-        return textoSemMascara.slice(0, 14);
-    }
-
-    return texto;
-}
-
-function formatarChavePix(valor) {
-    const texto = String(valor || "").trim();
-
-    if (!texto) {
-        return "";
-    }
-
-    if (texto.startsWith("+")) {
-        return formatarTelefonePix(texto);
-    }
-
-    if (texto.includes("@")) {
-        return texto;
-    }
-
-    const textoSemMascara = texto.replace(/[.\-/()\s]/g, "");
-
-    if (!/^\d+$/.test(textoSemMascara)) {
-        return texto;
-    }
-
-    if (textoSemMascara.length <= 11) {
-        return formatarCpf(textoSemMascara);
-    }
-
-    return formatarCnpj(textoSemMascara);
 }
 
 function aplicarCores(corPrimaria, corSecundaria, fonte) {
@@ -449,10 +350,10 @@ function DashboardAdmConfiguracoes({ API }) {
 
                         <label className={css.campo}>
                             <span>Chave Pix</span>
-                            <IMaskInput
-                                mask={mascaraChavePix(chavePix)}
-                                value={formatarChavePix(chavePix)}
-                                onAccept={(valor) => setChavePix(normalizarChavePix(valor))}
+                            <input
+                                type="text"
+                                value={chavePix}
+                                onChange={(e) => setChavePix(e.target.value)}
                                 placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória"
                             />
                         </label>

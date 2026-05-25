@@ -572,6 +572,12 @@
     padding: 0 20px 18px;
 }
 
+.pixVendaConteudo {
+    display: grid;
+    grid-template-columns: 250px minmax(0, 1fr);
+    gap: 16px;
+}
+
 .pixModalQr {
     display: grid;
     place-items: center;
@@ -608,6 +614,19 @@
     font-weight: 700;
     line-height: 1.4;
     resize: vertical;
+}
+
+.pixModalCopia button {
+    width: fit-content;
+    min-height: 38px;
+    border: none;
+    border-radius: 8px;
+    background: #000;
+    color: #fff;
+    padding: 0 16px;
+    font-size: 13px;
+    font-weight: 900;
+    cursor: pointer;
 }
 
 .pixModalAcoes {
@@ -900,8 +919,12 @@
         padding: 16px;
     }
 
-    .pixModalConteudo {
+    .pixModalConteudo,
+    .pixVendaConteudo {
         grid-template-columns: 1fr;
+    }
+
+    .pixModalConteudo {
         padding: 0 16px 16px;
     }
 

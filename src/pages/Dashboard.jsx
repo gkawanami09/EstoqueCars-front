@@ -323,10 +323,18 @@ function Dashboard({ API }) {
             return "-";
         }
 
+        const texto = String(valor);
+        const dataIso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+
+        if (dataIso) {
+            const [, ano, mes, dia] = dataIso;
+            return `${dia}/${mes}/${ano}`;
+        }
+
         const data = new Date(valor);
 
         if (Number.isNaN(data.getTime())) {
-            return String(valor);
+            return texto;
         }
 
         return data.toLocaleDateString("pt-BR");

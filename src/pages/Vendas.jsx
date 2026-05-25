@@ -523,8 +523,8 @@ function Vendas({ API }) {
     const [clienteAlteradoManualmente, setClienteAlteradoManualmente] = useState(false);
     // Guarda o id do veiculo selecionado no formulario.
     const [veiculoId, setVeiculoId] = useState("");
-    // Guarda a forma de pagamento escolhida, iniciando pela primeira opcao.
-    const [formaPagamento, setFormaPagamento] = useState(formasPagamento[0].id);
+    // Guarda a forma de pagamento escolhida.
+    const [formaPagamento, setFormaPagamento] = useState("");
     // Guarda a data da venda, iniciando com a data e hora atuais.
     const [dataVenda, setDataVenda] = useState(() => dataHoraAtualParaInput());
     // Guarda o valor bruto da venda digitado ou vindo do veiculo.
@@ -598,16 +598,14 @@ function Vendas({ API }) {
             // Salva os clientes no estado.
             setClientes(lista);
 
-            // Seleciona automaticamente o primeiro cliente quando houver lista.
-            if (lista.length > 0) {
-                setClienteId((clienteAtual) => {
-                    if (clienteAtual && lista.some((cliente) => idCliente(cliente) === clienteAtual)) {
-                        return clienteAtual;
-                    }
+            // Mantem o formulario novo sem cliente selecionado.
+            setClienteId((clienteAtual) => {
+                if (clienteAtual && lista.some((cliente) => idCliente(cliente) === clienteAtual)) {
+                    return clienteAtual;
+                }
 
-                    return idCliente(lista[0]);
-                });
-            }
+                return "";
+            });
         // Caso a requisicao falhe, mostra erro de conexao.
         } catch {
             setErroClientes("Erro de conexão com o servidor.");
@@ -663,18 +661,18 @@ function Vendas({ API }) {
             // Salva os veiculos vendaveis no estado.
             setVeiculos(vendaveisOrdenados);
 
-            // Se houver veiculos, seleciona o primeiro e preenche valores.
-            if (vendaveisOrdenados.length > 0) {
-                // Guarda o primeiro veiculo vendavel.
-                const primeiro = vendaveisOrdenados[0];
-                // Preenche o select com o id do primeiro veiculo.
-                setVeiculoId(String(idVeiculo(primeiro)));
-                // Preenche o valor da venda com o preco do veiculo.
-                setValorVenda(String(primeiro.preco || 0));
-                // Preenche o valor recebido inicialmente com o mesmo preco.
-                setValorRecebido(String(primeiro.preco || 0));
-            // Se nao houver veiculos vendaveis, limpa campos e mostra aviso.
-            } else {
+            // Evita selecionar veiculo automaticamente ao abrir uma venda nova.
+            setVeiculoId((veiculoAtual) => {
+                if (veiculoAtual && vendaveisOrdenados.some((veiculo) => String(idVeiculo(veiculo)) === veiculoAtual)) {
+                    return veiculoAtual;
+                }
+
+                return "";
+            });
+            setValorVenda("");
+            setValorRecebido("");
+
+            if (vendaveisOrdenados.length === 0) {
                 setVeiculoId("");
                 setValorVenda("");
                 setValorRecebido("");
@@ -893,6 +891,9 @@ function Vendas({ API }) {
         setVeiculoId(idSelecionado);
 
         if (!veiculo) {
+            setValorVenda("");
+            setValorRecebido("");
+            setClienteId("");
             return;
         }
 
@@ -1040,15 +1041,14 @@ function Vendas({ API }) {
             return false;
         }
 
-        // Bloqueia envio se faltar data, valor ou dados obrigatorios de pagamento.
-        if (!dataVenda || !valorNumerico || (!ehPix && !numeroDoCampo(valorRecebido)) || (!ehPix && !status)) {
-            mostrarMensagem("erro", "Preencha todos os campos obrigatórios da venda.");
+        if (!formaPagamento) {
+            mostrarMensagem("erro", "Selecione a forma de pagamento antes de salvar a venda.");
             return false;
         }
 
-        if (ehPix && !chavePixEmpresa.trim()) {
-            mostrarMensagem("erro", "Configure a chave Pix da empresa antes de gerar uma venda por Pix.");
-            setErroPix("Configure a chave Pix da empresa nas configurações.");
+        // Bloqueia envio se faltar data, valor ou dados obrigatorios de pagamento.
+        if (!dataVenda || !valorNumerico || (!ehPix && !numeroDoCampo(valorRecebido)) || (!ehPix && !status)) {
+            mostrarMensagem("erro", "Preencha todos os campos obrigatórios da venda.");
             return false;
         }
 
@@ -1368,6 +1368,7 @@ function Vendas({ API }) {
                         <span>Forma de Pagamento</span>
                         {/* Select controlado pelo estado formaPagamento. */}
                         <select value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value)}>
+                            <option value="">Selecione a forma de pagamento</option>
                             {/* Renderiza as opcoes definidas no array formasPagamento. */}
                             {formasPagamento.map((item) => (
                                 <option key={item.id} value={item.id}>{item.nome}</option>
