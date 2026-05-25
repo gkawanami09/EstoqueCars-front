@@ -5,6 +5,6 @@ import App from './App.jsx'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App API="http://192.168.101.11:5000"/>
+    <App API="http://127.0.0.1:5000"/>
   </StrictMode>
 )

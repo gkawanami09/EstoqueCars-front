@@ -49,8 +49,9 @@ function DetalhesVeiculos({ API }) {
     // Verifica se o usuario usa o painel administrativo: vendedor (1) ou administrador (2).
     const isPainelAdm = [1, 2].includes(Number(usuarioLogado.tipo_usuario || usuarioLogado["tipo_usuário"]));
 
-    // Vendedor/admin volta para a tela de veiculos do admin; usuario comum volta para o dashboard.
-    const rotaVoltar = isPainelAdm ? "/dashboardAdmVeiculos" : "/";
+    // Vendedor/admin volta para a tela de veiculos do admin; usuario comum logado volta para a dashboard.
+    // Quando nao houver login, volta para a home publica.
+    const rotaVoltar = isPainelAdm ? "/dashboardAdmVeiculos" : (usuarioEstaLogado ? "/dashboard" : "/");
 
     // Guarda o carro encontrado na API.
     const [carro, setCarro] = useState(null);
@@ -387,6 +388,8 @@ function DetalhesVeiculos({ API }) {
         setMensagemReserva(null);
 
         try {
+            const idUsuarioReserva = Number(usuarioLogado.id_usuario || usuarioLogado.id_user || usuarioLogado.id || usuarioLogado.ID_USUARIO);
+
             const resposta = await fetch(`${API}/reservar_carro/${idVeiculo}`, {
                 method: "POST",
                 headers: {
@@ -395,7 +398,9 @@ function DetalhesVeiculos({ API }) {
                 },
                 credentials: "include",
                 body: JSON.stringify({
-                    id_usuario: usuarioLogado.id_usuario || usuarioLogado.id_user || usuarioLogado.id || usuarioLogado.ID_USUARIO
+                    id_usuario: Number.isFinite(idUsuarioReserva)
+                        ? idUsuarioReserva
+                        : (usuarioLogado.id_usuario || usuarioLogado.id_user || usuarioLogado.id || usuarioLogado.ID_USUARIO)
                 })
             });
             const dados = await lerRespostaJson(resposta);
@@ -410,7 +415,11 @@ function DetalhesVeiculos({ API }) {
 
             setCarro((veiculoAtual) => ({
                 ...veiculoAtual,
-                status_estoque: 3
+                status_estoque: 3,
+                id_usuario_reserva: dados.id_usuario_reserva ?? veiculoAtual?.id_usuario_reserva,
+                nome_usuario_reserva: dados.nome_usuario_reserva ?? veiculoAtual?.nome_usuario_reserva,
+                precisa_concluir_venda: dados.precisa_concluir_venda ?? true,
+                status_venda: dados.status_venda ?? "RESERVADO_PENDENTE_CONCLUSAO"
             }));
             setMensagemReserva({
                 tipo: "sucesso",

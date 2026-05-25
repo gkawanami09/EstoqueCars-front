@@ -85,7 +85,7 @@ function DashboardAdmVeiculos({ API }) {
             }
 
             // Salva na tela a lista que veio da API.
-            setCarros(dados.carros || []);
+            setCarros(Array.isArray(dados) ? dados : (dados.carros || dados.veiculos || []));
         } catch {
             // Mostra erro quando o servidor nao respondeu.
             setErro("Erro de conexão com o servidor.");
@@ -195,52 +195,145 @@ function DashboardAdmVeiculos({ API }) {
         });
     }
 
-    // Transforma o status do banco em texto legivel.
-    function formatarStatusEstoque(valor) {
-        // Converte o valor para texto minusculo para comparar melhor.
-        const status = String(valor || "").toLowerCase();
-
-        if (status === "2") {
-            return "Vendido";
+    function textoValido(valor) {
+        if (valor === null || valor === undefined) {
+            return "";
         }
 
-        if (status === "3") {
-            return "Indisponí­vel";
-        }
-
-        // Status 2 ou texto parecido com indisponivel.
-        if (status === "2" || status.includes("indispon")) {
-            return "Indisponível";
-        }
-
-        // Status 3 ou texto parecido com vendido.
-        if (status === "3" || status.includes("vend")) {
-            return "Vendido";
-        }
-
-        // Qualquer outro valor fica como disponivel no estoque.
-        return "Em estoque";
+        return String(valor).trim();
     }
 
-    function tipoStatusEstoque(valor) {
+    function idUsuarioReserva(carro) {
+        const reserva = carro?.reserva || carro?.RESERVA || {};
+        const usuarioReserva = reserva?.usuario || reserva?.USUARIO || carro?.usuario_reserva || carro?.USUARIO_RESERVA || {};
+        const clienteReserva = reserva?.cliente || reserva?.CLIENTE || carro?.cliente_reserva || carro?.CLIENTE_RESERVA || {};
+
+        return (
+            textoValido(carro?.id_usuario_reserva) ||
+            textoValido(carro?.ID_USUARIO_RESERVA) ||
+            textoValido(carro?.id_usuario_reservado) ||
+            textoValido(carro?.ID_USUARIO_RESERVADO) ||
+            textoValido(carro?.id_cliente_reserva) ||
+            textoValido(carro?.ID_CLIENTE_RESERVA) ||
+            textoValido(reserva?.id_usuario) ||
+            textoValido(reserva?.ID_USUARIO) ||
+            textoValido(reserva?.id_cliente) ||
+            textoValido(reserva?.ID_CLIENTE) ||
+            textoValido(usuarioReserva?.id_usuario) ||
+            textoValido(usuarioReserva?.ID_USUARIO) ||
+            textoValido(usuarioReserva?.id) ||
+            textoValido(usuarioReserva?.ID) ||
+            textoValido(clienteReserva?.id_usuario) ||
+            textoValido(clienteReserva?.ID_USUARIO) ||
+            textoValido(clienteReserva?.id) ||
+            textoValido(clienteReserva?.ID)
+        );
+    }
+
+    function nomeUsuarioReserva(carro) {
+        const reserva = carro?.reserva || carro?.RESERVA || {};
+        const usuarioReserva = reserva?.usuario || reserva?.USUARIO || carro?.usuario_reserva || carro?.USUARIO_RESERVA || {};
+        const clienteReserva = reserva?.cliente || reserva?.CLIENTE || carro?.cliente_reserva || carro?.CLIENTE_RESERVA || {};
+
+        return (
+            textoValido(carro?.nome_usuario_reserva) ||
+            textoValido(carro?.NOME_USUARIO_RESERVA) ||
+            textoValido(carro?.nome_cliente_reserva) ||
+            textoValido(carro?.NOME_CLIENTE_RESERVA) ||
+            textoValido(reserva?.nome_usuario) ||
+            textoValido(reserva?.NOME_USUARIO) ||
+            textoValido(reserva?.nome_cliente) ||
+            textoValido(reserva?.NOME_CLIENTE) ||
+            textoValido(usuarioReserva?.nome) ||
+            textoValido(usuarioReserva?.NOME) ||
+            textoValido(clienteReserva?.nome) ||
+            textoValido(clienteReserva?.NOME) ||
+            textoValido(usuarioReserva?.email) ||
+            textoValido(clienteReserva?.email)
+        );
+    }
+
+    function statusVendaCarro(carro) {
+        const statusVenda = textoValido(carro?.status_venda) || textoValido(carro?.STATUS_VENDA) || textoValido(carro?.statusVenda);
+
+        if (statusVenda) {
+            return statusVenda.toUpperCase();
+        }
+
+        const statusEstoque = String(carro?.status_estoque ?? "").toLowerCase();
+
+        if (statusEstoque === "2" || statusEstoque.includes("vend")) {
+            return "VENDIDO";
+        }
+
+        if (statusEstoque === "3" || statusEstoque.includes("reserv") || statusEstoque.includes("indispon")) {
+            return "RESERVADO_PENDENTE_CONCLUSAO";
+        }
+
+        if (statusEstoque === "1" || statusEstoque.includes("dispon") || statusEstoque.includes("estoque")) {
+            return "DISPONIVEL";
+        }
+
+        return "";
+    }
+
+    function precisaConcluirVendaCarro(carro) {
+        const indicadorApi = carro?.precisa_concluir_venda ?? carro?.PRECISA_CONCLUIR_VENDA;
+
+        if (typeof indicadorApi === "boolean") {
+            return indicadorApi;
+        }
+
+        const indicadorTexto = String(indicadorApi ?? "").trim().toLowerCase();
+
+        if (["1", "true", "sim", "s"].includes(indicadorTexto)) {
+            return true;
+        }
+
+        if (["0", "false", "nao", "não", "n"].includes(indicadorTexto)) {
+            return false;
+        }
+
+        return statusVendaCarro(carro) === "RESERVADO_PENDENTE_CONCLUSAO";
+    }
+
+    function mensagemVendaCarro(carro) {
+        return textoValido(carro?.mensagem_venda) || textoValido(carro?.MENSAGEM_VENDA);
+    }
+
+    function tipoStatusEstoque(valor, carro) {
+        const statusVenda = statusVendaCarro(carro);
+
+        if (statusVenda === "VENDIDO") {
+            return "vendido";
+        }
+
+        if (statusVenda === "RESERVADO_PENDENTE_CONCLUSAO") {
+            return "reservado";
+        }
+
+        if (statusVenda === "DISPONIVEL") {
+            return "estoque";
+        }
+
         const status = String(valor || "").toLowerCase();
 
         if (status === "2" || status.includes("vend")) {
             return "vendido";
         }
 
-        if (status === "3" || status.includes("indispon")) {
-            return "indisponível";
+        if (status === "3" || status.includes("reserv") || status.includes("indispon")) {
+            return "reservado";
         }
 
         return "estoque";
     }
 
     // Escolhe a classe CSS correta para cada status.
-    function classeStatusEstoque(valor) {
-        const tipoStatus = tipoStatusEstoque(valor);
+    function classeStatusEstoque(valor, carro) {
+        const tipoStatus = tipoStatusEstoque(valor, carro);
 
-        if (tipoStatus === "indisponível") {
+        if (tipoStatus === "reservado") {
             return `${css.status} ${css.status_indisponivel}`;
         }
 
@@ -248,57 +341,41 @@ function DashboardAdmVeiculos({ API }) {
             return `${css.status} ${css.status_vendido}`;
         }
 
-        if (tipoStatus === "estoque") {
-            return `${css.status} ${css.status_estoque}`;
-        }
-
-        // Reaproveita a funcao que padroniza o texto do status.
-        const statusFormatado = formatarStatusEstoque(valor);
-
-        // Classe visual para carro indisponivel.
-        if (statusFormatado === "Indisponível") {
-            return `${css.status} ${css.status_indisponivel}`;
-        }
-
-        // Classe visual para carro vendido.
-        if (statusFormatado === "Vendido") {
-            return `${css.status} ${css.status_vendido}`;
-        }
-
-        // Classe visual para carro em estoque.
         return `${css.status} ${css.status_estoque}`;
     }
 
     // Define o texto que aparece dentro da etiqueta de status.
-    function textoStatusEstoque(valor) {
-        const tipoStatus = tipoStatusEstoque(valor);
+    function textoStatusEstoque(valor, carro) {
+        const tipoStatus = tipoStatusEstoque(valor, carro);
 
-        if (tipoStatus === "indisponivel") {
-            return "Indisponível";
+        if (tipoStatus === "reservado") {
+            return "Reservado";
         }
 
         if (tipoStatus === "vendido") {
             return "Vendido";
         }
 
-        if (tipoStatus === "estoque") {
-            return "Em estoque";
+        return "Disponível";
+    }
+
+    function textoComplementoStatus(carro) {
+        if (precisaConcluirVendaCarro(carro) || statusVendaCarro(carro) === "RESERVADO_PENDENTE_CONCLUSAO") {
+            return "Precisa concluir venda";
         }
 
-        // Busca o status ja formatado.
-        const statusFormatado = formatarStatusEstoque(valor);
+        return mensagemVendaCarro(carro);
+    }
 
-        // Mantem "Em estoque" separado para facilitar ajuste visual depois.
-        if (statusFormatado === "Em estoque") {
-            return (
-                <>
-                    Em estoque
-                </>
-            );
+    function textoClienteReserva(carro) {
+        const nomeReserva = nomeUsuarioReserva(carro);
+
+        if (nomeReserva) {
+            return nomeReserva;
         }
 
-        // Retorna o texto dos outros status.
-        return statusFormatado;
+        const idReserva = idUsuarioReserva(carro);
+        return idReserva ? `Cliente ${idReserva}` : "-";
     }
 
     // Renderiza toda a tela.
@@ -422,6 +499,7 @@ function DashboardAdmVeiculos({ API }) {
                             <th>Cor</th>
                             <th>Preço</th>
                             <th>Status</th>
+                            <th>Cliente reservado</th>
                             <th>Ações</th>
                         </tr>
                         </thead>
@@ -431,7 +509,7 @@ function DashboardAdmVeiculos({ API }) {
                         {/* Linha mostrada enquanto a API esta carregando. */}
                         {carregando && (
                             <tr>
-                                <td colSpan="9" className={css.celula_vazia}>
+                                <td colSpan="10" className={css.celula_vazia}>
                                     Carregando veículos...
                                 </td>
                             </tr>
@@ -440,7 +518,7 @@ function DashboardAdmVeiculos({ API }) {
                         {/* Linha mostrada quando nao existe nenhum carro para listar. */}
                         {!carregando && carrosFiltrados.length === 0 && (
                             <tr>
-                                <td colSpan="9" className={css.celula_vazia}>
+                                <td colSpan="10" className={css.celula_vazia}>
                                     Nenhum veículo cadastrado
                                 </td>
                             </tr>
@@ -478,9 +556,16 @@ function DashboardAdmVeiculos({ API }) {
 
                                 {/* Etiqueta de status do estoque. */}
                                 <td data-label="Status">
-                                    <span className={classeStatusEstoque(carro.status_estoque)}>
-                                        {textoStatusEstoque(carro.status_estoque)}
+                                    <span className={classeStatusEstoque(carro.status_estoque, carro)}>
+                                        {textoStatusEstoque(carro.status_estoque, carro)}
                                     </span>
+                                    {textoComplementoStatus(carro) && (
+                                        <small className={css.status_complemento}>{textoComplementoStatus(carro)}</small>
+                                    )}
+                                </td>
+
+                                <td data-label="Cliente reservado">
+                                    {tipoStatusEstoque(carro.status_estoque, carro) === "reservado" ? textoClienteReserva(carro) : "-"}
                                 </td>
 
                                 {/* Botoes de acao daquele carro. */}
@@ -548,3 +633,4 @@ function DashboardAdmVeiculos({ API }) {
 
 // Exporta a tela para ser usada nas rotas do projeto.
 export default DashboardAdmVeiculos;
+

@@ -175,6 +175,145 @@ function idVeiculo(veiculo) {
     return veiculo?.id || veiculo?.id_veiculo || veiculo?.id_carro;
 }
 
+function textoValido(valor) {
+    if (valor === null || valor === undefined) {
+        return "";
+    }
+
+    return String(valor).trim();
+}
+
+function idCliente(item) {
+    return textoValido(item?.id_usuario) || textoValido(item?.ID_USUARIO) || textoValido(item?.id) || textoValido(item?.ID);
+}
+
+function idUsuarioReservaVeiculo(veiculo) {
+    const reserva = veiculo?.reserva || veiculo?.RESERVA || {};
+    const usuarioReserva = reserva?.usuario || reserva?.USUARIO || veiculo?.usuario_reserva || veiculo?.USUARIO_RESERVA || {};
+    const clienteReserva = reserva?.cliente || reserva?.CLIENTE || veiculo?.cliente_reserva || veiculo?.CLIENTE_RESERVA || {};
+
+    return (
+        textoValido(veiculo?.id_usuario_reserva) ||
+        textoValido(veiculo?.ID_USUARIO_RESERVA) ||
+        textoValido(veiculo?.id_usuario_reservado) ||
+        textoValido(veiculo?.ID_USUARIO_RESERVADO) ||
+        textoValido(veiculo?.id_cliente_reserva) ||
+        textoValido(veiculo?.ID_CLIENTE_RESERVA) ||
+        textoValido(reserva?.id_usuario) ||
+        textoValido(reserva?.ID_USUARIO) ||
+        textoValido(reserva?.id_cliente) ||
+        textoValido(reserva?.ID_CLIENTE) ||
+        textoValido(usuarioReserva?.id_usuario) ||
+        textoValido(usuarioReserva?.ID_USUARIO) ||
+        textoValido(usuarioReserva?.id) ||
+        textoValido(usuarioReserva?.ID) ||
+        textoValido(clienteReserva?.id_usuario) ||
+        textoValido(clienteReserva?.ID_USUARIO) ||
+        textoValido(clienteReserva?.id) ||
+        textoValido(clienteReserva?.ID)
+    );
+}
+
+function nomeUsuarioReservaVeiculo(veiculo) {
+    const reserva = veiculo?.reserva || veiculo?.RESERVA || {};
+    const usuarioReserva = reserva?.usuario || reserva?.USUARIO || veiculo?.usuario_reserva || veiculo?.USUARIO_RESERVA || {};
+    const clienteReserva = reserva?.cliente || reserva?.CLIENTE || veiculo?.cliente_reserva || veiculo?.CLIENTE_RESERVA || {};
+
+    return (
+        textoValido(veiculo?.nome_usuario_reserva) ||
+        textoValido(veiculo?.NOME_USUARIO_RESERVA) ||
+        textoValido(veiculo?.nome_cliente_reserva) ||
+        textoValido(veiculo?.NOME_CLIENTE_RESERVA) ||
+        textoValido(reserva?.nome_usuario) ||
+        textoValido(reserva?.NOME_USUARIO) ||
+        textoValido(reserva?.nome_cliente) ||
+        textoValido(reserva?.NOME_CLIENTE) ||
+        textoValido(usuarioReserva?.nome) ||
+        textoValido(usuarioReserva?.NOME) ||
+        textoValido(clienteReserva?.nome) ||
+        textoValido(clienteReserva?.NOME) ||
+        textoValido(usuarioReserva?.email) ||
+        textoValido(clienteReserva?.email)
+    );
+}
+
+function clienteReservaExistenteNoSelect(veiculo, clientes) {
+    const idReserva = idUsuarioReservaVeiculo(veiculo);
+
+    if (!idReserva || !Array.isArray(clientes) || clientes.length === 0) {
+        return "";
+    }
+
+    const clienteEncontrado = clientes.find((cliente) => idCliente(cliente) === idReserva);
+    return clienteEncontrado ? idCliente(clienteEncontrado) : "";
+}
+
+function statusVendaVeiculo(veiculo) {
+    const statusVendaApi = textoValido(veiculo?.status_venda) || textoValido(veiculo?.STATUS_VENDA) || textoValido(veiculo?.statusVenda);
+
+    if (statusVendaApi) {
+        return statusVendaApi.toUpperCase();
+    }
+
+    const statusEstoque = statusEstoqueVeiculo(veiculo).toLowerCase();
+
+    if (statusEstoque === "2" || statusEstoque.includes("vend")) {
+        return "VENDIDO";
+    }
+
+    if (statusEstoque === "3" || statusEstoque.includes("reserv") || statusEstoque.includes("indispon")) {
+        return "RESERVADO_PENDENTE_CONCLUSAO";
+    }
+
+    if (statusEstoque === "1" || statusEstoque.includes("dispon") || statusEstoque.includes("estoque")) {
+        return "DISPONIVEL";
+    }
+
+    return "";
+}
+
+function mensagemVendaVeiculo(veiculo) {
+    return textoValido(veiculo?.mensagem_venda) || textoValido(veiculo?.MENSAGEM_VENDA);
+}
+
+function precisaConcluirVendaVeiculo(veiculo) {
+    const indicadorApi = veiculo?.precisa_concluir_venda ?? veiculo?.PRECISA_CONCLUIR_VENDA;
+
+    if (typeof indicadorApi === "boolean") {
+        return indicadorApi;
+    }
+
+    const indicadorTexto = String(indicadorApi ?? "").trim().toLowerCase();
+
+    if (["1", "true", "sim", "s"].includes(indicadorTexto)) {
+        return true;
+    }
+
+    if (["0", "false", "nao", "não", "n"].includes(indicadorTexto)) {
+        return false;
+    }
+
+    return statusVendaVeiculo(veiculo) === "RESERVADO_PENDENTE_CONCLUSAO";
+}
+
+function textoStatusVendaPainel(statusVenda) {
+    const status = String(statusVenda || "").toUpperCase();
+
+    if (status === "RESERVADO_PENDENTE_CONCLUSAO") {
+        return "Reservado";
+    }
+
+    if (status === "VENDIDO") {
+        return "Vendido";
+    }
+
+    if (status === "DISPONIVEL") {
+        return "Disponível";
+    }
+
+    return status || "Não informado";
+}
+
 // Descobre o status de estoque do veiculo aceitando nomes diferentes de campo.
 function statusEstoqueVeiculo(veiculo) {
     // Retorna uma string mesmo quando o status vier nulo ou indefinido.
@@ -192,6 +331,20 @@ function statusEstoqueVeiculo(veiculo) {
 
 // Normaliza o status de estoque para a tela de venda.
 function tipoStatusEstoqueVeiculo(veiculo) {
+    const statusVenda = statusVendaVeiculo(veiculo);
+
+    if (statusVenda === "VENDIDO") {
+        return "vendido";
+    }
+
+    if (statusVenda === "RESERVADO_PENDENTE_CONCLUSAO") {
+        return "reservado";
+    }
+
+    if (statusVenda === "DISPONIVEL") {
+        return "estoque";
+    }
+
     // Normaliza o status para minusculo antes de comparar.
     const status = statusEstoqueVeiculo(veiculo).toLowerCase();
 
@@ -226,11 +379,16 @@ function textoStatusVenda(veiculo) {
     const status = tipoStatusEstoqueVeiculo(veiculo);
 
     if (status === "reservado") {
-        return "Reservado";
+        const nomeReserva = nomeUsuarioReservaVeiculo(veiculo);
+        return nomeReserva ? `Reservado para ${nomeReserva} - precisa concluir venda` : "Reservado - precisa concluir venda";
+    }
+
+    if (status === "vendido") {
+        return "Vendido";
     }
 
     if (status === "estoque") {
-        return "Em estoque";
+        return "Disponível";
     }
 
     return "Status não informado";
@@ -239,6 +397,38 @@ function textoStatusVenda(veiculo) {
 // Monta o nome que sera exibido no select de veiculos.
 function nomeVeiculo(veiculo) {
     return veiculo?.nome || [veiculo?.marca, veiculo?.modelo].filter(Boolean).join(" ") || "Veículo";
+}
+
+function extrairListaPendencias(dados) {
+    if (Array.isArray(dados)) {
+        return dados;
+    }
+
+    if (Array.isArray(dados?.pendencias)) {
+        return dados.pendencias;
+    }
+
+    if (Array.isArray(dados?.pendencias_venda)) {
+        return dados.pendencias_venda;
+    }
+
+    if (Array.isArray(dados?.reservas)) {
+        return dados.reservas;
+    }
+
+    return [];
+}
+
+function idVeiculoPendencia(pendencia) {
+    return textoValido(pendencia?.id_veiculo) || textoValido(pendencia?.ID_VEICULO) || textoValido(pendencia?.id_carro) || textoValido(pendencia?.ID_CARRO);
+}
+
+function nomeVeiculoPendencia(pendencia) {
+    return textoValido(pendencia?.veiculo) || textoValido(pendencia?.nome_veiculo) || textoValido(pendencia?.modelo);
+}
+
+function nomeClientePendencia(pendencia) {
+    return textoValido(pendencia?.nome_usuario_reserva) || textoValido(pendencia?.NOME_USUARIO_RESERVA);
 }
 
 // Monta a URL da imagem do veiculo.
@@ -321,8 +511,16 @@ function Vendas({ API }) {
     const [carregandoVeiculos, setCarregandoVeiculos] = useState(true);
     // Guarda mensagem de erro ao carregar veiculos.
     const [erroVeiculos, setErroVeiculos] = useState("");
+    // Guarda pendencias de reserva que aguardam conclusao de venda.
+    const [pendenciasVenda, setPendenciasVenda] = useState([]);
+    // Controla o carregamento da lista de pendencias.
+    const [carregandoPendencias, setCarregandoPendencias] = useState(true);
+    // Guarda erro da lista de pendencias.
+    const [erroPendencias, setErroPendencias] = useState("");
     // Guarda o id do cliente selecionado no formulario.
     const [clienteId, setClienteId] = useState("");
+    // Marca quando o cliente foi alterado manualmente apos o auto-preenchimento.
+    const [clienteAlteradoManualmente, setClienteAlteradoManualmente] = useState(false);
     // Guarda o id do veiculo selecionado no formulario.
     const [veiculoId, setVeiculoId] = useState("");
     // Guarda a forma de pagamento escolhida, iniciando pela primeira opcao.
@@ -402,7 +600,13 @@ function Vendas({ API }) {
 
             // Seleciona automaticamente o primeiro cliente quando houver lista.
             if (lista.length > 0) {
-                setClienteId(String(lista[0].id_usuario || lista[0].id || ""));
+                setClienteId((clienteAtual) => {
+                    if (clienteAtual && lista.some((cliente) => idCliente(cliente) === clienteAtual)) {
+                        return clienteAtual;
+                    }
+
+                    return idCliente(lista[0]);
+                });
             }
         // Caso a requisicao falhe, mostra erro de conexao.
         } catch {
@@ -428,6 +632,7 @@ function Vendas({ API }) {
             const resposta = await fetch(`${API}/listar_carro`, {
                 // Define o metodo HTTP.
                 method: "GET",
+                headers: cabecalhoAutorizacao(),
                 // Inclui cookies/sessao na chamada.
                 credentials: "include"
             });
@@ -442,16 +647,26 @@ function Vendas({ API }) {
             }
 
             // Pega o array de carros dentro da resposta.
-            const lista = dados.carros || [];
+            const lista = Array.isArray(dados) ? dados : (dados.carros || dados.veiculos || []);
             // Mantem veiculos em estoque e os reservados por cliente.
             const vendaveis = lista.filter(veiculoVendavel);
+            const vendaveisOrdenados = [...vendaveis].sort((a, b) => {
+                const prioridadeA = tipoStatusEstoqueVeiculo(a) === "reservado" ? 0 : 1;
+                const prioridadeB = tipoStatusEstoqueVeiculo(b) === "reservado" ? 0 : 1;
+
+                if (prioridadeA !== prioridadeB) {
+                    return prioridadeA - prioridadeB;
+                }
+
+                return nomeVeiculo(a).localeCompare(nomeVeiculo(b), "pt-BR", { sensitivity: "base" });
+            });
             // Salva os veiculos vendaveis no estado.
-            setVeiculos(vendaveis);
+            setVeiculos(vendaveisOrdenados);
 
             // Se houver veiculos, seleciona o primeiro e preenche valores.
-            if (vendaveis.length > 0) {
+            if (vendaveisOrdenados.length > 0) {
                 // Guarda o primeiro veiculo vendavel.
-                const primeiro = vendaveis[0];
+                const primeiro = vendaveisOrdenados[0];
                 // Preenche o select com o id do primeiro veiculo.
                 setVeiculoId(String(idVeiculo(primeiro)));
                 // Preenche o valor da venda com o preco do veiculo.
@@ -476,14 +691,43 @@ function Vendas({ API }) {
     // Recria essa funcao apenas se a URL base da API mudar.
     }, [API]);
 
+    const carregarPendenciasVenda = useCallback(async () => {
+        setCarregandoPendencias(true);
+        setErroPendencias("");
+
+        try {
+            const resposta = await fetch(`${API}/listar_pendencias_venda`, {
+                method: "GET",
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
+            const dados = await resposta.json();
+
+            if (!resposta.ok) {
+                setErroPendencias(dados.erro || dados.mensagem || "Erro ao carregar pendências de venda.");
+                setPendenciasVenda([]);
+                return;
+            }
+
+            setPendenciasVenda(extrairListaPendencias(dados));
+        } catch {
+            setErroPendencias("Erro de conexão ao carregar pendências de venda.");
+            setPendenciasVenda([]);
+        } finally {
+            setCarregandoPendencias(false);
+        }
+    }, [API]);
+
     // Quando a tela monta, carrega clientes e veiculos.
     useEffect(() => {
         // Busca clientes na API.
         carregarClientes();
         // Busca veiculos na API.
         carregarVeiculos();
+        // Busca pendencias de venda por reserva.
+        carregarPendenciasVenda();
     // Executa de novo se as funcoes de carregamento mudarem.
-    }, [carregarClientes, carregarVeiculos]);
+    }, [carregarClientes, carregarPendenciasVenda, carregarVeiculos]);
 
     // Carrega e acompanha a taxa de juros usada no parcelamento.
     useEffect(() => {
@@ -556,6 +800,19 @@ function Vendas({ API }) {
     // Recalcula apenas quando id ou lista de veiculos mudarem.
     }, [veiculoId, veiculos]);
 
+    useEffect(() => {
+        const clienteReserva = clienteReservaExistenteNoSelect(veiculoSelecionado, clientes);
+
+        if (!clienteAlteradoManualmente && clienteReserva) {
+            setClienteId(clienteReserva);
+        }
+    }, [clienteAlteradoManualmente, clientes, veiculoSelecionado]);
+
+    const veiculoSelecionadoReservado = tipoStatusEstoqueVeiculo(veiculoSelecionado) === "reservado";
+    const precisaConcluirSelecionado = precisaConcluirVendaVeiculo(veiculoSelecionado) || statusVendaVeiculo(veiculoSelecionado) === "RESERVADO_PENDENTE_CONCLUSAO";
+    const nomeReservaSelecionada = nomeUsuarioReservaVeiculo(veiculoSelecionado);
+    const mensagemVendaSelecionada = mensagemVendaVeiculo(veiculoSelecionado);
+
     // Converte o valor da venda para numero.
     const valorNumerico = numeroDoCampo(valorVenda);
     // Converte o desconto para numero.
@@ -620,21 +877,47 @@ function Vendas({ API }) {
     // Recria a lista quando juros ou valor parcelado mudarem.
     }, [jurosMensal, valorParcelado]);
 
+    function atualizarClienteManual(evento) {
+        setClienteAlteradoManualmente(true);
+        setClienteId(evento.target.value);
+    }
+
+    function selecionarVeiculoPorId(id, { resetarOverrideCliente = true } = {}) {
+        const idSelecionado = String(id || "");
+        const veiculo = veiculos.find((item) => String(idVeiculo(item)) === idSelecionado);
+
+        if (resetarOverrideCliente) {
+            setClienteAlteradoManualmente(false);
+        }
+
+        setVeiculoId(idSelecionado);
+
+        if (!veiculo) {
+            return;
+        }
+
+        setValorVenda(String(veiculo.preco || 0));
+        setValorRecebido(String(veiculo.preco || 0));
+
+        const clienteReserva = clienteReservaExistenteNoSelect(veiculo, clientes);
+
+        if (clienteReserva) {
+            setClienteId(clienteReserva);
+        }
+    }
+
     // Atualiza o veiculo selecionado e seus valores quando o select muda.
     function trocarVeiculo(e) {
-        // Pega o id escolhido no select.
-        const id = e.target.value;
-        // Procura o veiculo completo na lista.
-        const veiculo = veiculos.find((item) => String(idVeiculo(item)) === id);
+        selecionarVeiculoPorId(e.target.value, { resetarOverrideCliente: true });
+    }
 
-        // Salva o novo id selecionado.
-        setVeiculoId(id);
-
-        // Se encontrou o veiculo, atualiza valores com o preco dele.
-        if (veiculo) {
-            setValorVenda(String(veiculo.preco));
-            setValorRecebido(String(veiculo.preco));
+    function concluirVendaDaPendencia(id) {
+        if (!id) {
+            return;
         }
+
+        selecionarVeiculoPorId(id, { resetarOverrideCliente: true });
+        subirParaTopo();
     }
 
     // Salva o arquivo escolhido no input de comprovante.
@@ -849,6 +1132,7 @@ function Vendas({ API }) {
             setVendaFinalizada(true);
             // Mostra mensagem de sucesso da API ou texto padrao.
             mostrarMensagem("sucesso", dados.mensagem || "Venda cadastrada com sucesso.");
+            await Promise.all([carregarVeiculos(), carregarPendenciasVenda()]);
 
             // Se for Pix e a API retornou dados Pix, deixa o QR Code na tela.
             if (ehPix && aplicarPixDaVenda(dados)) {
@@ -900,6 +1184,67 @@ function Vendas({ API }) {
                 </div>
             )}
 
+            <section className={css.pendenciasBox}>
+                <div className={css.pendenciasTopo}>
+                    <h2>Pendências de venda</h2>
+                    <span>Reservas aguardando conclusão</span>
+                </div>
+
+                {carregandoPendencias && (
+                    <p className={css.pendenciasEstado}>Carregando pendências...</p>
+                )}
+
+                {!carregandoPendencias && erroPendencias && (
+                    <p className={css.mensagemErro}>{erroPendencias}</p>
+                )}
+
+                {!carregandoPendencias && !erroPendencias && pendenciasVenda.length === 0 && (
+                    <p className={css.pendenciasEstado}>Nenhuma pendência de venda no momento.</p>
+                )}
+
+                {!carregandoPendencias && !erroPendencias && pendenciasVenda.length > 0 && (
+                    <div className={css.pendenciasLista}>
+                        {pendenciasVenda.map((pendencia, indice) => {
+                            const idVeiculoItem = idVeiculoPendencia(pendencia);
+                            const statusVendaItem = statusVendaVeiculo(pendencia);
+                            const precisaConcluirItem = precisaConcluirVendaVeiculo(pendencia) || statusVendaItem === "RESERVADO_PENDENTE_CONCLUSAO";
+                            const mensagemVendaItem = mensagemVendaVeiculo(pendencia) || textoValido(pendencia?.mensagem_venda) || textoValido(pendencia?.MENSAGEM_VENDA);
+                            const nomeVeiculoItem = nomeVeiculoPendencia(pendencia) || `Veículo ${idVeiculoItem || indice + 1}`;
+                            const nomeClienteItem = nomeClientePendencia(pendencia) || "-";
+                            const idClienteItem = textoValido(pendencia?.id_usuario_reserva) || textoValido(pendencia?.ID_USUARIO_RESERVA) || "-";
+                            const dataReservaItem = textoValido(pendencia?.data_reserva) || textoValido(pendencia?.DATA_RESERVA) || "-";
+                            const precoItem = Number(pendencia?.preco ?? pendencia?.valor_venda ?? 0);
+
+                            return (
+                                <article key={`${idVeiculoItem || "pendencia"}-${indice}`} className={css.pendenciaCard}>
+                                    <div className={css.pendenciaGrid}>
+                                        <p><strong>Veículo:</strong> {nomeVeiculoItem}</p>
+                                        <p><strong>ID veículo:</strong> {idVeiculoItem || "-"}</p>
+                                        <p><strong>Preço:</strong> {formatarMoeda(precoItem)}</p>
+                                        <p><strong>Cliente reservado:</strong> {nomeClienteItem}</p>
+                                        <p><strong>ID cliente:</strong> {idClienteItem}</p>
+                                        <p><strong>Data reserva:</strong> {dataReservaItem}</p>
+                                        <p><strong>Status:</strong> {textoStatusVendaPainel(statusVendaItem)}</p>
+                                        <p><strong>Mensagem:</strong> {mensagemVendaItem || "-"}</p>
+                                    </div>
+
+                                    <div className={css.pendenciaAcoes}>
+                                        <button
+                                            type="button"
+                                            className={css.botaoConcluirPendencia}
+                                            onClick={() => concluirVendaDaPendencia(idVeiculoItem)}
+                                            disabled={!idVeiculoItem || !precisaConcluirItem}
+                                        >
+                                            Concluir venda
+                                        </button>
+                                    </div>
+                                </article>
+                            );
+                        })}
+                    </div>
+                )}
+            </section>
+
             {/* Formulario principal de cadastro da venda. */}
             <form className={css.card} onSubmit={salvarVenda}>
                 {/* Coluna esquerda com cliente, veiculo e comentarios. */}
@@ -908,7 +1253,7 @@ function Vendas({ API }) {
                     <label className={css.campo}>
                         <span>Cliente</span>
                         {/* Select controlado pelo estado clienteId. */}
-                        <select value={clienteId} onChange={(e) => setClienteId(e.target.value)} disabled={carregandoClientes || clientes.length === 0}>
+                        <select value={clienteId} onChange={atualizarClienteManual} disabled={carregandoClientes || clientes.length === 0}>
                             {/* Opcao inicial, mudando texto enquanto carrega. */}
                             <option value="">
                                 {carregandoClientes ? "Carregando clientes..." : "Selecione um cliente"}
@@ -945,6 +1290,15 @@ function Vendas({ API }) {
 
                     {/* Exibe erro de veiculos quando houver. */}
                     {erroVeiculos && <p className={css.mensagemErro}>{erroVeiculos}</p>}
+
+                    {veiculoSelecionadoReservado && (
+                        <p className={css.avisoReserva}>
+                            {nomeReservaSelecionada
+                                ? `Este veículo está reservado para ${nomeReservaSelecionada}${precisaConcluirSelecionado ? " e precisa concluir a venda." : "."}`
+                                : `Este veículo está reservado${precisaConcluirSelecionado ? " e precisa concluir a venda." : "."}`}
+                            {mensagemVendaSelecionada ? ` ${mensagemVendaSelecionada}` : ""}
+                        </p>
+                    )}
 
                     {/* Mostra o card do veiculo apenas quando existe veiculo selecionado. */}
                     {veiculoSelecionado && (

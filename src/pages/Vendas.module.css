@@ -12,6 +12,92 @@
     line-height: 1.1;
 }
 
+.pendenciasBox {
+    margin-bottom: 16px;
+    border: 1px solid #e5e5e5;
+    border-radius: 7px;
+    background: #fff;
+    padding: 14px;
+}
+
+.pendenciasTopo {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.pendenciasTopo h2 {
+    margin: 0;
+    font-size: 19px;
+    font-weight: 900;
+}
+
+.pendenciasTopo span {
+    color: #6b7280;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.pendenciasEstado {
+    margin: 0;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.pendenciasLista {
+    display: grid;
+    gap: 10px;
+}
+
+.pendenciaCard {
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    background: #fafafa;
+    padding: 10px;
+}
+
+.pendenciaGrid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(160px, 1fr));
+    gap: 6px 14px;
+}
+
+.pendenciaGrid p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.2;
+}
+
+.pendenciaGrid strong {
+    font-weight: 900;
+}
+
+.pendenciaAcoes {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.botaoConcluirPendencia {
+    min-height: 32px;
+    border: none;
+    border-radius: 6px;
+    background: #111;
+    color: #fff;
+    padding: 0 12px;
+    font-size: 13px;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.botaoConcluirPendencia:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .card {
     display: grid;
     grid-template-columns: minmax(280px, 1fr) minmax(280px, 1fr);
@@ -164,6 +250,17 @@
     border-radius: 8px;
     background: #fff7f7;
     color: #9c1c1c;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 800;
+}
+
+.avisoReserva {
+    margin: 0;
+    border: 1px solid #f2d28b;
+    border-radius: 8px;
+    background: #fff9ec;
+    color: #8b5d00;
     padding: 10px;
     font-size: 13px;
     font-weight: 800;
@@ -619,6 +716,15 @@
     .acoes {
         margin-top: 0;
     }
+
+    .pendenciasTopo {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .pendenciaGrid {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 720px) {
@@ -679,6 +785,18 @@
 
     .pixResultado {
         grid-template-columns: 1fr;
+    }
+
+    .pendenciasBox {
+        padding: 12px 10px;
+    }
+
+    .pendenciaAcoes {
+        justify-content: stretch;
+    }
+
+    .botaoConcluirPendencia {
+        width: 100%;
     }
 
     .pixResultado img {
