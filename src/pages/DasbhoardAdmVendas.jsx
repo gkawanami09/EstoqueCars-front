@@ -353,7 +353,7 @@ function DasbhoardAdmVendas({ API }) {
                 setPixVendas((estado) => ({ ...estado, [idVenda]: null }));
                 setErroPixVendas((estado) => ({
                     ...estado,
-                    [idVenda]: dados.erro || dados.mensagem || "Erro ao carregar Pix da venda."
+                    [idVenda]: dados.erro || dados.mensagem || "Pix indisponivel para esta venda."
                 }));
                 return;
             }
@@ -362,7 +362,7 @@ function DasbhoardAdmVendas({ API }) {
         } catch {
             setErroPixVendas((estado) => ({
                 ...estado,
-                [idVenda]: "Nao foi possivel conectar ao servidor para carregar o Pix da venda."
+                [idVenda]: "Nao foi possivel carregar o Pix agora. Verifique se o servidor esta aberto e tente novamente."
             }));
         } finally {
             setCarregandoPixVendas((estado) => ({ ...estado, [idVenda]: false }));
