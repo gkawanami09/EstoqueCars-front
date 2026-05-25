@@ -5,6 +5,50 @@ import { useNavigate, useParams } from "react-router-dom";
 // Importa os estilos desta pagina.
 import css from "./DetalhesVeiculos.module.css";
 
+const CHAVE_FAVORITOS = "carros_favoritos";
+
+function lerFavoritos() {
+    try {
+        const favoritos = JSON.parse(localStorage.getItem(CHAVE_FAVORITOS) || "[]");
+        return Array.isArray(favoritos) ? favoritos : [];
+    } catch {
+        return [];
+    }
+}
+
+function salvarFavoritos(favoritos) {
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify(favoritos));
+    window.dispatchEvent(new Event("favoritos-carros-atualizados"));
+}
+
+function idFavorito(carro) {
+    return String(carro?.id || carro?.id_carro || carro?.id_veiculo || carro?.ID_VEICULO || carro?.ID_CARRO || "");
+}
+
+function carroEstaFavoritado(id) {
+    const idAtual = String(id || "");
+    return Boolean(idAtual && lerFavoritos().some((carro) => idFavorito(carro) === idAtual));
+}
+
+function alternarFavoritoCarro(carro) {
+    const id = idFavorito(carro);
+
+    if (!id) {
+        return false;
+    }
+
+    const favoritos = lerFavoritos();
+    const jaFavoritado = favoritos.some((item) => idFavorito(item) === id);
+
+    if (jaFavoritado) {
+        salvarFavoritos(favoritos.filter((item) => idFavorito(item) !== id));
+        return false;
+    }
+
+    salvarFavoritos([{ ...carro, id }, ...favoritos]);
+    return true;
+}
+
 // Le respostas da API mesmo quando a rota retorna corpo vazio.
 async function lerRespostaJson(resposta) {
     // Le o corpo da resposta como texto antes de tentar converter.
@@ -70,7 +114,11 @@ function DetalhesVeiculos({ API }) {
 
     const [reservando, setReservando] = useState(false);
 
+    const [cancelandoReserva, setCancelandoReserva] = useState(false);
+
     const [mensagemReserva, setMensagemReserva] = useState(null);
+
+    const [favorito, setFavorito] = useState(false);
 
     // Guarda erro ao buscar as manutencoes.
     const [erroManutencoes, setErroManutencoes] = useState("");
@@ -372,6 +420,40 @@ function DetalhesVeiculos({ API }) {
         return carro?.id || carro?.id_carro || carro?.id_veiculo || carro?.ID_VEICULO || carro?.ID_CARRO;
     }
 
+    function idUsuarioLogado() {
+        return String(usuarioLogado.id_usuario || usuarioLogado.id_user || usuarioLogado.id || usuarioLogado.ID_USUARIO || "");
+    }
+
+    function idUsuarioReserva() {
+        return String(
+            carro?.id_usuario_reserva ||
+            carro?.ID_USUARIO_RESERVA ||
+            carro?.id_usuario_reservado ||
+            carro?.ID_USUARIO_RESERVADO ||
+            carro?.id_cliente_reserva ||
+            carro?.ID_CLIENTE_RESERVA ||
+            carro?.reserva?.id_usuario ||
+            carro?.reserva?.id_cliente ||
+            ""
+        );
+    }
+
+    const veiculoReservado = tipoStatusEstoque(carro?.status_estoque) === "indisponivel";
+    const usuarioDonoReserva = Boolean(idUsuarioLogado() && idUsuarioReserva() && idUsuarioLogado() === idUsuarioReserva());
+    const podeCancelarReserva = veiculoReservado && (isPainelAdm || usuarioDonoReserva);
+
+    useEffect(() => {
+        setFavorito(carroEstaFavoritado(idCarro()));
+    }, [carro]);
+
+    function favoritarVeiculo() {
+        if (!carro) {
+            return;
+        }
+
+        setFavorito(alternarFavoritoCarro(carro));
+    }
+
     async function reservarVeiculo() {
         const idVeiculo = idCarro();
 
@@ -435,6 +517,58 @@ function DetalhesVeiculos({ API }) {
         }
     }
 
+    async function cancelarReservaVeiculo() {
+        const idVeiculo = idCarro();
+
+        if (!idVeiculo || !podeCancelarReserva) {
+            return;
+        }
+
+        setCancelandoReserva(true);
+        setMensagemReserva(null);
+
+        try {
+            const resposta = await fetch(`${API}/cancelar_reserva_carro/${idVeiculo}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    ...cabecalhoAutorizacao()
+                },
+                credentials: "include",
+                body: JSON.stringify({ id_usuario: isPainelAdm ? "" : idUsuarioLogado() })
+            });
+            const dados = await lerRespostaJson(resposta);
+
+            if (!resposta.ok) {
+                setMensagemReserva({
+                    tipo: "erro",
+                    texto: dados.erro || dados.mensagem || "Nao foi possivel cancelar esta reserva."
+                });
+                return;
+            }
+
+            setCarro((veiculoAtual) => ({
+                ...veiculoAtual,
+                status_estoque: 1,
+                id_usuario_reserva: null,
+                nome_usuario_reserva: null,
+                precisa_concluir_venda: false,
+                status_venda: "DISPONIVEL"
+            }));
+            setMensagemReserva({
+                tipo: "sucesso",
+                texto: dados.mensagem || "Reserva cancelada com sucesso."
+            });
+        } catch {
+            setMensagemReserva({
+                tipo: "erro",
+                texto: "Nao foi possivel conectar ao servidor para cancelar a reserva."
+            });
+        } finally {
+            setCancelandoReserva(false);
+        }
+    }
+
     // Enquanto a API ainda busca o carro, mostra uma mensagem de carregamento.
     if (carregando) {
         return (
@@ -479,6 +613,16 @@ function DetalhesVeiculos({ API }) {
                     <p>{valor(carro.marca)} - {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
                 </div>
 
+                <button
+                    type="button"
+                    className={`${css.favoritar} ${favorito ? css.favorito_ativo : ""}`}
+                    onClick={favoritarVeiculo}
+                    aria-label={favorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                >
+                    <span>{favorito ? "♥" : "♡"}</span>
+                    {favorito ? "Favoritado" : "Favoritar"}
+                </button>
+
                 {/* Usuario comum nao ve este botao; apenas vendedor/admin consegue editar. */}
                 {isPainelAdm && (
                     <button
@@ -522,7 +666,7 @@ function DetalhesVeiculos({ API }) {
                         <p>{valor(carro.descricao)}</p>
                     </div>
 
-                    {!isPainelAdm && (
+                    {(!isPainelAdm || podeCancelarReserva) && (
                         <div className={css.reserva_area}>
                             {mensagemReserva && (
                                 <p className={`${css.mensagem_reserva} ${mensagemReserva.tipo === "erro" ? css.mensagem_reserva_erro : ""}`}>
@@ -537,6 +681,17 @@ function DetalhesVeiculos({ API }) {
                             >
                                 {!usuarioEstaLogado ? "Entrar para reservar" : reservando ? "Reservando..." : tipoStatusEstoque(carro.status_estoque) === "estoque" ? "Reservar veículo" : "Veículo reservado"}
                             </button>
+
+                            {podeCancelarReserva && (
+                                <button
+                                    type="button"
+                                    className={css.cancelar_reserva}
+                                    onClick={cancelarReservaVeiculo}
+                                    disabled={cancelandoReserva}
+                                >
+                                    {cancelandoReserva ? "Cancelando..." : "Cancelar reserva"}
+                                </button>
+                            )}
                         </div>
                     )}
 

@@ -6,6 +6,50 @@ import { useNavigate } from "react-router-dom";
 import css from "./Dashboard.module.css";
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
+const CHAVE_FAVORITOS = "carros_favoritos";
+
+function lerFavoritos() {
+    try {
+        const favoritos = JSON.parse(localStorage.getItem(CHAVE_FAVORITOS) || "[]");
+        return Array.isArray(favoritos) ? favoritos : [];
+    } catch {
+        return [];
+    }
+}
+
+function salvarFavoritos(favoritos) {
+    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify(favoritos));
+    window.dispatchEvent(new Event("favoritos-carros-atualizados"));
+}
+
+function idFavorito(carro) {
+    return String(carro?.id || carro?.id_carro || carro?.id_veiculo || carro?.ID_VEICULO || carro?.ID_CARRO || "");
+}
+
+function carroEstaFavoritado(id) {
+    const idAtual = String(id || "");
+    return Boolean(idAtual && lerFavoritos().some((carro) => idFavorito(carro) === idAtual));
+}
+
+function alternarFavoritoCarro(carro) {
+    const id = idFavorito(carro);
+
+    if (!id) {
+        return false;
+    }
+
+    const favoritos = lerFavoritos();
+    const jaFavoritado = favoritos.some((item) => idFavorito(item) === id);
+
+    if (jaFavoritado) {
+        salvarFavoritos(favoritos.filter((item) => idFavorito(item) !== id));
+        return false;
+    }
+
+    salvarFavoritos([{ ...carro, id }, ...favoritos]);
+    return true;
+}
+
 // Lista fixa de categorias exibidas nos botoes de filtro.
 const categorias = ["Sedan", "Elétrico", "Esportivo", "Caminhonete", "SUV"];
 
@@ -51,6 +95,7 @@ function Dashboard({ API }) {
     const [mensagemPixParcelas, setMensagemPixParcelas] = useState({});
     const [pagandoPixParcelas, setPagandoPixParcelas] = useState({});
     const [parcelaPixSelecionada, setParcelaPixSelecionada] = useState({});
+    const [versaoFavoritos, setVersaoFavoritos] = useState(0);
    // Cria a funcao para navegar para outras paginas.
     const navigate = useNavigate();
     // Cria um objeto vazio para receber o usuario salvo.
@@ -220,6 +265,15 @@ function Dashboard({ API }) {
     useEffect(() => {
         carregarCompras();
     }, [carregarCompras]);
+
+    useEffect(() => {
+        function atualizarFavoritos() {
+            setVersaoFavoritos((versao) => versao + 1);
+        }
+
+        window.addEventListener("favoritos-carros-atualizados", atualizarFavoritos);
+        return () => window.removeEventListener("favoritos-carros-atualizados", atualizarFavoritos);
+    }, []);
 
     // Mostra na vitrine do cliente apenas veículos disponíveis para compra.
     const carrosDisponiveis = carros.filter((carro) => tipoStatusEstoque(carro) === "estoque");
@@ -889,6 +943,18 @@ function Dashboard({ API }) {
                                         e.currentTarget.src = "/IconCar.png";
                                     }}
                                 />
+                                <button
+                                    type="button"
+                                    className={`${css.botao_favorito} ${carroEstaFavoritado(idCarro(carro), versaoFavoritos) ? css.favorito_ativo : ""}`}
+                                    onClick={() => {
+                                        setVersaoFavoritos((versao) => versao + 1);
+                                        alternarFavoritoCarro(carro);
+                                    }}
+                                    aria-label={carroEstaFavoritado(idCarro(carro)) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                                    title={carroEstaFavoritado(idCarro(carro)) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                                >
+                                    {carroEstaFavoritado(idCarro(carro)) ? "♥" : "♡"}
+                                </button>
                             </div>
 
                             {/* Bloco de informacoes principais do carro. */}

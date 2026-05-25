@@ -67,7 +67,7 @@ function App({ API }) {
           <Route element={<ProtectedRoute API={API} />}>
             <Route path="/dashboard" element={<Dashboard API={API} />} />
             <Route path="/Dashboard" element={<Dashboard API={API} />} />
-            <Route path="/favoritos" element={<Favoritos />} />
+            <Route path="/favoritos" element={<Favoritos API={API} />} />
             <Route path="/minhaConta" element={<MinhaConta API={API} />} />
             <Route path="/dashboardAdm" element={<DashboardAdm  API={API} />} />
             <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos API={API} />} />
