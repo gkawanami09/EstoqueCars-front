@@ -33,7 +33,6 @@ const rotasSomenteAdm = [
 
 const rotasUsuario = [
     "/dashboard",
-    "/favoritos",
     "/minhaconta",
     "/minha-conta"
 ];

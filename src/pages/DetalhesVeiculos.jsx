@@ -5,50 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 // Importa os estilos desta pagina.
 import css from "./DetalhesVeiculos.module.css";
 
-const CHAVE_FAVORITOS = "carros_favoritos";
-
-function lerFavoritos() {
-    try {
-        const favoritos = JSON.parse(localStorage.getItem(CHAVE_FAVORITOS) || "[]");
-        return Array.isArray(favoritos) ? favoritos : [];
-    } catch {
-        return [];
-    }
-}
-
-function salvarFavoritos(favoritos) {
-    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify(favoritos));
-    window.dispatchEvent(new Event("favoritos-carros-atualizados"));
-}
-
-function idFavorito(carro) {
-    return String(carro?.id || carro?.id_carro || carro?.id_veiculo || carro?.ID_VEICULO || carro?.ID_CARRO || "");
-}
-
-function carroEstaFavoritado(id) {
-    const idAtual = String(id || "");
-    return Boolean(idAtual && lerFavoritos().some((carro) => idFavorito(carro) === idAtual));
-}
-
-function alternarFavoritoCarro(carro) {
-    const id = idFavorito(carro);
-
-    if (!id) {
-        return false;
-    }
-
-    const favoritos = lerFavoritos();
-    const jaFavoritado = favoritos.some((item) => idFavorito(item) === id);
-
-    if (jaFavoritado) {
-        salvarFavoritos(favoritos.filter((item) => idFavorito(item) !== id));
-        return false;
-    }
-
-    salvarFavoritos([{ ...carro, id }, ...favoritos]);
-    return true;
-}
-
 // Le respostas da API mesmo quando a rota retorna corpo vazio.
 async function lerRespostaJson(resposta) {
     // Le o corpo da resposta como texto antes de tentar converter.
@@ -117,8 +73,6 @@ function DetalhesVeiculos({ API }) {
     const [cancelandoReserva, setCancelandoReserva] = useState(false);
 
     const [mensagemReserva, setMensagemReserva] = useState(null);
-
-    const [favorito, setFavorito] = useState(false);
 
     // Guarda erro ao buscar as manutencoes.
     const [erroManutencoes, setErroManutencoes] = useState("");
@@ -442,18 +396,6 @@ function DetalhesVeiculos({ API }) {
     const usuarioDonoReserva = Boolean(idUsuarioLogado() && idUsuarioReserva() && idUsuarioLogado() === idUsuarioReserva());
     const podeCancelarReserva = veiculoReservado && (isPainelAdm || usuarioDonoReserva);
 
-    useEffect(() => {
-        setFavorito(carroEstaFavoritado(idCarro()));
-    }, [carro]);
-
-    function favoritarVeiculo() {
-        if (!carro) {
-            return;
-        }
-
-        setFavorito(alternarFavoritoCarro(carro));
-    }
-
     async function reservarVeiculo() {
         const idVeiculo = idCarro();
 
@@ -612,16 +554,6 @@ function DetalhesVeiculos({ API }) {
                     {/* Mostra marca e anos do veiculo no cabecalho. */}
                     <p>{valor(carro.marca)} - {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
                 </div>
-
-                <button
-                    type="button"
-                    className={`${css.favoritar} ${favorito ? css.favorito_ativo : ""}`}
-                    onClick={favoritarVeiculo}
-                    aria-label={favorito ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                >
-                    <span>{favorito ? "♥" : "♡"}</span>
-                    {favorito ? "Favoritado" : "Favoritar"}
-                </button>
 
                 {/* Usuario comum nao ve este botao; apenas vendedor/admin consegue editar. */}
                 {isPainelAdm && (

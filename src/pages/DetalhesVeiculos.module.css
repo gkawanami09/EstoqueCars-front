@@ -30,7 +30,6 @@
 
 .voltar,
 .editar,
-.favoritar,
 .estado_erro button {
     border: none;
     border-radius: 8px;
@@ -52,26 +51,6 @@
     background: var(--cor-secundaria);
     color: var(--cor-texto-botao);
     box-shadow: 0 10px 18px rgba(0, 0, 0, 0.16);
-}
-
-.favoritar {
-    min-width: 128px;
-    height: 46px;
-    padding: 0 18px;
-    border: 1px solid #e5e5e5;
-    background: #fff;
-    color: #111;
-    box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
-}
-
-.favoritar span {
-    display: none;
-}
-
-.favorito_ativo {
-    border-color: var(--cor-principal);
-    background: var(--cor-principal);
-    color: #fff;
 }
 
 .hero {

@@ -5,7 +5,6 @@ import Cadastro from "./pages/Cadastro.jsx";
 import Login from "./pages/Login";
 import ConfirmarEmail from "./pages/ConfirmarEmail";
 import CodigoRecupera from "./pages/CodigoRecupera";
-import Favoritos from "./pages/Favoritos";
 import Erro404 from "./pages/Erro404";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 import Container from "./components/Container/Container";
@@ -67,7 +66,6 @@ function App({ API }) {
           <Route element={<ProtectedRoute API={API} />}>
             <Route path="/dashboard" element={<Dashboard API={API} />} />
             <Route path="/Dashboard" element={<Dashboard API={API} />} />
-            <Route path="/favoritos" element={<Favoritos API={API} />} />
             <Route path="/minhaConta" element={<MinhaConta API={API} />} />
             <Route path="/dashboardAdm" element={<DashboardAdm  API={API} />} />
             <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos API={API} />} />

@@ -1,46 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const CHAVE_FAVORITOS = "carros_favoritos";
-
-function lerFavoritos() {
-    try {
-        const favoritos = JSON.parse(localStorage.getItem(CHAVE_FAVORITOS) || "[]");
-        return Array.isArray(favoritos) ? favoritos : [];
-    } catch {
-        return [];
-    }
-}
-
-function salvarFavoritos(favoritos) {
-    localStorage.setItem(CHAVE_FAVORITOS, JSON.stringify(favoritos));
-    window.dispatchEvent(new Event("favoritos-carros-atualizados"));
-}
-
-function carroEstaFavoritado(id) {
-    const idAtual = String(id || "");
-    return Boolean(idAtual && lerFavoritos().some((carro) => String(idCarro(carro)) === idAtual));
-}
-
-function alternarFavoritoCarro(carro) {
-    const id = String(idCarro(carro) || "");
-
-    if (!id) {
-        return false;
-    }
-
-    const favoritos = lerFavoritos();
-    const jaFavoritado = favoritos.some((item) => String(idCarro(item)) === id);
-
-    if (jaFavoritado) {
-        salvarFavoritos(favoritos.filter((item) => String(idCarro(item)) !== id));
-        return false;
-    }
-
-    salvarFavoritos([{ ...carro, id }, ...favoritos]);
-    return true;
-}
-
 const categorias = [
     { nome: "Sedan", rota: "/CarrosSedan" },
     { nome: "Elétrico", rota: "/CarrosEletricos" },
@@ -121,7 +81,6 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
     const [carros, setCarros] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState("");
-    const [versaoFavoritos, setVersaoFavoritos] = useState(0);
 
     const carregarCarros = useCallback(async () => {
         setCarregando(true);
@@ -153,15 +112,6 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
     useEffect(() => {
         carregarCarros();
     }, [carregarCarros]);
-
-    useEffect(() => {
-        function atualizarFavoritos() {
-            setVersaoFavoritos((versao) => versao + 1);
-        }
-
-        window.addEventListener("favoritos-carros-atualizados", atualizarFavoritos);
-        return () => window.removeEventListener("favoritos-carros-atualizados", atualizarFavoritos);
-    }, []);
 
     const destaque = useMemo(() => {
         const fallback = destaquesFallback[categoriaAtual];
@@ -268,19 +218,6 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
                                     e.currentTarget.src = "/IconCar.png";
                                 }}
                             />
-                            <button
-                                type="button"
-                                className={`${css.botao_favorito} ${carroEstaFavoritado(idCarro(carro), versaoFavoritos) ? css.favorito_ativo : ""}`}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    setVersaoFavoritos((versao) => versao + 1);
-                                    alternarFavoritoCarro(carro);
-                                }}
-                                aria-label={carroEstaFavoritado(idCarro(carro)) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                                title={carroEstaFavoritado(idCarro(carro)) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
-                            >
-                                {carroEstaFavoritado(idCarro(carro)) ? "♥" : "♡"}
-                            </button>
                         </div>
 
                         <div className={css.informacoes_card}>

@@ -46,16 +46,6 @@ function NavBar() {
                     </NavLink>
 
                     <NavLink
-                        to="/favoritos"
-                        className={({ isActive }) =>
-                            `${css.link} ${isActive ? css.link_ativo : ""}`.trim()
-                        }
-                    >
-                        <img className={css.icone} src="/ImgNavBar/favorito.png" alt="" aria-hidden="true" />
-                        <span>Favoritos</span>
-                    </NavLink>
-
-                    <NavLink
                         to="/minha-conta"
                         className={({ isActive }) =>
                             `${css.link} ${isActive ? css.link_ativo : ""}`.trim()

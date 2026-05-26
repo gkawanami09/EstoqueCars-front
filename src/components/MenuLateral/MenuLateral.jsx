@@ -53,11 +53,6 @@ function MenuLateral({ aberto = false, aoNavegar }) {
                     Dashboard
                 </button>
 
-                <button type="button" className={classeItem("/favoritos")} onClick={() => navegar("/favoritos")}>
-                    <img src="/IconCoracao.png" alt="Favoritos" className={css.icone_img} />
-                    Favoritos
-                </button>
-
                 <button type="button" className={classeItem("/minhaconta")} onClick={() => navegar("/minhaConta")}>
                     <img src="/IconEngrenagem.png" alt="Minha conta" className={css.icone_img} />
                     Minha conta
