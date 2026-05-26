@@ -86,7 +86,10 @@ function MenuLateralAdm({ aoNavegar, tipoUsuario }) {
                     Vendas
                 </button>
 
-                <button type="button" className={css.menu_item}>
+                <button type="button" 
+                        className={css.menu_item}
+                        onClick={() => navegar("/dashboardAdmEstoque")}
+                >
                     <img src="/ImgNavBar/Estoque.png" alt="Estoque" className={css.icone_img} />
                     Estoque
                 </button>

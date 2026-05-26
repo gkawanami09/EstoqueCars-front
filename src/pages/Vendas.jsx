@@ -986,6 +986,22 @@ function Vendas({ API }) {
         subirParaTopo();
     }
 
+    function limparFormularioVenda() {
+        setClienteId("");
+        setClienteAlteradoManualmente(false);
+        setVeiculoId("");
+        setComentarios("");
+        setComprovante(null);
+        setValorVenda("");
+        setValorRecebido("");
+        setDesconto("");
+        setStatus(statusEmAndamento);
+        setFormaPagamento("");
+        setParcelasFinanciamento(48);
+        setDataVenda(dataHoraAtualParaInput());
+        setVendaFinalizada(false);
+    }
+
     // Copia o codigo Pix copia e cola para a area de transferencia.
     async function copiarPix() {
         // Se nao houver codigo Pix, nao faz nada.
@@ -1165,14 +1181,25 @@ function Vendas({ API }) {
 
             // Marca a venda como finalizada para bloquear novo envio.
             setVendaFinalizada(true);
+            setFormaPagamento("");
+            setStatus(statusEmAndamento);
             // Mostra mensagem de sucesso da API ou texto padrao.
             mostrarMensagem("sucesso", dados.mensagem || "Venda cadastrada com sucesso.");
             await Promise.all([carregarVeiculos(), carregarPendenciasVenda()]);
 
             // Se for Pix e a API retornou dados Pix, deixa o QR Code na tela.
             if (ehPix && aplicarPixDaVenda(dados)) {
+                setClienteId("");
+                setClienteAlteradoManualmente(false);
+                setVeiculoId("");
+                setValorVenda("");
+                setValorRecebido("");
+                setDesconto("");
+                setComentarios("");
                 return;
             }
+
+            limparFormularioVenda();
         // Trata erro de conexao ou falha inesperada.
         } catch {
             // Se era geracao de Pix, mostra erro especifico.

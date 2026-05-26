@@ -140,12 +140,21 @@
     justify-content: center;
 }
 
-.menu_fechado .menu_item img {
+.menu_fechado .botao_sair {
+    justify-content: center;
+}
+
+.menu_fechado .menu_item img,
+.menu_fechado .botao_sair img {
     margin: 0;
 }
 
-.menu_fechado .menu_item {
+.menu_fechado .menu_item,
+.menu_fechado .botao_sair {
     font-size: 0;
+    gap: 0;
+    padding-left: 0;
+    padding-right: 0;
 }
 
 .menu_fechado .logo {

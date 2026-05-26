@@ -29,6 +29,14 @@ function cabecalhoAutorizacao() {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+function extrairListaCarros(dados) {
+    if (Array.isArray(dados)) {
+        return dados;
+    }
+
+    return dados?.carros || dados?.veiculos || dados?.veiculo || [];
+}
+
 // Tela que mostra todos os detalhes de um veiculo especifico.
 function DetalhesVeiculos({ API }) {
     // Pega o parametro ":id" da rota /detalhesVeiculos/:id.
@@ -154,7 +162,7 @@ function DetalhesVeiculos({ API }) {
             }
 
             // Procura o carro da lista que tem o mesmo ID recebido pela URL.
-            const veiculoEncontrado = (dados.carros || []).find((item) => {
+            const veiculoEncontrado = extrairListaCarros(dados).find((item) => {
                 // Aceita varios nomes de ID porque cada API pode devolver diferente.
                 const idVeiculo = item.id || item.id_carro || item.id_veiculo || item.ID_VEICULO || item.ID_CARRO;
                 return String(idVeiculo) === String(id);
@@ -205,7 +213,7 @@ function DetalhesVeiculos({ API }) {
             return "vendido";
         }
 
-        if (status === "3" || status.includes("indispon")) {
+        if (status === "3" || status.includes("indispon") || status.includes("reserv")) {
             return "indisponivel";
         }
 
@@ -379,6 +387,10 @@ function DetalhesVeiculos({ API }) {
     }
 
     function idUsuarioReserva() {
+        const reserva = carro?.reserva || carro?.RESERVA || {};
+        const usuarioReserva = reserva?.usuario || reserva?.USUARIO || {};
+        const clienteReserva = reserva?.cliente || reserva?.CLIENTE || {};
+
         return String(
             carro?.id_usuario_reserva ||
             carro?.ID_USUARIO_RESERVA ||
@@ -386,8 +398,18 @@ function DetalhesVeiculos({ API }) {
             carro?.ID_USUARIO_RESERVADO ||
             carro?.id_cliente_reserva ||
             carro?.ID_CLIENTE_RESERVA ||
-            carro?.reserva?.id_usuario ||
-            carro?.reserva?.id_cliente ||
+            reserva?.id_usuario ||
+            reserva?.ID_USUARIO ||
+            reserva?.id_cliente ||
+            reserva?.ID_CLIENTE ||
+            usuarioReserva?.id_usuario ||
+            usuarioReserva?.ID_USUARIO ||
+            usuarioReserva?.id ||
+            usuarioReserva?.ID ||
+            clienteReserva?.id_usuario ||
+            clienteReserva?.ID_USUARIO ||
+            clienteReserva?.id ||
+            clienteReserva?.ID ||
             ""
         );
     }
@@ -441,9 +463,13 @@ function DetalhesVeiculos({ API }) {
                 ...veiculoAtual,
                 status_estoque: 3,
                 id_usuario_reserva: dados.id_usuario_reserva ?? veiculoAtual?.id_usuario_reserva,
+                ID_USUARIO_RESERVA: dados.id_usuario_reserva ?? veiculoAtual?.ID_USUARIO_RESERVA,
                 nome_usuario_reserva: dados.nome_usuario_reserva ?? veiculoAtual?.nome_usuario_reserva,
+                NOME_USUARIO_RESERVA: dados.nome_usuario_reserva ?? veiculoAtual?.NOME_USUARIO_RESERVA,
                 precisa_concluir_venda: dados.precisa_concluir_venda ?? true,
-                status_venda: dados.status_venda ?? "RESERVADO_PENDENTE_CONCLUSAO"
+                PRECISA_CONCLUIR_VENDA: dados.precisa_concluir_venda ?? true,
+                status_venda: dados.status_venda ?? "RESERVADO_PENDENTE_CONCLUSAO",
+                STATUS_VENDA: dados.status_venda ?? "RESERVADO_PENDENTE_CONCLUSAO"
             }));
             setMensagemReserva({
                 tipo: "sucesso",
@@ -491,11 +517,23 @@ function DetalhesVeiculos({ API }) {
 
             setCarro((veiculoAtual) => ({
                 ...veiculoAtual,
-                status_estoque: 1,
+                status_estoque: dados.status_estoque ?? 1,
                 id_usuario_reserva: null,
+                ID_USUARIO_RESERVA: null,
+                id_usuario_reservado: null,
+                ID_USUARIO_RESERVADO: null,
+                id_cliente_reserva: null,
+                ID_CLIENTE_RESERVA: null,
                 nome_usuario_reserva: null,
+                NOME_USUARIO_RESERVA: null,
+                nome_cliente_reserva: null,
+                NOME_CLIENTE_RESERVA: null,
+                reserva: null,
+                RESERVA: null,
                 precisa_concluir_venda: false,
-                status_venda: "DISPONIVEL"
+                PRECISA_CONCLUIR_VENDA: false,
+                status_venda: dados.status_venda ?? "DISPONIVEL",
+                STATUS_VENDA: dados.status_venda ?? "DISPONIVEL"
             }));
             setMensagemReserva({
                 tipo: "sucesso",
