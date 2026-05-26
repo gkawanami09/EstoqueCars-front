@@ -126,3 +126,60 @@
         padding: 12px 16px;
     }
 }
+
+.menu_lateral {
+    transition: 0.3s;
+    overflow: hidden;
+}
+
+.menu_fechado {
+    width: 90px;
+}
+
+.menu_fechado .menu_item {
+    justify-content: center;
+}
+
+.menu_fechado .menu_item img {
+    margin: 0;
+}
+
+.menu_fechado .menu_item {
+    font-size: 0;
+}
+
+.menu_fechado .logo {
+    width: 55px;
+}
+
+.botao_toggle {
+    position: absolute;
+    top: 20px;
+    right: 18px;
+    width: 16px;
+    height: 11px;
+
+    border: none;
+    border-radius: 50%;
+
+    background: #000;
+    color: white;
+
+    cursor: pointer;
+    z-index: 999;
+
+    font-size: 38px;
+    font-weight: bold;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+
+    transition: 0.3s;
+}
+
+.botao_toggle:hover {
+    transform: scale(1.08);
+}

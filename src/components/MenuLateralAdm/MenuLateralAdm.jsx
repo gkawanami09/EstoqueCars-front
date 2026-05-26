@@ -2,11 +2,12 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import css from "./MenuLateralAdm.module.css";
 import { useEffect, useState } from "react";
 
-function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
+function MenuLateralAdm({ aoNavegar, tipoUsuario }) {
     const navigate = useNavigate();
     const location = useLocation();
     const isAdm = Number(tipoUsuario) === 2;
     const [logoUrl, setLogoUrl] = useState(() => localStorage.getItem("logo_site_url") || "/ImgNavBar/LogoNav.png");
+    const [fechado, setFechado] = useState(false);
 
     useEffect(() => {
         function atualizarLogo() {
@@ -35,7 +36,13 @@ function MenuLateralAdm({ aberto = false, aoNavegar, tipoUsuario }) {
     }
 
     return (
-        <aside className={`${css.menu_lateral} ${aberto ? css.menu_aberto : ""}`}>
+        <aside className={`${css.menu_lateral} ${fechado ? css.menu_fechado : ""}`}>
+            <button
+                className={css.botao_toggle}
+                onClick={() => setFechado(!fechado)}
+            >
+                {fechado ? "›" : "‹"}
+            </button>
             <div className={css.logo_container}>
                 <Link to = "/">
                 <img
