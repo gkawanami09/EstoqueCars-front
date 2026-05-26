@@ -60,11 +60,11 @@ function formatarData(valor) {
     }
 
     const texto = String(valor);
-    const dataIso = texto.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    const dataIso = texto.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2}))?/);
 
     if (dataIso) {
-        const [, ano, mes, dia] = dataIso;
-        return `${dia}/${mes}/${ano}`;
+        const [, ano, mes, dia, hora, minuto] = dataIso;
+        return hora && minuto ? `${dia}/${mes}/${ano} ${hora}:${minuto}` : `${dia}/${mes}/${ano}`;
     }
 
     const data = new Date(valor);
@@ -73,7 +73,13 @@ function formatarData(valor) {
         return texto;
     }
 
-    return data.toLocaleDateString("pt-BR");
+    return data.toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
 }
 
 function formatarMoeda(valor) {

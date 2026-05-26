@@ -150,6 +150,41 @@ function formatarDataParaApi(data) {
     return `${dia}/${mes}/${ano} ${horaCampo}`;
 }
 
+function formatarDataHora(valor) {
+    if (!valor) {
+        return "-";
+    }
+
+    const texto = String(valor);
+    const dataIso = texto.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
+
+    if (dataIso) {
+        const [, ano, mes, dia, hora, minuto] = dataIso;
+        return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+    }
+
+    const dataBr = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}))?/);
+
+    if (dataBr) {
+        const [, dia, mes, ano, hora, minuto] = dataBr;
+        return hora && minuto ? `${dia}/${mes}/${ano} ${hora}:${minuto}` : `${dia}/${mes}/${ano}`;
+    }
+
+    const data = new Date(valor);
+
+    if (Number.isNaN(data.getTime())) {
+        return texto;
+    }
+
+    return data.toLocaleString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
 // Gera a data e hora atual no formato aceito pelo input datetime-local.
 function dataHoraAtualParaInput() {
     // Captura o momento atual.
@@ -1212,7 +1247,7 @@ function Vendas({ API }) {
                             const nomeVeiculoItem = nomeVeiculoPendencia(pendencia) || `Veículo ${idVeiculoItem || indice + 1}`;
                             const nomeClienteItem = nomeClientePendencia(pendencia) || "-";
                             const idClienteItem = textoValido(pendencia?.id_usuario_reserva) || textoValido(pendencia?.ID_USUARIO_RESERVA) || "-";
-                            const dataReservaItem = textoValido(pendencia?.data_reserva) || textoValido(pendencia?.DATA_RESERVA) || "-";
+                            const dataReservaItem = formatarDataHora(textoValido(pendencia?.data_reserva) || textoValido(pendencia?.DATA_RESERVA));
                             const precoItem = Number(pendencia?.preco ?? pendencia?.valor_venda ?? 0);
 
                             return (
