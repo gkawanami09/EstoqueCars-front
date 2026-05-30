@@ -1,5 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+    alternarFavoritoLocal,
+    aplicarFavoritosLocais,
+    cabecalhoAutorizacao,
+    carroEstaFavoritado,
+    idUsuarioLogado,
+    usuarioPodeFavoritar
+} from "../../utils/favoritos";
 
 const categorias = [
     { nome: "Sedan", rota: "/CarrosSedan" },
@@ -81,6 +89,8 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
     const [carros, setCarros] = useState([]);
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState("");
+    const [favoritandoId, setFavoritandoId] = useState("");
+    const mostrarFavorito = usuarioPodeFavoritar();
 
     const carregarCarros = useCallback(async () => {
         setCarregando(true);
@@ -100,7 +110,7 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
                 return;
             }
 
-            setCarros(dados.carros || []);
+            setCarros(aplicarFavoritosLocais(dados.carros || [], idUsuarioLogado()));
         } catch {
             setErro("Erro de conexão com o servidor.");
             setCarros([]);
@@ -147,6 +157,36 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
         if (event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             abrirDetalhes(carro);
+        }
+    }
+
+    async function favoritarCarro(event, carro) {
+        event.stopPropagation();
+
+        const id = idCarro(carro);
+
+        if (!id || favoritandoId) {
+            return;
+        }
+
+        const favoritoAtual = carroEstaFavoritado(carro);
+        setFavoritandoId(String(id));
+        setErro("");
+        alternarFavoritoLocal({ ...carro, favorito: favoritoAtual }, idUsuarioLogado());
+        setCarros((listaAtual) => listaAtual.map((item) => (
+            String(idCarro(item)) === String(id) ? { ...item, favorito: !favoritoAtual } : item
+        )));
+
+        try {
+            await fetch(`${API}/favoritar_carro/${id}`, {
+                method: "POST",
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
+        } catch {
+            // O favorito fica salvo localmente caso a API de favoritos ainda nao esteja disponivel.
+        } finally {
+            setFavoritandoId("");
         }
     }
 
@@ -232,16 +272,31 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
 
                         <div className={css.area_preco_acao}>
                             <h2 className={css.preco_carro}>{formatarPreco(carro.preco)}</h2>
-                            <button
-                                type="button"
-                                className={css.botao_ver_mais_card}
-                                onClick={(event) => {
-                                    event.stopPropagation();
-                                    abrirDetalhes(carro);
-                                }}
-                            >
-                                Ver Mais
-                            </button>
+                            <div className={css.acoes_card}>
+                                {mostrarFavorito && (
+                                    <button
+                                        type="button"
+                                        className={`${css.botao_favorito} ${carroEstaFavoritado(carro) ? css.favorito_ativo : ""}`}
+                                        onClick={(event) => favoritarCarro(event, carro)}
+                                        disabled={favoritandoId === String(idCarro(carro))}
+                                        aria-pressed={carroEstaFavoritado(carro)}
+                                        aria-label={carroEstaFavoritado(carro) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                                        title={carroEstaFavoritado(carro) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
+                                    >
+                                        <span aria-hidden="true">{carroEstaFavoritado(carro) ? "♥" : "♡"}</span>
+                                    </button>
+                                )}
+                                <button
+                                    type="button"
+                                    className={css.botao_ver_mais_card}
+                                    onClick={(event) => {
+                                        event.stopPropagation();
+                                        abrirDetalhes(carro);
+                                    }}
+                                >
+                                    Ver Mais
+                                </button>
+                            </div>
                         </div>
                     </article>
                 ))}

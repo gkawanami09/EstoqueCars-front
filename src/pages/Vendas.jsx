@@ -552,6 +552,7 @@ function Vendas({ API }) {
     const [carregandoPendencias, setCarregandoPendencias] = useState(true);
     // Guarda erro da lista de pendencias.
     const [erroPendencias, setErroPendencias] = useState("");
+    const [cancelandoPendenciaId, setCancelandoPendenciaId] = useState("");
     // Guarda o id do cliente selecionado no formulario.
     const [clienteId, setClienteId] = useState("");
     // Marca quando o cliente foi alterado manualmente apos o auto-preenchimento.
@@ -956,6 +957,43 @@ function Vendas({ API }) {
         subirParaTopo();
     }
 
+    async function cancelarReservaVeiculoPorId(id) {
+        const resposta = await fetch(`${API}/cancelar_reserva_carro/${id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                ...cabecalhoAutorizacao()
+            },
+            credentials: "include",
+            body: JSON.stringify({})
+        });
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok) {
+            throw new Error(dados.erro || dados.mensagem || "Nao foi possivel cancelar a reserva anterior.");
+        }
+
+        return dados;
+    }
+
+    async function cancelarPendenciaReserva(id) {
+        if (!id || cancelandoPendenciaId) {
+            return;
+        }
+
+        setCancelandoPendenciaId(String(id));
+
+        try {
+            const dados = await cancelarReservaVeiculoPorId(id);
+            mostrarMensagem("sucesso", dados.mensagem || "Pendencia de reserva cancelada com sucesso.");
+            await Promise.all([carregarPendenciasVenda(), carregarVeiculos()]);
+        } catch (erroCancelamento) {
+            mostrarMensagem("erro", erroCancelamento.message || "Nao foi possivel conectar ao servidor para cancelar a pendencia.");
+        } finally {
+            setCancelandoPendenciaId("");
+        }
+    }
+
     // Salva o arquivo escolhido no input de comprovante.
     function selecionarComprovante(e) {
         // Pega o primeiro arquivo selecionado ou null.
@@ -1131,6 +1169,33 @@ function Vendas({ API }) {
         return true;
     }
 
+    function idVendaResposta(dados) {
+        return dados?.id_venda || dados?.ID_VENDA || dados?.id || dados?.ID || dados?.venda?.id_venda || dados?.venda?.id;
+    }
+
+    async function buscarPixVendaGerada(dadosVenda) {
+        const idVenda = idVendaResposta(dadosVenda);
+
+        if (!idVenda) {
+            return false;
+        }
+
+        const chavePix = String(chavePixEmpresa || localStorage.getItem("chave_pix_empresa") || "").trim();
+        const params = chavePix ? `?chave_pix=${encodeURIComponent(chavePix)}` : "";
+        const respostaPix = await fetch(`${API}/pix_venda/${idVenda}${params}`, {
+            method: "GET",
+            headers: cabecalhoAutorizacao(),
+            credentials: "include"
+        });
+        const dadosPix = await respostaPix.json().catch(() => ({}));
+
+        if (!respostaPix.ok) {
+            return false;
+        }
+
+        return aplicarPixDaVenda(dadosPix);
+    }
+
     // Envia a venda para a API e, se necessario, tambem trata o Pix retornado.
     async function enviarVenda({ gerarPixVenda = false } = {}) {
         // Evita cadastrar a mesma venda novamente depois de finalizada.
@@ -1181,24 +1246,30 @@ function Vendas({ API }) {
 
             // Marca a venda como finalizada para bloquear novo envio.
             setVendaFinalizada(true);
-            setFormaPagamento("");
             setStatus(statusEmAndamento);
             // Mostra mensagem de sucesso da API ou texto padrao.
             mostrarMensagem("sucesso", dados.mensagem || "Venda cadastrada com sucesso.");
             await Promise.all([carregarVeiculos(), carregarPendenciasVenda()]);
 
-            // Se for Pix e a API retornou dados Pix, deixa o QR Code na tela.
-            if (ehPix && aplicarPixDaVenda(dados)) {
-                setClienteId("");
-                setClienteAlteradoManualmente(false);
-                setVeiculoId("");
-                setValorVenda("");
-                setValorRecebido("");
-                setDesconto("");
-                setComentarios("");
+            if (ehPix) {
+                const pixAplicado = aplicarPixDaVenda(dados) || await buscarPixVendaGerada(dados);
+
+                if (pixAplicado) {
+                    setClienteId("");
+                    setClienteAlteradoManualmente(false);
+                    setVeiculoId("");
+                    setValorVenda("");
+                    setValorRecebido("");
+                    setDesconto("");
+                    setComentarios("");
+                    return;
+                }
+
+                setErroPix("Venda salva, mas o QR Code Pix não foi retornado pela API.");
                 return;
             }
 
+            setFormaPagamento("");
             limparFormularioVenda();
         // Trata erro de conexao ou falha inesperada.
         } catch {
@@ -1298,6 +1369,14 @@ function Vendas({ API }) {
                                             disabled={!idVeiculoItem || !precisaConcluirItem}
                                         >
                                             Concluir venda
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={css.botaoCancelarPendencia}
+                                            onClick={() => cancelarPendenciaReserva(idVeiculoItem)}
+                                            disabled={!idVeiculoItem || cancelandoPendenciaId === String(idVeiculoItem)}
+                                        >
+                                            {cancelandoPendenciaId === String(idVeiculoItem) ? "Cancelando..." : "Cancelar pendência"}
                                         </button>
                                     </div>
                                 </article>
@@ -1534,7 +1613,7 @@ function Vendas({ API }) {
                                 onClick={gerarPix}
                                 disabled={gerandoPix || salvando || vendaFinalizada || !valorComDesconto}
                             >
-                                {vendaFinalizada ? "Venda salva" : gerandoPix ? "Gerando Pix..." : "Salvar e gerar Pix"}
+                                {vendaFinalizada ? "QR Code gerado" : gerandoPix ? "Gerando QR Code..." : "Gerar QR Code Pix"}
                             </button>
 
                             {/* Exibe erro especifico de Pix quando houver. */}

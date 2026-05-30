@@ -421,12 +421,12 @@ function DetalhesVeiculos({ API }) {
     async function reservarVeiculo() {
         const idVeiculo = idCarro();
 
-        if (!idVeiculo || tipoStatusEstoque(carro?.status_estoque) !== "estoque") {
+        if (!usuarioEstaLogado) {
+            navigate("/login");
             return;
         }
 
-        if (!usuarioEstaLogado) {
-            navigate("/login");
+        if (!idVeiculo || tipoStatusEstoque(carro?.status_estoque) !== "estoque") {
             return;
         }
 
@@ -647,7 +647,7 @@ function DetalhesVeiculos({ API }) {
                                 type="button"
                                 className={css.reservar}
                                 onClick={reservarVeiculo}
-                                disabled={reservando || tipoStatusEstoque(carro.status_estoque) !== "estoque"}
+                                disabled={usuarioEstaLogado && (reservando || tipoStatusEstoque(carro.status_estoque) !== "estoque")}
                             >
                                 {!usuarioEstaLogado ? "Entrar para reservar" : reservando ? "Reservando..." : tipoStatusEstoque(carro.status_estoque) === "estoque" ? "Reservar veículo" : "Veículo reservado"}
                             </button>

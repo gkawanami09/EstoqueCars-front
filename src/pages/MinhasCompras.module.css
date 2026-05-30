@@ -1,0 +1,464 @@
+.pagina {
+    min-height: 100vh;
+    width: 100%;
+    padding: 40px;
+    background: #f6f7fa;
+    color: #111;
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+    box-sizing: border-box;
+}
+
+.cabecalho {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px !important;
+}
+
+.cabecalho span {
+    color: var(--cor-principal);
+    font-size: 0.86rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.cabecalho h1 {
+    margin: 4px 0 0 !important;
+    color: #000;
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.cabecalho button {
+    min-height: 42px;
+    border: none;
+    border-radius: 8px;
+    background: var(--preto);
+    color: #fff;
+    padding: 0 18px;
+    font-size: 0.95rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.cabecalho button:hover {
+    background: var(--cor-principal);
+}
+
+.cabecalho button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.resumo {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 22px !important;
+}
+
+.resumo article {
+    display: grid;
+    gap: 6px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.04);
+}
+
+.resumo span {
+    color: #616568;
+    font-size: 0.82rem;
+    font-weight: 850;
+    text-transform: uppercase;
+}
+
+.resumo strong {
+    color: #000;
+    font-size: 1.8rem;
+    font-weight: 900;
+    line-height: 1;
+}
+
+.lista_compras {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+    width: 100%;
+}
+
+.card_compra {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.card_compra_parcelada {
+    grid-column: 1 / -1;
+}
+
+.topo_compra {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.topo_compra span {
+    color: #616568;
+    font-size: 0.8rem;
+    font-weight: 800;
+}
+
+.topo_compra h2 {
+    margin: 4px 0 0;
+    color: #000;
+    font-size: 1.14rem;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+}
+
+.status_compra {
+    flex: 0 0 auto;
+    border-radius: 999px;
+    padding: 7px 11px;
+    font-size: 0.78rem;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.compra_pago {
+    background: #dff8e8;
+    color: #087a3d;
+}
+
+.compra_andamento {
+    background: #fff2bf;
+    color: #9a4c00;
+}
+
+.grade_compra {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(120px, 1fr));
+    gap: 10px 14px;
+}
+
+.grade_compra p {
+    margin: 0;
+    color: #616568;
+    font-size: 0.9rem;
+    font-weight: 650;
+}
+
+.grade_compra strong {
+    color: #000;
+    font-weight: 900;
+}
+
+.acoes_compra {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 0;
+}
+
+.acoes_compra button,
+.acoes_compra a {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 8px;
+    padding: 11px 16px;
+    background: var(--preto);
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 900;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.acoes_compra button:hover,
+.acoes_compra a:hover {
+    background: var(--cor-principal);
+}
+
+.area_pix_parcelas {
+    display: grid;
+    gap: 14px;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    background: #fbfbfb;
+    padding: 14px;
+}
+
+.topo_pix_parcelas {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.topo_pix_parcelas span {
+    color: #616568;
+    font-size: 0.84rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.topo_pix_parcelas h3 {
+    margin: 2px 0 0;
+    color: #000;
+    font-size: 1.25rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.topo_pix_parcelas button,
+.pix_copia_cola button {
+    min-height: 44px;
+    border: none;
+    border-radius: 8px;
+    background: var(--preto);
+    color: #fff;
+    padding: 0 18px;
+    font-size: 0.95rem;
+    font-weight: 900;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.topo_pix_parcelas button:disabled,
+.pix_copia_cola button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.estado_pix_parcelas,
+.estado {
+    margin: 0;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    color: #616568;
+    padding: 24px;
+    font-size: 0.92rem;
+    font-weight: 800;
+    text-align: center;
+}
+
+.estado {
+    display: grid;
+    gap: 8px;
+}
+
+.estado strong {
+    color: #1f2933;
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+
+.pix_parcela_unica {
+    display: grid;
+    gap: 14px;
+    border: 1px solid #ececec;
+    border-radius: 8px;
+    background: #fff;
+    padding: 14px;
+}
+
+.seletor_pix_parcela {
+    display: grid;
+    gap: 6px;
+    max-width: 520px;
+}
+
+.seletor_pix_parcela span,
+.pix_resumo_parcela span,
+.pix_copia_cola span {
+    color: #616568;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.seletor_pix_parcela select {
+    width: 100%;
+    min-height: 42px;
+    border: 1px solid #dcdcdc;
+    border-radius: 8px;
+    background: #fff;
+    color: #111;
+    padding: 0 12px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    outline: none;
+}
+
+.pix_resumo_parcela {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    background: #f8f8f8;
+    padding: 12px;
+}
+
+.pix_resumo_parcela div {
+    display: grid;
+    gap: 4px;
+}
+
+.pix_resumo_parcela strong {
+    color: #087a3d;
+    font-size: 1.1rem;
+    font-weight: 900;
+}
+
+.pix_conteudo_unico {
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+}
+
+.card_compra_parcelada .pix_conteudo_unico {
+    grid-template-columns: minmax(220px, 280px) minmax(0, 1fr);
+}
+
+.pix_qrcode_area {
+    display: grid;
+    place-items: center;
+    min-height: 214px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    color: #616568;
+    font-size: 0.9rem;
+    font-weight: 900;
+    text-align: center;
+}
+
+.pix_qrcode_area img {
+    width: min(190px, 100%);
+    height: auto;
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
+}
+
+.pix_copia_cola {
+    display: grid;
+    gap: 8px;
+    min-width: 0;
+}
+
+.pix_copia_cola textarea {
+    width: 100%;
+    min-height: 214px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    padding: 10px;
+    font-size: 0.9rem;
+    font-weight: 750;
+    line-height: 1.4;
+    resize: vertical;
+}
+
+.pix_copia_cola button {
+    width: 100%;
+}
+
+.erro_pix_parcelas {
+    margin: 0;
+    border: 1px solid #ffd0d0;
+    border-radius: 8px;
+    background: #fff5f5;
+    color: var(--cor-msg-erro);
+    padding: 10px 12px;
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.sucesso_pix_parcelas {
+    margin: 0;
+    border: 1px solid #bfe8d0;
+    border-radius: 8px;
+    background: #f1fff6;
+    color: #087a3d;
+    padding: 10px 12px;
+    font-size: 0.86rem;
+    font-weight: 800;
+}
+
+.parcela_paga {
+    color: #087a3d !important;
+}
+
+.parcela_pendente {
+    color: #9a4c00 !important;
+}
+
+@media (max-width: 768px) {
+    .pagina {
+        padding: 22px 16px 28px;
+    }
+
+    .cabecalho {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .cabecalho h1 {
+        font-size: 1.6rem;
+    }
+
+    .resumo {
+        grid-template-columns: 1fr;
+    }
+
+    .grade_compra {
+        grid-template-columns: 1fr;
+    }
+
+    .topo_pix_parcelas,
+    .topo_compra {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .topo_pix_parcelas button,
+    .pix_conteudo_unico {
+        width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .pix_copia_cola textarea {
+        min-height: 100px;
+    }
+
+    .pix_resumo_parcela {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .acoes_compra button,
+    .acoes_compra a {
+        width: 100%;
+    }
+}

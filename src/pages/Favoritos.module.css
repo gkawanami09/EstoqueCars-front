@@ -1,0 +1,254 @@
+.pagina {
+    min-height: 100vh;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 40px;
+    background: #f6f7fa;
+    color: #111;
+    font-family: 'Montserrat', 'Segoe UI', sans-serif;
+}
+
+.cabecalho {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 22px !important;
+}
+
+.cabecalho span {
+    color: var(--cor-principal);
+    font-size: 0.86rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.cabecalho h1 {
+    margin: 4px 0 0;
+    color: #000;
+    font-size: 2rem;
+    font-weight: 900;
+    line-height: 1.1;
+}
+
+.cabecalho button,
+.acoes button {
+    min-height: 42px;
+    border: none;
+    border-radius: 8px;
+    background: var(--preto);
+    color: #fff;
+    padding: 0 18px;
+    font-size: 0.92rem;
+    font-weight: 900;
+    cursor: pointer;
+}
+
+.cabecalho button:hover,
+.acoes button:hover {
+    background: var(--cor-principal);
+}
+
+.cabecalho button:disabled,
+.acoes button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
+.area_busca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-height: 48px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    padding: 0 16px;
+    margin-bottom: 22px !important;
+}
+
+.icone_busca {
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
+    opacity: 0.6;
+}
+
+.area_busca input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    background: transparent;
+    color: var(--preto);
+    font-size: 1rem;
+    font-weight: 700;
+    outline: none;
+}
+
+.lista {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+}
+
+.card {
+    display: grid;
+    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.05);
+    box-sizing: border-box;
+}
+
+.imagem_area {
+    display: grid;
+    place-items: center;
+    min-height: 150px;
+    border-radius: 8px;
+    background: #f0f0f0;
+    overflow: hidden;
+}
+
+.imagem_area img {
+    width: 100%;
+    height: 100%;
+    min-height: 150px;
+    object-fit: cover;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+
+.info span {
+    color: #616568;
+    font-size: 0.8rem;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.info h2 {
+    margin: 4px 0 14px;
+    color: #000;
+    font-size: 1.3rem;
+    font-weight: 900;
+    overflow-wrap: anywhere;
+}
+
+.grade {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(120px, 1fr));
+    gap: 10px 14px;
+}
+
+.grade p {
+    margin: 0;
+    color: #616568;
+    font-size: 0.9rem;
+    font-weight: 700;
+}
+
+.grade strong {
+    color: #000;
+    font-weight: 900;
+}
+
+.acoes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.acoes .remover {
+    background: #fff1f1;
+    color: #b71919;
+}
+
+.acoes .remover:hover {
+    background: #ffd7d7;
+}
+
+.estado,
+.mensagem_erro {
+    display: grid;
+    gap: 8px;
+    border: 1px solid #e6e6e6;
+    border-radius: 8px;
+    background: #fff;
+    color: #616568;
+    padding: 28px 24px;
+    text-align: center;
+    font-size: 0.95rem;
+    font-weight: 800;
+}
+
+.estado strong {
+    color: #1f2933;
+    font-size: 1.05rem;
+    font-weight: 900;
+}
+
+.mensagem_erro {
+    border-color: #ffd0d0;
+    background: #fff5f5;
+    color: var(--cor-msg-erro);
+    margin-bottom: 16px;
+}
+
+@media (max-width: 980px) {
+    .card {
+        grid-template-columns: minmax(150px, 200px) minmax(0, 1fr);
+    }
+
+    .acoes {
+        grid-column: 1 / -1;
+        align-items: stretch;
+        flex-direction: row;
+    }
+
+    .acoes button {
+        flex: 1 1 0;
+    }
+
+    .grade {
+        grid-template-columns: repeat(2, minmax(120px, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .pagina {
+        padding: 22px 16px 28px;
+    }
+
+    .cabecalho {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .cabecalho h1 {
+        font-size: 1.6rem;
+    }
+
+    .card {
+        grid-template-columns: 1fr;
+    }
+
+    .grade {
+        grid-template-columns: 1fr;
+    }
+
+    .acoes {
+        flex-direction: column;
+    }
+}

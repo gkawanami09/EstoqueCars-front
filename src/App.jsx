@@ -15,6 +15,8 @@ import CarrosCaminhonetes from "./pages/CarrosCaminhonetes.jsx";
 import CarrosSUV from "./pages/CarrosSUV.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import MinhaConta from "./pages/MinhaConta.jsx";
+import MinhasCompras from "./pages/MinhasCompras.jsx";
+import Favoritos from "./pages/Favoritos.jsx";
 import DashboardAdm from "./pages/DashboardAdm.jsx";
 import DashboardAdmVeiculos from "./pages/DashboardAdmVeiculos.jsx";
 import DashboardAdmClientes from "./pages/DashboardAdmClientes.jsx";
@@ -68,6 +70,9 @@ function App({ API }) {
             <Route path="/dashboard" element={<Dashboard API={API} />} />
             <Route path="/Dashboard" element={<Dashboard API={API} />} />
             <Route path="/minhaConta" element={<MinhaConta API={API} />} />
+            <Route path="/favoritos" element={<Favoritos API={API} />} />
+            <Route path="/minhasCompras" element={<MinhasCompras API={API} />} />
+            <Route path="/minhas-compras" element={<MinhasCompras API={API} />} />
             <Route path="/dashboardAdm" element={<DashboardAdm  API={API} />} />
             <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos API={API} />} />
             <Route path="/dashboardAdmClientes" element={<DashboardAdmClientes API={API} />} />

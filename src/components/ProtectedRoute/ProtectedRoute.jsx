@@ -33,8 +33,11 @@ const rotasSomenteAdm = [
 
 const rotasUsuario = [
     "/dashboard",
+    "/favoritos",
     "/minhaconta",
-    "/minha-conta"
+    "/minha-conta",
+    "/minhascompras",
+    "/minhas-compras"
 ];
 
 function ProtectedRoute() {

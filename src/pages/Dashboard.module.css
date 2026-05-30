@@ -516,6 +516,7 @@
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
     gap: 18px;
+    align-items: stretch;
 }
 
 .estado_lista {
@@ -544,8 +545,9 @@
 }
 
 .card_carro {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-rows: 210px minmax(166px, auto) auto;
+    height: 100%;
     min-width: 0;
     overflow: hidden;
     border: 1px solid #e6e6e6;
@@ -559,8 +561,41 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    height: 210px;
     min-height: 210px;
     background: #f0f0f0;
+    overflow: hidden;
+}
+
+.botao_favorito {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.92);
+    color: #c9c9c9;
+    padding: 0;
+    font-size: 1.7rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
+}
+
+.botao_favorito:hover,
+.favorito_ativo {
+    background: #fff;
+    color: var(--cor-principal);
+}
+
+.botao_favorito:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
 }
 
 .area_imagem_card img {
@@ -570,6 +605,9 @@
 }
 
 .info_carro {
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 14px;
     padding: 18px;
 }
 
@@ -578,16 +616,22 @@
     align-items: flex-start;
     justify-content: space-between;
     gap: 12px;
-    margin-bottom: 16px !important;
+    min-height: 50px;
+    margin-bottom: 0 !important;
 }
 
 .info_carro h2 {
     min-width: 0;
     margin: 0 !important;
     font-size: 1.25rem;
+    line-height: 1.12;
     font-weight: 900;
     text-transform: uppercase;
     overflow-wrap: anywhere;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
 }
 
 .status_veiculo {
@@ -618,13 +662,19 @@
 .grade_info {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 10px 14px;
+    grid-auto-rows: minmax(38px, auto);
+    gap: 8px 14px;
+    align-items: start;
 }
 
 .grade_info p {
+    min-width: 0;
     color: #616568;
     font-size: 0.9rem;
+    line-height: 1.35;
     font-weight: 600;
+    margin: 0;
+    overflow-wrap: anywhere;
 }
 
 .grade_info strong {
@@ -633,32 +683,37 @@
 }
 
 .area_preco {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: stretch;
     gap: 12px;
     padding: 0 18px 18px;
-    margin-top: auto;
+    align-self: end;
 }
 
 .area_preco strong {
     color: #000;
     font-size: 1.35rem;
+    line-height: 1.15;
     font-weight: 900;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
 }
 
 .area_preco button {
-    flex: 0 0 auto;
+    width: 100%;
+    min-height: 42px;
     border: none;
     border-radius: 8px;
-    padding: 12px 18px;
+    padding: 0 18px;
     background: var(--cor-secundaria);
     color: var(--cor-texto-botao);
     font-size: 0.9rem;
     font-weight: 900;
     cursor: pointer;
     transition: background-color 0.1s ease;
+    white-space: nowrap;
 }
 
 .area_preco button:hover {

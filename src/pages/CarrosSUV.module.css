@@ -257,6 +257,38 @@
     gap: 15px;
 }
 
+.acoes_card {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+}
+
+.botao_favorito {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #d3d3d3;
+    padding: 0;
+    font-size: 2.1rem;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.botao_favorito:hover,
+.favorito_ativo {
+    color: var(--cor-principal);
+}
+
+.botao_favorito:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+}
+
 .preco_carro {
     font-size: 1.8rem;
     font-weight: 900;
