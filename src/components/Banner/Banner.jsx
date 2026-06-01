@@ -1,47 +1,76 @@
-import { useEffect, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import css from './Banner.module.css'
 import ButtonLink from '../ButtonLink/ButtonLink'
+import DriftGameBanner from './DriftGameBanner'
+import { sanitizeText } from './banner3d/config'
 
-function Banner({ span1, titulo, span2, subtitulo, buttonTo, buttonNome }) {
-    const sectionRef = useRef(null)
-    const [entrou, setEntrou] = useState(false)
-    const [saindo, setSaindo] = useState(false)
+function Banner({
+    span1,
+    titulo,
+    span2,
+    subtitulo,
+    buttonTo,
+    buttonNome,
+}) {
+    const [replayToken, setReplayToken] = useState(0)
+    const [gameError, setGameError] = useState('')
 
-    useEffect(() => {
-        const timer = setTimeout(() => setEntrou(true), 100)
-        return () => clearTimeout(timer)
-    }, [])
-
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            ([entry]) => setSaindo(!entry.isIntersecting),
-            { threshold: 0.15 }
-        )
-        if (sectionRef.current) observer.observe(sectionRef.current)
-        return () => observer.disconnect()
-    }, [])
-
-    const carroClasses = [
-        css.carroWrapper,
-        entrou ? css.carroEntrou : '',
-        saindo ? css.carroSaindo : '',
-    ].filter(Boolean).join(' ')
+    const safeSpan1 = useMemo(() => sanitizeText(span1, 'Maior Garagem'), [span1])
+    const safeTitulo = useMemo(() => sanitizeText(titulo, 'de Carros Usados do'), [titulo])
+    const safeSpan2 = useMemo(() => sanitizeText(span2, 'Senai'), [span2])
+    const safeSubtitulo = useMemo(
+        () => sanitizeText(subtitulo, 'Nossa equipe oferece uma ampla selecao de carros a pronta entrega.'),
+        [subtitulo],
+    )
+    const safeButtonTo = useMemo(() => sanitizeText(buttonTo, '/CarrosSedan'), [buttonTo])
+    const safeButtonNome = useMemo(() => sanitizeText(buttonNome, 'ver carros'), [buttonNome])
 
     return (
-        <section className={css.section} ref={sectionRef}>
+        <section className={css.section}>
             <div className={css.banner}>
                 <div className={css.texto}>
-                    <h1>A <span>{span1}</span> {titulo} <span>{span2}</span></h1>
-                    <h2>{subtitulo}</h2>
-                    <div>
-                        <ButtonLink buttonTo={buttonTo} buttonNome={buttonNome} />
+                    <h1>A <span>{safeSpan1}</span> {safeTitulo} <span>{safeSpan2}</span></h1>
+                    <h2>{safeSubtitulo}</h2>
+                    <div className={css.actions}>
+                        <ButtonLink buttonTo={safeButtonTo} buttonNome={safeButtonNome} />
+                        <button
+                            type="button"
+                            className={css.restartButton}
+                            onClick={() => {
+                                setGameError('')
+                                setReplayToken((previousToken) => previousToken + 1)
+                            }}
+                            aria-label="Reiniciar jogo de drift"
+                        >
+                            reiniciar jogo
+                        </button>
                     </div>
                 </div>
-                <div className={carroClasses}>
-                    <img src="/carro-banner.png" alt="Banner" />
+                <div className={css.carroWrapper}>
+                    <div className={css.cenaDrift}>
+                        <div className={css.canvasGlow} aria-hidden="true" />
+                        {gameError ? (
+                            <div className={css.fallback} role="status" aria-live="polite">
+                                <strong>Drift Game indisponivel</strong>
+                                <p>
+                                    Falha ao iniciar o jogo 3D no banner. Tente reiniciar ou atualizar a pagina.
+                                </p>
+                            </div>
+                        ) : (
+                            <DriftGameBanner
+                                key={replayToken}
+                                className={css.canvas}
+                                onError={(error) => {
+                                    console.error('[BannerGame] Erro ao iniciar jogo no banner:', error)
+                                    setGameError(error?.message || 'Erro no jogo')
+                                }}
+                            />
+                        )}
+                        <div className={css.performanceTag}>Drift Game 3D</div>
+                    </div>
                 </div>
             </div>
-            <img src="/marcas.png" alt="marcas banner" />
+            <img className={css.marcas} src="/marcas.png" alt="marcas banner" />
         </section>
     )
 }

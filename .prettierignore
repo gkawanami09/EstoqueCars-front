@@ -1,0 +1,6 @@
+node_modules
+dist
+coverage
+public/assets/banner3d/models/*.gltf
+public/assets/drift-game/models/*.gltf
+public/assets/drift-game/sounds/*.wav

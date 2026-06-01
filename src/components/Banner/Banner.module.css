@@ -1,66 +1,174 @@
-.banner{
-    padding-left: 20px !important;
-    background-image: linear-gradient(to top, #FAFAFA, #EDEDED);
+.section {
+    display: block;
+}
+
+.banner {
+    position: relative;
+    padding: 0 20px 0 20px !important;
+    background:
+        radial-gradient(circle at 82% 12%, rgba(236, 241, 247, 0.95) 0%, rgba(236, 241, 247, 0) 42%),
+        linear-gradient(122deg, #f8f9fb 0%, #e8edf3 52%, #dce3ea 100%);
     display: flex;
-    min-height: 500px;
+    min-height: 510px;
     align-items: center;
     justify-content: space-between;
     overflow: hidden;
-}
-.banner img {
-    width: 100%;
-    height: auto;
+    gap: 28px;
 }
 
-.carroWrapper {
-    opacity: 0;
-    transform: translateX(80px);
-    transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                opacity 0.9s ease-out;
-}
-
-.carroEntrou {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-.carroSaindo {
-    opacity: 0;
-    transform: translateX(140px);
-    transition: transform 0.5s ease-in, opacity 0.4s ease-in;
-}
-
-span {
-    color: var(--cor-principal);
+.banner::after {
+    content: "";
+    position: absolute;
+    inset: auto -170px -220px auto;
+    width: 440px;
+    height: 440px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(154, 172, 194, 0.42) 0%, rgba(154, 172, 194, 0) 72%);
+    pointer-events: none;
 }
 
 .texto {
-    max-width: 575px;
+    position: relative;
+    max-width: 580px;
     display: flex;
     flex-direction: column;
-    gap: 30px;
-    
+    gap: 28px;
+    z-index: 1;
 }
 
 .texto h1 {
     font-size: 58px;
-    font-weight: bold;
-    line-height: 1.2;
+    font-weight: 800;
+    line-height: 1.17;
+}
+
+.texto span {
+    color: var(--cor-principal);
 }
 
 .texto h2 {
     font-size: 15px;
     font-weight: 600;
     color: var(--cinza-escuro);
+    line-height: 1.6;
 }
 
-.texto div a {
+.actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.actions a {
     padding: 9px 22px;
     border-radius: 8px;
 }
 
+.restartButton {
+    border: 1px solid rgba(16, 32, 52, 0.2);
+    background: rgba(255, 255, 255, 0.76);
+    color: #203243;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: lowercase;
+    padding: 9px 16px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
 
-.section img{
+.restartButton:hover {
+    transform: translateY(-1px);
+    border-color: rgba(16, 32, 52, 0.38);
+    box-shadow: 0 8px 22px rgba(21, 34, 49, 0.13);
+}
+
+.restartButton:focus-visible {
+    outline: 2px solid rgba(34, 91, 150, 0.55);
+    outline-offset: 2px;
+}
+
+.carroWrapper {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    justify-content: flex-end;
+    z-index: 1;
+}
+
+.cenaDrift {
+    position: relative;
+    width: min(53vw, 780px);
+    min-width: 360px;
+    aspect-ratio: 16 / 9;
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow:
+        inset 0 0 0 1px rgba(193, 205, 218, 0.35),
+        0 24px 44px rgba(43, 56, 73, 0.22);
+    background: linear-gradient(180deg, #dbe2ea 0%, #a8b4c0 55%, #7a8898 100%);
+}
+
+.canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+
+.canvasGlow {
+    position: absolute;
+    inset: auto 12% 0 auto;
+    width: 220px;
+    height: 170px;
+    filter: blur(34px);
+    background: radial-gradient(circle, rgba(255, 168, 82, 0.42) 0%, rgba(255, 168, 82, 0) 70%);
+    pointer-events: none;
+}
+
+.fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    background:
+        radial-gradient(circle at 50% 42%, rgba(133, 149, 167, 0.45) 0%, rgba(64, 78, 95, 0.75) 50%),
+        linear-gradient(180deg, #c8d3df 0%, #7a8796 100%);
+    color: #e9eef3;
+    padding: 26px;
+}
+
+.fallback strong {
+    font-size: 17px;
+}
+
+.fallback p {
+    max-width: 330px;
+    font-size: 13px;
+    line-height: 1.6;
+    margin: 0;
+}
+
+.performanceTag {
+    position: absolute;
+    right: 12px;
+    top: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 6px 10px;
+    border-radius: 999px;
+    color: #f4f7fb;
+    background: rgba(14, 20, 27, 0.48);
+    border: 1px solid rgba(255, 255, 255, 0.24);
+    backdrop-filter: blur(3px);
+}
+
+.marcas {
     width: 100%;
     height: auto;
     border-bottom: 1px solid var(--cinza-fundo);
@@ -68,24 +176,29 @@ span {
 
 @media (max-width: 1024px) {
     .banner {
-        min-height: 430px;
+        min-height: 440px;
         padding: 0 24px !important;
-        gap: 16px;
+        gap: 18px;
     }
 
     .texto h1 {
         font-size: 44px;
+    }
+
+    .cenaDrift {
+        width: min(55vw, 640px);
+        min-width: 300px;
     }
 }
 
 @media (max-width: 768px) {
     .banner {
         min-height: auto;
-        padding: 18px 14px 8px !important;
+        padding: 18px 14px 10px !important;
         flex-direction: column;
         justify-content: center;
         text-align: center;
-        gap: 10px;
+        gap: 14px;
     }
 
     .texto {
@@ -95,51 +208,62 @@ span {
     }
 
     .texto h1 {
-        font-size: 24px;
-        line-height: 1.3;
+        font-size: 25px;
+        line-height: 1.35;
     }
 
     .texto h2 {
         display: none;
     }
 
-    .banner img {
-        max-width: 330px;
+    .actions {
+        justify-content: center;
     }
 
-    .texto div a {
-        padding: 10px 22px;
+    .actions a,
+    .restartButton {
+        padding: 10px 19px;
         font-size: 14px;
         border-radius: 7px;
+    }
+
+    .carroWrapper {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .cenaDrift {
+        width: min(100%, 500px);
+        min-width: 0;
     }
 }
 
 @media (max-width: 425px) {
     .banner {
-        padding: 16px 12px 8px !important;
+        padding: 16px 12px 10px !important;
     }
 
     .texto h1 {
-        font-size: 24px;
+        font-size: 23px;
+    }
+
+    .cenaDrift {
+        width: min(100%, 365px);
+    }
+
+    .performanceTag {
+        font-size: 10px;
+        padding: 5px 8px;
     }
 }
 
-@media (max-width: 375px) {
-    .texto h1 {
-        font-size: 22px;
+@media (prefers-reduced-motion: reduce) {
+    .restartButton {
+        transition: none;
     }
 
-    .banner img {
-        max-width: 300px;
-    }
-}
-
-@media (max-width: 320px) {
-    .texto h1 {
-        font-size: 20px;
-    }
-
-    .banner img {
-        max-width: 270px;
+    .restartButton:hover {
+        transform: none;
+        box-shadow: none;
     }
 }

@@ -34,6 +34,7 @@ import DashboardAdmMarcas from "./pages/DashboardAdmMarcas.jsx";
 import CadastroCliente from "./pages/CadastroCliente.jsx";
 import DashboardAdmConfiguracoes from "./pages/DashboardAdmConfiguracoes.jsx";
 import DashboardADMFinanceiros from "./pages/DashboardADMFinanceiros.jsx";
+import DriftGame from "./pages/DriftGame.jsx";
 
 import DasbhoardAdmVendas from "./pages/DasbhoardAdmVendas.jsx";
 import ConfiguracoesSite from "./components/ConfiguracoesSite/ConfiguracoesSite.jsx";
@@ -44,6 +45,7 @@ function App({ API }) {
         <ConfiguracoesSite API={API} />
         <Routes>
           <Route path="/detalhesVeiculos/:id" element={<DetalhesVeiculos API={API} />} />
+          <Route path="/drift-game" element={<DriftGame />} />
 
           <Route element={<Container API={API} />}>
             <Route path="/" element={<Home />} />

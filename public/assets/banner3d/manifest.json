@@ -1,0 +1,11 @@
+{
+  "generatedAt": "2026-05-26T20:31:38.699Z",
+  "generator": "scripts/generate-banner-assets.mjs",
+  "assets": [
+    {
+      "type": "model/gltf+json",
+      "name": "drift-car.gltf",
+      "path": "/assets/banner3d/models/drift-car.gltf"
+    }
+  ]
+}
