@@ -47,28 +47,31 @@ describe('Banner', () => {
     consoleErrorSpy.mockRestore()
   })
 
-  test('renderiza conteudo principal e jogo no lugar da cena 3D antiga', () => {
+  test('renderiza conteudo principal e mostra a foto antes de iniciar o jogo', () => {
     renderBanner()
 
     expect(screen.getByText(/Maior Garagem/i)).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /ver carros/i })).toBeInTheDocument()
+    expect(screen.getByRole('img', { name: /^Banner$/i })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /jogo/i })).not.toBeInTheDocument()
+    expect(mockDriftGameBanner).not.toHaveBeenCalled()
+  })
+
+  test('carrega o jogo ao clicar na foto do banner', () => {
+    renderBanner()
+
+    fireEvent.click(screen.getByRole('button', { name: /Ativar banner interativo/i }))
+
     expect(screen.getByTestId('drift-game-banner')).toBeInTheDocument()
     expect(mockDriftGameBanner).toHaveBeenCalled()
   })
 
-  test('reinicia o jogo ao clicar no botao de reinicio', () => {
+  test('volta para a foto quando o jogo retorna erro', () => {
     renderBanner()
-    const callsBefore = mockDriftGameBanner.mock.calls.length
-
-    fireEvent.click(screen.getByRole('button', { name: /Reiniciar jogo de drift/i }))
-    const callsAfter = mockDriftGameBanner.mock.calls.length
-
-    expect(callsAfter).toBeGreaterThan(callsBefore)
-  })
-
-  test('exibe fallback quando o jogo retorna erro', () => {
-    renderBanner()
+    fireEvent.click(screen.getByRole('button', { name: /Ativar banner interativo/i }))
     fireEvent.click(screen.getByTestId('drift-game-banner'))
-    expect(screen.getByText(/Drift Game indisponivel/i)).toBeInTheDocument()
+
+    expect(screen.getByRole('img', { name: /^Banner$/i })).toBeInTheDocument()
+    expect(screen.queryByText(/Drift Game indisponivel/i)).not.toBeInTheDocument()
   })
 })

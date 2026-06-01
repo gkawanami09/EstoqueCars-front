@@ -12,8 +12,7 @@ function Banner({
     buttonTo,
     buttonNome,
 }) {
-    const [replayToken, setReplayToken] = useState(0)
-    const [gameError, setGameError] = useState('')
+    const [isGameLoaded, setIsGameLoaded] = useState(false)
 
     const safeSpan1 = useMemo(() => sanitizeText(span1, 'Maior Garagem'), [span1])
     const safeTitulo = useMemo(() => sanitizeText(titulo, 'de Carros Usados do'), [titulo])
@@ -25,48 +24,45 @@ function Banner({
     const safeButtonTo = useMemo(() => sanitizeText(buttonTo, '/CarrosSedan'), [buttonTo])
     const safeButtonNome = useMemo(() => sanitizeText(buttonNome, 'ver carros'), [buttonNome])
 
+    function carregarJogo() {
+        setIsGameLoaded(true)
+    }
+
     return (
         <section className={css.section}>
             <div className={css.banner}>
                 <div className={css.texto}>
                     <h1>A <span>{safeSpan1}</span> {safeTitulo} <span>{safeSpan2}</span></h1>
                     <h2>{safeSubtitulo}</h2>
-                    <div className={css.actions}>
+                    <div>
                         <ButtonLink buttonTo={safeButtonTo} buttonNome={safeButtonNome} />
-                        <button
-                            type="button"
-                            className={css.restartButton}
-                            onClick={() => {
-                                setGameError('')
-                                setReplayToken((previousToken) => previousToken + 1)
-                            }}
-                            aria-label="Reiniciar jogo de drift"
-                        >
-                            reiniciar jogo
-                        </button>
                     </div>
                 </div>
                 <div className={css.carroWrapper}>
                     <div className={css.cenaDrift}>
                         <div className={css.canvasGlow} aria-hidden="true" />
-                        {gameError ? (
-                            <div className={css.fallback} role="status" aria-live="polite">
-                                <strong>Drift Game indisponivel</strong>
-                                <p>
-                                    Falha ao iniciar o jogo 3D no banner. Tente reiniciar ou atualizar a pagina.
-                                </p>
-                            </div>
+                        {!isGameLoaded ? (
+                            <button
+                                type="button"
+                                className={css.previewButton}
+                                onClick={carregarJogo}
+                                aria-label="Ativar banner interativo"
+                            >
+                                <img
+                                    className={css.previewImage}
+                                    src="/carro-banner.png"
+                                    alt="Banner"
+                                />
+                            </button>
                         ) : (
                             <DriftGameBanner
-                                key={replayToken}
                                 className={css.canvas}
                                 onError={(error) => {
                                     console.error('[BannerGame] Erro ao iniciar jogo no banner:', error)
-                                    setGameError(error?.message || 'Erro no jogo')
+                                    setIsGameLoaded(false)
                                 }}
                             />
                         )}
-                        <div className={css.performanceTag}>Drift Game 3D</div>
                     </div>
                 </div>
             </div>
