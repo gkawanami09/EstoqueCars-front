@@ -2,7 +2,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import css from "./MenuLateralAdm.module.css";
 import { useEffect, useState } from "react";
 
-function MenuLateralAdm({ aoNavegar, tipoUsuario }) {
+function MenuLateralAdm({ aberto, aoNavegar, tipoUsuario }) {
     const navigate = useNavigate();
     const location = useLocation();
     const isAdm = Number(tipoUsuario) === 2;
@@ -36,7 +36,7 @@ function MenuLateralAdm({ aoNavegar, tipoUsuario }) {
     }
 
     return (
-        <aside className={`${css.menu_lateral} ${fechado ? css.menu_fechado : ""}`}>
+        <aside className={`${css.menu_lateral} ${aberto ? css.menu_aberto : ""} ${fechado ? css.menu_fechado : ""}`}>
             <button
                 className={css.botao_toggle}
                 onClick={() => setFechado(!fechado)}
