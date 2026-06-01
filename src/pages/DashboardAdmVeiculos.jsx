@@ -555,7 +555,7 @@ function DashboardAdmVeiculos({ API }) {
                                 <td data-label="Preço" className={css.preco}>{formatarPreco(carro.preco)}</td>
 
                                 {/* Etiqueta de status do estoque. */}
-                                <td data-label="Status">
+                                <td data-label="Status" className={css.celula_status}>
                                     <span className={classeStatusEstoque(carro.status_estoque, carro)}>
                                         {textoStatusEstoque(carro.status_estoque, carro)}
                                     </span>

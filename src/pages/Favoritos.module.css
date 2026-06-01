@@ -55,6 +55,25 @@
     opacity: 0.65;
 }
 
+.acoes_cabecalho {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.cabecalho .limpar_favoritos {
+    border: 1px solid #ffd0d0;
+    background: #fff1f1;
+    color: #b71919;
+}
+
+.cabecalho .limpar_favoritos:hover {
+    background: #ffd7d7;
+    color: #8f1111;
+}
+
 .area_busca {
     display: flex;
     align-items: center;
@@ -168,6 +187,11 @@
     justify-content: center;
     flex-direction: column;
     gap: 10px;
+    min-width: 164px;
+}
+
+.acoes button {
+    width: 100%;
 }
 
 .acoes .remover {
@@ -238,6 +262,12 @@
 
     .cabecalho h1 {
         font-size: 1.6rem;
+    }
+
+    .acoes_cabecalho {
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-content: stretch;
     }
 
     .card {

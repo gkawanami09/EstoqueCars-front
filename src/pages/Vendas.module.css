@@ -76,7 +76,7 @@
 }
 
 .pendenciaAcoes {
-    margin-top: 10px;
+    margin-top: 10px !important;
     display: flex;
     gap: 8px;
     justify-content: flex-end;
@@ -431,6 +431,17 @@
     text-align: right;
 }
 
+.pixEstado {
+    margin: 0;
+    border-radius: 6px;
+    background: #f1f5f9;
+    color: #475569;
+    padding: 10px 12px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.35;
+}
+
 .botaoGerarPix,
 .botaoCopiarPix {
     min-height: 34px;
@@ -452,27 +463,67 @@
 
 .pixResultado {
     display: grid;
-    grid-template-columns: 150px minmax(0, 1fr);
-    gap: 12px;
-    align-items: start;
+    grid-template-columns: 188px minmax(0, 1fr);
+    gap: 16px;
+    align-items: stretch;
 }
 
-.pixResultado img {
-    width: 150px;
-    height: 150px;
-    border: 1px solid #ededed;
-    border-radius: 8px;
+.pixQrMoldura {
+    width: 180px;
+    min-height: 214px;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 10px;
+    border: 1px solid #bbf7d0;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+    padding: 12px 10px;
+    box-shadow: 0 14px 30px rgba(22, 163, 74, 0.12);
+    box-sizing: border-box;
+}
+
+.pixQrMoldura img {
+    width: 154px;
+    height: 154px;
+    border: 1px solid #dcfce7;
+    border-radius: 10px;
     background: #fff;
+    object-fit: contain;
+    image-rendering: pixelated;
+}
+
+.pixQrMoldura span {
+    border-radius: 999px;
+    background: #dcfce7;
+    color: #166534;
+    padding: 5px 10px;
+    font-size: 11px;
+    font-weight: 900;
+    text-transform: uppercase;
 }
 
 .pixResultado textarea {
-    min-height: 96px;
-    resize: vertical;
+    min-height: 142px;
+    resize: none;
+    padding: 12px;
+    line-height: 1.45;
+    font-family: Consolas, "Courier New", monospace;
+    font-size: 13px;
+    font-weight: 700;
+    overflow: auto;
+    overflow-wrap: anywhere;
 }
 
 .pixResultado .botaoCopiarPix {
     grid-column: 2;
     justify-self: start;
+    align-self: end;
+    min-width: 150px;
+}
+
+.pixCopiaCampo {
+    gap: 8px;
 }
 
 .financiamento {
@@ -811,8 +862,9 @@
         width: 100%;
     }
 
-    .pixResultado img {
+    .pixQrMoldura {
         justify-self: center;
+        width: min(100%, 220px);
     }
 
     .pixResultado .botaoCopiarPix {

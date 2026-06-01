@@ -869,6 +869,78 @@ function Vendas({ API }) {
     // Roda quando forma de pagamento, valor final ou veiculo mudarem.
     }, [formaPagamento, valorComDesconto, veiculoId]);
 
+    useEffect(() => {
+        if (!ehPix || vendaFinalizada) {
+            return;
+        }
+
+        if (!valorComDesconto) {
+            setPixGerado(null);
+            setErroPix("");
+            return;
+        }
+
+        let cancelado = false;
+        const timeout = setTimeout(async () => {
+            setGerandoPix(true);
+            setErroPix("");
+
+            try {
+                const resposta = await fetch(`${API}/gerar_pix_venda`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        ...cabecalhoAutorizacao()
+                    },
+                    credentials: "include",
+                    body: JSON.stringify({
+                        valor: valorComDesconto.toFixed(2),
+                        chave_pix: chavePixEmpresa.trim(),
+                        chave_pix_empresa: chavePixEmpresa.trim(),
+                        pix_chave: chavePixEmpresa.trim(),
+                        txid: `VENDA${veiculoId || "PIX"}${Date.now().toString().slice(-6)}`
+                    })
+                });
+                const dados = await resposta.json().catch(() => ({}));
+
+                if (cancelado) {
+                    return;
+                }
+
+                if (!resposta.ok) {
+                    setPixGerado(null);
+                    setErroPix(dados.erro || dados.mensagem || "Não foi possível gerar o Pix.");
+                    return;
+                }
+
+                const qrCode = montarUrlPix(API, dados.pix_qrcode || dados.qr_code || dados.qr_code_base64);
+                const copiaECola = dados.pix_copia_cola || dados.pix_copia_e_cola || dados.payload;
+
+                if (!qrCode && !copiaECola) {
+                    setPixGerado(null);
+                    setErroPix("O backend não retornou o QR Code Pix.");
+                    return;
+                }
+
+                setPixGerado({ qrCode, copiaECola });
+            } catch {
+                if (!cancelado) {
+                    setPixGerado(null);
+                    setErroPix("Não foi possível conectar ao backend para gerar o Pix.");
+                }
+            } finally {
+                if (!cancelado) {
+                    setGerandoPix(false);
+                }
+            }
+        }, 350);
+
+        return () => {
+            cancelado = true;
+            clearTimeout(timeout);
+        };
+    }, [API, chavePixEmpresa, ehPix, valorComDesconto, veiculoId, vendaFinalizada]);
+
     // Quando a venda e Pix, o valor recebido acompanha automaticamente o valor com desconto.
     useEffect(() => {
         // So altera o valor recebido quando a forma atual for Pix.
@@ -1197,7 +1269,7 @@ function Vendas({ API }) {
     }
 
     // Envia a venda para a API e, se necessario, tambem trata o Pix retornado.
-    async function enviarVenda({ gerarPixVenda = false } = {}) {
+    async function enviarVenda() {
         // Evita cadastrar a mesma venda novamente depois de finalizada.
         if (vendaFinalizada) {
             mostrarMensagem("sucesso", "Esta venda ja foi cadastrada.");
@@ -1211,8 +1283,8 @@ function Vendas({ API }) {
 
         // Ativa o estado de salvamento.
         setSalvando(true);
-        // Ativa o carregamento do Pix quando o botao de Pix foi usado.
-        setGerandoPix(gerarPixVenda);
+        // Ativa o carregamento do Pix sempre que a venda for Pix.
+        setGerandoPix(ehPix);
         // Limpa erro antigo do Pix.
         setErroPix("");
         // Remove Pix antigo antes de gerar/salvar de novo.
@@ -1238,7 +1310,7 @@ function Vendas({ API }) {
             if (!resposta.ok) {
                 mostrarMensagem("erro", dados.erro || dados.error || dados.mensagem || "Erro ao cadastrar venda.");
                 // Se o fluxo era Pix, mostra erro tambem na area do Pix.
-                if (gerarPixVenda) {
+                if (ehPix) {
                     setErroPix(dados.erro || dados.error || dados.mensagem || "Erro ao gerar Pix.");
                 }
                 return;
@@ -1274,7 +1346,7 @@ function Vendas({ API }) {
         // Trata erro de conexao ou falha inesperada.
         } catch {
             // Se era geracao de Pix, mostra erro especifico.
-            if (gerarPixVenda) {
+            if (ehPix) {
                 setErroPix("Não foi possível conectar ao servidor para gerar o Pix.");
             }
             mostrarMensagem("erro", "Não foi possível conectar ao servidor.");
@@ -1283,12 +1355,6 @@ function Vendas({ API }) {
             setSalvando(false);
             setGerandoPix(false);
         }
-    }
-
-    // Atalho chamado pelo botao "Salvar e gerar Pix".
-    async function gerarPix() {
-        // Envia a venda informando que tambem deve tratar Pix.
-        await enviarVenda({ gerarPixVenda: true });
     }
 
     // Handler do submit principal do formulario.
@@ -1606,28 +1672,33 @@ function Vendas({ API }) {
                                 <strong>{formatarMoeda(valorComDesconto)}</strong>
                             </div>
 
-                            {/* Botao que salva a venda e pede o Pix para a API. */}
-                            <button
-                                type="button"
-                                className={css.botaoGerarPix}
-                                onClick={gerarPix}
-                                disabled={gerandoPix || salvando || vendaFinalizada || !valorComDesconto}
-                            >
-                                {vendaFinalizada ? "QR Code gerado" : gerandoPix ? "Gerando QR Code..." : "Gerar QR Code Pix"}
-                            </button>
-
                             {/* Exibe erro especifico de Pix quando houver. */}
                             {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
+
+                            {gerandoPix && !pixGerado && (
+                                <p className={css.pixEstado}>Gerando QR Code Pix e cópia e cola...</p>
+                            )}
+
+                            {!vendaFinalizada && !gerandoPix && !pixGerado && valorComDesconto > 0 && (
+                                <p className={css.pixEstado}>O backend vai gerar o QR Code Pix automaticamente.</p>
+                            )}
+
+                            {!vendaFinalizada && !gerandoPix && !pixGerado && !valorComDesconto && (
+                                <p className={css.pixEstado}>Informe o veículo ou o valor da venda para gerar o QR Code Pix.</p>
+                            )}
 
                             {/* Mostra QR Code e copia e cola depois que o Pix for gerado. */}
                             {pixGerado && (
                                 <div className={css.pixResultado}>
                                     {/* QR Code Pix retornado pela API. */}
-                                    <img src={pixGerado.qrCode} alt="QR Code Pix" />
+                                    <div className={css.pixQrMoldura}>
+                                        <img src={pixGerado.qrCode} alt="QR Code Pix" />
+                                        <span>Pix gerado</span>
+                                    </div>
 
                                     {/* Campo somente leitura com o codigo Pix copia e cola. */}
-                                    <label className={css.campo}>
-                                        <span>Pix copia e cola</span>
+                                    <label className={`${css.campo} ${css.pixCopiaCampo}`}>
+                                        <span>Pix cópia e cola</span>
                                         <textarea value={pixGerado.copiaECola} readOnly />
                                     </label>
 
@@ -1756,7 +1827,7 @@ function Vendas({ API }) {
                 <div className={css.acoes}>
                     {/* Botao principal que envia o formulario. */}
                     <button type="submit" className={css.salvar} disabled={salvando || vendaFinalizada}>
-                        {vendaFinalizada ? "Venda salva" : salvando ? "Salvando..." : "Salvar"}
+                        {vendaFinalizada ? "Venda salva" : salvando && ehPix ? "Gerando Pix..." : salvando ? "Salvando..." : "Salvar"}
                     </button>
                     {/* Botao secundario que volta para a tela de vendas/cancela. */}
                     <button type="button" className={css.cancelar} onClick={() => navigate("/dashboardAdmVendas")}>

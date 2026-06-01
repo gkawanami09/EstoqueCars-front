@@ -91,7 +91,7 @@ function idVeiculoCompra(compra) {
 }
 
 function nomeVeiculoCompra(compra) {
-    return compra?.veiculo || compra?.nome_veiculo || compra?.modelo || compra?.nome || "Veiculo";
+    return compra?.veiculo || compra?.nome_veiculo || compra?.modelo || compra?.nome || "Veículo";
 }
 
 function ehVendaParcelada(compra) {
@@ -188,7 +188,7 @@ function MinhasCompras({ API }) {
         if (!idUsuario) {
             setCompras([]);
             setCarregando(false);
-            setErro("Nao foi possivel identificar o usuario logado.");
+            setErro("Não foi possível identificar o usuário logado.");
             return;
         }
 
@@ -222,12 +222,12 @@ function MinhasCompras({ API }) {
                 setCarregando(false);
                 return;
             } catch {
-                // Tenta a proxima rota conhecida.
+                // Tenta a próxima rota conhecida.
             }
         }
 
         setCompras([]);
-        setErro("Ainda nao foi possivel carregar suas compras.");
+        setErro("Ainda não foi possível carregar suas compras.");
         setCarregando(false);
     }, [API, idUsuario]);
 
@@ -266,7 +266,7 @@ function MinhasCompras({ API }) {
         } catch {
             setErroPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: "Nao foi possivel conectar ao servidor para carregar o Pix das parcelas."
+                [idVenda]: "Não foi possível conectar ao servidor para carregar o Pix das parcelas."
             }));
         } finally {
             setCarregandoPixParcelas((estado) => ({ ...estado, [idVenda]: false }));
@@ -308,7 +308,7 @@ function MinhasCompras({ API }) {
                 setPixVendas((estado) => ({ ...estado, [idVenda]: null }));
                 setErroPixVendas((estado) => ({
                     ...estado,
-                    [idVenda]: dados.erro || dados.mensagem || "Pix indisponivel para esta compra."
+                    [idVenda]: dados.erro || dados.mensagem || "Pix indisponível para esta compra."
                 }));
                 return;
             }
@@ -317,7 +317,7 @@ function MinhasCompras({ API }) {
         } catch {
             setErroPixVendas((estado) => ({
                 ...estado,
-                [idVenda]: "Nao foi possivel carregar o Pix agora."
+                [idVenda]: "Não foi possível carregar o Pix agora."
             }));
         } finally {
             setCarregandoPixVendas((estado) => ({ ...estado, [idVenda]: false }));
@@ -359,7 +359,7 @@ function MinhasCompras({ API }) {
             )));
             setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "Pix copiado. Pagamento aprovado." }));
         } catch {
-            setErroPixVendas((estado) => ({ ...estado, [idVenda]: "Nao foi possivel copiar o Pix automaticamente." }));
+            setErroPixVendas((estado) => ({ ...estado, [idVenda]: "Não foi possível copiar o Pix automaticamente." }));
         }
     }
 
@@ -379,7 +379,7 @@ function MinhasCompras({ API }) {
             if (!parcela?.id || parcelaEstaPaga(parcela)) {
                 setMensagemPixParcelas((estado) => ({
                     ...estado,
-                    [idVenda]: "Pix copiado. Esta parcela ja esta paga."
+                    [idVenda]: "Pix copiado. Esta parcela já está paga."
                 }));
                 return;
             }
@@ -392,7 +392,7 @@ function MinhasCompras({ API }) {
             const dados = await resposta.json();
 
             if (!resposta.ok) {
-                throw new Error(dados.erro || dados.mensagem || "Nao foi possivel marcar a parcela como paga.");
+                throw new Error(dados.erro || dados.mensagem || "Não foi possível marcar a parcela como paga.");
             }
 
             setPixParcelas((estado) => ({
@@ -421,7 +421,7 @@ function MinhasCompras({ API }) {
         } catch (erroAtual) {
             setErroPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: erroAtual.message || "Nao foi possivel copiar o Pix e marcar a parcela como paga."
+                [idVenda]: erroAtual.message || "Não foi possível copiar o Pix e marcar a parcela como paga."
             }));
         } finally {
             setPagandoPixParcelas((estado) => ({ ...estado, [chave]: false }));
@@ -436,7 +436,7 @@ function MinhasCompras({ API }) {
         <main className={css.pagina}>
             <header className={css.cabecalho}>
                 <div>
-                    <span>Area do cliente</span>
+                    <span>Área do cliente</span>
                     <h1>Minhas compras</h1>
                 </div>
                 <button type="button" onClick={carregarCompras} disabled={carregando}>
@@ -465,15 +465,15 @@ function MinhasCompras({ API }) {
 
             {!carregando && erro && (
                 <div className={css.estado}>
-                    <strong>Nao foi possivel carregar suas compras agora.</strong>
+                    <strong>Não foi possível carregar suas compras agora.</strong>
                     <span>{erro}</span>
                 </div>
             )}
 
             {!carregando && !erro && compras.length === 0 && (
                 <div className={css.estado}>
-                    <strong>Voce ainda nao possui compras registradas.</strong>
-                    <span>Quando uma venda for cadastrada no seu nome, ela aparecera aqui.</span>
+                    <strong>Você ainda não possui compras registradas.</strong>
+                    <span>Quando uma venda for cadastrada no seu nome, ela aparecerá aqui.</span>
                 </div>
             )}
 
@@ -510,7 +510,7 @@ function MinhasCompras({ API }) {
                             <article key={idVenda || `${nomeVeiculoCompra(compra)}-${compra.data_venda}`} className={`${css.card_compra} ${vendaParcelada ? css.card_compra_parcelada : ""}`}>
                                 <div className={css.topo_compra}>
                                     <div>
-                                        <span>Veiculo</span>
+                                        <span>Veículo</span>
                                         <h2>{nomeVeiculoCompra(compra)}</h2>
                                     </div>
                                     <strong className={`${css.status_compra} ${classeStatusPagamento(statusPagamentoCompra)}`}>
@@ -523,13 +523,13 @@ function MinhasCompras({ API }) {
                                     <p><strong>Pagamento:</strong> {textoFormaPagamento(compra.forma_pagamento ?? compra.FORMA_PAGAMENTO)}</p>
                                     <p><strong>Valor:</strong> {formatarMoeda(valor)}</p>
                                     <p><strong>Recebido:</strong> {formatarMoeda(recebido)}</p>
-                                    <p><strong>Parcelas:</strong> {parcelas || "A vista"}</p>
+                                    <p><strong>Parcelas:</strong> {parcelas || "À vista"}</p>
                                 </div>
 
                                 <div className={css.acoes_compra}>
                                     {idVeiculo && (
                                         <button type="button" onClick={() => navigate(`/detalhesVeiculos/${idVeiculo}`)}>
-                                            Ver veiculo
+                                            Ver veículo
                                         </button>
                                     )}
                                     {comprovante && (
@@ -551,7 +551,7 @@ function MinhasCompras({ API }) {
                                     <div className={css.area_pix_parcelas}>
                                         <div className={css.topo_pix_parcelas}>
                                             <div>
-                                                <span>Pagamento a vista</span>
+                                                <span>Pagamento à vista</span>
                                                 <h3>Pix da compra</h3>
                                             </div>
                                             <button type="button" onClick={() => carregarPixVenda(compra, true)} disabled={carregandoPixVenda}>
@@ -567,7 +567,7 @@ function MinhasCompras({ API }) {
                                         )}
 
                                         {!carregandoPixVenda && !erroPixVenda && !pixVenda && (
-                                            <p className={css.estado_pix_parcelas}>Pix da compra indisponivel.</p>
+                                            <p className={css.estado_pix_parcelas}>Pix da compra indisponível.</p>
                                         )}
 
                                         {pixVenda && (
@@ -576,12 +576,12 @@ function MinhasCompras({ API }) {
                                                     {pixVenda.qrcode ? (
                                                         <img src={montarUrlArquivo(pixVenda.qrcode)} alt={`QR Code Pix da compra ${idVenda || ""}`} />
                                                     ) : (
-                                                        <span>QR Code indisponivel</span>
+                                                        <span>QR Code indisponível</span>
                                                     )}
                                                 </div>
 
                                                 <label className={css.pix_copia_cola}>
-                                                    <span>Pix copia e cola</span>
+                                                    <span>Pix cópia e cola</span>
                                                     <textarea value={pixVenda.copiaCola || ""} readOnly />
                                                     <button type="button" onClick={() => copiarPixVenda(pixVenda.copiaCola, idVenda)}>
                                                         Copiar Pix
@@ -657,12 +657,12 @@ function MinhasCompras({ API }) {
                                                         {parcelaPixAtual.qrcode ? (
                                                             <img src={montarUrlArquivo(parcelaPixAtual.qrcode)} alt={`QR Code Pix da parcela ${parcelaPixAtual.numero || ""}`} />
                                                         ) : (
-                                                            <span>QR Code indisponivel</span>
+                                                            <span>QR Code indisponível</span>
                                                         )}
                                                     </div>
 
                                                     <label className={css.pix_copia_cola}>
-                                                        <span>Pix copia e cola</span>
+                                                        <span>Pix cópia e cola</span>
                                                         <textarea value={parcelaPixAtual.copiaCola || ""} readOnly />
                                                         <button
                                                             type="button"

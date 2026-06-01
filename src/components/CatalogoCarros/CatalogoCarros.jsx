@@ -1,13 +1,44 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import {
-    alternarFavoritoLocal,
-    aplicarFavoritosLocais,
-    cabecalhoAutorizacao,
-    carroEstaFavoritado,
-    idUsuarioLogado,
-    usuarioPodeFavoritar
-} from "../../utils/favoritos";
+
+function cabecalhoAutorizacao() {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
+function usuarioPodeFavoritar() {
+    const usuarioSalvo = localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado");
+
+    if (!usuarioSalvo) {
+        return false;
+    }
+
+    try {
+        const usuario = JSON.parse(usuarioSalvo);
+        const tipoUsuario = Number(usuario.tipo_usuario ?? usuario["tipo_usuário"]);
+        return [0, 1, 2].includes(tipoUsuario);
+    } catch {
+        return false;
+    }
+}
+
+function carroEstaFavoritado(carro) {
+    const valor = carro?.favorito ?? carro?.FAVORITO ?? carro?.favoritado ?? carro?.FAVORITADO ?? carro?.is_favorito ?? carro?.IS_FAVORITO ?? carro?.id_favorito ?? carro?.ID_FAVORITO;
+    return valor === true || valor === 1 || String(valor).toLowerCase() === "true";
+}
+
+async function alternarFavorito(API, idVeiculo) {
+    const resposta = await fetch(`${API}/favoritar_carro/${idVeiculo}`, {
+        method: "POST",
+        headers: cabecalhoAutorizacao(),
+        credentials: "include"
+    });
+    const dados = await resposta.json().catch(() => ({}));
+
+    if (!resposta.ok) {
+        throw new Error(dados.erro || dados.mensagem || "Não foi possível atualizar este favorito.");
+    }
+}
 
 const categorias = [
     { nome: "Sedan", rota: "/CarrosSedan" },
@@ -100,6 +131,7 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
             const params = new URLSearchParams({ categoria: categoriaAtual });
             const resposta = await fetch(`${API}/listar_carro?${params.toString()}`, {
                 method: "GET",
+                headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
             const dados = await resposta.json();
@@ -110,7 +142,7 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
                 return;
             }
 
-            setCarros(aplicarFavoritosLocais(dados.carros || [], idUsuarioLogado()));
+            setCarros(dados.carros || []);
         } catch {
             setErro("Erro de conexão com o servidor.");
             setCarros([]);
@@ -169,22 +201,16 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
             return;
         }
 
-        const favoritoAtual = carroEstaFavoritado(carro);
         setFavoritandoId(String(id));
         setErro("");
-        alternarFavoritoLocal({ ...carro, favorito: favoritoAtual }, idUsuarioLogado());
-        setCarros((listaAtual) => listaAtual.map((item) => (
-            String(idCarro(item)) === String(id) ? { ...item, favorito: !favoritoAtual } : item
-        )));
 
         try {
-            await fetch(`${API}/favoritar_carro/${id}`, {
-                method: "POST",
-                headers: cabecalhoAutorizacao(),
-                credentials: "include"
-            });
-        } catch {
-            // O favorito fica salvo localmente caso a API de favoritos ainda nao esteja disponivel.
+            await alternarFavorito(API, id);
+            setCarros((listaAtual) => listaAtual.map((item) => (
+                String(idCarro(item)) === String(id) ? { ...item, favorito: !carroEstaFavoritado(item) } : item
+            )));
+        } catch (erroAtual) {
+            setErro(erroAtual.message || "Não foi possível atualizar este favorito.");
         } finally {
             setFavoritandoId("");
         }

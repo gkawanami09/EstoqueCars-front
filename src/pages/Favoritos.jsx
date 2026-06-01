@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao";
 import css from "./Favoritos.module.css";
-import {
-    cabecalhoAutorizacao,
-    extrairListaFavoritos,
-    idCarroFavorito,
-    idUsuarioLogado,
-    lerFavoritosLocais,
-    salvarFavoritosLocais
-} from "../utils/favoritos";
+
+function cabecalhoAutorizacao() {
+    const token = localStorage.getItem("access_token");
+    return token ? { Authorization: `Bearer ${token}` } : {};
+}
 
 function idCarro(carro) {
-    return idCarroFavorito(carro);
+    return carro?.id || carro?.id_veiculo || carro?.ID_VEICULO || carro?.id_carro || carro?.ID_CARRO;
 }
 
 function nomeCarro(carro) {
@@ -25,15 +23,56 @@ function formatarMoeda(valor) {
     });
 }
 
+async function listarFavoritos(API) {
+    const resposta = await fetch(`${API}/listar_favoritos`, {
+        method: "GET",
+        headers: cabecalhoAutorizacao(),
+        credentials: "include"
+    });
+    const dados = await resposta.json().catch(() => ({}));
+
+    if (!resposta.ok) {
+        throw new Error(dados.erro || dados.mensagem || "Não foi possível carregar seus favoritos.");
+    }
+
+    return Array.isArray(dados) ? dados : dados.favoritos || [];
+}
+
+async function alternarFavorito(API, idVeiculo) {
+    const resposta = await fetch(`${API}/favoritar_carro/${idVeiculo}`, {
+        method: "POST",
+        headers: cabecalhoAutorizacao(),
+        credentials: "include"
+    });
+    const dados = await resposta.json().catch(() => ({}));
+
+    if (!resposta.ok) {
+        throw new Error(dados.erro || dados.mensagem || "Não foi possível atualizar este favorito.");
+    }
+}
+
+async function limparFavoritosApi(API) {
+    const resposta = await fetch(`${API}/limpar_favoritos`, {
+        method: "DELETE",
+        headers: cabecalhoAutorizacao(),
+        credentials: "include"
+    });
+    const dados = await resposta.json().catch(() => ({}));
+
+    if (!resposta.ok) {
+        throw new Error(dados.erro || dados.mensagem || "Não foi possível limpar seus favoritos.");
+    }
+}
+
 function Favoritos({ API }) {
     const navigate = useNavigate();
-    const idUsuario = useMemo(() => idUsuarioLogado(), []);
-
     const [favoritos, setFavoritos] = useState([]);
     const [busca, setBusca] = useState("");
     const [carregando, setCarregando] = useState(true);
     const [erro, setErro] = useState("");
     const [removendoId, setRemovendoId] = useState("");
+    const [confirmarLimpeza, setConfirmarLimpeza] = useState(false);
+    const [limpandoFavoritos, setLimpandoFavoritos] = useState(false);
 
     function imagemCarro(carro) {
         const imagem = carro?.imagem || carro?.foto || carro?.foto_veiculo;
@@ -56,53 +95,17 @@ function Favoritos({ API }) {
     const carregarFavoritos = useCallback(async () => {
         setCarregando(true);
         setErro("");
-        const favoritosLocais = lerFavoritosLocais(idUsuario);
 
-        const rotas = [
-            `/listar_favoritos?id_usuario=${encodeURIComponent(idUsuario || "")}`,
-            `/listar_favoritos_usuario?id_usuario=${encodeURIComponent(idUsuario || "")}`,
-            `/favoritos?id_usuario=${encodeURIComponent(idUsuario || "")}`,
-            `/meus_favoritos?id_usuario=${encodeURIComponent(idUsuario || "")}`,
-            `/listar_carro?favoritos=1&id_usuario=${encodeURIComponent(idUsuario || "")}`
-        ];
-
-        for (const rota of rotas) {
-            try {
-                const resposta = await fetch(`${API}${rota}`, {
-                    method: "GET",
-                    headers: cabecalhoAutorizacao(),
-                    credentials: "include"
-                });
-
-                if (!resposta.ok) {
-                    continue;
-                }
-
-                const dados = await resposta.json();
-                const lista = extrairListaFavoritos(dados);
-                const favoritosMesclados = [...lista, ...favoritosLocais].reduce((resultado, carro) => {
-                    const id = idCarro(carro);
-
-                    if (!id || resultado.some((item) => String(idCarro(item)) === String(id))) {
-                        return resultado;
-                    }
-
-                    return [...resultado, { ...carro, favorito: true }];
-                }, []);
-
-                setFavoritos(favoritosMesclados);
-                salvarFavoritosLocais(favoritosMesclados, idUsuario);
-                setCarregando(false);
-                return;
-            } catch {
-                // Tenta a próxima rota conhecida.
-            }
+        try {
+            const lista = await listarFavoritos(API);
+            setFavoritos(lista.map((carro) => ({ ...carro, favorito: true })));
+        } catch (erroAtual) {
+            setFavoritos([]);
+            setErro(erroAtual.message || "Não foi possível carregar seus favoritos.");
+        } finally {
+            setCarregando(false);
         }
-
-        setFavoritos(favoritosLocais);
-        setErro("");
-        setCarregando(false);
-    }, [API, idUsuario]);
+    }, [API]);
 
     useEffect(() => {
         carregarFavoritos();
@@ -131,26 +134,33 @@ function Favoritos({ API }) {
 
         setRemovendoId(String(id));
         setErro("");
-        const listaAtualizada = favoritos.filter((item) => String(idCarro(item)) !== String(id));
-        setFavoritos(listaAtualizada);
-        salvarFavoritosLocais(listaAtualizada, idUsuario);
 
         try {
-            const resposta = await fetch(`${API}/favoritar_carro/${id}`, {
-                method: "POST",
-                headers: cabecalhoAutorizacao(),
-                credentials: "include"
-            });
-            const dados = await resposta.json().catch(() => ({}));
-
-            if (!resposta.ok) {
-                setErro(dados.erro || dados.mensagem || "");
-                return;
-            }
-        } catch {
-            // A remoção local já foi feita para manter a tela funcionando sem a rota definitiva.
+            await alternarFavorito(API, id);
+            setFavoritos((listaAtual) => listaAtual.filter((item) => String(idCarro(item)) !== String(id)));
+        } catch (erroAtual) {
+            setErro(erroAtual.message || "Não foi possível remover este favorito.");
         } finally {
             setRemovendoId("");
+        }
+    }
+
+    async function limparFavoritos() {
+        if (limpandoFavoritos || favoritos.length === 0) {
+            return;
+        }
+
+        setLimpandoFavoritos(true);
+        setErro("");
+
+        try {
+            await limparFavoritosApi(API);
+            setFavoritos([]);
+            setConfirmarLimpeza(false);
+        } catch (erroAtual) {
+            setErro(erroAtual.message || "Não foi possível limpar seus favoritos.");
+        } finally {
+            setLimpandoFavoritos(false);
         }
     }
 
@@ -161,9 +171,19 @@ function Favoritos({ API }) {
                     <span>Área do cliente</span>
                     <h1>Favoritos</h1>
                 </div>
-                <button type="button" onClick={carregarFavoritos} disabled={carregando}>
-                    {carregando ? "Atualizando..." : "Atualizar"}
-                </button>
+                <div className={css.acoes_cabecalho}>
+                    <button type="button" onClick={carregarFavoritos} disabled={carregando || limpandoFavoritos}>
+                        {carregando ? "Atualizando..." : "Atualizar"}
+                    </button>
+                    <button
+                        type="button"
+                        className={css.limpar_favoritos}
+                        onClick={() => setConfirmarLimpeza(true)}
+                        disabled={carregando || limpandoFavoritos || favoritos.length === 0}
+                    >
+                        {limpandoFavoritos ? "Limpando..." : "Limpar favoritos"}
+                    </button>
+                </div>
             </header>
 
             <div className={css.area_busca}>
@@ -242,6 +262,17 @@ function Favoritos({ API }) {
                     })}
                 </section>
             )}
+
+            <ModalConfirmacao
+                aberto={confirmarLimpeza}
+                titulo="Limpar favoritos"
+                texto="Deseja remover todos os veículos da sua lista de favoritos?"
+                destaque={`${favoritos.length} favorito${favoritos.length === 1 ? "" : "s"}`}
+                textoConfirmar="Limpar favoritos"
+                carregando={limpandoFavoritos}
+                onCancelar={() => setConfirmarLimpeza(false)}
+                onConfirmar={limparFavoritos}
+            />
         </main>
     );
 }

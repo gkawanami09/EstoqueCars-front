@@ -214,19 +214,25 @@
 }
 
 /* Status verde */
+.celula_status {
+    min-width: 150px;
+    vertical-align: middle;
+}
+
 .status {
-    padding: 6px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    min-width: 104px;
+    min-height: 32px;
+    padding: 7px 12px;
     border-radius: 10px;
     font-size: 12px;
     font-weight: 800;
-    display: inline-flex;
-    min-width: 84px;
-    min-height: 34px;
-    align-items: center;
-    justify-content: center;
+    line-height: 1;
     text-align: center;
-    line-height: 1.05;
-    white-space: normal;
+    white-space: nowrap;
 }
 
 .status_indisponivel {
@@ -246,11 +252,14 @@
 
 .status_complemento {
     display: block;
+    width: max-content;
+    max-width: 150px;
     margin-top: 6px;
     font-size: 11px;
-    font-weight: 700;
-    color: #6b7280;
+    font-weight: 800;
+    color: #4b5563;
     line-height: 1.2;
+    overflow-wrap: normal;
 }
 
 /* Botão editar */
