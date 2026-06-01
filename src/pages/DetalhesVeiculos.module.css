@@ -154,8 +154,21 @@
     cursor: pointer;
 }
 
+.comprar_pix {
+    min-height: 46px;
+    border: none;
+    border-radius: 8px;
+    background: #087a3d;
+    color: #fff;
+    padding: 0 18px;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
+}
+
 .reservar:disabled,
-.cancelar_reserva:disabled {
+.cancelar_reserva:disabled,
+.comprar_pix:disabled {
     background: #9ca3af;
     border-color: #9ca3af;
     color: #fff;
@@ -178,6 +191,59 @@
     border-color: #f0b8b8;
     background: #fff7f7;
     color: #9c1c1c;
+}
+
+.pix_compra {
+    display: grid;
+    gap: 10px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fbfbfb;
+    padding: 12px;
+}
+
+.pix_compra img {
+    width: min(210px, 100%);
+    aspect-ratio: 1 / 1;
+    justify-self: center;
+    border-radius: 8px;
+}
+
+.pix_compra label,
+.pix_compra label span {
+    display: grid;
+    gap: 6px;
+}
+
+.pix_compra label span {
+    color: #616568;
+    font-size: 12px;
+    font-weight: 900;
+    text-transform: uppercase;
+}
+
+.pix_compra textarea {
+    width: 100%;
+    min-height: 96px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    color: #333;
+    padding: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    resize: vertical;
+}
+
+.pix_compra button {
+    min-height: 42px;
+    border: none;
+    border-radius: 8px;
+    background: var(--preto);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    cursor: pointer;
 }
 
 .status {

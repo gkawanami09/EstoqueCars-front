@@ -687,13 +687,13 @@
     }
 
     .tabela td[data-label="Ações"],
-    .tabela td[data-label="AÃ§Ãµes"] {
+    .tabela td[data-label="Ações"] {
         display: block;
         text-align: left;
     }
 
     .tabela td[data-label="Ações"]::before,
-    .tabela td[data-label="AÃ§Ãµes"]::before {
+    .tabela td[data-label="Ações"]::before {
         display: block;
         margin-bottom: 10px;
     }

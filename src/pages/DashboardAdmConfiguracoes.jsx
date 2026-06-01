@@ -183,7 +183,7 @@ function DashboardAdmConfiguracoes({ API }) {
 
                 // Trata resposta de erro da API.
                 if (!resposta.ok) {
-                    setErro(dados.erro || "Erro ao carregar configuraÃ§Ãµes.");
+                    setErro(dados.erro || "Erro ao carregar configurações.");
                     return;
                 }
 
@@ -229,7 +229,7 @@ function DashboardAdmConfiguracoes({ API }) {
                 salvarTaxaJurosSite(taxaConfigurada);
             } catch {
                 // Mostra erro quando nao consegue conectar ao servidor.
-                setErro("Erro de conexÃ£o com o servidor.");
+                setErro("Erro de conexão com o servidor.");
             } finally {
                 // Desliga o carregamento.
                 setCarregando(false);
@@ -289,7 +289,7 @@ function DashboardAdmConfiguracoes({ API }) {
         // Mostra aviso orientando a salvar.
         setMensagem({
             tipo: "sucesso",
-            texto: "PadrÃ£o aplicado. Clique em Salvar para gravar."
+            texto: "Padrão aplicado. Clique em Salvar para gravar."
         });
     }
 
@@ -351,14 +351,14 @@ function DashboardAdmConfiguracoes({ API }) {
 
             // Trata erro retornado pela API.
             if (!resposta.ok) {
-                setErro(dados.erro || "Erro ao salvar configuraÃ§Ãµes.");
+                setErro(dados.erro || "Erro ao salvar configurações.");
                 return;
             }
 
             // Mostra mensagem de sucesso.
             setMensagem({
                 tipo: "sucesso",
-                texto: dados.mensagem || "ConfiguraÃ§Ãµes atualizadas com sucesso!"
+                texto: dados.mensagem || "Configurações atualizadas com sucesso!"
             });
             // Atualiza a taxa normalizada no estado.
             setTaxaJuros(String(taxaParaSalvar));
@@ -391,7 +391,7 @@ function DashboardAdmConfiguracoes({ API }) {
             setUsarLogoPadrao(false);
         } catch {
             // Mostra erro quando nao consegue conectar ao servidor.
-            setErro("Erro de conexÃ£o com o servidor.");
+            setErro("Erro de conexão com o servidor.");
         } finally {
             // Desliga o carregamento do salvar.
             setSalvando(false);
@@ -402,7 +402,7 @@ function DashboardAdmConfiguracoes({ API }) {
     return (
         // Container principal da pagina.
         <main className={css.container}>
-            <h1 className={css.titulo}>ConfiguraÃ§Ãµes da Plataforma</h1>
+            <h1 className={css.titulo}>Configurações da Plataforma</h1>
 
             {/* Mensagem de sucesso ou aviso. */}
             {mensagem && (
@@ -414,7 +414,7 @@ function DashboardAdmConfiguracoes({ API }) {
             {/* Mensagem exibida enquanto as configuracoes carregam. */}
             {carregando && (
                 <div className={css.mensagem}>
-                    Carregando configuraÃ§Ãµes...
+                    Carregando configurações...
                 </div>
             )}
 
@@ -438,14 +438,14 @@ function DashboardAdmConfiguracoes({ API }) {
                         {/* Inputs de cor primaria e secundaria. */}
                         <div className={css.duplo}>
                             <Input
-                                label="Cor primÃ¡ria"
+                                label="Cor primária"
                                 type="color"
                                 value={corPrimaria}
                                 onChange={(e) => setCorPrimaria(e.target.value)}
                             />
 
                             <Input
-                                label="Cor secundÃ¡ria"
+                                label="Cor secundária"
                                 type="color"
                                 value={corSecundaria}
                                 onChange={(e) => setCorSecundaria(e.target.value)}
@@ -509,7 +509,7 @@ function DashboardAdmConfiguracoes({ API }) {
                                 type="text"
                                 value={chavePix}
                                 onChange={(e) => setChavePix(e.target.value)}
-                                placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatÃ³ria"
+                                placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória"
                             />
                         </label>
 
@@ -535,7 +535,7 @@ function DashboardAdmConfiguracoes({ API }) {
                 {/* Botoes de restaurar padrao e salvar. */}
                 <div className={css.botoes}>
                     <button className={css.botaoPadrao} type="button" onClick={voltarPadrao} disabled={salvando || carregando}>
-                        Voltar ao padrÃ£o
+                        Voltar ao padrão
                     </button>
                     <button className={css.salvar} type="submit" disabled={salvando || carregando}>
                         {salvando ? "Salvando..." : "Salvar"}

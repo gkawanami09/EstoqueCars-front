@@ -104,6 +104,20 @@
     box-sizing: border-box;
 }
 
+.card_compra_clicavel {
+    cursor: pointer;
+}
+
+.card_compra_clicavel:hover {
+    border-color: var(--cor-principal);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+}
+
+.card_compra_clicavel:focus-visible {
+    outline: 3px solid rgba(0, 0, 0, 0.18);
+    outline-offset: 3px;
+}
+
 .card_compra_parcelada {
     grid-column: 1 / -1;
 }

@@ -1,120 +1,120 @@
-// Importa os hooks do React usados para estado, efeitos, memoizacao e callbacks.
+// Importa os hooks do React usados para estado, efeitos, memorização e callbacks.
 import { useCallback, useEffect, useMemo, useState } from "react";
 // Importa o hook usado para navegar para outra rota.
 import { useNavigate } from "react-router-dom";
-// Importa o modal de confirmacao usado antes de limpar todos os favoritos.
+// Importa o modal de confirmação usado antes de limpar todos os favoritos.
 import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao";
-// Importa as classes CSS module desta pagina.
+// Importa as classes CSS module desta página.
 import css from "./Favoritos.module.css";
 
-// Monta o cabecalho de autorizacao para chamadas autenticadas na API.
+// Monta o cabeçalho de autorização para chamadas autenticadas na API.
 function cabecalhoAutorizacao() {
     // Busca o token de acesso salvo no navegador.
     const token = localStorage.getItem("access_token");
-    // Se existir token, envia como Bearer; se nao existir, retorna objeto vazio.
+    // Se existir token, envia como Bearer; se não existir, retorna objeto vazio.
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// Descobre o id do carro aceitando diferentes nomes possiveis vindos da API.
+// Descobre o ID do carro aceitando diferentes nomes possíveis vindos da API.
 function idCarro(carro) {
     return carro?.id || carro?.id_veiculo || carro?.ID_VEICULO || carro?.id_carro || carro?.ID_CARRO;
 }
 
 // Monta o nome do carro para exibir no card.
 function nomeCarro(carro) {
-    // Usa o nome direto, ou junta marca e modelo, ou mostra um texto padrao.
-    return carro?.nome || [carro?.marca, carro?.modelo].filter(Boolean).join(" ") || "VeÃ­culo";
+    // Usa o nome direto, junta marca e modelo, ou mostra um texto padrão.
+    return carro?.nome || [carro?.marca, carro?.modelo].filter(Boolean).join(" ") || "Veículo";
 }
 
-// Formata um valor numerico como moeda brasileira.
+// Formata um valor numérico como moeda brasileira.
 function formatarMoeda(valor) {
-    // Converte o valor para numero e aplica o formato BRL.
+    // Converte o valor para número e aplica o formato BRL.
     return Number(valor || 0).toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL"
     });
 }
 
-// Busca na API todos os carros favoritados pelo usuario.
+// Busca na API todos os carros favoritos do usuário.
 async function listarFavoritos(API) {
-    // Faz a requisicao GET para a rota de favoritos.
+    // Faz a requisição GET para a rota de favoritos.
     const resposta = await fetch(`${API}/listar_favoritos`, {
-        // Define o metodo HTTP usado para listar dados.
+        // Define o método HTTP usado para listar dados.
         method: "GET",
-        // Envia o token de autorizacao quando existir.
+        // Envia o token de autorização quando existir.
         headers: cabecalhoAutorizacao(),
-        // Inclui cookies da sessao, caso a API tambem use cookies.
+        // Inclui cookies da sessão, caso a API também use cookies.
         credentials: "include"
     });
     // Tenta converter a resposta para JSON; se falhar, usa objeto vazio.
     const dados = await resposta.json().catch(() => ({}));
 
-    // Se a API respondeu com erro, dispara uma excecao com mensagem amigavel.
+    // Se a API respondeu com erro, dispara uma exceção com mensagem amigável.
     if (!resposta.ok) {
-        throw new Error(dados.erro || dados.mensagem || "NÃ£o foi possÃ­vel carregar seus favoritos.");
+        throw new Error(dados.erro || dados.mensagem || "Não foi possível carregar seus favoritos.");
     }
 
     // Retorna a lista quando vier como array direto ou dentro da propriedade favoritos.
     return Array.isArray(dados) ? dados : dados.favoritos || [];
 }
 
-// Alterna o favorito de um veiculo na API.
+// Alterna o favorito de um veículo na API.
 async function alternarFavorito(API, idVeiculo) {
-    // Chama a rota que adiciona ou remove favorito para o id informado.
+    // Chama a rota que adiciona ou remove favorito para o ID informado.
     const resposta = await fetch(`${API}/favoritar_carro/${idVeiculo}`, {
         // Usa POST porque altera o estado do favorito.
         method: "POST",
-        // Envia o token de autorizacao.
+        // Envia o token de autorização.
         headers: cabecalhoAutorizacao(),
-        // Inclui cookies da sessao quando existirem.
+        // Inclui cookies da sessão quando existirem.
         credentials: "include"
     });
     // Tenta ler o corpo da resposta como JSON.
     const dados = await resposta.json().catch(() => ({}));
 
-    // Se nao foi sucesso, mostra mensagem da API ou uma mensagem padrao.
+    // Se não foi sucesso, mostra mensagem da API ou uma mensagem padrão.
     if (!resposta.ok) {
-        throw new Error(dados.erro || dados.mensagem || "NÃ£o foi possÃ­vel atualizar este favorito.");
+        throw new Error(dados.erro || dados.mensagem || "Não foi possível atualizar este favorito.");
     }
 }
 
-// Remove todos os favoritos do usuario pela API.
+// Remove todos os favoritos do usuário pela API.
 async function limparFavoritosApi(API) {
-    // Chama a rota responsavel por limpar a lista de favoritos.
+    // Chama a rota responsável por limpar a lista de favoritos.
     const resposta = await fetch(`${API}/limpar_favoritos`, {
-        // Usa DELETE porque a acao remove dados da lista.
+        // Usa DELETE porque a ação remove dados da lista.
         method: "DELETE",
-        // Envia o token de autorizacao.
+        // Envia o token de autorização.
         headers: cabecalhoAutorizacao(),
-        // Inclui cookies da sessao quando existirem.
+        // Inclui cookies da sessão quando existirem.
         credentials: "include"
     });
     // Tenta converter a resposta para JSON; se falhar, usa objeto vazio.
     const dados = await resposta.json().catch(() => ({}));
 
-    // Se a API retornou erro, dispara excecao com mensagem adequada.
+    // Se a API retornou erro, dispara exceção com mensagem adequada.
     if (!resposta.ok) {
-        throw new Error(dados.erro || dados.mensagem || "NÃ£o foi possÃ­vel limpar seus favoritos.");
+        throw new Error(dados.erro || dados.mensagem || "Não foi possível limpar seus favoritos.");
     }
 }
 
-// Componente principal da pagina de favoritos.
+// Componente principal da página de favoritos.
 function Favoritos({ API }) {
-    // Cria a funcao para navegar entre rotas.
+    // Cria a função para navegar entre rotas.
     const navigate = useNavigate();
     // Guarda a lista de carros favoritos.
     const [favoritos, setFavoritos] = useState([]);
     // Guarda o texto digitado na busca.
     const [busca, setBusca] = useState("");
-    // Controla se a lista ainda esta carregando.
+    // Controla se a lista ainda está carregando.
     const [carregando, setCarregando] = useState(true);
     // Guarda a mensagem de erro exibida na tela.
     const [erro, setErro] = useState("");
-    // Guarda o id do favorito em remocao para bloquear cliques repetidos.
+    // Guarda o ID do favorito em remoção para bloquear cliques repetidos.
     const [removendoId, setRemovendoId] = useState("");
-    // Controla se o modal de confirmacao para limpar tudo esta aberto.
+    // Controla se o modal de confirmação para limpar tudo está aberto.
     const [confirmarLimpeza, setConfirmarLimpeza] = useState(false);
-    // Controla o carregamento da acao de limpar todos os favoritos.
+    // Controla o carregamento da ação de limpar todos os favoritos.
     const [limpandoFavoritos, setLimpandoFavoritos] = useState(false);
 
     // Monta a URL da imagem do carro.
@@ -122,17 +122,17 @@ function Favoritos({ API }) {
         // Busca a imagem em campos diferentes que podem vir da API.
         const imagem = carro?.imagem || carro?.foto || carro?.foto_veiculo;
 
-        // Se nao houver imagem, retorna o icone padrao.
+        // Se não houver imagem, retorna o ícone padrão.
         if (!imagem) {
             return "/IconCar.png";
         }
 
-        // Se a imagem ja for uma URL completa, usa como veio.
+        // Se a imagem já for uma URL completa, usa como veio.
         if (String(imagem).startsWith("http")) {
             return imagem;
         }
 
-        // Se o caminho comeca com barra, junta direto com a URL base da API.
+        // Se o caminho começa com barra, junta direto com a URL base da API.
         if (String(imagem).startsWith("/")) {
             return `${API}${imagem}`;
         }
@@ -145,7 +145,7 @@ function Favoritos({ API }) {
     const carregarFavoritos = useCallback(async () => {
         // Ativa o estado de carregamento.
         setCarregando(true);
-        // Limpa erros antigos antes da nova requisicao.
+        // Limpa erros antigos antes da nova requisição.
         setErro("");
 
         // Tenta buscar os favoritos.
@@ -155,10 +155,10 @@ function Favoritos({ API }) {
             // Marca cada item como favorito no estado local.
             setFavoritos(lista.map((carro) => ({ ...carro, favorito: true })));
         } catch (erroAtual) {
-            // Limpa a lista se a requisicao falhar.
+            // Limpa a lista se a requisição falhar.
             setFavoritos([]);
-            // Mostra a mensagem de erro retornada ou uma mensagem padrao.
-            setErro(erroAtual.message || "NÃ£o foi possÃ­vel carregar seus favoritos.");
+            // Mostra a mensagem de erro retornada ou uma mensagem padrão.
+            setErro(erroAtual.message || "Não foi possível carregar seus favoritos.");
         } finally {
             // Desliga o carregamento ao terminar.
             setCarregando(false);
@@ -175,55 +175,55 @@ function Favoritos({ API }) {
         // Normaliza o termo digitado.
         const termo = busca.trim().toLowerCase();
 
-        // Se nao houver termo, retorna todos os favoritos.
+        // Se não houver termo, retorna todos os favoritos.
         if (!termo) {
             return favoritos;
         }
 
         // Filtra a lista procurando o termo em marca ou modelo.
         return favoritos.filter((carro) => {
-            // Le a marca aceitando campo minusculo ou maiusculo.
+            // Lê a marca aceitando campo minúsculo ou maiúsculo.
             const marca = String(carro?.marca || carro?.MARCA || "").toLowerCase();
-            // Le o modelo aceitando campo minusculo ou maiusculo.
+            // Lê o modelo aceitando campo minúsculo ou maiúsculo.
             const modelo = String(carro?.modelo || carro?.MODELO || "").toLowerCase();
-            // Mantem o carro se marca ou modelo contem o termo buscado.
+            // Mantém o carro se marca ou modelo contém o termo buscado.
             return marca.includes(termo) || modelo.includes(termo);
         });
     }, [busca, favoritos]);
 
-    // Remove um carro especifico da lista de favoritos.
+    // Remove um carro específico da lista de favoritos.
     async function removerFavorito(carro) {
-        // Descobre o id do carro clicado.
+        // Descobre o ID do carro clicado.
         const id = idCarro(carro);
 
-        // Se nao houver id ou ja houver remocao em andamento, nao faz nada.
+        // Se não houver ID ou já houver remoção em andamento, não faz nada.
         if (!id || removendoId) {
             return;
         }
 
-        // Marca este id como em remocao.
+        // Marca este ID como em remoção.
         setRemovendoId(String(id));
         // Limpa erros antigos.
         setErro("");
 
         // Tenta remover o favorito na API.
         try {
-            // Alterna o favorito, removendo da lista do usuario.
+            // Alterna o favorito, removendo da lista do usuário.
             await alternarFavorito(API, id);
             // Remove o item do estado local sem precisar recarregar tudo.
             setFavoritos((listaAtual) => listaAtual.filter((item) => String(idCarro(item)) !== String(id)));
         } catch (erroAtual) {
-            // Mostra mensagem de erro caso a remocao falhe.
-            setErro(erroAtual.message || "NÃ£o foi possÃ­vel remover este favorito.");
+            // Mostra mensagem de erro caso a remoção falhe.
+            setErro(erroAtual.message || "Não foi possível remover este favorito.");
         } finally {
-            // Libera os botoes de remocao.
+            // Libera os botões de remoção.
             setRemovendoId("");
         }
     }
 
-    // Limpa todos os favoritos do usuario.
+    // Limpa todos os favoritos do usuário.
     async function limparFavoritos() {
-        // Impede acao duplicada ou limpeza de uma lista vazia.
+        // Impede ação duplicada ou limpeza de uma lista vazia.
         if (limpandoFavoritos || favoritos.length === 0) {
             return;
         }
@@ -235,15 +235,15 @@ function Favoritos({ API }) {
 
         // Tenta limpar a lista na API.
         try {
-            // Envia a requisicao para remover todos os favoritos.
+            // Envia a requisição para remover todos os favoritos.
             await limparFavoritosApi(API);
             // Esvazia a lista local.
             setFavoritos([]);
-            // Fecha o modal de confirmacao.
+            // Fecha o modal de confirmação.
             setConfirmarLimpeza(false);
         } catch (erroAtual) {
             // Mostra mensagem de erro se a limpeza falhar.
-            setErro(erroAtual.message || "NÃ£o foi possÃ­vel limpar seus favoritos.");
+            setErro(erroAtual.message || "Não foi possível limpar seus favoritos.");
         } finally {
             // Desliga o carregamento da limpeza.
             setLimpandoFavoritos(false);
@@ -252,16 +252,16 @@ function Favoritos({ API }) {
 
     // Renderiza a tela de favoritos.
     return (
-        // Container principal da pagina.
+        // Container principal da página.
         <main className={css.pagina}>
-            {/* Cabecalho com titulo e acoes principais. */}
+            {/* Cabeçalho com título e ações principais. */}
             <header className={css.cabecalho}>
-                {/* Area de texto do cabecalho. */}
+                {/* Área de texto do cabeçalho. */}
                 <div>
-                    <span>Ãrea do cliente</span>
+                    <span>Área do cliente</span>
                     <h1>Favoritos</h1>
                 </div>
-                {/* Botoes de atualizar e limpar favoritos. */}
+                {/* Botões de atualizar e limpar favoritos. */}
                 <div className={css.acoes_cabecalho}>
                     <button type="button" onClick={carregarFavoritos} disabled={carregando || limpandoFavoritos}>
                         {carregando ? "Atualizando..." : "Atualizar"}
@@ -294,18 +294,18 @@ function Favoritos({ API }) {
             {/* Mostra carregamento enquanto busca favoritos. */}
             {carregando && <div className={css.estado}>Carregando favoritos...</div>}
 
-            {/* Mostra mensagem quando nao existe nenhum favorito salvo. */}
+            {/* Mostra mensagem quando não existe nenhum favorito salvo. */}
             {!carregando && !erro && favoritos.length === 0 && (
                 <div className={css.estado}>
                     <strong>Nenhum favorito encontrado.</strong>
-                    <span>Quando vocÃª favoritar um veÃ­culo, ele aparecerÃ¡ aqui.</span>
+                    <span>Quando você favoritar um veículo, ele aparecerá aqui.</span>
                 </div>
             )}
 
-            {/* Mostra mensagem quando a busca nao encontra favoritos. */}
+            {/* Mostra mensagem quando a busca não encontra favoritos. */}
             {!carregando && !erro && favoritos.length > 0 && favoritosFiltrados.length === 0 && (
                 <div className={css.estado}>
-                    <strong>Nenhum favorito encontrado para essa busca.</strong>
+                    <strong>Nenhum favorito encontrado para esta busca.</strong>
                     <span>Tente pesquisar por outra marca ou modelo.</span>
                 </div>
             )}
@@ -315,13 +315,13 @@ function Favoritos({ API }) {
                 <section className={css.lista}>
                     {/* Cria um card para cada favorito filtrado. */}
                     {favoritosFiltrados.map((carro) => {
-                        // Guarda o id para usar na key, nos botoes e na navegacao.
+                        // Guarda o ID para usar na key, nos botões e na navegação.
                         const id = idCarro(carro);
 
                         // Retorna o card visual do carro.
                         return (
                             <article key={id || nomeCarro(carro)} className={css.card}>
-                                {/* Area da imagem do carro. */}
+                                {/* Área da imagem do carro. */}
                                 <div className={css.imagem_area}>
                                     <img
                                         src={imagemCarro(carro)}
@@ -332,7 +332,7 @@ function Favoritos({ API }) {
                                     />
                                 </div>
 
-                                {/* Area com as informacoes do favorito. */}
+                                {/* Área com as informações do favorito. */}
                                 <div className={css.info}>
                                     <span>Favorito</span>
                                     <h2>{nomeCarro(carro)}</h2>
@@ -340,13 +340,13 @@ function Favoritos({ API }) {
                                         <p><strong>Marca:</strong> {carro.marca || carro.MARCA || "-"}</p>
                                         <p><strong>Modelo:</strong> {carro.modelo || carro.MODELO || "-"}</p>
                                         <p><strong>Ano:</strong> {carro.ano_fabricacao || carro.ANO_FABRICACAO || "-"} / {carro.ano_modelo || carro.ANO_MODELO || "-"}</p>
-                                        <p><strong>PreÃ§o:</strong> {formatarMoeda(carro.preco ?? carro.PRECO)}</p>
+                                        <p><strong>Preço:</strong> {formatarMoeda(carro.preco ?? carro.PRECO)}</p>
                                     </div>
                                 </div>
 
-                                {/* Area de acoes do card. */}
+                                {/* Área de ações do card. */}
                                 <div className={css.acoes}>
-                                    {/* Botao de detalhes aparece somente se houver id. */}
+                                    {/* Botão de detalhes aparece somente se houver ID. */}
                                     {id && (
                                         <button type="button" onClick={() => navigate(`/detalhesVeiculos/${id}`)}>
                                             Ver detalhes
@@ -367,11 +367,11 @@ function Favoritos({ API }) {
                 </section>
             )}
 
-            {/* Modal que confirma a remocao de todos os favoritos. */}
+            {/* Modal que confirma a remoção de todos os favoritos. */}
             <ModalConfirmacao
                 aberto={confirmarLimpeza}
                 titulo="Limpar favoritos"
-                texto="Deseja remover todos os veÃ­culos da sua lista de favoritos?"
+                texto="Deseja remover todos os veículos da sua lista de favoritos?"
                 destaque={`${favoritos.length} favorito${favoritos.length === 1 ? "" : "s"}`}
                 textoConfirmar="Limpar favoritos"
                 carregando={limpandoFavoritos}
@@ -382,5 +382,5 @@ function Favoritos({ API }) {
     );
 }
 
-// Exporta a pagina para ser usada nas rotas da aplicacao.
+// Exporta a página para ser usada nas rotas da aplicação.
 export default Favoritos;

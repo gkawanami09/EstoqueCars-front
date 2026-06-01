@@ -82,6 +82,12 @@ function DetalhesVeiculos({ API }) {
 
     const [mensagemReserva, setMensagemReserva] = useState(null);
 
+    const [comprandoPix, setComprandoPix] = useState(false);
+
+    const [pixCompra, setPixCompra] = useState(null);
+
+    const [mensagemCompra, setMensagemCompra] = useState(null);
+
     // Guarda erro ao buscar as manutencoes.
     const [erroManutencoes, setErroManutencoes] = useState("");
 
@@ -414,9 +420,50 @@ function DetalhesVeiculos({ API }) {
         );
     }
 
+    function dataHoraAtualParaApi() {
+        const agora = new Date();
+        const dia = String(agora.getDate()).padStart(2, "0");
+        const mes = String(agora.getMonth() + 1).padStart(2, "0");
+        const ano = agora.getFullYear();
+        const hora = String(agora.getHours()).padStart(2, "0");
+        const minuto = String(agora.getMinutes()).padStart(2, "0");
+
+        return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+    }
+
+    function montarUrlArquivo(valor) {
+        if (!valor) {
+            return "";
+        }
+
+        const caminho = String(valor);
+
+        if (caminho.startsWith("http") || caminho.startsWith("data:")) {
+            return caminho;
+        }
+
+        return caminho.startsWith("/") ? `${API}${caminho}` : `${API}/${caminho}`;
+    }
+
+    function aplicarPixCompra(dados) {
+        const qrcode = dados?.pix_qrcode || dados?.qr_code || dados?.qr_code_base64;
+        const copiaCola = dados?.pix_copia_cola || dados?.pix_copia_e_cola || dados?.payload;
+
+        if (!qrcode && !copiaCola) {
+            return false;
+        }
+
+        setPixCompra({
+            qrcode: montarUrlArquivo(qrcode),
+            copiaCola
+        });
+        return true;
+    }
+
     const veiculoReservado = tipoStatusEstoque(carro?.status_estoque) === "indisponivel";
     const usuarioDonoReserva = Boolean(idUsuarioLogado() && idUsuarioReserva() && idUsuarioLogado() === idUsuarioReserva());
     const podeCancelarReserva = veiculoReservado && (isPainelAdm || usuarioDonoReserva);
+    const podeComprarPix = usuarioEstaLogado && !isPainelAdm && (tipoStatusEstoque(carro?.status_estoque) === "estoque" || usuarioDonoReserva);
 
     async function reservarVeiculo() {
         const idVeiculo = idCarro();
@@ -549,6 +596,85 @@ function DetalhesVeiculos({ API }) {
         }
     }
 
+    async function comprarComPix() {
+        const idVeiculo = idCarro();
+        const idUsuario = idUsuarioLogado();
+        const valorVenda = Number(carro?.preco || 0);
+
+        if (!usuarioEstaLogado) {
+            navigate("/login");
+            return;
+        }
+
+        if (!idVeiculo || !idUsuario || !podeComprarPix || !valorVenda) {
+            return;
+        }
+
+        setComprandoPix(true);
+        setMensagemCompra(null);
+        setPixCompra(null);
+
+        const formData = new FormData();
+        formData.append("id_usuario", idUsuario);
+        formData.append("id_veiculo", idVeiculo);
+        formData.append("forma_pagamento", "0");
+        formData.append("data_venda", dataHoraAtualParaApi());
+        formData.append("valor_venda", String(valorVenda));
+        formData.append("valor_recebido", String(valorVenda));
+        formData.append("status_pagamento", "1");
+        formData.append("comentarios", "Compra online via Pix");
+        formData.append("desconto", "0");
+
+        try {
+            const resposta = await fetch(`${API}/cadastrar_venda`, {
+                method: "POST",
+                headers: cabecalhoAutorizacao(),
+                credentials: "include",
+                body: formData
+            });
+            const dados = await lerRespostaJson(resposta);
+
+            if (!resposta.ok) {
+                setMensagemCompra({
+                    tipo: "erro",
+                    texto: dados.erro || dados.mensagem || "Não foi possível iniciar a compra por Pix."
+                });
+                return;
+            }
+
+            aplicarPixCompra(dados);
+            setCarro((veiculoAtual) => ({
+                ...veiculoAtual,
+                status_estoque: 2,
+                STATUS_ESTOQUE: 2
+            }));
+            setMensagemCompra({
+                tipo: "sucesso",
+                texto: dados.mensagem || "Compra iniciada. Pague pelo Pix abaixo para concluir."
+            });
+        } catch {
+            setMensagemCompra({
+                tipo: "erro",
+                texto: "Não foi possível conectar ao servidor para iniciar a compra."
+            });
+        } finally {
+            setComprandoPix(false);
+        }
+    }
+
+    async function copiarPixCompra() {
+        if (!pixCompra?.copiaCola) {
+            return;
+        }
+
+        try {
+            await navigator.clipboard.writeText(pixCompra.copiaCola);
+            setMensagemCompra({ tipo: "sucesso", texto: "Código Pix copiado." });
+        } catch {
+            setMensagemCompra({ tipo: "erro", texto: "Não foi possível copiar o código Pix automaticamente." });
+        }
+    }
+
     // Enquanto a API ainda busca o carro, mostra uma mensagem de carregamento.
     if (carregando) {
         return (
@@ -661,6 +787,40 @@ function DetalhesVeiculos({ API }) {
                                 >
                                     {cancelandoReserva ? "Cancelando..." : "Cancelar reserva"}
                                 </button>
+                            )}
+
+                            {podeComprarPix && (
+                                <button
+                                    type="button"
+                                    className={css.comprar_pix}
+                                    onClick={comprarComPix}
+                                    disabled={comprandoPix}
+                                >
+                                    {comprandoPix ? "Gerando Pix..." : "Comprar com Pix"}
+                                </button>
+                            )}
+
+                            {mensagemCompra && (
+                                <p className={`${css.mensagem_reserva} ${mensagemCompra.tipo === "erro" ? css.mensagem_reserva_erro : ""}`}>
+                                    {mensagemCompra.texto}
+                                </p>
+                            )}
+
+                            {pixCompra && (
+                                <div className={css.pix_compra}>
+                                    {pixCompra.qrcode ? (
+                                        <img src={pixCompra.qrcode} alt="QR Code Pix da compra" />
+                                    ) : (
+                                        <span>QR Code indisponível</span>
+                                    )}
+                                    <label>
+                                        <span>Pix cópia e cola</span>
+                                        <textarea value={pixCompra.copiaCola || ""} readOnly />
+                                    </label>
+                                    <button type="button" onClick={copiarPixCompra}>
+                                        Copiar Pix
+                                    </button>
+                                </div>
                             )}
                         </div>
                     )}

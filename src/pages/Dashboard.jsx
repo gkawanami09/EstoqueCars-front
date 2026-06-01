@@ -1,78 +1,78 @@
-// Importa os hooks do React usados para estado, efeitos, memoizacao e callbacks.
+// Importa os hooks do React usados para estado, efeitos, memorização e callbacks.
 import { useCallback, useEffect, useMemo, useState } from "react";
-// Importa o hook de navegacao para trocar de rota pelo JavaScript.
+// Importa o hook de navegação para trocar de rota pelo JavaScript.
 import { useNavigate } from "react-router-dom";
 // Importa as classes CSS module usadas apenas neste componente.
 import css from "./Dashboard.module.css";
-// Importa o componente de paginacao e a quantidade fixa de itens por pagina.
+// Importa o componente de paginação e a quantidade fixa de itens por página.
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
-// Monta o cabecalho de autorizacao para chamadas autenticadas na API.
+// Monta o cabeçalho de autorização para chamadas autenticadas na API.
 function cabecalhoAutorizacao() {
     // Busca o token salvo no navegador depois do login.
     const token = localStorage.getItem("access_token");
-    // Se existir token, retorna Authorization Bearer; senao, retorna um objeto vazio.
+    // Se existir token, retorna Authorization Bearer; senão, retorna um objeto vazio.
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// Verifica se o usuario logado pode usar a funcao de favoritar carros.
+// Verifica se o usuário logado pode usar a função de favoritar carros.
 function usuarioPodeFavoritar() {
-    // Busca os dados do usuario salvo, aceitando tambem uma chave antiga com acento quebrado.
-    const usuarioSalvo = localStorage.getItem("usuario_logado") || localStorage.getItem("usuÃ¡rio_logado");
+    // Busca os dados do usuário salvo.
+    const usuarioSalvo = localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado");
 
-    // Se nao existe usuario salvo, ele nao pode favoritar.
+    // Se não existe usuário salvo, ele não pode favoritar.
     if (!usuarioSalvo) {
         return false;
     }
 
     // Tenta converter o texto salvo no localStorage para objeto JavaScript.
     try {
-        // Transforma o JSON do usuario em objeto.
+        // Transforma o JSON do usuário em objeto.
         const usuario = JSON.parse(usuarioSalvo);
-        // Le o tipo do usuario, aceitando duas formas de nome do campo.
-        const tipoUsuario = Number(usuario.tipo_usuario ?? usuario["tipo_usuÃ¡rio"]);
+        // Lê o tipo do usuário, aceitando duas formas de nome do campo.
+        const tipoUsuario = Number(usuario.tipo_usuario ?? usuario["tipo_usuário"]);
         // Permite favoritar apenas para os tipos 0, 1 e 2.
         return [0, 1, 2].includes(tipoUsuario);
     } catch {
-        // Se o JSON estiver invalido, por seguranca nao permite favoritar.
+        // Se o JSON estiver inválido, por segurança não permite favoritar.
         return false;
     }
 }
 
-// Descobre se um carro ja esta marcado como favorito.
+// Descobre se um carro já está marcado como favorito.
 function carroEstaFavoritado(carro) {
-    // Procura o valor de favorito em varios nomes possiveis vindos da API.
+    // Procura o valor de favorito em vários nomes possíveis vindos da API.
     const valor = carro?.favorito ?? carro?.FAVORITO ?? carro?.favoritado ?? carro?.FAVORITADO ?? carro?.is_favorito ?? carro?.IS_FAVORITO ?? carro?.id_favorito ?? carro?.ID_FAVORITO;
-    // Considera favorito se vier como booleano true, numero 1 ou texto "true".
+    // Considera favorito se vier como booleano true, número 1 ou texto "true".
     return valor === true || valor === 1 || String(valor).toLowerCase() === "true";
 }
 
-// Envia para a API a solicitacao de adicionar ou remover um carro dos favoritos.
+// Envia para a API a solicitação de adicionar ou remover um carro dos favoritos.
 async function alternarFavorito(API, idVeiculo) {
-    // Chama a rota de favorito usando o id do veiculo.
+    // Chama a rota de favorito usando o ID do veículo.
     const resposta = await fetch(`${API}/favoritar_carro/${idVeiculo}`, {
         // Usa POST porque a API altera o estado do favorito.
         method: "POST",
-        // Envia o token de autenticacao quando ele existir.
+        // Envia o token de autenticação quando ele existir.
         headers: cabecalhoAutorizacao(),
-        // Inclui cookies da sessao, caso a API use cookies tambem.
+        // Inclui cookies da sessão, caso a API use cookies também.
         credentials: "include"
     });
     // Tenta ler o JSON de resposta; se falhar, usa objeto vazio.
     const dados = await resposta.json().catch(() => ({}));
 
-    // Se a resposta nao foi sucesso, mostra a mensagem da API ou uma mensagem padrao.
+    // Se a resposta não foi sucesso, mostra a mensagem da API ou uma mensagem padrão.
     if (!resposta.ok) {
-        throw new Error(dados.erro || dados.mensagem || "NÃ£o foi possÃ­vel atualizar este favorito.");
+        throw new Error(dados.erro || dados.mensagem || "Não foi possível atualizar este favorito.");
     }
 }
 
-// Lista de categorias exibidas nos botoes de filtro.
-const categorias = ["Sedan", "ElÃ©trico", "Esportivo", "Caminhonete", "SUV"];
+// Lista de categorias exibidas nos botões de filtro.
+const categorias = ["Sedan", "Elétrico", "Esportivo", "Caminhonete", "SUV"];
 
 // Componente principal da tela de dashboard.
 function Dashboard({ API }) {
-    // Cria a funcao usada para navegar para outras telas.
+    // Cria a função usada para navegar para outras telas.
     const navigate = useNavigate();
     // Guarda a lista de carros recebida da API.
     const [carros, setCarros] = useState([]);
@@ -80,77 +80,77 @@ function Dashboard({ API }) {
     const [busca, setBusca] = useState("");
     // Guarda a categoria selecionada no filtro.
     const [categoria, setCategoria] = useState("");
-    // Guarda a pagina atual da lista.
+    // Guarda a página atual da lista.
     const [paginaAtual, setPaginaAtual] = useState(1);
     // Controla o estado de carregamento da lista.
     const [carregando, setCarregando] = useState(true);
     // Guarda mensagens de erro para exibir na tela.
     const [erro, setErro] = useState("");
-    // Guarda o id do carro que esta sendo favoritado para evitar cliques duplicados.
+    // Guarda o ID do carro que está sendo favoritado para evitar cliques duplicados.
     const [favoritandoId, setFavoritandoId] = useState("");
-    // Define se o botao de favorito deve aparecer para o usuario atual.
+    // Define se o botão de favorito deve aparecer para o usuário atual.
     const mostrarFavorito = usuarioPodeFavoritar();
 
-    // Cria um objeto vazio para receber os dados do usuario logado.
+    // Cria um objeto vazio para receber os dados do usuário logado.
     let usuario = {};
 
-    // Tenta carregar o usuario salvo no navegador.
+    // Tenta carregar o usuário salvo no navegador.
     try {
         // Converte o JSON salvo no localStorage para objeto.
-        usuario = JSON.parse(localStorage.getItem("usuario_logado") || localStorage.getItem("usuario_logado")) || {};
+        usuario = JSON.parse(localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado")) || {};
     } catch {
-        // Se houver erro no JSON, mantem o usuario como objeto vazio.
+        // Se houver erro no JSON, mantém o usuário como objeto vazio.
         usuario = {};
     }
 
-    // Define o nome mostrado no cabecalho, usando "Usuario" como fallback.
-    const nomeUsuario = usuario.nome || "Usuario";
+    // Define o nome mostrado no cabeçalho, usando "Usuário" como fallback.
+    const nomeUsuario = usuario.nome || "Usuário";
 
-    // Le o status de estoque do carro aceitando diferentes nomes de campo da API.
+    // Lê o status de estoque do carro aceitando diferentes nomes de campo da API.
     function statusEstoqueCarro(carro) {
         return carro?.status_estoque ?? carro?.STATUS_ESTOQUE ?? carro?.statusEstoque ?? carro?.status ?? "";
     }
 
     // Converte o status vindo da API para um dos tipos usados na interface.
     function tipoStatusEstoque(carro) {
-        // Normaliza o status para texto minusculo sem espacos nas pontas.
+        // Normaliza o status para texto minúsculo sem espaços nas pontas.
         const status = String(statusEstoqueCarro(carro) || "").trim().toLowerCase();
 
-        // Identifica carros em estoque por codigo ou texto.
+        // Identifica carros em estoque por código ou texto.
         if (status === "1" || status.includes("estoque") || (status.includes("dispon") && !status.includes("indispon"))) {
             return "estoque";
         }
 
-        // Identifica carros vendidos por codigo ou texto.
+        // Identifica carros vendidos por código ou texto.
         if (status === "2" || status.includes("vend")) {
             return "vendido";
         }
 
-        // Identifica carros indisponiveis por codigo ou texto.
+        // Identifica carros indisponíveis por código ou texto.
         if (status === "3" || status.includes("indispon")) {
             return "indisponivel";
         }
 
-        // Quando nao reconhece o status, trata como indisponivel.
+        // Quando não reconhece o status, trata como indisponível.
         return "indisponivel";
     }
 
-    // Retorna o texto amigavel do status para aparecer no card.
+    // Retorna o texto amigável do status para aparecer no card.
     function textoStatusEstoque(carro) {
-        // Reaproveita a funcao que normaliza o status.
+        // Reaproveita a função que normaliza o status.
         const status = tipoStatusEstoque(carro);
 
-        // Texto exibido para veiculo vendido.
+        // Texto exibido para veículo vendido.
         if (status === "vendido") {
             return "Vendido";
         }
 
-        // Texto exibido para veiculo indisponivel.
+        // Texto exibido para veículo indisponível.
         if (status === "indisponivel") {
-            return "Indisponivel";
+            return "Indisponível";
         }
 
-        // Texto exibido para veiculo em estoque.
+        // Texto exibido para veículo em estoque.
         return "Em estoque";
     }
 
@@ -162,16 +162,16 @@ function Dashboard({ API }) {
         return status === "estoque" ? css.status_estoque : status === "vendido" ? css.status_vendido : css.status_indisponivel;
     }
 
-    // Busca os carros na API; useCallback evita recriar a funcao sem necessidade.
+    // Busca os carros na API; useCallback evita recriar a função sem necessidade.
     const carregarCarros = useCallback(async () => {
         // Liga o estado de carregamento.
         setCarregando(true);
         // Limpa erros anteriores antes de uma nova busca.
         setErro("");
 
-        // Tenta fazer a requisicao para a API.
+        // Tenta fazer a requisição para a API.
         try {
-            // Cria os parametros de query string.
+            // Cria os parâmetros de query string.
             const params = new URLSearchParams();
 
             // Se uma categoria foi escolhida, adiciona ela na URL.
@@ -181,11 +181,11 @@ function Dashboard({ API }) {
 
             // Faz a chamada GET para listar carros.
             const resposta = await fetch(`${API}/listar_carro?${params.toString()}`, {
-                // Define o metodo HTTP da requisicao.
+                // Define o método HTTP da requisição.
                 method: "GET",
-                // Envia o cabecalho de autorizacao.
+                // Envia o cabeçalho de autorização.
                 headers: cabecalhoAutorizacao(),
-                // Inclui cookies de sessao quando existirem.
+                // Inclui cookies de sessão quando existirem.
                 credentials: "include"
             });
             // Converte a resposta da API em JSON.
@@ -193,19 +193,19 @@ function Dashboard({ API }) {
 
             // Trata respostas de erro da API.
             if (!resposta.ok) {
-                // Mostra a mensagem de erro retornada ou uma mensagem padrao.
-                setErro(dados.erro || "Erro ao carregar veiculos.");
-                // Limpa a lista para nao exibir dados antigos.
+                // Mostra a mensagem de erro retornada ou uma mensagem padrão.
+                setErro(dados.erro || "Erro ao carregar veículos.");
+                // Limpa a lista para não exibir dados antigos.
                 setCarros([]);
-                // Para a execucao da funcao.
+                // Para a execução da função.
                 return;
             }
 
-            // Salva os carros retornados; se nao vier lista, usa lista vazia.
+            // Salva os carros retornados; se não vier lista, usa lista vazia.
             setCarros(dados.carros || []);
         } catch {
-            // Mostra erro quando a API nao responde ou ocorre falha de rede.
-            setErro("Erro de conexao com o servidor.");
+            // Mostra erro quando a API não responde ou ocorre falha de rede.
+            setErro("Erro de conexão com o servidor.");
             // Limpa a lista em caso de falha.
             setCarros([]);
         } finally {
@@ -214,21 +214,21 @@ function Dashboard({ API }) {
         }
     }, [API, categoria]);
 
-    // Executa a busca de carros quando o componente abre ou quando a funcao muda.
+    // Executa a busca de carros quando o componente abre ou quando a função muda.
     useEffect(() => {
         carregarCarros();
     }, [carregarCarros]);
 
-    // Mantem na vitrine apenas os carros que estao em estoque.
+    // Mantém na vitrine apenas os carros que estão em estoque.
     const carrosDisponiveis = carros.filter((carro) => tipoStatusEstoque(carro) === "estoque");
     // Normaliza o texto digitado para facilitar a busca.
     const termoBusca = busca.trim().toLowerCase();
 
-    // Filtra os carros disponiveis pelo termo de busca, quando houver busca.
+    // Filtra os carros disponíveis pelo termo de busca, quando houver busca.
     const carrosFiltrados = termoBusca
-        // Se existe busca, verifica varios campos do carro.
+        // Se existe busca, verifica vários campos do carro.
         ? carrosDisponiveis.filter((carro) => {
-            // Campos pesquisaveis no card do carro.
+            // Campos pesquisáveis no card do carro.
             const campos = [
                 carro.nome,
                 carro.modelo,
@@ -243,94 +243,94 @@ function Dashboard({ API }) {
                 carro.quilometragem
             ];
 
-            // Retorna true se qualquer campo contem o termo buscado.
+            // Retorna true se qualquer campo contém o termo buscado.
             return campos.some((campo) => String(campo || "").toLowerCase().includes(termoBusca));
         })
-        // Se nao existe busca, usa todos os carros disponiveis.
+        // Se não existe busca, usa todos os carros disponíveis.
         : carrosDisponiveis;
 
-    // Calcula o total de paginas, garantindo no minimo 1 pagina.
+    // Calcula o total de páginas, garantindo no mínimo 1 página.
     const totalPaginas = Math.max(1, Math.ceil(carrosFiltrados.length / ITENS_POR_PAGINA));
 
-    // Volta para a primeira pagina quando a busca ou categoria mudam.
+    // Volta para a primeira página quando a busca ou categoria mudam.
     useEffect(() => {
         setPaginaAtual(1);
     }, [busca, categoria]);
 
-    // Corrige a pagina atual caso ela fique maior que o total de paginas.
+    // Corrige a página atual caso ela fique maior que o total de páginas.
     useEffect(() => {
-        // Se a pagina atual passou do limite, volta para a ultima pagina disponivel.
+        // Se a página atual passou do limite, volta para a última página disponível.
         if (paginaAtual > totalPaginas) {
             setPaginaAtual(totalPaginas);
         }
     }, [paginaAtual, totalPaginas]);
 
-    // Calcula apenas os carros que devem aparecer na pagina atual.
+    // Calcula apenas os carros que devem aparecer na página atual.
     const carrosPaginados = useMemo(() => {
-        // Descobre o indice inicial da pagina atual.
+        // Descobre o índice inicial da página atual.
         const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
-        // Recorta a lista filtrada usando o limite de itens por pagina.
+        // Recorta a lista filtrada usando o limite de itens por página.
         return carrosFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
     }, [carrosFiltrados, paginaAtual]);
 
-    // Define a mensagem que aparece quando nao ha carros para mostrar.
+    // Define a mensagem que aparece quando não há carros para mostrar.
     const mensagemListaVazia = carros.length === 0
-        // Caso nao exista nenhum veiculo cadastrado.
+        // Caso não exista nenhum veículo cadastrado.
         ? {
-            titulo: "Nenhum veiculo cadastrado no momento.",
-            texto: "Assim que novos veiculos forem adicionados, eles aparecerao aqui."
+            titulo: "Nenhum veículo cadastrado no momento.",
+            texto: "Assim que novos veículos forem adicionados, eles aparecerão aqui."
         }
-        // Caso existam veiculos, mas nenhum esteja disponivel em estoque.
+        // Caso existam veículos, mas nenhum esteja disponível em estoque.
         : carrosDisponiveis.length === 0
             ? {
-                titulo: "Nenhum veiculo disponivel em estoque.",
-                texto: "Os veiculos vendidos ou indisponiveis ficam escondidos da vitrine do cliente."
+                titulo: "Nenhum veículo disponível em estoque.",
+                texto: "Os veículos vendidos ou indisponíveis ficam escondidos da vitrine do cliente."
             }
-            // Caso existam veiculos disponiveis, mas nenhum combine com o filtro/busca.
+            // Caso existam veículos disponíveis, mas nenhum combine com o filtro/busca.
             : {
-                titulo: "Nenhum veiculo disponivel encontrado.",
+                titulo: "Nenhum veículo disponível encontrado.",
                 texto: "Tente buscar por outra marca, modelo, cor, categoria ou ano."
             };
 
-    // Formata o preco para moeda brasileira.
+    // Formata o preço para moeda brasileira.
     function formatarPreco(valor) {
-        // Converte o valor para numero e aplica formato BRL.
+        // Converte o valor para número e aplica formato BRL.
         return Number(valor || 0).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL"
         });
     }
 
-    // Converte o valor do cambio para um texto amigavel.
+    // Converte o valor do câmbio para um texto amigável.
     function formatarCambio(valor) {
-        // Normaliza o cambio para comparacao.
+        // Normaliza o câmbio para comparação.
         const cambio = String(valor || "").toLowerCase();
 
-        // Retorna Automatico quando vier codigo 1 ou texto contendo "auto".
+        // Retorna Automático quando vier código 1 ou texto contendo "auto".
         if (cambio === "1" || cambio.includes("auto")) {
-            return "Automatico";
+            return "Automático";
         }
 
-        // Retorna Manual quando vier codigo 2 ou texto contendo "manual".
+        // Retorna Manual quando vier código 2 ou texto contendo "manual".
         if (cambio === "2" || cambio.includes("manual")) {
             return "Manual";
         }
 
-        // Se nao reconhecer, mostra o valor original ou um hifen.
+        // Se não reconhecer, mostra o valor original ou um hífen.
         return valor || "-";
     }
 
-    // Descobre o id do carro aceitando varios nomes possiveis vindos da API.
+    // Descobre o ID do carro aceitando vários nomes possíveis vindos da API.
     function idCarro(carro) {
         return carro?.id || carro?.id_carro || carro?.id_veiculo || carro?.ID_VEICULO || carro?.ID_CARRO;
     }
 
     // Alterna o favorito de um carro clicado.
     async function favoritarCarro(carro) {
-        // Pega o id do carro usando a funcao auxiliar.
+        // Pega o ID do carro usando a função auxiliar.
         const id = idCarro(carro);
 
-        // Se nao houver id ou ja houver favoritando em andamento, nao faz nada.
+        // Se não houver ID ou já houver favoritando em andamento, não faz nada.
         if (!id || favoritandoId) {
             return;
         }
@@ -342,7 +342,7 @@ function Dashboard({ API }) {
 
         // Tenta atualizar o favorito na API.
         try {
-            // Envia a requisicao de favoritar/desfavoritar.
+            // Envia a requisição de favoritar/desfavoritar.
             await alternarFavorito(API, id);
             // Atualiza a lista local sem precisar recarregar toda a tela.
             setCarros((listaAtual) => listaAtual.map((item) => (
@@ -350,25 +350,25 @@ function Dashboard({ API }) {
                 String(idCarro(item)) === String(id) ? { ...item, favorito: !carroEstaFavoritado(item) } : item
             )));
         } catch (erroAtual) {
-            // Mostra o erro retornado ou uma mensagem padrao.
-            setErro(erroAtual.message || "NÃ£o foi possÃ­vel atualizar este favorito.");
+            // Mostra o erro retornado ou uma mensagem padrão.
+            setErro(erroAtual.message || "Não foi possível atualizar este favorito.");
         } finally {
-            // Libera o botao de favorito depois da tentativa.
+            // Libera o botão de favorito depois da tentativa.
             setFavoritandoId("");
         }
     }
 
     // Monta a URL da imagem do carro.
     function imagemCarro(carro) {
-        // Busca a imagem em diferentes campos possiveis.
+        // Busca a imagem em diferentes campos possíveis.
         const imagem = carro?.imagem || carro?.foto || carro?.foto_veiculo;
 
-        // Se nao tiver imagem, usa o icone padrao.
+        // Se não tiver imagem, usa o ícone padrão.
         if (!imagem) {
             return "/IconCar.png";
         }
 
-        // Se ja for URL completa, usa do jeito que veio.
+        // Se já for URL completa, usa do jeito que veio.
         if (String(imagem).startsWith("http")) {
             return imagem;
         }
@@ -384,26 +384,26 @@ function Dashboard({ API }) {
 
     // Renderiza o HTML/JSX da tela.
     return (
-        // Container geral da pagina de dashboard.
+        // Container geral da página de dashboard.
         <div className={css.layout_dashboard}>
-            {/* Conteudo principal da tela. */}
+            {/* Conteúdo principal da tela. */}
             <main className={css.conteudo_principal}>
-                {/* Cabecalho com saudacao e area do usuario. */}
+                {/* Cabeçalho com saudação e área do usuário. */}
                 <header className={css.cabecalho}>
-                    {/* Titulo de boas-vindas com o nome do usuario. */}
+                    {/* Título de boas-vindas com o nome do usuário. */}
                     <h1 className={css.titulo_boas_vindas}>
                         Bem-vindo, <span className={css.nome_usuario}>{nomeUsuario}</span>
                     </h1>
-                    {/* Area visual do usuario no canto do cabecalho. */}
+                    {/* Área visual do usuário no canto do cabeçalho. */}
                     <div className={css.area_usuario}>
-                        {/* Avatar/icone de perfil estilizado pelo CSS. */}
+                        {/* Avatar/ícone de perfil estilizado pelo CSS. */}
                         <div className={css.perfil_usuario} />
                     </div>
                 </header>
 
-                {/* Campo de busca dos veiculos. */}
+                {/* Campo de busca dos veículos. */}
                 <div className={css.area_busca}>
-                    {/* Icone da lupa da busca. */}
+                    {/* Ícone da lupa da busca. */}
                     <img
                         src="/IconBusca.png"
                         alt="Buscar"
@@ -419,9 +419,9 @@ function Dashboard({ API }) {
                     />
                 </div>
 
-                {/* Botoes de filtro por categoria. */}
+                {/* Botões de filtro por categoria. */}
                 <section className={css.secao_filtros}>
-                    {/* Botao que remove o filtro de categoria. */}
+                    {/* Botão que remove o filtro de categoria. */}
                     <button
                         type="button"
                         className={`${css.botao_filtro} ${categoria === "" ? css.filtro_ativo : ""}`}
@@ -429,7 +429,7 @@ function Dashboard({ API }) {
                     >
                         Todos
                     </button>
-                    {/* Cria um botao para cada categoria cadastrada no array. */}
+                    {/* Cria um botão para cada categoria cadastrada no array. */}
                     {categorias.map((nomeCategoria) => (
                         <button
                             key={nomeCategoria}
@@ -448,9 +448,9 @@ function Dashboard({ API }) {
                 {/* Lista de cards dos carros. */}
                 <section className={css.lista_carros}>
                     {/* Mostra estado de carregamento enquanto busca os carros. */}
-                    {carregando && <div className={css.estado_lista}>Carregando veiculos...</div>}
+                    {carregando && <div className={css.estado_lista}>Carregando veículos...</div>}
 
-                    {/* Mostra mensagem vazia quando terminou de carregar e nao encontrou carros. */}
+                    {/* Mostra mensagem vazia quando terminou de carregar e não encontrou carros. */}
                     {!carregando && !erro && carrosFiltrados.length === 0 && (
                         <div className={css.estado_lista}>
                             <strong>{mensagemListaVazia.titulo}</strong>
@@ -458,12 +458,12 @@ function Dashboard({ API }) {
                         </div>
                     )}
 
-                    {/* Renderiza um card para cada carro da pagina atual. */}
+                    {/* Renderiza um card para cada carro da página atual. */}
                     {!carregando && carrosPaginados.map((carro) => (
                         <article key={idCarro(carro) || carro.modelo} className={css.card_carro}>
-                            {/* Area da imagem e do botao de favorito. */}
+                            {/* Área da imagem e do botão de favorito. */}
                             <div className={css.area_imagem_card}>
-                                {/* Mostra o botao de favorito somente para usuarios permitidos. */}
+                                {/* Mostra o botão de favorito somente para usuários permitidos. */}
                                 {mostrarFavorito && (
                                     <button
                                         type="button"
@@ -477,38 +477,38 @@ function Dashboard({ API }) {
                                         aria-label={carroEstaFavoritado(carro) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                                         title={carroEstaFavoritado(carro) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                                     >
-                                        <span aria-hidden="true">{carroEstaFavoritado(carro) ? "â™¥" : "â™¡"}</span>
+                                        <span aria-hidden="true">{carroEstaFavoritado(carro) ? "♥" : "♡"}</span>
                                     </button>
                                 )}
                                 {/* Imagem principal do carro. */}
                                 <img
                                     src={imagemCarro(carro)}
-                                    alt={carro.modelo || "Veiculo"}
+                                    alt={carro.modelo || "Veículo"}
                                     onError={(evento) => {
                                         evento.currentTarget.src = "/IconCar.png";
                                     }}
                                 />
                             </div>
 
-                            {/* Informacoes textuais do carro. */}
+                            {/* Informações textuais do carro. */}
                             <div className={css.info_carro}>
-                                {/* Titulo do carro e selo de status. */}
+                                {/* Título do carro e selo de status. */}
                                 <div className={css.titulo_status}>
-                                    <h2>{carro.modelo || carro.nome || "Veiculo"}</h2>
+                                    <h2>{carro.modelo || carro.nome || "Veículo"}</h2>
                                     <span className={`${css.status_veiculo} ${classeStatusEstoque(carro)}`}>
                                         {textoStatusEstoque(carro)}
                                     </span>
                                 </div>
-                                {/* Grade com dados principais do veiculo. */}
+                                {/* Grade com dados principais do veículo. */}
                                 <div className={css.grade_info}>
                                     <p><strong>Marca:</strong> {carro.marca || "-"}</p>
                                     <p><strong>Ano:</strong> {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
-                                    <p><strong>Cambio:</strong> {formatarCambio(carro.cambio)}</p>
+                                    <p><strong>Câmbio:</strong> {formatarCambio(carro.cambio)}</p>
                                     <p><strong>Cor:</strong> {carro.cor || "-"}</p>
                                 </div>
                             </div>
 
-                            {/* Area com preco e botao de detalhes. */}
+                            {/* Área com preço e botão de detalhes. */}
                             <div className={css.area_preco}>
                                 <strong>{formatarPreco(carro.preco)}</strong>
                                 <button
@@ -522,7 +522,7 @@ function Dashboard({ API }) {
                     ))}
                 </section>
 
-                {/* Mostra a paginacao somente quando ha carros filtrados para navegar. */}
+                {/* Mostra a paginação somente quando há carros filtrados para navegar. */}
                 {!carregando && !erro && carrosFiltrados.length > 0 && (
                     <div className={css.paginacao_area}>
                         <Paginacao
@@ -537,5 +537,5 @@ function Dashboard({ API }) {
     );
 }
 
-// Exporta o componente para ser usado nas rotas da aplicacao.
+// Exporta o componente para ser usado nas rotas da aplicação.
 export default Dashboard;
