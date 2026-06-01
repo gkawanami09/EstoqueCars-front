@@ -25,16 +25,7 @@ export default defineConfig([
     },
   },
   {
-    files: ['**/*.test.{js,jsx}', 'src/test/**/*.{js,jsx}'],
-    languageOptions: {
-      globals: {
-        ...globals.browser,
-        ...globals.jest,
-      },
-    },
-  },
-  {
-    files: ['scripts/**/*.{js,mjs,cjs}', '*.config.{js,cjs,mjs}', 'jest.config.cjs', 'babel.config.cjs'],
+    files: ['*.config.{js,cjs,mjs}'],
     languageOptions: {
       globals: {
         ...globals.node,
