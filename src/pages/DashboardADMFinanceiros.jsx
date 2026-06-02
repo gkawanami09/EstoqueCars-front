@@ -13,24 +13,6 @@ function cabecalhoAutorizacao() {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
-// Monta uma query string ignorando filtros vazios ou "todos".
-function montarQuery(parametros) {
-    // Cria um objeto próprio para parâmetros de URL.
-    const busca = new URLSearchParams();
-
-    // Percorre cada parâmetro recebido.
-    Object.entries(parametros).forEach(([chave, valor]) => {
-        // Adiciona somente valores realmente preenchidos.
-        if (valor !== undefined && valor !== null && valor !== "" && valor !== "todos") {
-            busca.set(chave, valor);
-        }
-    });
-
-    // Converte os parâmetros em texto.
-    const query = busca.toString();
-    // Retorna a query com "?" quando houver parâmetros.
-    return query ? `?${query}` : "";
-}
 
 // Descobre o ID da transação aceitando nomes diferentes vindos da API.
 function idTransacao(transacao) {
@@ -94,6 +76,61 @@ function dataParaTela(valor) {
     return texto;
 }
 
+// Converte a data da transação para um objeto Date seguro para filtros.
+function dataParaFiltro(valor) {
+    // Se não houver data, não participa do filtro de período.
+    if (!valor) {
+        return null;
+    }
+
+    // Pega apenas a parte yyyy-mm-dd quando a API retornar data com horário.
+    const texto = String(valor).slice(0, 10);
+    // Separa ano, mês e dia.
+    const partes = texto.split("-").map(Number);
+
+    // Garante que a data está no formato esperado.
+    if (partes.length !== 3 || partes.some((parte) => !Number.isFinite(parte))) {
+        return null;
+    }
+
+    // Cria a data no horário local para evitar diferença de fuso.
+    return new Date(partes[0], partes[1] - 1, partes[2]);
+}
+
+// Verifica se a transação está dentro do período selecionado.
+function transacaoDentroPeriodo(transacao, periodo) {
+    // Período vazio significa todos os registros.
+    if (!periodo) {
+        return true;
+    }
+
+    // Converte o período para número de dias.
+    const dias = Number(periodo);
+
+    // Se o período não for válido, não bloqueia a transação.
+    if (!Number.isFinite(dias) || dias <= 0) {
+        return true;
+    }
+
+    // Converte a data da transação.
+    const dataTransacao = dataParaFiltro(transacao.data);
+
+    // Sem data válida, a transação fica fora de filtros por período.
+    if (!dataTransacao) {
+        return false;
+    }
+
+    // Normaliza a data de hoje sem horário.
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+
+    // Calcula a primeira data permitida.
+    const dataInicio = new Date(hoje);
+    dataInicio.setDate(dataInicio.getDate() - dias);
+
+    // Mantém apenas transações entre a data inicial e hoje.
+    return dataTransacao >= dataInicio && dataTransacao <= hoje;
+}
 // Descobre o ID do veículo aceitando nomes diferentes da API.
 function idVeiculo(carro) {
     return carro?.id || carro?.id_veiculo || carro?.ID_VEICULO;
@@ -152,13 +189,6 @@ function DashboardADMFinanceiros({ API }) {
     const [carregandoVeiculos, setCarregandoVeiculos] = useState(false);
     // Guarda as transações financeiras listadas.
     const [transacoes, setTransacoes] = useState([]);
-    // Guarda os totais do resumo financeiro.
-    const [resumo, setResumo] = useState({
-        receitas: 0,
-        despesas: 0,
-        saldo: 0,
-        lucro_liquido: 0
-    });
     // Controla o carregamento principal da página.
     const [carregando, setCarregando] = useState(true);
     // Controla o carregamento do botão de salvar.
@@ -184,26 +214,57 @@ function DashboardADMFinanceiros({ API }) {
         valor: ""
     });
 
-    // Filtra as transações conforme o texto de busca.
+    // Filtra as transacoes conforme periodo, tipo e texto de busca.
     const transacoesFiltradas = useMemo(() => {
         // Normaliza o termo digitado.
         const termo = busca.trim().toLowerCase();
 
-        // Se não houver busca, mostra todas as transações.
-        if (!termo) {
-            return transacoes;
-        }
+        // Aplica todos os filtros no proprio front para nao depender da API.
+        return transacoes.filter((transacao) => {
+            // Filtra por tipo quando receitas ou despesas estiver selecionado.
+            if (tipo !== "todos" && transacao.tipo !== tipo) {
+                return false;
+            }
 
-        // Procura o termo nos principais campos da transação.
-        return transacoes.filter((transacao) => (
-            [
+            // Filtra por periodo selecionado.
+            if (!transacaoDentroPeriodo(transacao, periodo)) {
+                return false;
+            }
+
+            // Se nao houver busca, os filtros de tipo/periodo ja bastam.
+            if (!termo) {
+                return true;
+            }
+
+            // Procura o termo nos principais campos da transacao.
+            return [
                 transacao.descricao,
                 transacao.veiculo,
                 dataParaTela(transacao.data),
-                transacao.tipo === "entrada" ? "receita entrada" : "despesa saída saida"
-            ].join(" ").toLowerCase().includes(termo)
-        ));
-    }, [busca, transacoes]);
+                transacao.tipo === "entrada" ? "receita entrada" : "despesa saida"
+            ].join(" ").toLowerCase().includes(termo);
+        });
+    }, [busca, periodo, tipo, transacoes]);
+
+    // Filtra apenas por periodo para alimentar os cards principais.
+    const transacoesDoPeriodo = useMemo(() => (
+        transacoes.filter((transacao) => transacaoDentroPeriodo(transacao, periodo))
+    ), [periodo, transacoes]);
+
+    // Calcula o resumo do periodo no front, garantindo que o filtro de periodo funcione.
+    const resumoPeriodo = useMemo(() => {
+        return transacoesDoPeriodo.reduce((total, transacao) => {
+            if (transacao.tipo === "entrada") {
+                total.receitas += Number(transacao.valor || 0);
+            } else {
+                total.despesas += Number(transacao.valor || 0);
+            }
+
+            total.saldo = total.receitas - total.despesas;
+            total.lucro_liquido = total.saldo;
+            return total;
+        }, { receitas: 0, despesas: 0, saldo: 0, lucro_liquido: 0 });
+    }, [transacoesDoPeriodo]);
 
     // Calcula os totais apenas das transações visíveis após filtros locais.
     const totaisVisiveis = useMemo(() => {
@@ -222,7 +283,7 @@ function DashboardADMFinanceiros({ API }) {
         }, { receitas: 0, despesas: 0 });
     }, [transacoesFiltradas]);
 
-    // Carrega a lista de transações e o resumo financeiro.
+    // Carrega a lista de transacoes financeiras.
     const carregarFinanceiro = useCallback(async () => {
         // Ativa o carregamento principal.
         setCarregando(true);
@@ -231,38 +292,19 @@ function DashboardADMFinanceiros({ API }) {
 
         // Tenta buscar os dados financeiros.
         try {
-            // Monta a query da lista com período e tipo.
-            const queryLista = montarQuery({ periodo, tipo });
-            // Monta a query do resumo apenas com período.
-            const queryResumo = montarQuery({ periodo });
-
-            // Busca lista e resumo em paralelo.
-            const [respostaLista, respostaResumo] = await Promise.all([
-                fetch(`${API}/listar_financeiro${queryLista}`, {
-                    method: "GET",
-                    headers: cabecalhoAutorizacao(),
-                    credentials: "include"
-                }),
-                fetch(`${API}/resumo_financeiro${queryResumo}`, {
-                    method: "GET",
-                    headers: cabecalhoAutorizacao(),
-                    credentials: "include"
-                })
-            ]);
+            // Busca a lista completa; os filtros sao aplicados no proprio front.
+            const respostaLista = await fetch(`${API}/listar_financeiro`, {
+                method: "GET",
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
 
             // Tenta ler o JSON da lista.
             const dadosLista = await respostaLista.json().catch(() => ({}));
-            // Tenta ler o JSON do resumo.
-            const dadosResumo = await respostaResumo.json().catch(() => ({}));
 
             // Se a lista falhou, interrompe com erro.
             if (!respostaLista.ok) {
-                throw new Error(dadosLista.erro || dadosLista.mensagem || "Não foi possível carregar as transações.");
-            }
-
-            // Se o resumo falhou, interrompe com erro.
-            if (!respostaResumo.ok) {
-                throw new Error(dadosResumo.erro || dadosResumo.mensagem || "Não foi possível carregar o resumo financeiro.");
+                throw new Error(dadosLista.erro || dadosLista.mensagem || "Nao foi possivel carregar as transacoes.");
             }
 
             // Aceita a lista como array direto ou dentro de propriedades conhecidas.
@@ -270,30 +312,35 @@ function DashboardADMFinanceiros({ API }) {
                 ? dadosLista
                 : dadosLista.transacoes || dadosLista.financeiro || [];
 
-            // Normaliza e salva as transações.
+            // Normaliza e salva as transacoes.
             setTransacoes(lista.map(normalizarTransacao));
-            // Salva os totais do resumo, convertendo tudo para número.
-            setResumo({
-                receitas: Number(dadosResumo.receitas || 0),
-                despesas: Number(dadosResumo.despesas || 0),
-                saldo: Number(dadosResumo.saldo || 0),
-                lucro_liquido: Number(dadosResumo.lucro_liquido ?? dadosResumo.saldo ?? 0)
-            });
         } catch (erroAtual) {
             // Limpa a lista se ocorrer erro.
             setTransacoes([]);
             // Mostra mensagem de erro.
-            setErro(erroAtual.message || "Não foi possível carregar o financeiro.");
+            setErro(erroAtual.message || "Nao foi possivel carregar o financeiro.");
         } finally {
             // Desliga o carregamento principal.
             setCarregando(false);
         }
-    }, [API, periodo, tipo]);
+    }, [API]);
 
     // Recarrega o financeiro ao abrir a tela ou mudar filtros de API.
     useEffect(() => {
         carregarFinanceiro();
     }, [carregarFinanceiro]);
+    // Esconde automaticamente a mensagem de sucesso depois de 6 segundos.
+    useEffect(() => {
+        if (!mensagem) {
+            return undefined;
+        }
+
+        const temporizador = setTimeout(() => {
+            setMensagem("");
+        }, 6000);
+
+        return () => clearTimeout(temporizador);
+    }, [mensagem]);
 
     // Carrega a lista de veículos usada no formulário.
     useEffect(() => {
@@ -577,7 +624,7 @@ function DashboardADMFinanceiros({ API }) {
                     onClick={() => setTipo(tipo === "entrada" ? "todos" : "entrada")}
                 >
                     <span>Receitas do período</span>
-                    <strong>{formatarMoeda(resumo.receitas)}</strong>
+                    <strong>{formatarMoeda(resumoPeriodo.receitas)}</strong>
                 </button>
 
                 <button
@@ -586,17 +633,17 @@ function DashboardADMFinanceiros({ API }) {
                     onClick={() => setTipo(tipo === "saida" ? "todos" : "saida")}
                 >
                     <span>Despesas do período</span>
-                    <strong>{formatarMoeda(resumo.despesas)}</strong>
+                    <strong>{formatarMoeda(resumoPeriodo.despesas)}</strong>
                 </button>
 
                 <article className={`${css.card_resumo} ${css.card_saldo}`}>
                     <span>Saldo financeiro</span>
-                    <strong>{formatarMoeda(resumo.saldo)}</strong>
+                    <strong>{formatarMoeda(resumoPeriodo.saldo)}</strong>
                 </article>
 
                 <article className={`${css.card_resumo} ${css.card_mes}`}>
                     <span>Lucro líquido</span>
-                    <strong>{formatarMoeda(resumo.lucro_liquido)}</strong>
+                    <strong>{formatarMoeda(resumoPeriodo.lucro_liquido)}</strong>
                 </article>
             </section>
 
