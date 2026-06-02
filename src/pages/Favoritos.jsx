@@ -261,11 +261,8 @@ function Favoritos({ API }) {
                     <span>Área do cliente</span>
                     <h1>Favoritos</h1>
                 </div>
-                {/* Botões de atualizar e limpar favoritos. */}
+                {/* Botão para limpar todos os favoritos. */}
                 <div className={css.acoes_cabecalho}>
-                    <button type="button" onClick={carregarFavoritos} disabled={carregando || limpandoFavoritos}>
-                        {carregando ? "Atualizando..." : "Atualizar"}
-                    </button>
                     <button
                         type="button"
                         className={css.limpar_favoritos}

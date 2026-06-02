@@ -443,11 +443,12 @@
 }
 
 .botaoGerarPix,
-.botaoCopiarPix {
+.botaoCopiarPix,
+.botaoConfirmarPix,
+.botaoCancelarPix {
     min-height: 34px;
     border: none;
     border-radius: 6px;
-    background: #000;
     color: #fff;
     padding: 0 14px;
     font-size: 13px;
@@ -455,8 +456,23 @@
     cursor: pointer;
 }
 
+.botaoGerarPix,
+.botaoCopiarPix {
+    background: #000;
+}
+
+.botaoConfirmarPix {
+    background: #258243;
+}
+
+.botaoCancelarPix {
+    background: var(--cor-principal);
+}
+
 .botaoGerarPix:disabled,
-.botaoCopiarPix:disabled {
+.botaoCopiarPix:disabled,
+.botaoConfirmarPix:disabled,
+.botaoCancelarPix:disabled {
     cursor: not-allowed;
     opacity: 0.65;
 }
@@ -515,11 +531,17 @@
     overflow-wrap: anywhere;
 }
 
-.pixResultado .botaoCopiarPix {
+.pixAcoes {
     grid-column: 2;
-    justify-self: start;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
     align-self: end;
-    min-width: 150px;
+}
+
+.pixAcoes button {
+    min-width: 138px;
 }
 
 .pixCopiaCampo {
@@ -867,9 +889,14 @@
         width: min(100%, 220px);
     }
 
-    .pixResultado .botaoCopiarPix {
+    .pixAcoes {
         grid-column: 1;
-        justify-self: stretch;
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .pixAcoes button {
+        width: 100%;
     }
 
     .modalFundo {

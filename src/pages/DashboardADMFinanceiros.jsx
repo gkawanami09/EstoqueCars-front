@@ -477,6 +477,8 @@ function DashboardADMFinanceiros({ API }) {
             descricao: "",
             valor: ""
         });
+        setErro("");
+        setMensagem("");
     }
 
     // Salva uma transação nova ou editada.
@@ -607,9 +609,6 @@ function DashboardADMFinanceiros({ API }) {
 
                 {/* Ações principais do topo. */}
                 <div className={css.acoes_topo}>
-                    <button type="button" className={css.botao_secundario} onClick={carregarFinanceiro} disabled={carregando}>
-                        {carregando ? "Atualizando..." : "Atualizar"}
-                    </button>
                     <button type="button" className={css.botao_nova} onClick={() => abrirCadastro("entrada")}>
                         Nova transação
                     </button>
@@ -704,8 +703,8 @@ function DashboardADMFinanceiros({ API }) {
             </section>
 
             {/* Mensagens de erro e sucesso. */}
-            {erro && <p className={css.mensagem_erro}>{erro}</p>}
-            {mensagem && <p className={css.mensagem_sucesso}>{mensagem}</p>}
+            {!modalAberto && erro && <p className={css.mensagem_erro}>{erro}</p>}
+            {!modalAberto && mensagem && <p className={css.mensagem_sucesso}>{mensagem}</p>}
 
             {/* Tabela de transações financeiras. */}
             <section className={css.tabela_container}>
@@ -796,6 +795,9 @@ function DashboardADMFinanceiros({ API }) {
                                 ×
                             </button>
                         </header>
+
+                        {erro && <p className={`${css.mensagem_erro} ${css.mensagem_modal}`}>{erro}</p>}
+                        {mensagem && <p className={`${css.mensagem_sucesso} ${css.mensagem_modal}`}>{mensagem}</p>}
 
                         {/* Campos do formulário financeiro. */}
                         <div className={css.modal_conteudo}>

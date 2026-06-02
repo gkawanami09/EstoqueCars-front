@@ -398,6 +398,16 @@
     width: 100%;
 }
 
+.acoes_pix_parcela {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+}
+
+.acoes_pix_parcela button {
+    width: 100%;
+}
+
 .erro_pix_parcelas {
     margin: 0;
     border: 1px solid #ffd0d0;

@@ -579,6 +579,8 @@ function Vendas({ API }) {
     const [pixGerado, setPixGerado] = useState(null);
     // Controla o estado de carregamento especifico da geracao do Pix.
     const [gerandoPix, setGerandoPix] = useState(false);
+    // Guarda se o Pix atual foi cancelado manualmente.
+    const [pixCancelado, setPixCancelado] = useState(false);
     // Guarda mensagem de erro especifica do Pix.
     const [erroPix, setErroPix] = useState("");
     // Guarda a quantidade de parcelas escolhida para financiamento.
@@ -864,13 +866,15 @@ function Vendas({ API }) {
         setPixGerado(null);
         // Limpa erro antigo do Pix.
         setErroPix("");
+        // Libera nova geracao automatica para os novos dados.
+        setPixCancelado(false);
         // Libera novo envio porque a venda mudou.
         setVendaFinalizada(false);
     // Roda quando forma de pagamento, valor final ou veiculo mudarem.
     }, [formaPagamento, valorComDesconto, veiculoId]);
 
     useEffect(() => {
-        if (!ehPix || vendaFinalizada) {
+        if (!ehPix || vendaFinalizada || pixCancelado) {
             return;
         }
 
@@ -939,7 +943,7 @@ function Vendas({ API }) {
             cancelado = true;
             clearTimeout(timeout);
         };
-    }, [API, chavePixEmpresa, ehPix, valorComDesconto, veiculoId, vendaFinalizada]);
+    }, [API, chavePixEmpresa, ehPix, pixCancelado, valorComDesconto, veiculoId, vendaFinalizada]);
 
     // Quando a venda e Pix, o valor recebido acompanha automaticamente o valor com desconto.
     useEffect(() => {
@@ -1128,6 +1132,14 @@ function Vendas({ API }) {
         } catch {
             mostrarMensagem("erro", "Não foi possível copiar o código Pix automaticamente.");
         }
+    }
+
+    function cancelarPix() {
+        setPixCancelado(true);
+        setPixGerado(null);
+        setGerandoPix(false);
+        setErroPix("");
+        mostrarMensagem("sucesso", "Pix cancelado. Altere algum dado da venda para gerar um novo Pix.");
     }
 
     // Monta o FormData que sera enviado para cadastrar a venda.
@@ -1702,10 +1714,27 @@ function Vendas({ API }) {
                                         <textarea value={pixGerado.copiaECola} readOnly />
                                     </label>
 
-                                    {/* Botao para copiar o codigo Pix para a area de transferencia. */}
-                                    <button type="button" className={css.botaoCopiarPix} onClick={copiarPix}>
-                                        Copiar código
-                                    </button>
+                                    <div className={css.pixAcoes}>
+                                        <button type="button" className={css.botaoCopiarPix} onClick={copiarPix}>
+                                            Copiar código
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={css.botaoConfirmarPix}
+                                            onClick={enviarVenda}
+                                            disabled={salvando || vendaFinalizada}
+                                        >
+                                            {vendaFinalizada ? "Venda confirmada" : salvando ? "Confirmando..." : "Confirmar venda"}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={css.botaoCancelarPix}
+                                            onClick={cancelarPix}
+                                            disabled={salvando || vendaFinalizada}
+                                        >
+                                            Cancelar Pix
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>

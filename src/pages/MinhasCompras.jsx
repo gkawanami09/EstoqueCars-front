@@ -192,6 +192,82 @@ function chaveParcelaPix(idVenda, parcela) {
     return `${idVenda}-${parcela?.id || parcela?.numero || "parcela"}`;
 }
 
+function dataAtualParaApi() {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+}
+
+function valorParaNumero(valor) {
+    const texto = String(valor ?? "").trim();
+
+    if (!texto) {
+        return 0;
+    }
+
+    const normalizado = texto.includes(",")
+        ? texto.replace(/\./g, "").replace(",", ".")
+        : texto;
+
+    const numero = Number(normalizado);
+    return Number.isFinite(numero) ? numero : 0;
+}
+
+function pagamentoRegistrouReceita(dados) {
+    return Boolean(
+        dados?.receita_registrada ||
+        dados?.financeiro_registrado ||
+        dados?.financeiro_criado ||
+        dados?.id_financeiro ||
+        dados?.financeiro?.id_financeiro ||
+        dados?.financeiro?.id ||
+        dados?.receita?.id_financeiro ||
+        dados?.receita?.id ||
+        dados?.transacao_financeira?.id_financeiro ||
+        dados?.transacao_financeira?.id ||
+        dados?.transacao?.id_financeiro ||
+        dados?.transacao?.id
+    );
+}
+
+const comprasPagasLocalStorage = "estoquecars_compras_pagas_confirmadas";
+const receitasRegistradasLocalStorage = "estoquecars_receitas_pix_registradas";
+
+function lerListaLocalStorage(chave) {
+    try {
+        const lista = JSON.parse(localStorage.getItem(chave) || "[]");
+        return Array.isArray(lista) ? lista.map(String) : [];
+    } catch {
+        return [];
+    }
+}
+
+function itemExisteNoLocalStorage(chave, id) {
+    return lerListaLocalStorage(chave).includes(String(id));
+}
+
+function salvarItemLocalStorage(chave, id) {
+    const lista = lerListaLocalStorage(chave);
+    const texto = String(id);
+
+    if (!lista.includes(texto)) {
+        localStorage.setItem(chave, JSON.stringify([...lista, texto]));
+    }
+}
+
+function aplicarPagamentoLocal(compra) {
+    const idVenda = idVendaCompra(compra);
+
+    if (!idVenda || !itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda)) {
+        return compra;
+    }
+
+    return { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 };
+}
+
 // Componente principal da página Minhas compras.
 function MinhasCompras({ API }) {
     // Cria a função para navegar para outras páginas.
@@ -311,8 +387,8 @@ function MinhasCompras({ API }) {
                     ? dados
                     : dados.compras || dados.vendas || dados.pedidos || [];
 
-                // Salva a lista de compras.
-                setCompras(Array.isArray(lista) ? lista : []);
+                // Salva a lista de compras preservando pagamentos confirmados nesta tela.
+                setCompras(Array.isArray(lista) ? lista.map(aplicarPagamentoLocal) : []);
                 // Desliga o carregamento.
                 setCarregando(false);
                 // Encerra a função porque uma rota funcionou.
@@ -475,7 +551,7 @@ function MinhasCompras({ API }) {
         });
     }, [carregarPixParcelas, carregarPixVenda, carregandoPixParcelas, carregandoPixVendas, compras, pixParcelas, pixVendas]);
 
-    // Copia o Pix de uma venda à vista e marca a compra como paga localmente.
+    // Copia o Pix de uma venda à vista sem alterar o status do pagamento.
     async function copiarPixVenda(codigo, idVenda) {
         // Se não houver código Pix, não faz nada.
         if (!codigo) {
@@ -491,27 +567,137 @@ function MinhasCompras({ API }) {
         try {
             // Copia o código Pix.
             await navigator.clipboard.writeText(codigo);
-            // Atualiza a compra localmente como paga.
-            setCompras((estado) => estado.map((compra) => (
-                String(idVendaCompra(compra)) === String(idVenda)
-                    ? { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 }
-                    : compra
-            )));
             // Mostra mensagem de sucesso.
-            setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "Pix copiado. Pagamento aprovado." }));
+            setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "Pix copiado. Depois de pagar, clique em Confirmar pagamento." }));
         } catch {
             // Mostra erro se o navegador não permitir copiar automaticamente.
             setErroPixVendas((estado) => ({ ...estado, [idVenda]: "Não foi possível copiar o Pix automaticamente." }));
         }
     }
 
-    // Copia o Pix de uma parcela e tenta marcar a parcela como paga.
-    async function copiarPixParcela(codigo, idVenda, parcela) {
-        // Se não houver código Pix, não faz nada.
+    async function registrarReceitaVendaPix(idVenda, compra) {
+        const chaveReceita = `venda-${idVenda}`;
+
+        if (itemExisteNoLocalStorage(receitasRegistradasLocalStorage, chaveReceita)) {
+            return;
+        }
+
+        const valorVenda = valorParaNumero(compra?.valor_recebido ?? compra?.VALOR_RECEBIDO ?? compra?.valor_venda ?? compra?.VALOR_VENDA ?? compra?.valor_total);
+
+        if (!idVenda || !valorVenda) {
+            throw new Error("Pagamento confirmado, mas nao foi possivel montar a receita financeira.");
+        }
+
+        const resposta = await fetch(`${API}/cadastro_financeiro`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...cabecalhoAutorizacao()
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                tipo: "entrada",
+                id_veiculo: idVeiculoCompra(compra) || null,
+                data: dataAtualParaApi(),
+                descricao: `Receita automatica - Venda #${idVenda} - ${nomeVeiculoCompra(compra)}`,
+                valor: valorVenda
+            })
+        });
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok && resposta.status !== 409) {
+            throw new Error(dados.erro || dados.mensagem || "Pagamento confirmado, mas a receita nao foi registrada no financeiro.");
+        }
+
+        salvarItemLocalStorage(receitasRegistradasLocalStorage, chaveReceita);
+    }
+
+    async function confirmarPagamentoPixVenda(idVenda, compra) {
+        if (!idVenda) {
+            return;
+        }
+
+        setErroPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
+        setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
+
+        try {
+            await registrarReceitaVendaPix(idVenda, compra);
+            salvarItemLocalStorage(comprasPagasLocalStorage, idVenda);
+            setCompras((estado) => estado.map((item) => (
+                String(idVendaCompra(item)) === String(idVenda)
+                    ? { ...item, status_pagamento: 0, STATUS_PAGAMENTO: 0 }
+                    : item
+            )));
+            setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "Pagamento confirmado e receita registrada." }));
+        } catch (erroAtual) {
+            setErroPixVendas((estado) => ({
+                ...estado,
+                [idVenda]: erroAtual.message || "Nao foi possivel confirmar o pagamento."
+            }));
+        }
+    }
+
+    async function registrarReceitaParcela(idVenda, parcela, compra) {
+        const chaveReceita = `parcela-${parcela?.id || `${idVenda}-${parcela?.numero || "sem-numero"}`}`;
+
+        if (itemExisteNoLocalStorage(receitasRegistradasLocalStorage, chaveReceita)) {
+            return;
+        }
+
+        const valorParcela = valorParaNumero(parcela?.valor);
+
+        if (!idVenda || !valorParcela) {
+            throw new Error("Parcela paga, mas nao foi possivel montar a receita financeira.");
+        }
+
+        const numeroParcela = parcela?.numero || "-";
+        const veiculo = nomeVeiculoCompra(compra);
+        const resposta = await fetch(`${API}/cadastro_financeiro`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...cabecalhoAutorizacao()
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                tipo: "entrada",
+                id_veiculo: idVeiculoCompra(compra) || null,
+                data: dataAtualParaApi(),
+                descricao: `Receita automatica - Venda #${idVenda} - Parcela ${numeroParcela} - ${veiculo}`,
+                valor: valorParcela
+            })
+        });
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok && resposta.status !== 409) {
+            throw new Error(dados.erro || dados.mensagem || "Parcela paga, mas a receita nao foi registrada no financeiro.");
+        }
+
+        salvarItemLocalStorage(receitasRegistradasLocalStorage, chaveReceita);
+        return dados;
+    }
+
+    async function copiarPixParcela(codigo, idVenda) {
         if (!codigo) {
             return;
         }
 
+        setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+        setMensagemPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+
+        try {
+            await navigator.clipboard.writeText(codigo);
+            setMensagemPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: "Pix copiado. Depois de pagar, clique em Confirmar pagamento."
+            }));
+        } catch {
+            setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "Não foi possível copiar o Pix automaticamente." }));
+        }
+    }
+
+    // Confirma o pagamento Pix de uma parcela e tenta marcar a parcela como paga.
+    async function confirmarPagamentoPixParcela(idVenda, parcela, compra) {
         // Cria uma chave única para controlar o botão desta parcela.
         const chave = chaveParcelaPix(idVenda, parcela);
         // Limpa erro anterior das parcelas desta venda.
@@ -521,16 +707,13 @@ function MinhasCompras({ API }) {
         // Marca esta parcela como em processamento.
         setPagandoPixParcelas((estado) => ({ ...estado, [chave]: true }));
 
-        // Tenta copiar e atualizar a parcela.
+        // Tenta atualizar a parcela.
         try {
-            // Copia o código Pix para a área de transferência.
-            await navigator.clipboard.writeText(codigo);
-
-            // Se a parcela não tem ID ou já está paga, apenas informa que o Pix foi copiado.
+            // Se a parcela não tem ID ou já está paga, apenas informa.
             if (!parcela?.id || parcelaEstaPaga(parcela)) {
                 setMensagemPixParcelas((estado) => ({
                     ...estado,
-                    [idVenda]: "Pix copiado. Esta parcela já está paga."
+                    [idVenda]: "Esta parcela já está paga."
                 }));
                 return;
             }
@@ -549,6 +732,10 @@ function MinhasCompras({ API }) {
                 throw new Error(dados.erro || dados.mensagem || "Não foi possível marcar a parcela como paga.");
             }
 
+            if (!pagamentoRegistrouReceita(dados)) {
+                await registrarReceitaParcela(idVenda, parcela, compra);
+            }
+
             // Atualiza a situação da parcela no estado local.
             setPixParcelas((estado) => ({
                 ...estado,
@@ -561,6 +748,7 @@ function MinhasCompras({ API }) {
 
             // Se a API informou que a compra foi quitada, marca a compra como paga.
             if (dados.compra_quitada) {
+                salvarItemLocalStorage(comprasPagasLocalStorage, idVenda);
                 setCompras((estado) => estado.map((compra) => (
                     String(idVendaCompra(compra)) === String(idVenda)
                         ? { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 }
@@ -572,8 +760,8 @@ function MinhasCompras({ API }) {
             setMensagemPixParcelas((estado) => ({
                 ...estado,
                 [idVenda]: dados.compra_quitada
-                    ? "Pix copiado. Todas as parcelas foram pagas. Compra quitada."
-                    : "Pix copiado. Parcela marcada como paga."
+                    ? "Todas as parcelas foram pagas. Compra quitada e receita registrada."
+                    : "Parcela marcada como paga e receita registrada."
             }));
         } catch (erroAtual) {
             // Mostra erro caso copiar ou marcar a parcela falhe.
@@ -600,19 +788,25 @@ function MinhasCompras({ API }) {
         setCompraAbertaId((idAtual) => String(idAtual) === String(idVenda) ? "" : String(idVenda));
     }
 
+    function compraEstaPagaExibicao(compra) {
+        const idVenda = idVendaCompra(compra);
+        const parcelas = idVenda ? pixParcelas[idVenda] || [] : [];
+
+        return textoStatusPagamento(compra.status_pagamento ?? compra.STATUS_PAGAMENTO) === "Pago" ||
+            itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda) ||
+            (ehVendaParcelada(compra) && parcelas.length > 0 && parcelas.every(parcelaEstaPaga));
+    }
+
     // Renderiza a tela de minhas compras.
     return (
         // Container principal da página.
         <main className={css.pagina}>
-            {/* Cabeçalho com título e botão de atualizar. */}
+            {/* Cabeçalho com título da página. */}
             <header className={css.cabecalho}>
                 <div>
                     <span>Área do cliente</span>
                     <h1>Minhas compras</h1>
                 </div>
-                <button type="button" onClick={carregarCompras} disabled={carregando}>
-                    {carregando ? "Atualizando..." : "Atualizar"}
-                </button>
             </header>
 
             {/* Cards de resumo das compras. */}
@@ -623,11 +817,11 @@ function MinhasCompras({ API }) {
                 </article>
                 <article>
                     <span>Pagas</span>
-                    <strong>{compras.filter((compra) => textoStatusPagamento(compra.status_pagamento ?? compra.STATUS_PAGAMENTO) === "Pago").length}</strong>
+                    <strong>{compras.filter(compraEstaPagaExibicao).length}</strong>
                 </article>
                 <article>
                     <span>Em andamento</span>
-                    <strong>{compras.filter((compra) => textoStatusPagamento(compra.status_pagamento ?? compra.STATUS_PAGAMENTO) !== "Pago").length}</strong>
+                    <strong>{compras.filter((compra) => !compraEstaPagaExibicao(compra)).length}</strong>
                 </article>
             </section>
 
@@ -691,8 +885,9 @@ function MinhasCompras({ API }) {
                         const mensagemPixVenda = mensagemPixVendas[idVenda];
                         // Verifica se todas as parcelas foram pagas.
                         const compraQuitadaParcelas = vendaParcelada && parcelasComPix.length > 0 && parcelasComPix.every(parcelaEstaPaga);
-                        // Se todas as parcelas estão pagas, considera a compra paga.
-                        const statusPagamentoCompra = compraQuitadaParcelas ? 0 : (compra.status_pagamento ?? compra.STATUS_PAGAMENTO);
+                        // Se todas as parcelas estão pagas ou a compra foi confirmada localmente, considera a compra paga.
+                        const compraPaga = compraEstaPagaExibicao(compra);
+                        const statusPagamentoCompra = compraPaga ? 0 : (compra.status_pagamento ?? compra.STATUS_PAGAMENTO);
                         // Compra concluída não abre detalhes de pagamento.
                         const pagamentoConcluido = textoStatusPagamento(statusPagamentoCompra) === "Pago";
                         // Exibe Pix ou parcelas apenas na compra clicada.
@@ -785,9 +980,6 @@ function MinhasCompras({ API }) {
                                                 <span>Pagamento à vista</span>
                                                 <h3>Pix da compra</h3>
                                             </div>
-                                            <button type="button" onClick={() => carregarPixVenda(compra, true)} disabled={carregandoPixVenda}>
-                                                {carregandoPixVenda ? "Carregando..." : "Atualizar Pix"}
-                                            </button>
                                         </div>
 
                                         {/* Mensagens do Pix da venda à vista. */}
@@ -818,9 +1010,14 @@ function MinhasCompras({ API }) {
                                                 <label className={css.pix_copia_cola}>
                                                     <span>Pix cópia e cola</span>
                                                     <textarea value={pixVenda.copiaCola || ""} readOnly />
-                                                    <button type="button" onClick={() => copiarPixVenda(pixVenda.copiaCola, idVenda)}>
-                                                        Copiar Pix
-                                                    </button>
+                                                    <div className={css.acoes_pix_parcela}>
+                                                        <button type="button" onClick={() => copiarPixVenda(pixVenda.copiaCola, idVenda)}>
+                                                            Copiar Pix
+                                                        </button>
+                                                        <button type="button" onClick={() => confirmarPagamentoPixVenda(idVenda, compra)}>
+                                                            Confirmar pagamento
+                                                        </button>
+                                                    </div>
                                                 </label>
                                             </div>
                                         )}
@@ -835,9 +1032,6 @@ function MinhasCompras({ API }) {
                                                 <span>Pagamento parcelado</span>
                                                 <h3>Pix das parcelas</h3>
                                             </div>
-                                            <button type="button" onClick={() => carregarPixParcelas(idVenda)} disabled={carregandoPix}>
-                                                {carregandoPix ? "Carregando..." : "Atualizar Pix"}
-                                            </button>
                                         </div>
 
                                         {/* Mensagens do Pix das parcelas. */}
@@ -906,13 +1100,22 @@ function MinhasCompras({ API }) {
                                                     <label className={css.pix_copia_cola}>
                                                         <span>Pix cópia e cola</span>
                                                         <textarea value={parcelaPixAtual.copiaCola || ""} readOnly />
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => copiarPixParcela(parcelaPixAtual.copiaCola, idVenda, parcelaPixAtual)}
-                                                            disabled={pagandoPixAtual}
-                                                        >
-                                                            {pagandoPixAtual ? "Marcando..." : parcelaEstaPaga(parcelaPixAtual) ? "Copiar Pix pago" : "Copiar Pix"}
-                                                        </button>
+                                                        <div className={css.acoes_pix_parcela}>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => copiarPixParcela(parcelaPixAtual.copiaCola, idVenda)}
+                                                                disabled={pagandoPixAtual}
+                                                            >
+                                                                Copiar Pix
+                                                            </button>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => confirmarPagamentoPixParcela(idVenda, parcelaPixAtual, compra)}
+                                                                disabled={pagandoPixAtual || parcelaEstaPaga(parcelaPixAtual)}
+                                                            >
+                                                                {pagandoPixAtual ? "Confirmando..." : parcelaEstaPaga(parcelaPixAtual) ? "Pago" : "Confirmar pagamento"}
+                                                            </button>
+                                                        </div>
                                                     </label>
                                                 </div>
                                             </div>

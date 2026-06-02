@@ -29,6 +29,54 @@ function cabecalhoAutorizacao() {
     return token ? { Authorization: `Bearer ${token}` } : {};
 }
 
+const receitasPixDetalheStorage = "estoquecars_receitas_pix_detalhe";
+
+function lerListaLocalStorage(chave) {
+    try {
+        const lista = JSON.parse(localStorage.getItem(chave) || "[]");
+        return Array.isArray(lista) ? lista.map(String) : [];
+    } catch {
+        return [];
+    }
+}
+
+function itemExisteNoLocalStorage(chave, id) {
+    return lerListaLocalStorage(chave).includes(String(id));
+}
+
+function salvarItemLocalStorage(chave, id) {
+    const lista = lerListaLocalStorage(chave);
+    const texto = String(id);
+
+    if (!lista.includes(texto)) {
+        localStorage.setItem(chave, JSON.stringify([...lista, texto]));
+    }
+}
+
+function valorParaNumero(valor) {
+    const texto = String(valor ?? "").trim();
+
+    if (!texto) {
+        return 0;
+    }
+
+    const normalizado = texto.includes(",")
+        ? texto.replace(/\./g, "").replace(",", ".")
+        : texto;
+    const numero = Number(normalizado);
+
+    return Number.isFinite(numero) ? numero : 0;
+}
+
+function dataAtualFinanceiro() {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+}
+
 function extrairListaCarros(dados) {
     if (Array.isArray(dados)) {
         return dados;
@@ -83,6 +131,12 @@ function DetalhesVeiculos({ API }) {
     const [mensagemReserva, setMensagemReserva] = useState(null);
 
     const [comprandoPix, setComprandoPix] = useState(false);
+
+    const [pagandoPixCompra, setPagandoPixCompra] = useState(false);
+
+    const [pagamentoPixConfirmado, setPagamentoPixConfirmado] = useState(false);
+
+    const [statusAntesCompraPix, setStatusAntesCompraPix] = useState(null);
 
     const [pixCompra, setPixCompra] = useState(null);
 
@@ -448,6 +502,7 @@ function DetalhesVeiculos({ API }) {
     function aplicarPixCompra(dados) {
         const qrcode = dados?.pix_qrcode || dados?.qr_code || dados?.qr_code_base64;
         const copiaCola = dados?.pix_copia_cola || dados?.pix_copia_e_cola || dados?.payload;
+        const idVenda = dados?.id_venda || dados?.ID_VENDA || dados?.id || dados?.ID || dados?.venda?.id_venda || dados?.venda?.id;
 
         if (!qrcode && !copiaCola) {
             return false;
@@ -455,7 +510,8 @@ function DetalhesVeiculos({ API }) {
 
         setPixCompra({
             qrcode: montarUrlArquivo(qrcode),
-            copiaCola
+            copiaCola,
+            idVenda
         });
         return true;
     }
@@ -613,6 +669,8 @@ function DetalhesVeiculos({ API }) {
         setComprandoPix(true);
         setMensagemCompra(null);
         setPixCompra(null);
+        setPagamentoPixConfirmado(false);
+        setStatusAntesCompraPix(carro?.status_estoque ?? carro?.STATUS_ESTOQUE ?? 1);
 
         const formData = new FormData();
         formData.append("id_usuario", idUsuario);
@@ -672,6 +730,85 @@ function DetalhesVeiculos({ API }) {
             setMensagemCompra({ tipo: "sucesso", texto: "Código Pix copiado." });
         } catch {
             setMensagemCompra({ tipo: "erro", texto: "Não foi possível copiar o código Pix automaticamente." });
+        }
+    }
+
+    async function registrarReceitaCompraPix() {
+        const idVenda = pixCompra?.idVenda || `veiculo-${idCarro()}`;
+        const chaveReceita = `detalhe-${idVenda}`;
+
+        if (itemExisteNoLocalStorage(receitasPixDetalheStorage, chaveReceita)) {
+            return;
+        }
+
+        const valorVenda = valorParaNumero(carro?.preco);
+
+        if (!valorVenda) {
+            throw new Error("Pagamento confirmado, mas nao foi possivel montar a receita financeira.");
+        }
+
+        const resposta = await fetch(`${API}/cadastro_financeiro`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...cabecalhoAutorizacao()
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                tipo: "entrada",
+                id_veiculo: idCarro() || null,
+                data: dataAtualFinanceiro(),
+                descricao: `Receita automatica - Venda #${idVenda} - ${carro?.marca || ""} ${carro?.modelo || ""}`.trim(),
+                valor: valorVenda
+            })
+        });
+        const dados = await lerRespostaJson(resposta);
+
+        if (!resposta.ok && resposta.status !== 409) {
+            throw new Error(dados.erro || dados.mensagem || "Pagamento confirmado, mas a receita nao foi registrada no financeiro.");
+        }
+
+        salvarItemLocalStorage(receitasPixDetalheStorage, chaveReceita);
+    }
+
+    async function pagarPixCompra() {
+        if (!pixCompra || pagamentoPixConfirmado) {
+            return;
+        }
+
+        setPagandoPixCompra(true);
+        setMensagemCompra(null);
+
+        try {
+            await registrarReceitaCompraPix();
+            setPagamentoPixConfirmado(true);
+            setCarro((veiculoAtual) => ({
+                ...veiculoAtual,
+                status_estoque: 2,
+                STATUS_ESTOQUE: 2
+            }));
+            setMensagemCompra({ tipo: "sucesso", texto: "Pagamento confirmado e receita registrada." });
+        } catch (erroAtual) {
+            setMensagemCompra({
+                tipo: "erro",
+                texto: erroAtual.message || "Nao foi possivel confirmar o pagamento."
+            });
+        } finally {
+            setPagandoPixCompra(false);
+        }
+    }
+
+    function cancelarPagamentoPixCompra() {
+        setPixCompra(null);
+        setPagamentoPixConfirmado(false);
+        setMensagemCompra({ tipo: "sucesso", texto: "Pagamento Pix cancelado. Voce pode iniciar a compra novamente." });
+
+        if (statusAntesCompraPix !== null) {
+            setCarro((veiculoAtual) => ({
+                ...veiculoAtual,
+                status_estoque: statusAntesCompraPix,
+                STATUS_ESTOQUE: statusAntesCompraPix
+            }));
         }
     }
 
@@ -817,9 +954,27 @@ function DetalhesVeiculos({ API }) {
                                         <span>Pix cópia e cola</span>
                                         <textarea value={pixCompra.copiaCola || ""} readOnly />
                                     </label>
-                                    <button type="button" onClick={copiarPixCompra}>
-                                        Copiar Pix
-                                    </button>
+                                    <div className={css.pix_compra_acoes}>
+                                        <button type="button" onClick={copiarPixCompra} disabled={pagandoPixCompra}>
+                                            Copiar Pix
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={css.pagar_pix}
+                                            onClick={pagarPixCompra}
+                                            disabled={pagandoPixCompra || pagamentoPixConfirmado}
+                                        >
+                                            {pagandoPixCompra ? "Confirmando..." : pagamentoPixConfirmado ? "Pago" : "Pagar"}
+                                        </button>
+                                        <button
+                                            type="button"
+                                            className={css.cancelar_pagamento_pix}
+                                            onClick={cancelarPagamentoPixCompra}
+                                            disabled={pagandoPixCompra || pagamentoPixConfirmado}
+                                        >
+                                            Cancelar pagamento
+                                        </button>
+                                    </div>
                                 </div>
                             )}
                         </div>

@@ -151,6 +151,47 @@ function textoSituacaoParcela(parcela) {
     return parcelaEstaPaga(parcela) ? "Pago" : "Pendente";
 }
 
+function dataAtualParaApi() {
+    const hoje = new Date();
+    const ano = hoje.getFullYear();
+    const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    const dia = String(hoje.getDate()).padStart(2, "0");
+
+    return `${ano}-${mes}-${dia}`;
+}
+
+function valorParaNumero(valor) {
+    const texto = String(valor ?? "").trim();
+
+    if (!texto) {
+        return 0;
+    }
+
+    const normalizado = texto.includes(",")
+        ? texto.replace(/\./g, "").replace(",", ".")
+        : texto;
+
+    const numero = Number(normalizado);
+    return Number.isFinite(numero) ? numero : 0;
+}
+
+function pagamentoRegistrouReceita(dados) {
+    return Boolean(
+        dados?.receita_registrada ||
+        dados?.financeiro_registrado ||
+        dados?.financeiro_criado ||
+        dados?.id_financeiro ||
+        dados?.financeiro?.id_financeiro ||
+        dados?.financeiro?.id ||
+        dados?.receita?.id_financeiro ||
+        dados?.receita?.id ||
+        dados?.transacao_financeira?.id_financeiro ||
+        dados?.transacao_financeira?.id ||
+        dados?.transacao?.id_financeiro ||
+        dados?.transacao?.id
+    );
+}
+
 function textoMinusculo(valor) {
     return String(valor || "").toLowerCase();
 }
@@ -158,6 +199,7 @@ function textoMinusculo(valor) {
 function normalizarVendaUsuario(venda) {
     return {
         id: venda.id_venda || venda.ID_VENDA,
+        idVeiculo: venda.id_veiculo || venda.ID_VEICULO || venda.id_carro || venda.ID_CARRO,
         data: formatarData(venda.data_venda || venda.DATA_VENDA),
         cliente: venda.nome_cliente || venda.cliente || venda.nome_usuario || `Cliente ${venda.id_usuario || venda.ID_USUARIO || "-"}`,
         veiculo: venda.veiculo || venda.nome_veiculo || venda.modelo || `Veículo ${venda.id_veiculo || venda.ID_VEICULO || "-"}`,
@@ -185,6 +227,8 @@ function DasbhoardAdmVendas({ API }) {
     const [pixParcelas, setPixParcelas] = useState({});
     const [carregandoPixParcelas, setCarregandoPixParcelas] = useState({});
     const [erroPixParcelas, setErroPixParcelas] = useState({});
+    const [mensagemPixParcelas, setMensagemPixParcelas] = useState({});
+    const [pagandoPixParcelas, setPagandoPixParcelas] = useState({});
     const [pixVendas, setPixVendas] = useState({});
     const [carregandoPixVendas, setCarregandoPixVendas] = useState({});
     const [erroPixVendas, setErroPixVendas] = useState({});
@@ -375,12 +419,128 @@ function DasbhoardAdmVendas({ API }) {
         }
     }
 
-    async function copiarPixParcela(codigo) {
+    async function copiarPix(codigo) {
         if (!codigo) {
             return;
         }
 
         await navigator.clipboard.writeText(codigo);
+    }
+
+    async function registrarReceitaParcela(venda, parcela) {
+        const idVenda = venda?.id;
+        const valorParcela = valorParaNumero(parcela?.valor);
+
+        if (!idVenda || !valorParcela) {
+            throw new Error("Parcela paga, mas nao foi possivel montar a receita financeira.");
+        }
+
+        const resposta = await fetch(`${API}/cadastro_financeiro`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                ...cabecalhoAutorizacao()
+            },
+            credentials: "include",
+            body: JSON.stringify({
+                tipo: "entrada",
+                id_veiculo: venda?.idVeiculo || null,
+                data: dataAtualParaApi(),
+                descricao: `Receita automatica - Venda #${idVenda} - Parcela ${parcela?.numero || "-"} - ${venda?.veiculo || "Veiculo"}`,
+                valor: valorParcela
+            })
+        });
+        const dados = await resposta.json().catch(() => ({}));
+
+        if (!resposta.ok && resposta.status !== 409) {
+            throw new Error(dados.erro || dados.mensagem || "Parcela paga, mas a receita nao foi registrada no financeiro.");
+        }
+
+        return dados;
+    }
+
+    async function pagarPixParcela(codigo, venda, parcela) {
+        const idVenda = venda?.id;
+
+        if (!codigo || !idVenda) {
+            return;
+        }
+
+        const chave = `${idVenda}-${parcela?.id || parcela?.numero || "parcela"}`;
+        setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+        setMensagemPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+        setPagandoPixParcelas((estado) => ({ ...estado, [chave]: true }));
+
+        try {
+            if (!parcela?.id || parcelaEstaPaga(parcela)) {
+                setMensagemPixParcelas((estado) => ({
+                    ...estado,
+                    [idVenda]: "Esta parcela ja esta paga."
+                }));
+                return;
+            }
+
+            const resposta = await fetch(`${API}/pagar_parcela_pix/${parcela.id}`, {
+                method: "POST",
+                headers: cabecalhoAutorizacao(),
+                credentials: "include"
+            });
+            const dados = await resposta.json().catch(() => ({}));
+
+            if (!resposta.ok) {
+                throw new Error(dados.erro || dados.mensagem || "Nao foi possivel marcar a parcela como paga.");
+            }
+
+            if (!pagamentoRegistrouReceita(dados)) {
+                await registrarReceitaParcela(venda, parcela);
+            }
+
+            setPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: (estado[idVenda] || []).map((item) => (
+                    String(item.id) === String(parcela.id)
+                        ? { ...item, situacao: dados.situacao_parcela ?? 1 }
+                        : item
+                ))
+            }));
+
+            if (pixPagamentoDetalhe) {
+                setPixPagamentoDetalhe({
+                    venda,
+                    parcela: {
+                        ...parcela,
+                        situacao: dados.situacao_parcela ?? 1
+                    }
+                });
+            }
+
+            if (dados.compra_quitada) {
+                setVendas((estado) => estado.map((item) => (
+                    String(item.id) === String(idVenda)
+                        ? { ...item, status: "Pago" }
+                        : item
+                )));
+                setVendaDetalhe((detalhe) => (
+                    detalhe && String(detalhe.id) === String(idVenda)
+                        ? { ...detalhe, status: "Pago" }
+                        : detalhe
+                ));
+            }
+
+            setMensagemPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: dados.compra_quitada
+                    ? "Todas as parcelas foram pagas. Venda quitada e receita registrada."
+                    : "Parcela marcada como paga e receita registrada."
+            }));
+        } catch (erroAtual) {
+            setErroPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: erroAtual.message || "Nao foi possivel copiar o Pix e marcar a parcela como paga."
+            }));
+        } finally {
+            setPagandoPixParcelas((estado) => ({ ...estado, [chave]: false }));
+        }
     }
 
     useEffect(() => {
@@ -399,6 +559,11 @@ function DasbhoardAdmVendas({ API }) {
     const parcelasPixDetalhe = idVendaDetalhe ? pixParcelas[idVendaDetalhe] || [] : [];
     const carregandoPixDetalhe = idVendaDetalhe ? carregandoPixParcelas[idVendaDetalhe] : false;
     const erroPixDetalhe = idVendaDetalhe ? erroPixParcelas[idVendaDetalhe] : "";
+    const mensagemPixDetalhe = idVendaDetalhe ? mensagemPixParcelas[idVendaDetalhe] : "";
+    const chavePixPagamentoDetalhe = pixPagamentoDetalhe
+        ? `${pixPagamentoDetalhe.venda?.id}-${pixPagamentoDetalhe.parcela?.id || pixPagamentoDetalhe.parcela?.numero || "parcela"}`
+        : "";
+    const pagandoPixPagamentoDetalhe = Boolean(chavePixPagamentoDetalhe && pagandoPixParcelas[chavePixPagamentoDetalhe]);
     const pixVendaDetalhe = idVendaDetalhe ? pixVendas[idVendaDetalhe] : null;
     const carregandoPixVendaDetalhe = idVendaDetalhe ? carregandoPixVendas[idVendaDetalhe] : false;
     const erroPixVendaDetalhe = idVendaDetalhe ? erroPixVendas[idVendaDetalhe] : "";
@@ -648,6 +813,7 @@ function DasbhoardAdmVendas({ API }) {
                                 </div>
 
                                 {vendaDetalheParcelada && erroPixDetalhe && <p className={css.erroPixParcelas}>{erroPixDetalhe}</p>}
+                                {vendaDetalheParcelada && mensagemPixDetalhe && <p className={css.estadoPixParcelas}>{mensagemPixDetalhe}</p>}
                                 {vendaDetalhePixAVista && erroPixVendaDetalhe && <p className={css.erroPixParcelas}>{erroPixVendaDetalhe}</p>}
 
                                 {vendaDetalheParcelada && carregandoPixDetalhe && parcelasPixDetalhe.length === 0 && (
@@ -719,7 +885,7 @@ function DasbhoardAdmVendas({ API }) {
                                         <label className={css.pixModalCopia}>
                                             <span>Pix copia e cola</span>
                                             <textarea value={pixVendaDetalhe.copiaCola || ""} readOnly />
-                                            <button type="button" onClick={() => copiarPixParcela(pixVendaDetalhe.copiaCola)}>
+                                            <button type="button" onClick={() => copiarPix(pixVendaDetalhe.copiaCola)}>
                                                 Copiar Pix
                                             </button>
                                         </label>
@@ -795,8 +961,15 @@ function DasbhoardAdmVendas({ API }) {
                         </div>
 
                         <div className={css.pixModalAcoes}>
-                            <button type="button" onClick={() => copiarPixParcela(pixPagamentoDetalhe.parcela.copiaCola)}>
+                            <button type="button" onClick={() => copiarPix(pixPagamentoDetalhe.parcela.copiaCola)} disabled={pagandoPixPagamentoDetalhe}>
                                 Copiar Pix
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => pagarPixParcela(pixPagamentoDetalhe.parcela.copiaCola, pixPagamentoDetalhe.venda, pixPagamentoDetalhe.parcela)}
+                                disabled={pagandoPixPagamentoDetalhe || parcelaEstaPaga(pixPagamentoDetalhe.parcela)}
+                            >
+                                {pagandoPixPagamentoDetalhe ? "Confirmando..." : parcelaEstaPaga(pixPagamentoDetalhe.parcela) ? "Pago" : "Confirmar pagamento"}
                             </button>
                             <button type="button" onClick={() => setPixPagamentoDetalhe(null)}>
                                 Fechar

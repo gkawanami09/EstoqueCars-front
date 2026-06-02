@@ -416,6 +416,10 @@ button.card_resumo:hover,
     color: #166534;
 }
 
+.mensagem_modal {
+    margin: 14px 24px 0 !important;
+}
+
 .modal_overlay {
     position: fixed;
     inset: 0;
