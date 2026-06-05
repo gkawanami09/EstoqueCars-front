@@ -535,8 +535,15 @@ function DashboardADMFinanceiros({ API }) {
                 throw new Error(dados.erro || dados.mensagem || "Não foi possível salvar a transação.");
             }
 
-            // Fecha o modal após salvar.
-            fecharModal();
+            // Mantem a modal aberta para mostrar a mensagem no proprio formulario.
+            setTransacaoEditando(null);
+            setFormulario({
+                tipo: formulario.tipo,
+                id_veiculo: "",
+                data: new Date().toISOString().slice(0, 10),
+                descricao: "",
+                valor: ""
+            });
             // Mostra mensagem de sucesso.
             setMensagem(dados.mensagem || "Transação salva com sucesso.");
             // Recarrega os dados financeiros atualizados.

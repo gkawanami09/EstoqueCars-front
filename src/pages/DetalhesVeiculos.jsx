@@ -30,6 +30,7 @@ function cabecalhoAutorizacao() {
 }
 
 const receitasPixDetalheStorage = "estoquecars_receitas_pix_detalhe";
+const comprasPagasLocalStorage = "estoquecars_compras_pagas_confirmadas";
 
 function lerListaLocalStorage(chave) {
     try {
@@ -51,6 +52,48 @@ function salvarItemLocalStorage(chave, id) {
     if (!lista.includes(texto)) {
         localStorage.setItem(chave, JSON.stringify([...lista, texto]));
     }
+}
+
+async function confirmarStatusPagamentoVenda(API, idVenda) {
+    if (!idVenda) {
+        return {};
+    }
+
+    const body = JSON.stringify({
+        status_pagamento: 0,
+        STATUS_PAGAMENTO: 0,
+        status: 0
+    });
+    const rotas = [
+        { metodo: "POST", url: `${API}/confirmar_pagamento_pix_venda/${idVenda}` },
+        { metodo: "POST", url: `${API}/pagar_venda_pix/${idVenda}` },
+        { metodo: "POST", url: `${API}/confirmar_pagamento_venda/${idVenda}` },
+        { metodo: "PUT", url: `${API}/atualizar_status_pagamento_venda/${idVenda}` },
+        { metodo: "PUT", url: `${API}/editar_venda/${idVenda}` }
+    ];
+
+    for (const rota of rotas) {
+        try {
+            const resposta = await fetch(rota.url, {
+                method: rota.metodo,
+                headers: {
+                    "Content-Type": "application/json",
+                    ...cabecalhoAutorizacao()
+                },
+                credentials: "include",
+                body
+            });
+            const dados = await lerRespostaJson(resposta);
+
+            if (resposta.ok) {
+                return dados;
+            }
+        } catch {
+            // Continua tentando as rotas alternativas conhecidas.
+        }
+    }
+
+    return {};
 }
 
 function valorParaNumero(valor) {
@@ -780,7 +823,9 @@ function DetalhesVeiculos({ API }) {
         setMensagemCompra(null);
 
         try {
+            await confirmarStatusPagamentoVenda(API, pixCompra.idVenda);
             await registrarReceitaCompraPix();
+            salvarItemLocalStorage(comprasPagasLocalStorage, pixCompra.idVenda || `veiculo-${idCarro()}`);
             setPagamentoPixConfirmado(true);
             setCarro((veiculoAtual) => ({
                 ...veiculoAtual,
@@ -835,6 +880,8 @@ function DetalhesVeiculos({ API }) {
             </main>
         );
     }
+
+    const statusEstoqueAtual = tipoStatusEstoque(carro.status_estoque);
 
     // Renderiza a tela quando o carro foi encontrado.
     return (
@@ -910,9 +957,9 @@ function DetalhesVeiculos({ API }) {
                                 type="button"
                                 className={css.reservar}
                                 onClick={reservarVeiculo}
-                                disabled={usuarioEstaLogado && (reservando || tipoStatusEstoque(carro.status_estoque) !== "estoque")}
+                                disabled={usuarioEstaLogado && (reservando || statusEstoqueAtual !== "estoque")}
                             >
-                                {!usuarioEstaLogado ? "Entrar para reservar" : reservando ? "Reservando..." : tipoStatusEstoque(carro.status_estoque) === "estoque" ? "Reservar veículo" : "Veículo reservado"}
+                                {!usuarioEstaLogado ? "Entrar para reservar" : reservando ? "Reservando..." : statusEstoqueAtual === "estoque" ? "Reservar veículo" : statusEstoqueAtual === "vendido" ? "Veículo vendido" : "Veículo reservado"}
                             </button>
 
                             {podeCancelarReserva && (

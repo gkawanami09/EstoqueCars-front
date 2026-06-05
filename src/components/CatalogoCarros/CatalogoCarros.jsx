@@ -92,6 +92,50 @@ function idCarro(carro) {
     return carro?.id || carro?.id_carro || carro?.id_veiculo;
 }
 
+function statusVendaCarro(carro) {
+    return String(carro?.status_venda ?? carro?.STATUS_VENDA ?? carro?.situacao_venda ?? carro?.SITUACAO_VENDA ?? "").trim().toUpperCase();
+}
+
+function statusEstoqueCarro(carro) {
+    return String(carro?.status_estoque ?? carro?.STATUS_ESTOQUE ?? carro?.statusEstoque ?? carro?.status ?? "").trim().toLowerCase();
+}
+
+function tipoStatusEstoque(carro) {
+    const statusVenda = statusVendaCarro(carro);
+
+    if (statusVenda === "VENDIDO") {
+        return "vendido";
+    }
+
+    if (statusVenda === "RESERVADO_PENDENTE_CONCLUSAO") {
+        return "reservado";
+    }
+
+    if (statusVenda === "DISPONIVEL") {
+        return "estoque";
+    }
+
+    const status = statusEstoqueCarro(carro);
+
+    if (status === "2" || status === "3" || status.includes("vend")) {
+        return "vendido";
+    }
+
+    if (status.includes("reserv") || status.includes("indispon")) {
+        return "reservado";
+    }
+
+    if (status === "1" || status.includes("estoque") || (status.includes("dispon") && !status.includes("indispon"))) {
+        return "estoque";
+    }
+
+    return "reservado";
+}
+
+function carroDisponivelCatalogo(carro) {
+    return tipoStatusEstoque(carro) === "estoque";
+}
+
 function nomeCarro(carro) {
     const nomeCompleto = carro?.nome || [carro?.marca, carro?.modelo].filter(Boolean).join(" ");
     return nomeCompleto || "Veículo";
@@ -142,7 +186,7 @@ function CatalogoCarros({ API, categoriaAtual, css }) {
                 return;
             }
 
-            setCarros(dados.carros || []);
+            setCarros((dados.carros || []).filter(carroDisponivelCatalogo));
         } catch {
             setErro("Erro de conexão com o servidor.");
             setCarros([]);

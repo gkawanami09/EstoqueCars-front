@@ -192,6 +192,62 @@ function pagamentoRegistrouReceita(dados) {
     );
 }
 
+async function lerRespostaJson(resposta) {
+    const texto = await resposta.text();
+
+    if (!texto) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(texto);
+    } catch {
+        return {};
+    }
+}
+
+async function confirmarStatusPagamentoVenda(API, idVenda) {
+    if (!idVenda) {
+        return {};
+    }
+
+    const body = JSON.stringify({
+        status_pagamento: 0,
+        STATUS_PAGAMENTO: 0,
+        status: 0
+    });
+    const rotas = [
+        { metodo: "POST", url: `${API}/confirmar_pagamento_pix_venda/${idVenda}` },
+        { metodo: "POST", url: `${API}/pagar_venda_pix/${idVenda}` },
+        { metodo: "POST", url: `${API}/confirmar_pagamento_venda/${idVenda}` },
+        { metodo: "PUT", url: `${API}/atualizar_status_pagamento_venda/${idVenda}` },
+        { metodo: "PUT", url: `${API}/editar_venda/${idVenda}` }
+    ];
+
+    for (const rota of rotas) {
+        try {
+            const resposta = await fetch(rota.url, {
+                method: rota.metodo,
+                headers: {
+                    "Content-Type": "application/json",
+                    ...cabecalhoAutorizacao()
+                },
+                credentials: "include",
+                body
+            });
+            const dados = await lerRespostaJson(resposta);
+
+            if (resposta.ok) {
+                return dados;
+            }
+        } catch {
+            // Continua tentando as rotas alternativas conhecidas.
+        }
+    }
+
+    return {};
+}
+
 function textoMinusculo(valor) {
     return String(valor || "").toLowerCase();
 }
@@ -485,7 +541,7 @@ function DasbhoardAdmVendas({ API }) {
                 headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
-            const dados = await resposta.json().catch(() => ({}));
+            const dados = await lerRespostaJson(resposta);
 
             if (!resposta.ok) {
                 throw new Error(dados.erro || dados.mensagem || "Nao foi possivel marcar a parcela como paga.");
@@ -494,6 +550,13 @@ function DasbhoardAdmVendas({ API }) {
             if (!pagamentoRegistrouReceita(dados)) {
                 await registrarReceitaParcela(venda, parcela);
             }
+
+            const parcelasAtualizadas = (pixParcelas[idVenda] || []).map((item) => (
+                String(item.id) === String(parcela.id)
+                    ? { ...item, situacao: dados.situacao_parcela ?? 1 }
+                    : item
+            ));
+            const vendaQuitadaLocalmente = parcelasAtualizadas.length > 0 && parcelasAtualizadas.every(parcelaEstaPaga);
 
             setPixParcelas((estado) => ({
                 ...estado,
@@ -514,7 +577,8 @@ function DasbhoardAdmVendas({ API }) {
                 });
             }
 
-            if (dados.compra_quitada) {
+            if (dados.compra_quitada || vendaQuitadaLocalmente) {
+                await confirmarStatusPagamentoVenda(API, idVenda);
                 setVendas((estado) => estado.map((item) => (
                     String(item.id) === String(idVenda)
                         ? { ...item, status: "Pago" }
@@ -529,7 +593,7 @@ function DasbhoardAdmVendas({ API }) {
 
             setMensagemPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: dados.compra_quitada
+                [idVenda]: dados.compra_quitada || vendaQuitadaLocalmente
                     ? "Todas as parcelas foram pagas. Venda quitada e receita registrada."
                     : "Parcela marcada como paga e receita registrada."
             }));

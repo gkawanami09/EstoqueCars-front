@@ -258,14 +258,118 @@ function salvarItemLocalStorage(chave, id) {
     }
 }
 
+async function lerRespostaJson(resposta) {
+    const texto = await resposta.text();
+
+    if (!texto) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(texto);
+    } catch {
+        return {};
+    }
+}
+
+function dataCompraParaOrdenacao(compra) {
+    const valor = compra?.data_venda ?? compra?.DATA_VENDA ?? compra?.data ?? compra?.DATA ?? "";
+    const texto = String(valor).trim();
+
+    if (!texto) {
+        return 0;
+    }
+
+    const data = new Date(texto);
+
+    if (!Number.isNaN(data.getTime())) {
+        return data.getTime();
+    }
+
+    const dataBr = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+
+    if (dataBr) {
+        const [, dia, mes, ano] = dataBr;
+        return new Date(Number(ano), Number(mes) - 1, Number(dia)).getTime();
+    }
+
+    return 0;
+}
+
+function ordenarComprasCronologicamente(compras) {
+    return [...compras].sort((a, b) => {
+        const dataA = dataCompraParaOrdenacao(a);
+        const dataB = dataCompraParaOrdenacao(b);
+
+        if (dataA !== dataB) {
+            return dataA - dataB;
+        }
+
+        return String(idVendaCompra(a) || "").localeCompare(String(idVendaCompra(b) || ""), "pt-BR", { numeric: true });
+    });
+}
+
+function compraTemValorQuitado(compra) {
+    if (ehVendaParcelada(compra)) {
+        return false;
+    }
+
+    const valorVenda = valorParaNumero(compra?.valor_venda ?? compra?.valor_total ?? compra?.VALOR_VENDA);
+    const valorRecebido = valorParaNumero(compra?.valor_recebido ?? compra?.VALOR_RECEBIDO);
+
+    return Boolean(valorVenda && valorRecebido && valorRecebido >= valorVenda);
+}
+
 function aplicarPagamentoLocal(compra) {
     const idVenda = idVendaCompra(compra);
 
-    if (!idVenda || !itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda)) {
+    if (!idVenda || (!itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda) && !compraTemValorQuitado(compra))) {
         return compra;
     }
 
     return { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 };
+}
+
+async function confirmarStatusPagamentoVenda(API, idVenda) {
+    if (!idVenda) {
+        return {};
+    }
+
+    const body = JSON.stringify({
+        status_pagamento: 0,
+        STATUS_PAGAMENTO: 0,
+        status: 0
+    });
+    const rotas = [
+        { metodo: "POST", url: `${API}/confirmar_pagamento_pix_venda/${idVenda}` },
+        { metodo: "POST", url: `${API}/pagar_venda_pix/${idVenda}` },
+        { metodo: "POST", url: `${API}/confirmar_pagamento_venda/${idVenda}` },
+        { metodo: "PUT", url: `${API}/atualizar_status_pagamento_venda/${idVenda}` },
+        { metodo: "PUT", url: `${API}/editar_venda/${idVenda}` }
+    ];
+
+    for (const rota of rotas) {
+        try {
+            const resposta = await fetch(rota.url, {
+                method: rota.metodo,
+                headers: {
+                    "Content-Type": "application/json",
+                    ...cabecalhoAutorizacao()
+                },
+                credentials: "include",
+                body
+            });
+            const dados = await lerRespostaJson(resposta);
+
+            if (resposta.ok) {
+                return dados;
+            }
+        } catch {
+            // Continua tentando as rotas alternativas conhecidas.
+        }
+    }
+
+    return {};
 }
 
 // Componente principal da página Minhas compras.
@@ -381,14 +485,14 @@ function MinhasCompras({ API }) {
                 }
 
                 // Converte a resposta em JSON.
-                const dados = await resposta.json();
+                const dados = await lerRespostaJson(resposta);
                 // Aceita lista direta ou dentro de propriedades comuns.
                 const lista = Array.isArray(dados)
                     ? dados
                     : dados.compras || dados.vendas || dados.pedidos || [];
 
                 // Salva a lista de compras preservando pagamentos confirmados nesta tela.
-                setCompras(Array.isArray(lista) ? lista.map(aplicarPagamentoLocal) : []);
+                setCompras(Array.isArray(lista) ? ordenarComprasCronologicamente(lista.map(aplicarPagamentoLocal)) : []);
                 // Desliga o carregamento.
                 setCarregando(false);
                 // Encerra a função porque uma rota funcionou.
@@ -427,7 +531,7 @@ function MinhasCompras({ API }) {
                 credentials: "include"
             });
             // Converte a resposta para JSON.
-            const dados = await resposta.json();
+            const dados = await lerRespostaJson(resposta);
 
             // Trata erro retornado pela API.
             if (!resposta.ok) {
@@ -501,7 +605,7 @@ function MinhasCompras({ API }) {
                 credentials: "include"
             });
             // Converte a resposta em JSON.
-            const dados = await resposta.json();
+            const dados = await lerRespostaJson(resposta);
 
             // Trata resposta de erro da API.
             if (!resposta.ok) {
@@ -621,6 +725,7 @@ function MinhasCompras({ API }) {
         setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
 
         try {
+            await confirmarStatusPagamentoVenda(API, idVenda);
             await registrarReceitaVendaPix(idVenda, compra);
             salvarItemLocalStorage(comprasPagasLocalStorage, idVenda);
             setCompras((estado) => estado.map((item) => (
@@ -725,7 +830,7 @@ function MinhasCompras({ API }) {
                 credentials: "include"
             });
             // Converte a resposta para JSON.
-            const dados = await resposta.json();
+            const dados = await lerRespostaJson(resposta);
 
             // Se a API retornou erro, dispara exceção.
             if (!resposta.ok) {
@@ -737,6 +842,13 @@ function MinhasCompras({ API }) {
             }
 
             // Atualiza a situação da parcela no estado local.
+            const parcelasAtualizadas = (pixParcelas[idVenda] || []).map((item) => (
+                String(item.id) === String(parcela.id)
+                    ? { ...item, situacao: dados.situacao_parcela ?? 1 }
+                    : item
+            ));
+            const compraQuitadaLocalmente = parcelasAtualizadas.length > 0 && parcelasAtualizadas.every(parcelaEstaPaga);
+
             setPixParcelas((estado) => ({
                 ...estado,
                 [idVenda]: (estado[idVenda] || []).map((item) => (
@@ -747,7 +859,8 @@ function MinhasCompras({ API }) {
             }));
 
             // Se a API informou que a compra foi quitada, marca a compra como paga.
-            if (dados.compra_quitada) {
+            if (dados.compra_quitada || compraQuitadaLocalmente) {
+                await confirmarStatusPagamentoVenda(API, idVenda);
                 salvarItemLocalStorage(comprasPagasLocalStorage, idVenda);
                 setCompras((estado) => estado.map((compra) => (
                     String(idVendaCompra(compra)) === String(idVenda)
@@ -759,7 +872,7 @@ function MinhasCompras({ API }) {
             // Mostra mensagem de sucesso conforme a compra esteja quitada ou não.
             setMensagemPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: dados.compra_quitada
+                [idVenda]: dados.compra_quitada || compraQuitadaLocalmente
                     ? "Todas as parcelas foram pagas. Compra quitada e receita registrada."
                     : "Parcela marcada como paga e receita registrada."
             }));

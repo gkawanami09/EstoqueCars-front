@@ -23,7 +23,7 @@ function Banner({
         [subtitulo],
     )
     const safeButtonTo = useMemo(() => sanitizeText(buttonTo, '/CarrosSedan'), [buttonTo])
-    const safeButtonNome = useMemo(() => sanitizeText(buttonNome, 'ver carros'), [buttonNome])
+    const safeButtonNome = useMemo(() => sanitizeText(buttonNome, 'Ver carros'), [buttonNome])
 
     return (
         <section className={css.section}>

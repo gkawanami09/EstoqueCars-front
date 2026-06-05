@@ -15,7 +15,7 @@ function Home() {
                 span2='Senai'
                 subtitulo='Nossa equipe oferece uma ampla selecao de carros a pronta entrega.'
                 buttonTo='/CarrosSedan'
-                buttonNome='ver carros'
+                buttonNome='Ver carros'
             />
 
             <Categoria subtitulo='Escolha o seu estilo de carro' titulo='Categorias'/>
