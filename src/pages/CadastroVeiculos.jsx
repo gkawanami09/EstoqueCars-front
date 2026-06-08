@@ -86,7 +86,7 @@ function formatarErroApi(texto) {
     }
 
     if (mensagemLower.includes("placa")) {
-        return "A placa informada ja existe ou esta invalida. Confira os dados e tente novamente.";
+        return "A placa informada já existe ou está inválida. Confira os dados e tente novamente.";
     }
 
     return mensagem || "Não foi possível salvar o veículo. Tente novamente.";

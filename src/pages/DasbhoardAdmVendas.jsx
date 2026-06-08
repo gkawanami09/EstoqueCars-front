@@ -175,6 +175,24 @@ function valorParaNumero(valor) {
     return Number.isFinite(numero) ? numero : 0;
 }
 
+function transacaoPareceFinanceira(transacao) {
+    if (!transacao || typeof transacao !== "object") {
+        return false;
+    }
+
+    return Boolean(
+        transacao.id_financeiro ||
+        transacao.ID_FINANCEIRO ||
+        transacao.tipo_financeiro ||
+        transacao.TIPO_FINANCEIRO ||
+        transacao.data_financeiro ||
+        transacao.DATA_FINANCEIRO ||
+        transacao.valor_financeiro ||
+        transacao.VALOR_FINANCEIRO ||
+        (transacao.tipo && transacao.valor && transacao.descricao)
+    );
+}
+
 function pagamentoRegistrouReceita(dados) {
     return Boolean(
         dados?.receita_registrada ||
@@ -187,8 +205,7 @@ function pagamentoRegistrouReceita(dados) {
         dados?.receita?.id ||
         dados?.transacao_financeira?.id_financeiro ||
         dados?.transacao_financeira?.id ||
-        dados?.transacao?.id_financeiro ||
-        dados?.transacao?.id
+        transacaoPareceFinanceira(dados?.transacao)
     );
 }
 
@@ -468,7 +485,7 @@ function DasbhoardAdmVendas({ API }) {
         } catch {
             setErroPixVendas((estado) => ({
                 ...estado,
-                [idVenda]: "Nao foi possivel carregar o Pix agora. Verifique se o servidor esta aberto e tente novamente."
+                [idVenda]: "Não foi possível carregar o Pix agora. Verifique se o servidor está aberto e tente novamente."
             }));
         } finally {
             setCarregandoPixVendas((estado) => ({ ...estado, [idVenda]: false }));
@@ -488,7 +505,7 @@ function DasbhoardAdmVendas({ API }) {
         const valorParcela = valorParaNumero(parcela?.valor);
 
         if (!idVenda || !valorParcela) {
-            throw new Error("Parcela paga, mas nao foi possivel montar a receita financeira.");
+            throw new Error("Parcela paga, mas não foi possível montar a receita financeira.");
         }
 
         const resposta = await fetch(`${API}/cadastro_financeiro`, {
@@ -502,14 +519,14 @@ function DasbhoardAdmVendas({ API }) {
                 tipo: "entrada",
                 id_veiculo: venda?.idVeiculo || null,
                 data: dataAtualParaApi(),
-                descricao: `Receita automatica - Venda #${idVenda} - Parcela ${parcela?.numero || "-"} - ${venda?.veiculo || "Veiculo"}`,
+                descricao: `Receita automática - Venda #${idVenda} - Parcela ${parcela?.numero || "-"} - ${venda?.veiculo || "Veículo"}`,
                 valor: valorParcela
             })
         });
         const dados = await resposta.json().catch(() => ({}));
 
         if (!resposta.ok && resposta.status !== 409) {
-            throw new Error(dados.erro || dados.mensagem || "Parcela paga, mas a receita nao foi registrada no financeiro.");
+            throw new Error(dados.erro || dados.mensagem || "Parcela paga, mas a receita não foi registrada no financeiro.");
         }
 
         return dados;
@@ -531,7 +548,7 @@ function DasbhoardAdmVendas({ API }) {
             if (!parcela?.id || parcelaEstaPaga(parcela)) {
                 setMensagemPixParcelas((estado) => ({
                     ...estado,
-                    [idVenda]: "Esta parcela ja esta paga."
+                    [idVenda]: "Esta parcela já está paga."
                 }));
                 return;
             }
@@ -544,7 +561,7 @@ function DasbhoardAdmVendas({ API }) {
             const dados = await lerRespostaJson(resposta);
 
             if (!resposta.ok) {
-                throw new Error(dados.erro || dados.mensagem || "Nao foi possivel marcar a parcela como paga.");
+                throw new Error(dados.erro || dados.mensagem || "Não foi possível marcar a parcela como paga.");
             }
 
             if (!pagamentoRegistrouReceita(dados)) {
@@ -600,7 +617,7 @@ function DasbhoardAdmVendas({ API }) {
         } catch (erroAtual) {
             setErroPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: erroAtual.message || "Nao foi possivel copiar o Pix e marcar a parcela como paga."
+                [idVenda]: erroAtual.message || "Não foi possível copiar o Pix e marcar a parcela como paga."
             }));
         } finally {
             setPagandoPixParcelas((estado) => ({ ...estado, [chave]: false }));
@@ -947,7 +964,7 @@ function DasbhoardAdmVendas({ API }) {
                                         </div>
 
                                         <label className={css.pixModalCopia}>
-                                            <span>Pix copia e cola</span>
+                                            <span>Pix cópia e cola</span>
                                             <textarea value={pixVendaDetalhe.copiaCola || ""} readOnly />
                                             <button type="button" onClick={() => copiarPix(pixVendaDetalhe.copiaCola)}>
                                                 Copiar Pix
@@ -1019,7 +1036,7 @@ function DasbhoardAdmVendas({ API }) {
                             </div>
 
                             <label className={css.pixModalCopia}>
-                                <span>Pix copia e cola</span>
+                                <span>Pix cópia e cola</span>
                                 <textarea value={pixPagamentoDetalhe.parcela.copiaCola || ""} readOnly />
                             </label>
                         </div>

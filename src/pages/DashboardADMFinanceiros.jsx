@@ -197,6 +197,10 @@ function DashboardADMFinanceiros({ API }) {
     const [erro, setErro] = useState("");
     // Guarda mensagens de sucesso.
     const [mensagem, setMensagem] = useState("");
+    // Guarda erros exibidos dentro da modal de cadastro/edicao.
+    const [erroModal, setErroModal] = useState("");
+    // Guarda sucesso exibido dentro da modal de cadastro/edicao.
+    const [mensagemModal, setMensagemModal] = useState("");
     // Controla se o modal de cadastro/edição está aberto.
     const [modalAberto, setModalAberto] = useState(false);
     // Guarda a transação que está sendo editada.
@@ -304,7 +308,7 @@ function DashboardADMFinanceiros({ API }) {
 
             // Se a lista falhou, interrompe com erro.
             if (!respostaLista.ok) {
-                throw new Error(dadosLista.erro || dadosLista.mensagem || "Nao foi possivel carregar as transacoes.");
+                throw new Error(dadosLista.erro || dadosLista.mensagem || "Não foi possível carregar as transações.");
             }
 
             // Aceita a lista como array direto ou dentro de propriedades conhecidas.
@@ -318,7 +322,7 @@ function DashboardADMFinanceiros({ API }) {
             // Limpa a lista se ocorrer erro.
             setTransacoes([]);
             // Mostra mensagem de erro.
-            setErro(erroAtual.message || "Nao foi possivel carregar o financeiro.");
+            setErro(erroAtual.message || "Não foi possível carregar o financeiro.");
         } finally {
             // Desliga o carregamento principal.
             setCarregando(false);
@@ -433,9 +437,9 @@ function DashboardADMFinanceiros({ API }) {
         // Abre o modal.
         setModalAberto(true);
         // Limpa erro antigo.
-        setErro("");
+        setErroModal("");
         // Limpa mensagem antiga.
-        setMensagem("");
+        setMensagemModal("");
     }
 
     // Abre o modal preenchido para editar uma transação.
@@ -453,9 +457,9 @@ function DashboardADMFinanceiros({ API }) {
         // Abre o modal.
         setModalAberto(true);
         // Limpa erro antigo.
-        setErro("");
+        setErroModal("");
         // Limpa mensagem antiga.
-        setMensagem("");
+        setMensagemModal("");
     }
 
     // Fecha o modal de cadastro/edição.
@@ -477,8 +481,8 @@ function DashboardADMFinanceiros({ API }) {
             descricao: "",
             valor: ""
         });
-        setErro("");
-        setMensagem("");
+        setErroModal("");
+        setMensagemModal("");
     }
 
     // Salva uma transação nova ou editada.
@@ -491,16 +495,16 @@ function DashboardADMFinanceiros({ API }) {
 
         // Valida os campos obrigatórios.
         if (!formulario.data || !formulario.descricao.trim() || !valorNumerico) {
-            setErro("Preencha data, descrição e valor para salvar.");
+            setErroModal("Preencha data, descrição e valor para salvar.");
             return;
         }
 
         // Ativa o carregamento do salvar.
         setSalvando(true);
         // Limpa erro anterior.
-        setErro("");
+        setErroModal("");
         // Limpa mensagem anterior.
-        setMensagem("");
+        setMensagemModal("");
 
         // Tenta salvar na API.
         try {
@@ -545,12 +549,12 @@ function DashboardADMFinanceiros({ API }) {
                 valor: ""
             });
             // Mostra mensagem de sucesso.
-            setMensagem(dados.mensagem || "Transação salva com sucesso.");
+            setMensagemModal(dados.mensagem || "Transação salva com sucesso.");
             // Recarrega os dados financeiros atualizados.
             await carregarFinanceiro();
         } catch (erroAtual) {
             // Mostra erro se o salvamento falhar.
-            setErro(erroAtual.message || "Não foi possível salvar a transação.");
+            setErroModal(erroAtual.message || "Não foi possível salvar a transação.");
         } finally {
             // Desliga o carregamento do salvar.
             setSalvando(false);
@@ -803,8 +807,8 @@ function DashboardADMFinanceiros({ API }) {
                             </button>
                         </header>
 
-                        {erro && <p className={`${css.mensagem_erro} ${css.mensagem_modal}`}>{erro}</p>}
-                        {mensagem && <p className={`${css.mensagem_sucesso} ${css.mensagem_modal}`}>{mensagem}</p>}
+                        {erroModal && <p className={`${css.mensagem_erro} ${css.mensagem_modal}`}>{erroModal}</p>}
+                        {mensagemModal && <p className={`${css.mensagem_sucesso} ${css.mensagem_modal}`}>{mensagemModal}</p>}
 
                         {/* Campos do formulário financeiro. */}
                         <div className={css.modal_conteudo}>

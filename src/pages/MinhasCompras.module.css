@@ -408,6 +408,15 @@
     width: 100%;
 }
 
+.acoes_pix_venda {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.botao_cancelar_pix {
+    background: #ef4444 !important;
+    color: #fff !important;
+}
+
 .erro_pix_parcelas {
     margin: 0;
     border: 1px solid #ffd0d0;
@@ -469,6 +478,11 @@
     .topo_pix_parcelas button,
     .pix_conteudo_unico {
         width: 100%;
+        grid-template-columns: 1fr;
+    }
+
+    .acoes_pix_parcela,
+    .acoes_pix_venda {
         grid-template-columns: 1fr;
     }
 

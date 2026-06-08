@@ -656,7 +656,7 @@ function DetalhesVeiculos({ API }) {
             if (!resposta.ok) {
                 setMensagemReserva({
                     tipo: "erro",
-                    texto: dados.erro || dados.mensagem || "Nao foi possivel cancelar esta reserva."
+                    texto: dados.erro || dados.mensagem || "Não foi possível cancelar esta reserva."
                 });
                 return;
             }
@@ -688,7 +688,7 @@ function DetalhesVeiculos({ API }) {
         } catch {
             setMensagemReserva({
                 tipo: "erro",
-                texto: "Nao foi possivel conectar ao servidor para cancelar a reserva."
+                texto: "Não foi possível conectar ao servidor para cancelar a reserva."
             });
         } finally {
             setCancelandoReserva(false);
@@ -787,7 +787,7 @@ function DetalhesVeiculos({ API }) {
         const valorVenda = valorParaNumero(carro?.preco);
 
         if (!valorVenda) {
-            throw new Error("Pagamento confirmado, mas nao foi possivel montar a receita financeira.");
+            throw new Error("Pagamento confirmado, mas não foi possível montar a receita financeira.");
         }
 
         const resposta = await fetch(`${API}/cadastro_financeiro`, {
@@ -801,14 +801,14 @@ function DetalhesVeiculos({ API }) {
                 tipo: "entrada",
                 id_veiculo: idCarro() || null,
                 data: dataAtualFinanceiro(),
-                descricao: `Receita automatica - Venda #${idVenda} - ${carro?.marca || ""} ${carro?.modelo || ""}`.trim(),
+                descricao: `Receita automática - Venda #${idVenda} - ${carro?.marca || ""} ${carro?.modelo || ""}`.trim(),
                 valor: valorVenda
             })
         });
         const dados = await lerRespostaJson(resposta);
 
         if (!resposta.ok && resposta.status !== 409) {
-            throw new Error(dados.erro || dados.mensagem || "Pagamento confirmado, mas a receita nao foi registrada no financeiro.");
+            throw new Error(dados.erro || dados.mensagem || "Pagamento confirmado, mas a receita não foi registrada no financeiro.");
         }
 
         salvarItemLocalStorage(receitasPixDetalheStorage, chaveReceita);
@@ -836,7 +836,7 @@ function DetalhesVeiculos({ API }) {
         } catch (erroAtual) {
             setMensagemCompra({
                 tipo: "erro",
-                texto: erroAtual.message || "Nao foi possivel confirmar o pagamento."
+                texto: erroAtual.message || "Não foi possível confirmar o pagamento."
             });
         } finally {
             setPagandoPixCompra(false);
@@ -846,7 +846,7 @@ function DetalhesVeiculos({ API }) {
     function cancelarPagamentoPixCompra() {
         setPixCompra(null);
         setPagamentoPixConfirmado(false);
-        setMensagemCompra({ tipo: "sucesso", texto: "Pagamento Pix cancelado. Voce pode iniciar a compra novamente." });
+        setMensagemCompra({ tipo: "sucesso", texto: "Pagamento Pix cancelado. Você pode iniciar a compra novamente." });
 
         if (statusAntesCompraPix !== null) {
             setCarro((veiculoAtual) => ({

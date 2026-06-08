@@ -920,7 +920,7 @@ function CadastroServicos({ API }) {
                                 Excluir serviço
                             </h2>
                             <p className={css.modalTexto}>
-                                Deseja deletar o serviço <strong>{confirmacao.descricao}</strong>?
+                                Deseja excluir o serviço <strong>{confirmacao.descricao}</strong>?
                             </p>
                         </div>
 

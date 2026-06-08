@@ -216,6 +216,24 @@ function valorParaNumero(valor) {
     return Number.isFinite(numero) ? numero : 0;
 }
 
+function transacaoPareceFinanceira(transacao) {
+    if (!transacao || typeof transacao !== "object") {
+        return false;
+    }
+
+    return Boolean(
+        transacao.id_financeiro ||
+        transacao.ID_FINANCEIRO ||
+        transacao.tipo_financeiro ||
+        transacao.TIPO_FINANCEIRO ||
+        transacao.data_financeiro ||
+        transacao.DATA_FINANCEIRO ||
+        transacao.valor_financeiro ||
+        transacao.VALOR_FINANCEIRO ||
+        (transacao.tipo && transacao.valor && transacao.descricao)
+    );
+}
+
 function pagamentoRegistrouReceita(dados) {
     return Boolean(
         dados?.receita_registrada ||
@@ -228,13 +246,16 @@ function pagamentoRegistrouReceita(dados) {
         dados?.receita?.id ||
         dados?.transacao_financeira?.id_financeiro ||
         dados?.transacao_financeira?.id ||
-        dados?.transacao?.id_financeiro ||
-        dados?.transacao?.id
+        transacaoPareceFinanceira(dados?.transacao)
     );
 }
 
 const comprasPagasLocalStorage = "estoquecars_compras_pagas_confirmadas";
+const parcelasPagasLocalStorage = "estoquecars_parcelas_pix_pagas_confirmadas";
+const comprasCanceladasLocalStorage = "estoquecars_compras_pix_canceladas";
+const parcelasCanceladasLocalStorage = "estoquecars_parcelas_pix_canceladas";
 const receitasRegistradasLocalStorage = "estoquecars_receitas_pix_registradas";
+const receitasFinanceiroIdsLocalStorage = "estoquecars_receitas_pix_financeiro_ids";
 
 function lerListaLocalStorage(chave) {
     try {
@@ -256,6 +277,128 @@ function salvarItemLocalStorage(chave, id) {
     if (!lista.includes(texto)) {
         localStorage.setItem(chave, JSON.stringify([...lista, texto]));
     }
+}
+
+function removerItemLocalStorage(chave, id) {
+    const texto = String(id);
+    const lista = lerListaLocalStorage(chave).filter((item) => item !== texto);
+    localStorage.setItem(chave, JSON.stringify(lista));
+}
+
+function lerObjetoLocalStorage(chave) {
+    try {
+        const objeto = JSON.parse(localStorage.getItem(chave) || "{}");
+        return objeto && typeof objeto === "object" && !Array.isArray(objeto) ? objeto : {};
+    } catch {
+        return {};
+    }
+}
+
+function salvarValorObjetoLocalStorage(chave, id, valor) {
+    if (!id || !valor) {
+        return;
+    }
+
+    localStorage.setItem(chave, JSON.stringify({
+        ...lerObjetoLocalStorage(chave),
+        [String(id)]: String(valor)
+    }));
+}
+
+function removerValorObjetoLocalStorage(chave, id) {
+    const objeto = lerObjetoLocalStorage(chave);
+    delete objeto[String(id)];
+    localStorage.setItem(chave, JSON.stringify(objeto));
+}
+
+function idFinanceiroResposta(dados) {
+    return dados?.id_financeiro ||
+        dados?.ID_FINANCEIRO ||
+        dados?.financeiro?.id_financeiro ||
+        dados?.financeiro?.ID_FINANCEIRO ||
+        dados?.financeiro?.id ||
+        dados?.receita?.id_financeiro ||
+        dados?.receita?.ID_FINANCEIRO ||
+        dados?.receita?.id ||
+        dados?.transacao_financeira?.id_financeiro ||
+        dados?.transacao_financeira?.ID_FINANCEIRO ||
+        dados?.transacao_financeira?.id ||
+        dados?.transacao?.id_financeiro ||
+        dados?.transacao?.ID_FINANCEIRO ||
+        dados?.transacao?.id;
+}
+
+function idFinanceiroTransacao(transacao) {
+    return transacao?.id_financeiro || transacao?.ID_FINANCEIRO || transacao?.id || transacao?.ID;
+}
+
+function normalizarTextoBusca(valor) {
+    return String(valor || "")
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim()
+        .toLowerCase();
+}
+
+function valorFinanceiroNumero(transacao) {
+    return valorParaNumero(transacao?.valor ?? transacao?.VALOR ?? transacao?.valor_financeiro ?? transacao?.VALOR_FINANCEIRO);
+}
+
+async function buscarIdsReceitasFinanceiras(API, { descricaoReceita = "", idVenda = "", valor = 0 } = {}) {
+    const resposta = await fetch(`${API}/listar_financeiro`, {
+        method: "GET",
+        headers: cabecalhoAutorizacao(),
+        credentials: "include"
+    });
+    const dados = await lerRespostaJson(resposta);
+
+    if (!resposta.ok) {
+        return "";
+    }
+
+    const lista = Array.isArray(dados)
+        ? dados
+        : dados.transacoes || dados.financeiro || [];
+    const descricaoEsperada = normalizarTextoBusca(descricaoReceita);
+    const codigoVenda = idVenda ? normalizarTextoBusca(`codigo da venda: ${idVenda}`) : "";
+    const vendaNumero = idVenda ? normalizarTextoBusca(`venda #${idVenda}`) : "";
+    const valorEsperado = valorParaNumero(valor);
+
+    return lista.filter((transacao) => {
+        const tipo = String(transacao?.tipo || transacao?.TIPO_TEXTO || "").trim().toLowerCase();
+        const descricao = normalizarTextoBusca(transacao?.descricao || transacao?.DESCRICAO);
+        const ehReceita = tipo === "entrada" || tipo === "receita" || tipo === "0" || tipo === "";
+        const bateDescricao = Boolean(descricaoEsperada && descricao === descricaoEsperada) ||
+            Boolean(codigoVenda && descricao.includes(codigoVenda)) ||
+            Boolean(vendaNumero && descricao.includes(vendaNumero));
+        const bateValor = !valorEsperado || Math.abs(valorFinanceiroNumero(transacao) - valorEsperado) < 0.01;
+
+        return ehReceita && bateDescricao && bateValor;
+    }).map(idFinanceiroTransacao).filter(Boolean);
+}
+
+async function excluirReceitaFinanceira(API, chaveReceita, { descricaoReceita = "", idVenda = "", valor = 0 } = {}) {
+    const idsReceitas = lerObjetoLocalStorage(receitasFinanceiroIdsLocalStorage);
+    const idsFinanceiros = [
+        idsReceitas[chaveReceita],
+        ...await buscarIdsReceitasFinanceiras(API, { descricaoReceita, idVenda, valor })
+    ].filter(Boolean);
+
+    for (const idFinanceiro of [...new Set(idsFinanceiros)]) {
+        const resposta = await fetch(`${API}/excluir_financeiro/${idFinanceiro}`, {
+            method: "DELETE",
+            headers: cabecalhoAutorizacao(),
+            credentials: "include"
+        });
+
+        if (!resposta.ok && resposta.status !== 404) {
+            const dados = await lerRespostaJson(resposta);
+            throw new Error(dados.erro || dados.mensagem || "Pagamento cancelado, mas não foi possível remover a receita do financeiro.");
+        }
+    }
+
+    removerItemLocalStorage(receitasRegistradasLocalStorage, chaveReceita);
+    removerValorObjetoLocalStorage(receitasFinanceiroIdsLocalStorage, chaveReceita);
 }
 
 async function lerRespostaJson(resposta) {
@@ -312,11 +455,29 @@ function ordenarComprasCronologicamente(compras) {
 function aplicarPagamentoLocal(compra) {
     const idVenda = idVendaCompra(compra);
 
+    if (idVenda && itemExisteNoLocalStorage(comprasCanceladasLocalStorage, idVenda)) {
+        return { ...compra, status_pagamento: 1, STATUS_PAGAMENTO: 1 };
+    }
+
     if (!idVenda || !itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda)) {
         return compra;
     }
 
     return { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 };
+}
+
+function aplicarParcelaPagaLocal(idVenda, parcela) {
+    const chaveParcela = parcela?.id || `${idVenda}-${parcela?.numero || "sem-numero"}`;
+
+    if (chaveParcela && itemExisteNoLocalStorage(parcelasCanceladasLocalStorage, chaveParcela)) {
+        return { ...parcela, situacao: 0 };
+    }
+
+    if (!chaveParcela || !itemExisteNoLocalStorage(parcelasPagasLocalStorage, chaveParcela)) {
+        return parcela;
+    }
+
+    return { ...parcela, situacao: 1 };
 }
 
 async function confirmarStatusPagamentoVenda(API, idVenda) {
@@ -358,7 +519,7 @@ async function confirmarStatusPagamentoVenda(API, idVenda) {
         }
     }
 
-    throw new Error("Nao foi possivel confirmar o pagamento na API.");
+    throw new Error("Não foi possível confirmar o pagamento na API.");
 }
 
 // Componente principal da página Minhas compras.
@@ -396,6 +557,7 @@ function MinhasCompras({ API }) {
     const [erroPixVendas, setErroPixVendas] = useState({});
     // Guarda mensagens de sucesso de Pix de venda à vista por venda.
     const [mensagemPixVendas, setMensagemPixVendas] = useState({});
+    const [pagandoPixVendas, setPagandoPixVendas] = useState({});
     // Controla qual compra está aberta para mostrar Pix ou parcelas.
     const [compraAbertaId, setCompraAbertaId] = useState("");
 
@@ -539,7 +701,9 @@ function MinhasCompras({ API }) {
             // Salva as parcelas normalizadas no estado.
             setPixParcelas((estado) => ({
                 ...estado,
-                [idVenda]: Array.isArray(lista) ? lista.map(normalizarParcelaPix) : []
+                [idVenda]: Array.isArray(lista)
+                    ? lista.map((parcela) => aplicarParcelaPagaLocal(idVenda, normalizarParcelaPix(parcela)))
+                    : []
             }));
         } catch {
             // Mostra erro quando não consegue conectar ao servidor.
@@ -565,6 +729,10 @@ function MinhasCompras({ API }) {
 
         // Verifica se o Pix já foi carregado.
         const pixJaCarregado = pixVendas[idVenda];
+
+        if (itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda)) {
+            return;
+        }
 
         // Se não for recarregamento forçado e já tiver Pix, não busca novamente.
         if (!forcar && (pixJaCarregado?.qrcode || pixJaCarregado?.copiaCola)) {
@@ -667,43 +835,100 @@ function MinhasCompras({ API }) {
             setErroPixVendas((estado) => ({ ...estado, [idVenda]: "Não foi possível copiar o Pix automaticamente." }));
         }
     }
+async function registrarReceitaVendaPix(idVenda, compra) {
+    const chaveReceita = `venda-${idVenda}`;
 
-    async function registrarReceitaVendaPix(idVenda, compra) {
-        const chaveReceita = `venda-${idVenda}`;
-
-        if (itemExisteNoLocalStorage(receitasRegistradasLocalStorage, chaveReceita)) {
-            return;
-        }
-
-        const valorVenda = valorParaNumero(compra?.valor_recebido ?? compra?.VALOR_RECEBIDO ?? compra?.valor_venda ?? compra?.VALOR_VENDA ?? compra?.valor_total);
-
-        if (!idVenda || !valorVenda) {
-            throw new Error("Pagamento confirmado, mas nao foi possivel montar a receita financeira.");
-        }
-
-        const resposta = await fetch(`${API}/cadastro_financeiro`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                ...cabecalhoAutorizacao()
-            },
-            credentials: "include",
-            body: JSON.stringify({
-                tipo: "entrada",
-                id_veiculo: idVeiculoCompra(compra) || null,
-                data: dataAtualParaApi(),
-                descricao: `Receita automatica - Venda #${idVenda} - ${nomeVeiculoCompra(compra)}`,
-                valor: valorVenda
-            })
-        });
-        const dados = await resposta.json().catch(() => ({}));
-
-        if (!resposta.ok && resposta.status !== 409) {
-            throw new Error(dados.erro || dados.mensagem || "Pagamento confirmado, mas a receita nao foi registrada no financeiro.");
-        }
-
-        salvarItemLocalStorage(receitasRegistradasLocalStorage, chaveReceita);
+    // Impede duplicação no localStorage
+    if (itemExisteNoLocalStorage(receitasRegistradasLocalStorage, chaveReceita)) {
+        return;
     }
+
+    const descricaoReceita =
+        `Receita automática - Venda #${idVenda} - ${nomeVeiculoCompra(compra)}`;
+
+    const valorVenda = valorParaNumero(
+        compra?.valor_recebido ??
+        compra?.VALOR_RECEBIDO ??
+        compra?.valor_venda ??
+        compra?.VALOR_VENDA ??
+        compra?.valor_total
+    );
+
+    if (!idVenda || !valorVenda) {
+        throw new Error(
+            "Pagamento confirmado, mas não foi possível montar a receita financeira."
+        );
+    }
+
+    // VERIFICA SE JÁ EXISTE NO BANCO
+    const receitasExistentes = await buscarIdsReceitasFinanceiras(API, {
+        descricaoReceita,
+        idVenda,
+        valor: valorVenda
+    });
+
+    // Se já existir, salva no localStorage e NÃO cria novamente
+    if (receitasExistentes.length > 0) {
+        salvarValorObjetoLocalStorage(
+            receitasFinanceiroIdsLocalStorage,
+            chaveReceita,
+            receitasExistentes[0]
+        );
+
+        salvarItemLocalStorage(
+            receitasRegistradasLocalStorage,
+            chaveReceita
+        );
+
+        return;
+    }
+
+    // CADASTRA SOMENTE SE NÃO EXISTIR
+    const resposta = await fetch(`${API}/cadastro_financeiro`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            ...cabecalhoAutorizacao()
+        },
+        credentials: "include",
+        body: JSON.stringify({
+            tipo: "entrada",
+            id_veiculo: idVeiculoCompra(compra) || null,
+            data: dataAtualParaApi(),
+            descricao: descricaoReceita,
+            valor: valorVenda
+        })
+    });
+
+    const dados = await resposta.json().catch(() => ({}));
+
+    if (!resposta.ok && resposta.status !== 409) {
+        throw new Error(
+            dados.erro ||
+            dados.mensagem ||
+            "Pagamento confirmado, mas a receita não foi registrada."
+        );
+    }
+
+    const idFinanceiro =
+        idFinanceiroResposta(dados) ||
+        (await buscarIdsReceitasFinanceiras(API, {
+            descricaoReceita,
+            idVenda,
+            valor: valorVenda
+        }))[0];
+
+    salvarValorObjetoLocalStorage(
+        receitasFinanceiroIdsLocalStorage,
+        chaveReceita,
+        idFinanceiro
+    );
+
+    salvarItemLocalStorage(
+        receitasRegistradasLocalStorage,
+        chaveReceita
+    );
+}
 
     async function confirmarPagamentoPixVenda(idVenda, compra) {
         if (!idVenda) {
@@ -712,21 +937,116 @@ function MinhasCompras({ API }) {
 
         setErroPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
         setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
+        setPagandoPixVendas((estado) => ({ ...estado, [idVenda]: true }));
 
         try {
-            await confirmarStatusPagamentoVenda(API, idVenda);
+            let statusAtualizado = true;
+
+            try {
+                await confirmarStatusPagamentoVenda(API, idVenda);
+            } catch {
+                statusAtualizado = false;
+            }
+
             await registrarReceitaVendaPix(idVenda, compra);
+            removerItemLocalStorage(comprasCanceladasLocalStorage, idVenda);
             salvarItemLocalStorage(comprasPagasLocalStorage, idVenda);
             setCompras((estado) => estado.map((item) => (
                 String(idVendaCompra(item)) === String(idVenda)
                     ? { ...item, status_pagamento: 0, STATUS_PAGAMENTO: 0 }
                     : item
             )));
-            setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "Pagamento confirmado e receita registrada." }));
+            setMensagemPixVendas((estado) => ({
+                ...estado,
+                [idVenda]: statusAtualizado
+                    ? "Pagamento confirmado e receita registrada."
+                    : "Pagamento confirmado nesta tela e receita registrada. A API de status não respondeu."
+            }));
         } catch (erroAtual) {
             setErroPixVendas((estado) => ({
                 ...estado,
-                [idVenda]: erroAtual.message || "Nao foi possivel confirmar o pagamento."
+                [idVenda]: erroAtual.message || "Não foi possível confirmar o pagamento."
+            }));
+        } finally {
+            setPagandoPixVendas((estado) => ({ ...estado, [idVenda]: false }));
+        }
+    }
+
+    async function cancelarPagamentoPixVenda(idVenda, compra) {
+        if (!idVenda) {
+            return;
+        }
+
+        setErroPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
+
+        try {
+            await excluirReceitaFinanceira(API, `venda-${idVenda}`, {
+                descricaoReceita: `Receita automática - Venda #${idVenda} - ${nomeVeiculoCompra(compra)}`,
+                idVenda,
+                valor: valorParaNumero(compra?.valor_recebido ?? compra?.VALOR_RECEBIDO ?? compra?.valor_venda ?? compra?.VALOR_VENDA ?? compra?.valor_total)
+            });
+            removerItemLocalStorage(comprasPagasLocalStorage, idVenda);
+            salvarItemLocalStorage(comprasCanceladasLocalStorage, idVenda);
+            setCompras((estado) => estado.map((item) => (
+                String(idVendaCompra(item)) === String(idVenda)
+                    ? { ...item, status_pagamento: 1, STATUS_PAGAMENTO: 1 }
+                    : item
+            )));
+            setMensagemPixVendas((estado) => ({
+                ...estado,
+                [idVenda]: "Pagamento Pix cancelado. A receita foi removida do financeiro."
+            }));
+        } catch (erroAtual) {
+            setErroPixVendas((estado) => ({
+                ...estado,
+                [idVenda]: erroAtual.message || "Não foi possível cancelar o pagamento no financeiro."
+            }));
+        }
+    }
+
+    async function cancelarPagamentoPixParcela(idVenda, parcela, compra) {
+        const chaveParcela = parcela?.id || `${idVenda}-${parcela?.numero || "sem-numero"}`;
+
+        if (!idVenda || !chaveParcela) {
+            return;
+        }
+
+        setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+
+        try {
+            const numeroParcela = parcela?.numero || "-";
+            const descricaoReceita = `Receita automática - Venda #${idVenda} - Parcela ${numeroParcela} - ${nomeVeiculoCompra(compra)}`;
+
+            await excluirReceitaFinanceira(API, `parcela-${chaveParcela}`, {
+                descricaoReceita,
+                idVenda,
+                valor: parcela?.valor
+            });
+            removerItemLocalStorage(parcelasPagasLocalStorage, chaveParcela);
+            removerItemLocalStorage(comprasPagasLocalStorage, idVenda);
+            salvarItemLocalStorage(parcelasCanceladasLocalStorage, chaveParcela);
+            salvarItemLocalStorage(comprasCanceladasLocalStorage, idVenda);
+            setPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: (estado[idVenda] || []).map((item) => (
+                    String(item.id || item.numero) === String(parcela?.id || parcela?.numero)
+                        ? { ...item, situacao: 0 }
+                        : item
+                ))
+            }));
+            setCompras((estado) => estado.map((compraAtual) => (
+                String(idVendaCompra(compraAtual)) === String(idVenda)
+                    ? { ...compraAtual, status_pagamento: 1, STATUS_PAGAMENTO: 1 }
+                    : compraAtual
+            )));
+            setMensagemPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: "Pagamento da parcela cancelado. A receita foi removida do financeiro."
+            }));
+        } catch (erroAtual) {
+            setErroPixParcelas((estado) => ({
+                ...estado,
+                [idVenda]: erroAtual.message || "Não foi possível cancelar a parcela no financeiro."
             }));
         }
     }
@@ -741,11 +1061,12 @@ function MinhasCompras({ API }) {
         const valorParcela = valorParaNumero(parcela?.valor);
 
         if (!idVenda || !valorParcela) {
-            throw new Error("Parcela paga, mas nao foi possivel montar a receita financeira.");
+            throw new Error("Parcela paga, mas não foi possível montar a receita financeira.");
         }
 
         const numeroParcela = parcela?.numero || "-";
         const veiculo = nomeVeiculoCompra(compra);
+        const descricaoReceita = `Receita automática - Venda #${idVenda} - Parcela ${numeroParcela} - ${veiculo}`;
         const resposta = await fetch(`${API}/cadastro_financeiro`, {
             method: "POST",
             headers: {
@@ -757,16 +1078,22 @@ function MinhasCompras({ API }) {
                 tipo: "entrada",
                 id_veiculo: idVeiculoCompra(compra) || null,
                 data: dataAtualParaApi(),
-                descricao: `Receita automatica - Venda #${idVenda} - Parcela ${numeroParcela} - ${veiculo}`,
+                descricao: descricaoReceita,
                 valor: valorParcela
             })
         });
         const dados = await resposta.json().catch(() => ({}));
 
         if (!resposta.ok && resposta.status !== 409) {
-            throw new Error(dados.erro || dados.mensagem || "Parcela paga, mas a receita nao foi registrada no financeiro.");
+            throw new Error(dados.erro || dados.mensagem || "Parcela paga, mas a receita não foi registrada no financeiro.");
         }
 
+        const idFinanceiro = idFinanceiroResposta(dados) || (await buscarIdsReceitasFinanceiras(API, {
+            descricaoReceita,
+            idVenda,
+            valor: valorParcela
+        }))[0];
+        salvarValorObjetoLocalStorage(receitasFinanceiroIdsLocalStorage, chaveReceita, idFinanceiro);
         salvarItemLocalStorage(receitasRegistradasLocalStorage, chaveReceita);
         return dados;
     }
@@ -830,6 +1157,10 @@ function MinhasCompras({ API }) {
                 await registrarReceitaParcela(idVenda, parcela, compra);
             }
 
+            removerItemLocalStorage(parcelasCanceladasLocalStorage, parcela.id || `${idVenda}-${parcela.numero || "sem-numero"}`);
+            removerItemLocalStorage(comprasCanceladasLocalStorage, idVenda);
+            salvarItemLocalStorage(parcelasPagasLocalStorage, parcela.id || `${idVenda}-${parcela.numero || "sem-numero"}`);
+
             // Atualiza a situação da parcela no estado local.
             const parcelasAtualizadas = (pixParcelas[idVenda] || []).map((item) => (
                 String(item.id) === String(parcela.id)
@@ -849,8 +1180,14 @@ function MinhasCompras({ API }) {
 
             // Se a API informou que a compra foi quitada, marca a compra como paga.
             if (dados.compra_quitada || compraQuitadaLocalmente) {
-                await confirmarStatusPagamentoVenda(API, idVenda);
                 salvarItemLocalStorage(comprasPagasLocalStorage, idVenda);
+
+                try {
+                    await confirmarStatusPagamentoVenda(API, idVenda);
+                } catch {
+                    // A compra fica paga localmente mesmo quando a API de status nao existe.
+                }
+
                 setCompras((estado) => estado.map((compra) => (
                     String(idVendaCompra(compra)) === String(idVenda)
                         ? { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 }
@@ -893,6 +1230,10 @@ function MinhasCompras({ API }) {
     function compraEstaPagaExibicao(compra) {
         const idVenda = idVendaCompra(compra);
         const parcelas = idVenda ? pixParcelas[idVenda] || [] : [];
+
+        if (idVenda && itemExisteNoLocalStorage(comprasCanceladasLocalStorage, idVenda)) {
+            return false;
+        }
 
         return textoStatusPagamento(compra.status_pagamento ?? compra.STATUS_PAGAMENTO) === "Pago" ||
             itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda) ||
@@ -981,21 +1322,29 @@ function MinhasCompras({ API }) {
                         const pixVenda = pixVendas[idVenda] || null;
                         // Lê carregamento do Pix da venda à vista.
                         const carregandoPixVenda = carregandoPixVendas[idVenda];
+                        const pagandoPixVenda = Boolean(pagandoPixVendas[idVenda]);
                         // Lê erro do Pix da venda à vista.
                         const erroPixVenda = erroPixVendas[idVenda];
                         // Lê mensagem do Pix da venda à vista.
                         const mensagemPixVenda = mensagemPixVendas[idVenda];
+                        const compraCanceladaLocalmente = itemExisteNoLocalStorage(comprasCanceladasLocalStorage, idVenda);
+                        const compraPagaLocalmente = itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda) && !compraCanceladaLocalmente;
+                        const temParcelaPagaLocalmente = parcelasComPix.some((parcela) => (
+                            itemExisteNoLocalStorage(parcelasPagasLocalStorage, parcela.id || `${idVenda}-${parcela.numero || "sem-numero"}`) &&
+                            !itemExisteNoLocalStorage(parcelasCanceladasLocalStorage, parcela.id || `${idVenda}-${parcela.numero || "sem-numero"}`)
+                        ));
                         // Verifica se todas as parcelas foram pagas.
                         const compraQuitadaParcelas = vendaParcelada && parcelasComPix.length > 0 && parcelasComPix.every(parcelaEstaPaga);
                         // Se todas as parcelas estão pagas ou a compra foi confirmada localmente, considera a compra paga.
                         const compraPaga = compraEstaPagaExibicao(compra);
-                        const statusPagamentoCompra = compraPaga ? 0 : (compra.status_pagamento ?? compra.STATUS_PAGAMENTO);
+                        const statusPagamentoCompra = compraCanceladaLocalmente ? 1 : compraPaga ? 0 : (compra.status_pagamento ?? compra.STATUS_PAGAMENTO);
                         // Compra concluída não abre detalhes de pagamento.
                         const pagamentoConcluido = textoStatusPagamento(statusPagamentoCompra) === "Pago";
                         // Exibe Pix ou parcelas apenas na compra clicada.
                         const compraAberta = String(compraAbertaId) === String(idVenda);
                         // Mostra detalhes somente quando a compra ainda não foi concluída.
-                        const mostrarDetalhesPagamento = compraAberta && !pagamentoConcluido;
+                        const podeAbrirPagamento = !pagamentoConcluido || compraPagaLocalmente || temParcelaPagaLocalmente;
+                        const mostrarDetalhesPagamento = compraAberta && podeAbrirPagamento;
                         // Recupera o índice salvo da parcela selecionada.
                         const indiceSalvoPix = Number(parcelaPixSelecionada[idVenda] ?? 0);
                         // Garante que o índice selecionado fique dentro do tamanho da lista.
@@ -1004,6 +1353,12 @@ function MinhasCompras({ API }) {
                             : 0;
                         // Seleciona a parcela Pix atual.
                         const parcelaPixAtual = parcelasComPix[indiceParcelaPix];
+                        const chaveParcelaAtual = parcelaPixAtual?.id || `${idVenda}-${parcelaPixAtual?.numero || "sem-numero"}`;
+                        const parcelaAtualCanceladaLocalmente = itemExisteNoLocalStorage(parcelasCanceladasLocalStorage, chaveParcelaAtual);
+                        const parcelaAtualPagaLocalmente = itemExisteNoLocalStorage(
+                            parcelasPagasLocalStorage,
+                            chaveParcelaAtual
+                        ) && !parcelaAtualCanceladaLocalmente;
                         // Cria a chave da parcela atual.
                         const chavePixAtual = chaveParcelaPix(idVenda, parcelaPixAtual);
                         // Verifica se a parcela atual está em processamento.
@@ -1013,14 +1368,14 @@ function MinhasCompras({ API }) {
                         return (
                             <article
                                 key={idVenda || `${nomeVeiculoCompra(compra)}-${compra.data_venda}`}
-                                className={`${css.card_compra} ${vendaParcelada ? css.card_compra_parcelada : ""} ${!pagamentoConcluido ? css.card_compra_clicavel : ""}`}
-                                onClick={() => alternarCompra(idVenda, pagamentoConcluido)}
-                                role={!pagamentoConcluido ? "button" : undefined}
-                                tabIndex={!pagamentoConcluido ? 0 : undefined}
+                                className={`${css.card_compra} ${vendaParcelada ? css.card_compra_parcelada : ""} ${podeAbrirPagamento ? css.card_compra_clicavel : ""}`}
+                                onClick={() => alternarCompra(idVenda, !podeAbrirPagamento)}
+                                role={podeAbrirPagamento ? "button" : undefined}
+                                tabIndex={podeAbrirPagamento ? 0 : undefined}
                                 onKeyDown={(evento) => {
                                     if (evento.key === "Enter" || evento.key === " ") {
                                         evento.preventDefault();
-                                        alternarCompra(idVenda, pagamentoConcluido);
+                                        alternarCompra(idVenda, !podeAbrirPagamento);
                                     }
                                 }}
                             >
@@ -1046,8 +1401,8 @@ function MinhasCompras({ API }) {
 
                                 {/* Ações gerais da compra. */}
                                 <div className={css.acoes_compra} onClick={(evento) => evento.stopPropagation()}>
-                                    {!pagamentoConcluido && (
-                                        <button type="button" onClick={() => alternarCompra(idVenda, pagamentoConcluido)}>
+                                    {podeAbrirPagamento && (
+                                        <button type="button" onClick={() => alternarCompra(idVenda, !podeAbrirPagamento)}>
                                             {compraAberta ? "Ocultar pagamento" : "Ver pagamento"}
                                         </button>
                                     )}
@@ -1116,9 +1471,25 @@ function MinhasCompras({ API }) {
                                                         <button type="button" onClick={() => copiarPixVenda(pixVenda.copiaCola, idVenda)}>
                                                             Copiar Pix
                                                         </button>
-                                                        <button type="button" onClick={() => confirmarPagamentoPixVenda(idVenda, compra)}>
-                                                            Confirmar pagamento
-                                                        </button>
+                                                        {!compraPagaLocalmente && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => confirmarPagamentoPixVenda(idVenda, compra)}
+                                                                disabled={pagandoPixVenda || compraPaga}
+                                                            >
+                                                                {pagandoPixVenda ? "Confirmando..." : "Confirmar pagamento"}
+                                                            </button>
+                                                        )}
+                                                        {compraPagaLocalmente && (
+                                                            <button
+                                                                type="button"
+                                                                className={css.botao_cancelar_pix}
+                                                                onClick={() => cancelarPagamentoPixVenda(idVenda, compra)}
+                                                                disabled={pagandoPixVenda}
+                                                            >
+                                                                Cancelar pagamento
+                                                            </button>
+                                                        )}
                                                     </div>
                                                 </label>
                                             </div>
@@ -1127,7 +1498,7 @@ function MinhasCompras({ API }) {
                                 )}
 
                                 {/* Área de Pix para compras parceladas ainda não quitadas. */}
-                                {vendaParcelada && idVenda && !compraQuitadaParcelas && mostrarDetalhesPagamento && (
+                                {vendaParcelada && idVenda && mostrarDetalhesPagamento && (
                                     <div className={css.area_pix_parcelas} onClick={(evento) => evento.stopPropagation()}>
                                         <div className={css.topo_pix_parcelas}>
                                             <div>
@@ -1210,13 +1581,30 @@ function MinhasCompras({ API }) {
                                                             >
                                                                 Copiar Pix
                                                             </button>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => confirmarPagamentoPixParcela(idVenda, parcelaPixAtual, compra)}
-                                                                disabled={pagandoPixAtual || parcelaEstaPaga(parcelaPixAtual)}
-                                                            >
-                                                                {pagandoPixAtual ? "Confirmando..." : parcelaEstaPaga(parcelaPixAtual) ? "Pago" : "Confirmar pagamento"}
-                                                            </button>
+                                                            {!parcelaEstaPaga(parcelaPixAtual) && (
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => confirmarPagamentoPixParcela(idVenda, parcelaPixAtual, compra)}
+                                                                    disabled={pagandoPixAtual}
+                                                                >
+                                                                    {pagandoPixAtual ? "Confirmando..." : "Confirmar pagamento"}
+                                                                </button>
+                                                            )}
+                                                            {parcelaEstaPaga(parcelaPixAtual) && !parcelaAtualPagaLocalmente && (
+                                                                <button type="button" disabled>
+                                                                    Pago
+                                                                </button>
+                                                            )}
+                                                            {parcelaAtualPagaLocalmente && (
+                                                                <button
+                                                                    type="button"
+                                                                    className={css.botao_cancelar_pix}
+                                                                    onClick={() => cancelarPagamentoPixParcela(idVenda, parcelaPixAtual, compra)}
+                                                                    disabled={pagandoPixAtual}
+                                                                >
+                                                                    Cancelar pagamento
+                                                                </button>
+                                                            )}
                                                         </div>
                                                     </label>
                                                 </div>

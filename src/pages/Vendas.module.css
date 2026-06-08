@@ -442,6 +442,14 @@
     line-height: 1.35;
 }
 
+.pixEstado p {
+    margin: 0 0 10px;
+}
+
+.pixEstado p:last-child {
+    margin-bottom: 0;
+}
+
 .botaoGerarPix,
 .botaoCopiarPix,
 .botaoConfirmarPix,

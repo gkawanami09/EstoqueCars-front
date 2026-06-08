@@ -1046,7 +1046,7 @@ function Vendas({ API }) {
         const dados = await resposta.json().catch(() => ({}));
 
         if (!resposta.ok) {
-            throw new Error(dados.erro || dados.mensagem || "Nao foi possivel cancelar a reserva anterior.");
+            throw new Error(dados.erro || dados.mensagem || "Não foi possível cancelar a reserva anterior.");
         }
 
         return dados;
@@ -1064,7 +1064,7 @@ function Vendas({ API }) {
             mostrarMensagem("sucesso", dados.mensagem || "Pendencia de reserva cancelada com sucesso.");
             await Promise.all([carregarPendenciasVenda(), carregarVeiculos()]);
         } catch (erroCancelamento) {
-            mostrarMensagem("erro", erroCancelamento.message || "Nao foi possivel conectar ao servidor para cancelar a pendencia.");
+            mostrarMensagem("erro", erroCancelamento.message || "Não foi possível conectar ao servidor para cancelar a pendência.");
         } finally {
             setCancelandoPendenciaId("");
         }
@@ -1139,7 +1139,17 @@ function Vendas({ API }) {
         setPixGerado(null);
         setGerandoPix(false);
         setErroPix("");
-        mostrarMensagem("sucesso", "Pix cancelado. Altere algum dado da venda para gerar um novo Pix.");
+        mostrarMensagem("sucesso", "Pix cancelado. Gere outro Pix quando quiser continuar.");
+    }
+
+    function gerarNovoPix() {
+        if (!valorComDesconto || salvando || vendaFinalizada) {
+            return;
+        }
+
+        setPixCancelado(false);
+        setErroPix("");
+        mostrarMensagem("sucesso", "Gerando novo Pix.");
     }
 
     // Monta o FormData que sera enviado para cadastrar a venda.
@@ -1284,7 +1294,7 @@ function Vendas({ API }) {
     async function enviarVenda() {
         // Evita cadastrar a mesma venda novamente depois de finalizada.
         if (vendaFinalizada) {
-            mostrarMensagem("sucesso", "Esta venda ja foi cadastrada.");
+            mostrarMensagem("sucesso", "Esta venda já foi cadastrada.");
             return;
         }
 
@@ -1663,7 +1673,7 @@ function Vendas({ API }) {
                                     <img src={pixGerado.qrCode} alt="QR Code Pix" />
 
                                     <label className={css.campo}>
-                                        <span>Pix copia e cola</span>
+                                        <span>Pix cópia e cola</span>
                                         <textarea value={pixGerado.copiaECola} readOnly />
                                     </label>
 
@@ -1692,7 +1702,19 @@ function Vendas({ API }) {
                             )}
 
                             {!vendaFinalizada && !gerandoPix && !pixGerado && valorComDesconto > 0 && (
-                                <p className={css.pixEstado}>O backend vai gerar o QR Code Pix automaticamente.</p>
+                                <div className={css.pixEstado}>
+                                    <p>{pixCancelado ? "Pix cancelado. Gere outro Pix para continuar." : "O backend vai gerar o QR Code Pix automaticamente."}</p>
+                                    {pixCancelado && (
+                                        <button
+                                            type="button"
+                                            className={css.botaoGerarPix}
+                                            onClick={gerarNovoPix}
+                                            disabled={gerandoPix || salvando || vendaFinalizada}
+                                        >
+                                            Gerar novo Pix
+                                        </button>
+                                    )}
+                                </div>
                             )}
 
                             {!vendaFinalizada && !gerandoPix && !pixGerado && !valorComDesconto && (
