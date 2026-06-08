@@ -30,9 +30,9 @@
 .cardResumo {
     display: flex;
     align-items: center;
-    gap: 16px;
-    min-height: 66px;
-    padding: 12px 18px;
+    gap: 18px;
+    min-height: 72px;
+    padding: 14px 24px;
     margin-bottom: 13px !important;
 }
 
@@ -43,17 +43,28 @@
     flex-shrink: 0;
 }
 
-.cardResumo strong {
-    color: #000;
-    font-size: 27px;
-    font-weight: 900;
-    line-height: 1;
+.resumoTexto {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    min-width: 0;
 }
 
-.cardResumo span {
+.resumoTexto strong {
     color: #000;
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 30px;
+    font-weight: 900;
+    line-height: 1;
+    min-width: 38px;
+    text-align: center;
+}
+
+.resumoTexto span {
+    color: #000;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.2;
+    white-space: nowrap;
 }
 
 .busca {
@@ -207,6 +218,10 @@
 
 .cardsMobile {
     display: none;
+}
+
+.paginacaoArea {
+    padding: 4px 0 0;
 }
 
 .modalFundo {
@@ -382,6 +397,24 @@
 
     .cardResumo {
         min-height: 74px;
+        padding: 14px 16px;
+        gap: 14px;
+    }
+
+    .resumoTexto {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .resumoTexto strong {
+        min-width: 0;
+        text-align: left;
+    }
+
+    .resumoTexto span {
+        white-space: normal;
+        font-size: 14px;
     }
 
     .busca {

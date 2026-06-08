@@ -309,21 +309,10 @@ function ordenarComprasCronologicamente(compras) {
     });
 }
 
-function compraTemValorQuitado(compra) {
-    if (ehVendaParcelada(compra)) {
-        return false;
-    }
-
-    const valorVenda = valorParaNumero(compra?.valor_venda ?? compra?.valor_total ?? compra?.VALOR_VENDA);
-    const valorRecebido = valorParaNumero(compra?.valor_recebido ?? compra?.VALOR_RECEBIDO);
-
-    return Boolean(valorVenda && valorRecebido && valorRecebido >= valorVenda);
-}
-
 function aplicarPagamentoLocal(compra) {
     const idVenda = idVendaCompra(compra);
 
-    if (!idVenda || (!itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda) && !compraTemValorQuitado(compra))) {
+    if (!idVenda || !itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda)) {
         return compra;
     }
 
@@ -369,7 +358,7 @@ async function confirmarStatusPagamentoVenda(API, idVenda) {
         }
     }
 
-    return {};
+    throw new Error("Nao foi possivel confirmar o pagamento na API.");
 }
 
 // Componente principal da página Minhas compras.

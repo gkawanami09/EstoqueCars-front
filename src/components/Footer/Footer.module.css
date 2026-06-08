@@ -1,8 +1,8 @@
 ﻿.footer {
     background-color: var(--preto-nav);
     color: #ffffff;
-    padding: 28px 50px;
-    margin-top: 60px;
+    padding: 54px 68px 36px;
+    margin-top: 0;
 }
 
 .sem_margem_topo {
@@ -10,19 +10,19 @@
 }
 
 .conteudo {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(220px, 280px) minmax(360px, 1fr) minmax(150px, 240px);
     align-items: center;
-    justify-content: space-between;
-    gap: 40px;
-    max-width: 1200px;
+    gap: 56px;
+    width: 100%;
+    max-width: 1760px;
     margin: 0 auto;
 }
 
 .esquerda {
-    width: 240px;
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 18px;
 }
 
 .logoLink {
@@ -31,8 +31,8 @@
 }
 
 .logo {
-    width: 160px;
-    height: 52px;
+    width: 152px;
+    height: 64px;
     display: block;
     max-width: 100%;
     object-fit: contain;
@@ -41,35 +41,39 @@
 
 .endereco {
     display: flex;
-    flex-wrap: wrap;
-    gap: 4px;
+    flex-direction: column;
+    gap: 3px;
 }
 
 .endereco p {
-    font-size: 13px;
-    line-height: 1.4;
+    font-size: 17px;
+    line-height: 1.45;
     color: #dfdfdf;
     margin: 0;
 }
 
 .centro {
-    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    min-height: 140px;
-    gap: 25px;
+    justify-content: center;
+    gap: 30px;
+    min-width: 0;
 }
 
 .menu {
     display: flex;
-    gap: 70px;
+    justify-content: center;
+    gap: clamp(36px, 6vw, 92px);
+    width: 100%;
 }
 
 .menu a {
     color: var(--cor-texto-botao);
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 18px;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
 }
 
 .menu a:hover {
@@ -78,53 +82,62 @@
 
 .linha {
     width: 100%;
-    max-width: 560px;
+    max-width: 700px;
     height: 1px;
     background-color: rgba(255, 255, 255, 0.45);
 }
 
 .redes {
     display: flex;
-    gap: 12px;
+    justify-content: center;
+    gap: 14px;
 }
 
 .redes img {
-    width: 28px;
-    height: 28px;
+    width: 34px;
+    height: 34px;
     object-fit: contain;
     border-radius: 50%;
     display: block;
 }
 
 .direitos {
-    font-size: 11px;
+    font-size: 14px;
     color: rgba(255, 255, 255, 0.75);
+    margin: 2px 0 0;
+    text-align: center;
 }
 
 .direita {
     display: flex;
     align-items: center;
-    gap: 18px;
-    align-self: center;
+    justify-content: flex-end;
+    gap: 22px;
 }
 
 .divisoria {
     width: 1px;
-    height: 110px;
+    height: 138px;
     background-color: rgba(255, 255, 255, 0.4);
 }
 
 .acoes {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 14px;
 }
 
 .botao {
-    font-size: 13px;
-    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 118px;
+    min-height: 38px;
+    padding: 8px 18px;
+    font-size: 16px;
+    font-weight: 700;
     margin-left: 0;
-    min-width: 90px;
+    border-radius: 10px;
 }
 
 .botaoLogout {
@@ -144,15 +157,24 @@
 
 @media (max-width: 1024px) {
     .footer {
-        padding: 24px 28px;
+        padding: 42px 28px 28px;
     }
 
     .conteudo {
-        gap: 24px;
+        grid-template-columns: 200px 1fr 160px;
+        gap: 28px;
     }
 
     .menu {
-        gap: 34px;
+        gap: 30px;
+    }
+
+    .menu a {
+        font-size: 16px;
+    }
+
+    .endereco p {
+        font-size: 15px;
     }
 }
 
@@ -163,6 +185,7 @@
     }
 
     .conteudo {
+        display: flex;
         flex-direction: column;
         gap: 20px;
     }
@@ -196,7 +219,6 @@
     }
 
     .centro {
-        min-height: 0;
         gap: 18px;
     }
 

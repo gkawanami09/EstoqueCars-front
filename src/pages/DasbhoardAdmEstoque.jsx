@@ -1,27 +1,30 @@
 import { useEffect, useMemo, useState } from "react";
+import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 import css from "./DasbhoardAdmEstoque.module.css";
 
 const filtrosPeriodo = ["Últimos 30 dias", "Últimos 15 dias", "Últimos 7 dias"];
 const filtrosTipo = ["Tipo", "Entrada", "Saída"];
-
-const movimentacoesBase = [
-    { id: 1, data: "02/03/2026", veiculo: "Hyundai HB20", tipo: "Entrada" },
-    { id: 2, data: "01/03/2026", veiculo: "BMW M2", tipo: "Saída" },
-    { id: 3, data: "25/02/2026", veiculo: "Toyota Hilux", tipo: "Saída" },
-    { id: 4, data: "22/02/2026", veiculo: "Fiat Toro", tipo: "Saída" },
-    { id: 5, data: "19/02/2026", veiculo: "Honda HR-V", tipo: "Entrada" },
-    { id: 6, data: "04/02/2026", veiculo: "Porshe 911", tipo: "Saída" },
-    { id: 7, data: "04/02/2026", veiculo: "Hyundai HB20", tipo: "Entrada" },
-    { id: 8, data: "04/02/2026", veiculo: "Fiat Toro", tipo: "Entrada" },
-    { id: 9, data: "02/02/2026", veiculo: "Honda HR-V", tipo: "Entrada" }
-];
 
 function cabecalhoAutorizacao() {
     const token = localStorage.getItem("access_token");
     return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
-function extrairLista(dados) {
+async function lerJson(resposta) {
+    const texto = await resposta.text();
+
+    if (!texto) {
+        return {};
+    }
+
+    try {
+        return JSON.parse(texto);
+    } catch {
+        return {};
+    }
+}
+
+function extrairListaCarros(dados) {
     if (Array.isArray(dados)) {
         return dados;
     }
@@ -29,22 +32,173 @@ function extrairLista(dados) {
     return dados?.carros || dados?.veiculos || dados?.veiculo || [];
 }
 
-function estaEmEstoque(carro) {
-    const status = String(carro?.status_estoque ?? carro?.status ?? "").toLowerCase();
-    const statusVenda = String(carro?.status_venda ?? carro?.STATUS_VENDA ?? "").toLowerCase();
+function extrairListaUsuarios(dados) {
+    const lista = Array.isArray(dados) ? dados : dados?.usuarios || dados?.clientes || [];
+    const clientes = lista.filter((usuario) => Number(usuario.tipo_usuario ?? usuario.TIPO_USUARIO) === 0);
 
-    if (statusVenda.includes("vend") || status === "2" || status.includes("vend")) {
+    return clientes.length > 0 ? clientes : lista.filter((usuario) => Number(usuario.tipo_usuario ?? usuario.TIPO_USUARIO) !== 2);
+}
+
+function idUsuario(usuario) {
+    return usuario?.id_usuario || usuario?.ID_USUARIO || usuario?.id || usuario?.ID;
+}
+
+function nomeUsuario(usuario) {
+    return usuario?.nome || usuario?.NOME || usuario?.email || usuario?.EMAIL || `Cliente ${idUsuario(usuario) || "-"}`;
+}
+
+function idVeiculo(carro) {
+    return carro?.id_veiculo || carro?.ID_VEICULO || carro?.id_carro || carro?.ID_CARRO || carro?.id || carro?.ID;
+}
+
+function estaEmEstoque(carro) {
+    const status = String(carro?.status_estoque ?? carro?.STATUS_ESTOQUE ?? carro?.status ?? "").toLowerCase();
+    const statusVenda = String(carro?.status_venda ?? carro?.STATUS_VENDA ?? "").trim().toLowerCase();
+
+    if (statusVenda) {
+        return statusVenda === "disponivel" || statusVenda.includes("dispon");
+    }
+
+    if (status === "2" || status.includes("vend")) {
+        return false;
+    }
+
+    if (status === "3" || status.includes("reserv") || status.includes("indispon")) {
         return false;
     }
 
     return true;
 }
 
+function nomeVeiculo(carro) {
+    const marca = carro?.marca || carro?.MARCA || carro?.nome_marca || carro?.NOME_MARCA || "";
+    const modelo = carro?.modelo || carro?.MODELO || carro?.nome || carro?.NOME || "";
+    const nomeCompleto = [marca, modelo].filter(Boolean).join(" ").trim();
+
+    return nomeCompleto || carro?.veiculo || carro?.VEICULO || `Veículo ${idVeiculo(carro) || "-"}`;
+}
+
+function nomeVeiculoVenda(venda) {
+    return (
+        venda?.veiculo ||
+        venda?.VEICULO ||
+        venda?.nome_veiculo ||
+        venda?.NOME_VEICULO ||
+        venda?.modelo ||
+        venda?.MODELO ||
+        `Veículo ${venda?.id_veiculo || venda?.ID_VEICULO || "-"}`
+    );
+}
+
+function dataMovimentacaoCarro(carro) {
+    return (
+        carro?.data_cadastro ||
+        carro?.DATA_CADASTRO ||
+        carro?.criado_em ||
+        carro?.CRIADO_EM ||
+        carro?.created_at ||
+        carro?.CREATED_AT ||
+        carro?.data_entrada ||
+        carro?.DATA_ENTRADA ||
+        carro?.data ||
+        carro?.DATA
+    );
+}
+
+function dataMovimentacaoVenda(venda) {
+    return venda?.data_venda || venda?.DATA_VENDA || venda?.data || venda?.DATA || venda?.created_at || venda?.CREATED_AT;
+}
+
+function dataParaOrdenacao(valor) {
+    if (!valor) {
+        return 0;
+    }
+
+    const texto = String(valor).trim();
+    const dataBr = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}))?/);
+
+    if (dataBr) {
+        const [, dia, mes, ano, hora = "00", minuto = "00"] = dataBr;
+        return new Date(Number(ano), Number(mes) - 1, Number(dia), Number(hora), Number(minuto)).getTime();
+    }
+
+    const dataIso = texto.match(/^(\d{4})-(\d{2})-(\d{2})(?:[T\s](\d{2}):(\d{2}))?/);
+
+    if (dataIso) {
+        const [, ano, mes, dia, hora = "00", minuto = "00"] = dataIso;
+        return new Date(Number(ano), Number(mes) - 1, Number(dia), Number(hora), Number(minuto)).getTime();
+    }
+
+    const data = new Date(valor);
+    return Number.isNaN(data.getTime()) ? 0 : data.getTime();
+}
+
+function formatarData(valor) {
+    const tempo = dataParaOrdenacao(valor);
+
+    if (!tempo) {
+        return "-";
+    }
+
+    return new Date(tempo).toLocaleDateString("pt-BR", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric"
+    });
+}
+
+function diasDoPeriodo(periodo) {
+    const numero = Number(String(periodo).match(/\d+/)?.[0] || 30);
+    return Number.isFinite(numero) ? numero : 30;
+}
+
+function estaDentroDoPeriodo(movimentacao, periodo) {
+    if (!movimentacao.tempo) {
+        return false;
+    }
+
+    const limite = new Date();
+    limite.setHours(0, 0, 0, 0);
+    limite.setDate(limite.getDate() - diasDoPeriodo(periodo));
+
+    return movimentacao.tempo >= limite.getTime();
+}
+
+function montarEntrada(carro) {
+    const dataOriginal = dataMovimentacaoCarro(carro);
+
+    return {
+        id: `entrada-${idVeiculo(carro) || nomeVeiculo(carro)}`,
+        data: formatarData(dataOriginal),
+        tempo: dataParaOrdenacao(dataOriginal),
+        veiculo: nomeVeiculo(carro),
+        tipo: "Entrada",
+        origem: "Cadastro de veículo"
+    };
+}
+
+function montarSaida(venda) {
+    const dataOriginal = dataMovimentacaoVenda(venda);
+    const idVenda = venda.id_venda || venda.ID_VENDA || venda.id || venda.ID;
+
+    return {
+        id: `saida-${idVenda || venda.id_veiculo || venda.ID_VEICULO || nomeVeiculoVenda(venda)}`,
+        data: formatarData(dataOriginal),
+        tempo: dataParaOrdenacao(dataOriginal),
+        veiculo: nomeVeiculoVenda(venda),
+        tipo: "Saída",
+        origem: "Venda",
+        cliente: venda.nome_cliente
+    };
+}
+
 export default function DashboardAdmEstoque({ API }) {
     const [busca, setBusca] = useState("");
     const [periodo, setPeriodo] = useState(filtrosPeriodo[0]);
     const [tipo, setTipo] = useState(filtrosTipo[0]);
-    const [totalEstoque, setTotalEstoque] = useState(20);
+    const [totalEstoque, setTotalEstoque] = useState(0);
+    const [movimentacoes, setMovimentacoes] = useState([]);
+    const [paginaAtual, setPaginaAtual] = useState(1);
     const [carregando, setCarregando] = useState(false);
     const [erro, setErro] = useState("");
     const [movimentacaoDetalhe, setMovimentacaoDetalhe] = useState(null);
@@ -59,22 +213,71 @@ export default function DashboardAdmEstoque({ API }) {
             setErro("");
 
             try {
-                const resposta = await fetch(`${API}/listar_carro`, {
+                const headers = cabecalhoAutorizacao();
+                const respostaCarros = await fetch(`${API}/listar_carro`, {
                     method: "GET",
-                    headers: cabecalhoAutorizacao(),
+                    headers,
                     credentials: "include"
                 });
-                const dados = await resposta.json();
+                const dadosCarros = await lerJson(respostaCarros);
 
-                if (!resposta.ok) {
-                    setErro(dados.erro || "Não foi possível carregar o estoque.");
+                if (!respostaCarros.ok) {
+                    setErro(dadosCarros.erro || dadosCarros.mensagem || "Não foi possível carregar o estoque.");
+                    setMovimentacoes([]);
                     return;
                 }
 
-                const carros = extrairLista(dados);
+                const carros = extrairListaCarros(dadosCarros);
+                const entradas = carros.map(montarEntrada);
+                let saidas = [];
+
+                try {
+                    const respostaUsuarios = await fetch(`${API}/listar_usuario`, {
+                        method: "GET",
+                        headers,
+                        credentials: "include"
+                    });
+                    const dadosUsuarios = await lerJson(respostaUsuarios);
+
+                    if (respostaUsuarios.ok) {
+                        const usuarios = extrairListaUsuarios(dadosUsuarios);
+                        const vendasPorUsuario = await Promise.all(usuarios.map(async (usuario) => {
+                            const id = idUsuario(usuario);
+
+                            if (!id) {
+                                return [];
+                            }
+
+                            const respostaVendas = await fetch(`${API}/listar_vendas_usuario?id_usuario=${encodeURIComponent(id)}`, {
+                                method: "GET",
+                                headers,
+                                credentials: "include"
+                            });
+                            const dadosVendas = await lerJson(respostaVendas);
+
+                            if (!respostaVendas.ok) {
+                                return [];
+                            }
+
+                            const vendas = Array.isArray(dadosVendas) ? dadosVendas : dadosVendas.vendas || dadosVendas.compras || [];
+
+                            return vendas.map((venda) => ({
+                                ...venda,
+                                nome_cliente: nomeUsuario(usuario)
+                            }));
+                        }));
+
+                        saidas = vendasPorUsuario.flat().map(montarSaida);
+                    }
+                } catch {
+                    setErro("Estoque carregado, mas não foi possível carregar as saídas de vendas.");
+                }
+
                 setTotalEstoque(carros.filter(estaEmEstoque).length);
+                setMovimentacoes([...entradas, ...saidas].sort((a, b) => b.tempo - a.tempo));
             } catch {
                 setErro("Erro de conexão com o servidor.");
+                setMovimentacoes([]);
             } finally {
                 setCarregando(false);
             }
@@ -86,16 +289,34 @@ export default function DashboardAdmEstoque({ API }) {
     const movimentacoesFiltradas = useMemo(() => {
         const termo = busca.trim().toLowerCase();
 
-        return movimentacoesBase.filter((movimentacao) => {
+        return movimentacoes.filter((movimentacao) => {
             const passaBusca =
                 !termo ||
-                [movimentacao.data, movimentacao.veiculo, movimentacao.tipo]
-                    .some((campo) => campo.toLowerCase().includes(termo));
+                [movimentacao.data, movimentacao.veiculo, movimentacao.tipo, movimentacao.origem, movimentacao.cliente]
+                    .some((campo) => String(campo || "").toLowerCase().includes(termo));
             const passaTipo = tipo === "Tipo" || movimentacao.tipo === tipo;
+            const passaPeriodo = estaDentroDoPeriodo(movimentacao, periodo);
 
-            return passaBusca && passaTipo;
+            return passaBusca && passaTipo && passaPeriodo;
         });
-    }, [busca, tipo]);
+    }, [busca, movimentacoes, periodo, tipo]);
+
+    const totalPaginas = Math.max(1, Math.ceil(movimentacoesFiltradas.length / ITENS_POR_PAGINA));
+
+    useEffect(() => {
+        setPaginaAtual(1);
+    }, [busca, periodo, tipo]);
+
+    useEffect(() => {
+        if (paginaAtual > totalPaginas) {
+            setPaginaAtual(totalPaginas);
+        }
+    }, [paginaAtual, totalPaginas]);
+
+    const movimentacoesPaginadas = useMemo(() => {
+        const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        return movimentacoesFiltradas.slice(inicio, inicio + ITENS_POR_PAGINA);
+    }, [movimentacoesFiltradas, paginaAtual]);
 
     return (
         <main className={css.pagina}>
@@ -104,9 +325,11 @@ export default function DashboardAdmEstoque({ API }) {
             </header>
 
             <section className={css.cardResumo} aria-label="Resumo do estoque">
-                <img src="/Estoque.png" alt="veiculo vermelho" />
-                <strong>{carregando ? "..." : totalEstoque}</strong>
-                <span>Veículos em Estoque</span>
+                <img src="/Estoque.png" alt="veículo vermelho" />
+                <div className={css.resumoTexto}>
+                    <strong>{carregando ? "..." : totalEstoque}</strong>
+                    <span>Veículos em Estoque</span>
+                </div>
             </section>
 
             <label className={css.busca}>
@@ -156,7 +379,15 @@ export default function DashboardAdmEstoque({ API }) {
                         </thead>
 
                         <tbody>
-                            {movimentacoesFiltradas.map((movimentacao) => (
+                            {carregando && (
+                                <tr>
+                                    <td colSpan="4" className={css.vazio}>
+                                        Carregando movimentações...
+                                    </td>
+                                </tr>
+                            )}
+
+                            {!carregando && movimentacoesPaginadas.map((movimentacao) => (
                                 <tr key={movimentacao.id}>
                                     <td data-label="Data">{movimentacao.data}</td>
                                     <td data-label="Veículo">{movimentacao.veiculo}</td>
@@ -177,7 +408,7 @@ export default function DashboardAdmEstoque({ API }) {
                                 </tr>
                             ))}
 
-                            {movimentacoesFiltradas.length === 0 && (
+                            {!carregando && movimentacoesFiltradas.length === 0 && (
                                 <tr>
                                     <td colSpan="4" className={css.vazio}>
                                         Nenhuma movimentação encontrada.
@@ -189,7 +420,9 @@ export default function DashboardAdmEstoque({ API }) {
                 </div>
 
                 <div className={css.cardsMobile}>
-                    {movimentacoesFiltradas.map((movimentacao) => (
+                    {carregando && <div className={css.cardEstado}>Carregando movimentações...</div>}
+
+                    {!carregando && movimentacoesPaginadas.map((movimentacao) => (
                         <article key={`mobile-${movimentacao.id}`} className={css.cardMovimentacao}>
                             <div className={css.cardMovimentacaoTopo}>
                                 <div>
@@ -210,10 +443,20 @@ export default function DashboardAdmEstoque({ API }) {
                         </article>
                     ))}
 
-                    {movimentacoesFiltradas.length === 0 && (
+                    {!carregando && movimentacoesFiltradas.length === 0 && (
                         <div className={css.cardEstado}>Nenhuma movimentação encontrada.</div>
                     )}
                 </div>
+
+                {!carregando && movimentacoesFiltradas.length > 0 && (
+                    <div className={css.paginacaoArea}>
+                        <Paginacao
+                            paginaAtual={paginaAtual}
+                            totalItens={movimentacoesFiltradas.length}
+                            onMudarPagina={setPaginaAtual}
+                        />
+                    </div>
+                )}
             </section>
 
             {movimentacaoDetalhe && (
@@ -243,6 +486,14 @@ export default function DashboardAdmEstoque({ API }) {
                                 <strong className={movimentacaoDetalhe.tipo === "Entrada" ? css.entrada : css.saida}>
                                     {movimentacaoDetalhe.tipo}
                                 </strong>
+                            </div>
+                            <div>
+                                <span>Origem</span>
+                                <strong>{movimentacaoDetalhe.origem || "-"}</strong>
+                            </div>
+                            <div>
+                                <span>Cliente</span>
+                                <strong>{movimentacaoDetalhe.cliente || "-"}</strong>
                             </div>
                         </div>
 
