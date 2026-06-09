@@ -211,10 +211,12 @@
 .area_pix_parcelas {
     display: grid;
     gap: 14px;
+    min-width: 0;
     border: 1px solid #ececec;
     border-radius: 8px;
     background: #fbfbfb;
     padding: 14px;
+    box-sizing: border-box;
 }
 
 .topo_pix_parcelas {
@@ -287,15 +289,18 @@
 .pix_parcela_unica {
     display: grid;
     gap: 14px;
+    min-width: 0;
     border: 1px solid #ececec;
     border-radius: 8px;
     background: #fff;
     padding: 14px;
+    box-sizing: border-box;
 }
 
 .seletor_pix_parcela {
     display: grid;
     gap: 6px;
+    min-width: 0;
     max-width: 520px;
 }
 
@@ -310,6 +315,7 @@
 
 .seletor_pix_parcela select {
     width: 100%;
+    min-width: 0;
     min-height: 42px;
     border: 1px solid #dcdcdc;
     border-radius: 8px;
@@ -319,6 +325,7 @@
     font-size: 0.95rem;
     font-weight: 800;
     outline: none;
+    box-sizing: border-box;
 }
 
 .pix_resumo_parcela {
@@ -357,6 +364,7 @@
 .pix_qrcode_area {
     display: grid;
     place-items: center;
+    min-width: 0;
     min-height: 214px;
     border: 1px solid #e6e6e6;
     border-radius: 8px;
@@ -382,6 +390,7 @@
 
 .pix_copia_cola textarea {
     width: 100%;
+    min-width: 0;
     min-height: 214px;
     border: 1px solid #ddd;
     border-radius: 8px;
@@ -392,6 +401,8 @@
     font-weight: 750;
     line-height: 1.4;
     resize: vertical;
+    overflow-wrap: anywhere;
+    box-sizing: border-box;
 }
 
 .pix_copia_cola button {
@@ -476,7 +487,8 @@
     }
 
     .topo_pix_parcelas button,
-    .pix_conteudo_unico {
+    .pix_conteudo_unico,
+    .card_compra_parcelada .pix_conteudo_unico {
         width: 100%;
         grid-template-columns: 1fr;
     }
@@ -490,6 +502,23 @@
         min-height: 100px;
     }
 
+    .pix_qrcode_area {
+        min-height: 0;
+        padding: 12px;
+        box-sizing: border-box;
+    }
+
+    .pix_qrcode_area img {
+        width: min(180px, 100%);
+    }
+
+    .pix_copia_cola button {
+        min-width: 0;
+        padding: 10px 12px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
     .pix_resumo_parcela {
         align-items: stretch;
         flex-direction: column;
@@ -498,5 +527,30 @@
     .acoes_compra button,
     .acoes_compra a {
         width: 100%;
+    }
+}
+
+@media (max-width: 420px) {
+    .pagina {
+        padding: 18px 10px 24px;
+        overflow-x: hidden;
+    }
+
+    .card_compra {
+        padding: 12px;
+    }
+
+    .area_pix_parcelas,
+    .pix_parcela_unica {
+        gap: 10px;
+        padding: 10px;
+    }
+
+    .pix_resumo_parcela {
+        padding: 10px;
+    }
+
+    .pix_qrcode_area img {
+        width: min(160px, 100%);
     }
 }

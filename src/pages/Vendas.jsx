@@ -57,6 +57,7 @@ function taxaJurosParaDecimal(valor) {
 
     // Taxas invalidas, zeradas ou negativas viram 0 para nao quebrar o calculo.
     if (!Number.isFinite(taxa) || taxa <= 0) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return 0;
     }
 
@@ -71,6 +72,7 @@ function taxaJurosConfigurada(valor) {
 
     // Se nao houver taxa valida, usa 4%.
     if (!Number.isFinite(taxa) || taxa <= 0) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return JUROS_PADRAO;
     }
 
@@ -98,6 +100,7 @@ function formatarQuilometragem(valor) {
 
     // Se nao for numero valido, mostra o valor original ou um traco.
     if (!Number.isFinite(numero)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return valor || "-";
     }
 
@@ -122,6 +125,7 @@ function extrairListaUsuarios(dados) {
 
     // Se encontrou clientes explicitamente, usa essa lista.
     if (clientes.length > 0) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return clientes;
     }
 
@@ -133,6 +137,7 @@ function extrairListaUsuarios(dados) {
 function formatarDataParaApi(data) {
     // Se nao houver data, envia string vazia.
     if (!data) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
@@ -143,6 +148,7 @@ function formatarDataParaApi(data) {
 
     // Se a data nao estiver no formato esperado, devolve como veio.
     if (!ano || !mes || !dia) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return data;
     }
 
@@ -150,32 +156,48 @@ function formatarDataParaApi(data) {
     return `${dia}/${mes}/${ano} ${horaCampo}`;
 }
 
+// Declara a função formatarDataHora usada por esta página.
 function formatarDataHora(valor) {
+    // Verifica esta condição antes de continuar o fluxo.
     if (!valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "-";
     }
 
+    // Declara texto para uso neste fluxo.
     const texto = String(valor);
+    // Declara dataIso para uso neste fluxo.
     const dataIso = texto.match(/^(\d{4})-(\d{2})-(\d{2})[T\s](\d{2}):(\d{2})/);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (dataIso) {
+        // Declara os dados usados neste fluxo.
         const [, ano, mes, dia, hora, minuto] = dataIso;
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${dia}/${mes}/${ano} ${hora}:${minuto}`;
     }
 
+    // Declara dataBr para uso neste fluxo.
     const dataBr = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})(?:\s+(\d{2}):(\d{2}))?/);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (dataBr) {
+        // Declara os dados usados neste fluxo.
         const [, dia, mes, ano, hora, minuto] = dataBr;
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return hora && minuto ? `${dia}/${mes}/${ano} ${hora}:${minuto}` : `${dia}/${mes}/${ano}`;
     }
 
+    // Declara data para uso neste fluxo.
     const data = new Date(valor);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (Number.isNaN(data.getTime())) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return texto;
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return data.toLocaleString("pt-BR", {
         day: "2-digit",
         month: "2-digit",
@@ -210,23 +232,34 @@ function idVeiculo(veiculo) {
     return veiculo?.id || veiculo?.id_veiculo || veiculo?.id_carro;
 }
 
+// Declara a função textoValido usada por esta página.
 function textoValido(valor) {
+    // Verifica esta condição antes de continuar o fluxo.
     if (valor === null || valor === undefined) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return String(valor).trim();
 }
 
+// Declara a função idCliente usada por esta página.
 function idCliente(item) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return textoValido(item?.id_usuario) || textoValido(item?.ID_USUARIO) || textoValido(item?.id) || textoValido(item?.ID);
 }
 
+// Declara a função idUsuarioReservaVeiculo usada por esta página.
 function idUsuarioReservaVeiculo(veiculo) {
+    // Declara reserva para uso neste fluxo.
     const reserva = veiculo?.reserva || veiculo?.RESERVA || {};
+    // Declara usuarioReserva para uso neste fluxo.
     const usuarioReserva = reserva?.usuario || reserva?.USUARIO || veiculo?.usuario_reserva || veiculo?.USUARIO_RESERVA || {};
+    // Declara clienteReserva para uso neste fluxo.
     const clienteReserva = reserva?.cliente || reserva?.CLIENTE || veiculo?.cliente_reserva || veiculo?.CLIENTE_RESERVA || {};
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return (
         textoValido(veiculo?.id_usuario_reserva) ||
         textoValido(veiculo?.ID_USUARIO_RESERVA) ||
@@ -249,11 +282,16 @@ function idUsuarioReservaVeiculo(veiculo) {
     );
 }
 
+// Declara a função nomeUsuarioReservaVeiculo usada por esta página.
 function nomeUsuarioReservaVeiculo(veiculo) {
+    // Declara reserva para uso neste fluxo.
     const reserva = veiculo?.reserva || veiculo?.RESERVA || {};
+    // Declara usuarioReserva para uso neste fluxo.
     const usuarioReserva = reserva?.usuario || reserva?.USUARIO || veiculo?.usuario_reserva || veiculo?.USUARIO_RESERVA || {};
+    // Declara clienteReserva para uso neste fluxo.
     const clienteReserva = reserva?.cliente || reserva?.CLIENTE || veiculo?.cliente_reserva || veiculo?.CLIENTE_RESERVA || {};
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return (
         textoValido(veiculo?.nome_usuario_reserva) ||
         textoValido(veiculo?.NOME_USUARIO_RESERVA) ||
@@ -272,80 +310,119 @@ function nomeUsuarioReservaVeiculo(veiculo) {
     );
 }
 
+// Declara a função clienteReservaExistenteNoSelect usada por esta página.
 function clienteReservaExistenteNoSelect(veiculo, clientes) {
+    // Declara idReserva para uso neste fluxo.
     const idReserva = idUsuarioReservaVeiculo(veiculo);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!idReserva || !Array.isArray(clientes) || clientes.length === 0) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
+    // Declara clienteEncontrado para uso neste fluxo.
     const clienteEncontrado = clientes.find((cliente) => idCliente(cliente) === idReserva);
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return clienteEncontrado ? idCliente(clienteEncontrado) : "";
 }
 
+// Declara a função statusVendaVeiculo usada por esta página.
 function statusVendaVeiculo(veiculo) {
+    // Declara statusVendaApi para uso neste fluxo.
     const statusVendaApi = textoValido(veiculo?.status_venda) || textoValido(veiculo?.STATUS_VENDA) || textoValido(veiculo?.statusVenda);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (statusVendaApi) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return statusVendaApi.toUpperCase();
     }
 
+    // Declara statusEstoque para uso neste fluxo.
     const statusEstoque = statusEstoqueVeiculo(veiculo).toLowerCase();
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (statusEstoque === "2" || statusEstoque.includes("vend")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "VENDIDO";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (statusEstoque === "3" || statusEstoque.includes("reserv") || statusEstoque.includes("indispon")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "RESERVADO_PENDENTE_CONCLUSAO";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (statusEstoque === "1" || statusEstoque.includes("dispon") || statusEstoque.includes("estoque")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "DISPONIVEL";
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return "";
 }
 
+// Declara a função mensagemVendaVeiculo usada por esta página.
 function mensagemVendaVeiculo(veiculo) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return textoValido(veiculo?.mensagem_venda) || textoValido(veiculo?.MENSAGEM_VENDA);
 }
 
+// Declara a função precisaConcluirVendaVeiculo usada por esta página.
 function precisaConcluirVendaVeiculo(veiculo) {
+    // Declara indicadorApi para uso neste fluxo.
     const indicadorApi = veiculo?.precisa_concluir_venda ?? veiculo?.PRECISA_CONCLUIR_VENDA;
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (typeof indicadorApi === "boolean") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return indicadorApi;
     }
 
+    // Declara indicadorTexto para uso neste fluxo.
     const indicadorTexto = String(indicadorApi ?? "").trim().toLowerCase();
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (["1", "true", "sim", "s"].includes(indicadorTexto)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return true;
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (["0", "false", "nao", "não", "n"].includes(indicadorTexto)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return false;
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return statusVendaVeiculo(veiculo) === "RESERVADO_PENDENTE_CONCLUSAO";
 }
 
+// Declara a função textoStatusVendaPainel usada por esta página.
 function textoStatusVendaPainel(statusVenda) {
+    // Declara status para uso neste fluxo.
     const status = String(statusVenda || "").toUpperCase();
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (status === "RESERVADO_PENDENTE_CONCLUSAO") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Reservado";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (status === "VENDIDO") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Vendido";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (status === "DISPONIVEL") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Disponível";
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return status || "Não informado";
 }
 
@@ -366,17 +443,24 @@ function statusEstoqueVeiculo(veiculo) {
 
 // Normaliza o status de estoque para a tela de venda.
 function tipoStatusEstoqueVeiculo(veiculo) {
+    // Declara statusVenda para uso neste fluxo.
     const statusVenda = statusVendaVeiculo(veiculo);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (statusVenda === "VENDIDO") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "vendido";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (statusVenda === "RESERVADO_PENDENTE_CONCLUSAO") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "reservado";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (statusVenda === "DISPONIVEL") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "estoque";
     }
 
@@ -385,24 +469,29 @@ function tipoStatusEstoqueVeiculo(veiculo) {
 
     // Status 2 ou texto vendido nao deve aparecer para uma nova venda.
     if (status === "2" || status.includes("vend")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "vendido";
     }
 
     // Status 3 e usado pelo fluxo de reserva do cliente.
     if (status === "3" || status.includes("reserv") || status.includes("indispon")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "reservado";
     }
 
     // Status 1 ou texto de disponibilidade continua vendavel.
     if (status === "1" || status.includes("dispon") || status.includes("estoque")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "estoque";
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return "";
 }
 
 // Verifica se o veiculo pode aparecer na tela de vendas.
 function veiculoVendavel(veiculo) {
+    // Declara status para uso neste fluxo.
     const status = tipoStatusEstoqueVeiculo(veiculo);
 
     // Carros em estoque e carros reservados pelo cliente podem virar venda.
@@ -411,58 +500,84 @@ function veiculoVendavel(veiculo) {
 
 // Mostra o status no select para diferenciar reserva de estoque normal.
 function textoStatusVenda(veiculo) {
+    // Declara status para uso neste fluxo.
     const status = tipoStatusEstoqueVeiculo(veiculo);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (status === "reservado") {
+        // Declara nomeReserva para uso neste fluxo.
         const nomeReserva = nomeUsuarioReservaVeiculo(veiculo);
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return nomeReserva ? `Reservado para ${nomeReserva} - precisa concluir venda` : "Reservado - precisa concluir venda";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (status === "vendido") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Vendido";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (status === "estoque") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Disponível";
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return "Status não informado";
 }
 
 // Monta o nome que sera exibido no select de veiculos.
 function nomeVeiculo(veiculo) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return veiculo?.nome || [veiculo?.marca, veiculo?.modelo].filter(Boolean).join(" ") || "Veículo";
 }
 
+// Declara a função extrairListaPendencias usada por esta página.
 function extrairListaPendencias(dados) {
+    // Verifica esta condição antes de continuar o fluxo.
     if (Array.isArray(dados)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return dados;
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (Array.isArray(dados?.pendencias)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return dados.pendencias;
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (Array.isArray(dados?.pendencias_venda)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return dados.pendencias_venda;
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (Array.isArray(dados?.reservas)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return dados.reservas;
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return [];
 }
 
+// Declara a função idVeiculoPendencia usada por esta página.
 function idVeiculoPendencia(pendencia) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return textoValido(pendencia?.id_veiculo) || textoValido(pendencia?.ID_VEICULO) || textoValido(pendencia?.id_carro) || textoValido(pendencia?.ID_CARRO);
 }
 
+// Declara a função nomeVeiculoPendencia usada por esta página.
 function nomeVeiculoPendencia(pendencia) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return textoValido(pendencia?.veiculo) || textoValido(pendencia?.nome_veiculo) || textoValido(pendencia?.modelo);
 }
 
+// Declara a função nomeClientePendencia usada por esta página.
 function nomeClientePendencia(pendencia) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return textoValido(pendencia?.nome_usuario_reserva) || textoValido(pendencia?.NOME_USUARIO_RESERVA);
 }
 
@@ -473,16 +588,19 @@ function montarUrlImagem(API, veiculo) {
 
     // Se nao houver imagem, usa o icone padrao.
     if (!imagem) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "/IconCar.png";
     }
 
     // Se a imagem ja for URL completa, usa como esta.
     if (String(imagem).startsWith("http")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return imagem;
     }
 
     // Se o caminho comecar com barra, junta direto com a base da API.
     if (String(imagem).startsWith("/")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${API}${imagem}`;
     }
 
@@ -494,6 +612,7 @@ function montarUrlImagem(API, veiculo) {
 function montarUrlPix(API, caminhoPix) {
     // Sem caminho Pix, nao ha imagem para mostrar.
     if (!caminhoPix) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
@@ -502,11 +621,13 @@ function montarUrlPix(API, caminhoPix) {
 
     // URLs completas e imagens base64/data URL sao usadas diretamente.
     if (caminho.startsWith("http") || caminho.startsWith("data:")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return caminho;
     }
 
     // Caminhos absolutos sao juntados diretamente com a API.
     if (caminho.startsWith("/")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${API}${caminho}`;
     }
 
@@ -518,11 +639,13 @@ function montarUrlPix(API, caminhoPix) {
 function calcularValorParcela(valor, parcelas, juros) {
     // Sem valor ou sem parcelas, nao ha parcela a calcular.
     if (!valor || !parcelas) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return 0;
     }
 
     // Sem juros, divide o valor igualmente pela quantidade de parcelas.
     if (!juros) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return valor / parcelas;
     }
 
@@ -552,6 +675,7 @@ function Vendas({ API }) {
     const [carregandoPendencias, setCarregandoPendencias] = useState(true);
     // Guarda erro da lista de pendencias.
     const [erroPendencias, setErroPendencias] = useState("");
+    // Declara os dados usados neste fluxo.
     const [cancelandoPendenciaId, setCancelandoPendenciaId] = useState("");
     // Guarda o id do cliente selecionado no formulario.
     const [clienteId, setClienteId] = useState("");
@@ -626,8 +750,11 @@ function Vendas({ API }) {
 
             // Se a API retornou erro, mostra a mensagem e limpa a lista.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setErroClientes.
                 setErroClientes(dados.erro || dados.mensagem || "Erro ao carregar clientes.");
+                // Atualiza o estado por meio de setClientes.
                 setClientes([]);
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -638,18 +765,24 @@ function Vendas({ API }) {
 
             // Mantem o formulario novo sem cliente selecionado.
             setClienteId((clienteAtual) => {
+                // Verifica esta condição antes de continuar o fluxo.
                 if (clienteAtual && lista.some((cliente) => idCliente(cliente) === clienteAtual)) {
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return clienteAtual;
                 }
 
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return "";
             });
         // Caso a requisicao falhe, mostra erro de conexao.
         } catch {
+            // Atualiza o estado por meio de setErroClientes.
             setErroClientes("Erro de conexão com o servidor.");
+            // Atualiza o estado por meio de setClientes.
             setClientes([]);
         // No fim, remove o estado de carregamento.
         } finally {
+            // Atualiza o estado por meio de setCarregandoClientes.
             setCarregandoClientes(false);
         }
     // Recria essa funcao apenas se a URL base da API mudar.
@@ -677,8 +810,11 @@ function Vendas({ API }) {
 
             // Se a API retornar erro, mostra mensagem e limpa os veiculos.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setErroVeiculos.
                 setErroVeiculos(dados.erro || "Erro ao carregar veículos.");
+                // Atualiza o estado por meio de setVeiculos.
                 setVeiculos([]);
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -686,14 +822,20 @@ function Vendas({ API }) {
             const lista = Array.isArray(dados) ? dados : (dados.carros || dados.veiculos || []);
             // Mantem veiculos em estoque e os reservados por cliente.
             const vendaveis = lista.filter(veiculoVendavel);
+            // Declara vendaveisOrdenados para uso neste fluxo.
             const vendaveisOrdenados = [...vendaveis].sort((a, b) => {
+                // Declara prioridadeA para uso neste fluxo.
                 const prioridadeA = tipoStatusEstoqueVeiculo(a) === "reservado" ? 0 : 1;
+                // Declara prioridadeB para uso neste fluxo.
                 const prioridadeB = tipoStatusEstoqueVeiculo(b) === "reservado" ? 0 : 1;
 
+                // Verifica esta condição antes de continuar o fluxo.
                 if (prioridadeA !== prioridadeB) {
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return prioridadeA - prioridadeB;
                 }
 
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return nomeVeiculo(a).localeCompare(nomeVeiculo(b), "pt-BR", { sensitivity: "base" });
             });
             // Salva os veiculos vendaveis no estado.
@@ -701,55 +843,82 @@ function Vendas({ API }) {
 
             // Evita selecionar veiculo automaticamente ao abrir uma venda nova.
             setVeiculoId((veiculoAtual) => {
+                // Verifica esta condição antes de continuar o fluxo.
                 if (veiculoAtual && vendaveisOrdenados.some((veiculo) => String(idVeiculo(veiculo)) === veiculoAtual)) {
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return veiculoAtual;
                 }
 
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return "";
             });
+            // Atualiza o estado por meio de setValorVenda.
             setValorVenda("");
+            // Atualiza o estado por meio de setValorRecebido.
             setValorRecebido("");
 
+            // Verifica esta condição antes de continuar o fluxo.
             if (vendaveisOrdenados.length === 0) {
+                // Atualiza o estado por meio de setVeiculoId.
                 setVeiculoId("");
+                // Atualiza o estado por meio de setValorVenda.
                 setValorVenda("");
+                // Atualiza o estado por meio de setValorRecebido.
                 setValorRecebido("");
+                // Atualiza o estado por meio de setErroVeiculos.
                 setErroVeiculos("Nenhum veículo em estoque ou reservado para venda.");
             }
         // Caso a requisicao falhe, mostra erro de conexao.
         } catch {
+            // Atualiza o estado por meio de setErroVeiculos.
             setErroVeiculos("Erro de conexão com o servidor.");
+            // Atualiza o estado por meio de setVeiculos.
             setVeiculos([]);
         // No fim, remove o estado de carregamento.
         } finally {
+            // Atualiza o estado por meio de setCarregandoVeiculos.
             setCarregandoVeiculos(false);
         }
     // Recria essa funcao apenas se a URL base da API mudar.
     }, [API]);
 
+    // Declara carregarPendenciasVenda para uso neste fluxo.
     const carregarPendenciasVenda = useCallback(async () => {
+        // Atualiza o estado por meio de setCarregandoPendencias.
         setCarregandoPendencias(true);
+        // Atualiza o estado por meio de setErroPendencias.
         setErroPendencias("");
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Declara resposta para uso neste fluxo.
             const resposta = await fetch(`${API}/listar_pendencias_venda`, {
                 method: "GET",
                 headers: cabecalhoAutorizacao(),
                 credentials: "include"
             });
+            // Declara dados para uso neste fluxo.
             const dados = await resposta.json();
 
+            // Verifica esta condição antes de continuar o fluxo.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setErroPendencias.
                 setErroPendencias(dados.erro || dados.mensagem || "Erro ao carregar pendências de venda.");
+                // Atualiza o estado por meio de setPendenciasVenda.
                 setPendenciasVenda([]);
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
+            // Atualiza o estado por meio de setPendenciasVenda.
             setPendenciasVenda(extrairListaPendencias(dados));
         } catch {
+            // Atualiza o estado por meio de setErroPendencias.
             setErroPendencias("Erro de conexão ao carregar pendências de venda.");
+            // Atualiza o estado por meio de setPendenciasVenda.
             setPendenciasVenda([]);
         } finally {
+            // Atualiza o estado por meio de setCarregandoPendencias.
             setCarregandoPendencias(false);
         }
     }, [API]);
@@ -771,10 +940,13 @@ function Vendas({ API }) {
         function aplicarJurosSalvo() {
             // Busca taxa salva no localStorage.
             const taxaSalva = taxaJurosConfigurada(localStorage.getItem("taxa_juro_mensal"));
+            // Executa log nesta etapa do fluxo.
             console.log("Taxa de juros aplicada na venda (salva/padrão):", taxaSalva, "%");
+            // Atualiza o estado por meio de setItem.
             localStorage.setItem("taxa_juro_mensal", String(taxaSalva));
             // Atualiza o estado da taxa em formato decimal.
             setJurosMensal(taxaJurosParaDecimal(taxaSalva));
+            // Atualiza o estado por meio de setChavePixEmpresa.
             setChavePixEmpresa(localStorage.getItem("chave_pix_empresa") || "");
         }
 
@@ -794,7 +966,9 @@ function Vendas({ API }) {
 
                 // Se a API falhar, usa a taxa salva/local.
                 if (!resposta.ok) {
+                    // Executa aplicarJurosSalvo nesta etapa do fluxo.
                     aplicarJurosSalvo();
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
 
@@ -802,16 +976,21 @@ function Vendas({ API }) {
                 const dados = await resposta.json();
                 // Aceita nomes diferentes para a taxa retornada pela API.
                 const taxa = taxaJurosConfigurada(dados.taxa_juro ?? dados.taxa_juros);
+                // Declara chavePixConfigurada para uso neste fluxo.
                 const chavePixConfigurada = dados.chave_pix ?? dados.chave_pix_empresa ?? dados.pix_chave ?? "";
                 // Salva a taxa no navegador para reaproveitar depois.
                 localStorage.setItem("taxa_juro_mensal", String(taxa));
+                // Atualiza o estado por meio de setItem.
                 localStorage.setItem("chave_pix_empresa", String(chavePixConfigurada));
+                // Executa log nesta etapa do fluxo.
                 console.log("Taxa de juros aplicada na venda (via API):", taxa, "%");
                 // Atualiza a taxa em decimal no estado.
                 setJurosMensal(taxaJurosParaDecimal(taxa));
+                // Atualiza o estado por meio de setChavePixEmpresa.
                 setChavePixEmpresa(String(chavePixConfigurada));
             // Se houver erro de conexao, usa a taxa salva/local.
             } catch {
+                // Executa aplicarJurosSalvo nesta etapa do fluxo.
                 aplicarJurosSalvo();
             }
         }
@@ -820,10 +999,13 @@ function Vendas({ API }) {
         carregarJuros();
         // Atualiza a taxa se outra parte do app disparar esse evento.
         window.addEventListener("juros-atualizado", aplicarJurosSalvo);
+        // Executa addEventListener nesta etapa do fluxo.
         window.addEventListener("pix-empresa-atualizado", aplicarJurosSalvo);
         // Remove o listener quando o componente desmontar.
         return () => {
+            // Executa removeEventListener nesta etapa do fluxo.
             window.removeEventListener("juros-atualizado", aplicarJurosSalvo);
+            // Executa removeEventListener nesta etapa do fluxo.
             window.removeEventListener("pix-empresa-atualizado", aplicarJurosSalvo);
         };
     // Reexecuta se a base da API mudar.
@@ -836,17 +1018,25 @@ function Vendas({ API }) {
     // Recalcula apenas quando id ou lista de veiculos mudarem.
     }, [veiculoId, veiculos]);
 
+    // Executa useEffect nesta etapa do fluxo.
     useEffect(() => {
+        // Declara clienteReserva para uso neste fluxo.
         const clienteReserva = clienteReservaExistenteNoSelect(veiculoSelecionado, clientes);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!clienteAlteradoManualmente && clienteReserva) {
+            // Atualiza o estado por meio de setClienteId.
             setClienteId(clienteReserva);
         }
     }, [clienteAlteradoManualmente, clientes, veiculoSelecionado]);
 
+    // Declara veiculoSelecionadoReservado para uso neste fluxo.
     const veiculoSelecionadoReservado = tipoStatusEstoqueVeiculo(veiculoSelecionado) === "reservado";
+    // Declara precisaConcluirSelecionado para uso neste fluxo.
     const precisaConcluirSelecionado = precisaConcluirVendaVeiculo(veiculoSelecionado) || statusVendaVeiculo(veiculoSelecionado) === "RESERVADO_PENDENTE_CONCLUSAO";
+    // Declara nomeReservaSelecionada para uso neste fluxo.
     const nomeReservaSelecionada = nomeUsuarioReservaVeiculo(veiculoSelecionado);
+    // Declara mensagemVendaSelecionada para uso neste fluxo.
     const mensagemVendaSelecionada = mensagemVendaVeiculo(veiculoSelecionado);
 
     // Converte o valor da venda para numero.
@@ -873,23 +1063,36 @@ function Vendas({ API }) {
     // Roda quando forma de pagamento, valor final ou veiculo mudarem.
     }, [formaPagamento, valorComDesconto, veiculoId]);
 
+    // Executa useEffect nesta etapa do fluxo.
     useEffect(() => {
+        // Verifica esta condição antes de continuar o fluxo.
         if (!ehPix || vendaFinalizada || pixCancelado) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!valorComDesconto) {
+            // Atualiza o estado por meio de setPixGerado.
             setPixGerado(null);
+            // Atualiza o estado por meio de setErroPix.
             setErroPix("");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Declara cancelado para uso neste fluxo.
         let cancelado = false;
+        // Declara timeout para uso neste fluxo.
         const timeout = setTimeout(async () => {
+            // Atualiza o estado por meio de setGerandoPix.
             setGerandoPix(true);
+            // Atualiza o estado por meio de setErroPix.
             setErroPix("");
 
+            // Tenta executar a operação e permite tratar possíveis falhas.
             try {
+                // Declara resposta para uso neste fluxo.
                 const resposta = await fetch(`${API}/gerar_pix_venda`, {
                     method: "POST",
                     headers: {
@@ -905,42 +1108,64 @@ function Vendas({ API }) {
                         txid: `VENDA${veiculoId || "PIX"}${Date.now().toString().slice(-6)}`
                     })
                 });
+                // Declara dados para uso neste fluxo.
                 const dados = await resposta.json().catch(() => ({}));
 
+                // Verifica esta condição antes de continuar o fluxo.
                 if (cancelado) {
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
 
+                // Verifica esta condição antes de continuar o fluxo.
                 if (!resposta.ok) {
+                    // Atualiza o estado por meio de setPixGerado.
                     setPixGerado(null);
+                    // Atualiza o estado por meio de setErroPix.
                     setErroPix(dados.erro || dados.mensagem || "Não foi possível gerar o Pix.");
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
 
+                // Declara qrCode para uso neste fluxo.
                 const qrCode = montarUrlPix(API, dados.pix_qrcode || dados.qr_code || dados.qr_code_base64);
+                // Declara copiaECola para uso neste fluxo.
                 const copiaECola = dados.pix_copia_cola || dados.pix_copia_e_cola || dados.payload;
 
+                // Verifica esta condição antes de continuar o fluxo.
                 if (!qrCode && !copiaECola) {
+                    // Atualiza o estado por meio de setPixGerado.
                     setPixGerado(null);
+                    // Atualiza o estado por meio de setErroPix.
                     setErroPix("O backend não retornou o QR Code Pix.");
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
 
+                // Atualiza o estado por meio de setPixGerado.
                 setPixGerado({ qrCode, copiaECola });
             } catch {
+                // Verifica esta condição antes de continuar o fluxo.
                 if (!cancelado) {
+                    // Atualiza o estado por meio de setPixGerado.
                     setPixGerado(null);
+                    // Atualiza o estado por meio de setErroPix.
                     setErroPix("Não foi possível conectar ao backend para gerar o Pix.");
                 }
             } finally {
+                // Verifica esta condição antes de continuar o fluxo.
                 if (!cancelado) {
+                    // Atualiza o estado por meio de setGerandoPix.
                     setGerandoPix(false);
                 }
             }
         }, 350);
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return () => {
+            // Executa esta etapa do fluxo.
             cancelado = true;
+            // Executa clearTimeout nesta etapa do fluxo.
             clearTimeout(timeout);
         };
     }, [API, chavePixEmpresa, ehPix, pixCancelado, valorComDesconto, veiculoId, vendaFinalizada]);
@@ -987,53 +1212,80 @@ function Vendas({ API }) {
     // Recria a lista quando juros ou valor parcelado mudarem.
     }, [jurosMensal, valorParcelado]);
 
+    // Declara a função atualizarClienteManual usada por esta página.
     function atualizarClienteManual(evento) {
+        // Atualiza o estado por meio de setClienteAlteradoManualmente.
         setClienteAlteradoManualmente(true);
+        // Atualiza o estado por meio de setClienteId.
         setClienteId(evento.target.value);
     }
 
+    // Declara a função selecionarVeiculoPorId usada por esta página.
     function selecionarVeiculoPorId(id, { resetarOverrideCliente = true } = {}) {
+        // Declara idSelecionado para uso neste fluxo.
         const idSelecionado = String(id || "");
+        // Declara veiculo para uso neste fluxo.
         const veiculo = veiculos.find((item) => String(idVeiculo(item)) === idSelecionado);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (resetarOverrideCliente) {
+            // Atualiza o estado por meio de setClienteAlteradoManualmente.
             setClienteAlteradoManualmente(false);
         }
 
+        // Atualiza o estado por meio de setVeiculoId.
         setVeiculoId(idSelecionado);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!veiculo) {
+            // Atualiza o estado por meio de setValorVenda.
             setValorVenda("");
+            // Atualiza o estado por meio de setValorRecebido.
             setValorRecebido("");
+            // Atualiza o estado por meio de setClienteId.
             setClienteId("");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Atualiza o estado por meio de setValorVenda.
         setValorVenda(String(veiculo.preco || 0));
+        // Atualiza o estado por meio de setValorRecebido.
         setValorRecebido(String(veiculo.preco || 0));
 
+        // Declara clienteReserva para uso neste fluxo.
         const clienteReserva = clienteReservaExistenteNoSelect(veiculo, clientes);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (clienteReserva) {
+            // Atualiza o estado por meio de setClienteId.
             setClienteId(clienteReserva);
         }
     }
 
     // Atualiza o veiculo selecionado e seus valores quando o select muda.
     function trocarVeiculo(e) {
+        // Executa selecionarVeiculoPorId nesta etapa do fluxo.
         selecionarVeiculoPorId(e.target.value, { resetarOverrideCliente: true });
     }
 
+    // Declara a função concluirVendaDaPendencia usada por esta página.
     function concluirVendaDaPendencia(id) {
+        // Verifica esta condição antes de continuar o fluxo.
         if (!id) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Executa selecionarVeiculoPorId nesta etapa do fluxo.
         selecionarVeiculoPorId(id, { resetarOverrideCliente: true });
+        // Executa subirParaTopo nesta etapa do fluxo.
         subirParaTopo();
     }
 
+    // Declara a função cancelarReservaVeiculoPorId usada por esta página.
     async function cancelarReservaVeiculoPorId(id) {
+        // Declara resposta para uso neste fluxo.
         const resposta = await fetch(`${API}/cancelar_reserva_carro/${id}`, {
             method: "DELETE",
             headers: {
@@ -1043,29 +1295,43 @@ function Vendas({ API }) {
             credentials: "include",
             body: JSON.stringify({})
         });
+        // Declara dados para uso neste fluxo.
         const dados = await resposta.json().catch(() => ({}));
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!resposta.ok) {
+            // Interrompe o fluxo informando o erro encontrado.
             throw new Error(dados.erro || dados.mensagem || "Não foi possível cancelar a reserva anterior.");
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return dados;
     }
 
+    // Declara a função cancelarPendenciaReserva usada por esta página.
     async function cancelarPendenciaReserva(id) {
+        // Verifica esta condição antes de continuar o fluxo.
         if (!id || cancelandoPendenciaId) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Atualiza o estado por meio de setCancelandoPendenciaId.
         setCancelandoPendenciaId(String(id));
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Declara dados para uso neste fluxo.
             const dados = await cancelarReservaVeiculoPorId(id);
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("sucesso", dados.mensagem || "Pendencia de reserva cancelada com sucesso.");
+            // Executa all nesta etapa do fluxo.
             await Promise.all([carregarPendenciasVenda(), carregarVeiculos()]);
         } catch (erroCancelamento) {
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("erro", erroCancelamento.message || "Não foi possível conectar ao servidor para cancelar a pendência.");
         } finally {
+            // Atualiza o estado por meio de setCancelandoPendenciaId.
             setCancelandoPendenciaId("");
         }
     }
@@ -1100,19 +1366,33 @@ function Vendas({ API }) {
         subirParaTopo();
     }
 
+    // Declara a função limparFormularioVenda usada por esta página.
     function limparFormularioVenda() {
+        // Atualiza o estado por meio de setClienteId.
         setClienteId("");
+        // Atualiza o estado por meio de setClienteAlteradoManualmente.
         setClienteAlteradoManualmente(false);
+        // Atualiza o estado por meio de setVeiculoId.
         setVeiculoId("");
+        // Atualiza o estado por meio de setComentarios.
         setComentarios("");
+        // Atualiza o estado por meio de setComprovante.
         setComprovante(null);
+        // Atualiza o estado por meio de setValorVenda.
         setValorVenda("");
+        // Atualiza o estado por meio de setValorRecebido.
         setValorRecebido("");
+        // Atualiza o estado por meio de setDesconto.
         setDesconto("");
+        // Atualiza o estado por meio de setStatus.
         setStatus(statusEmAndamento);
+        // Atualiza o estado por meio de setFormaPagamento.
         setFormaPagamento("");
+        // Atualiza o estado por meio de setParcelasFinanciamento.
         setParcelasFinanciamento(48);
+        // Atualiza o estado por meio de setDataVenda.
         setDataVenda(dataHoraAtualParaInput());
+        // Atualiza o estado por meio de setVendaFinalizada.
         setVendaFinalizada(false);
     }
 
@@ -1120,6 +1400,7 @@ function Vendas({ API }) {
     async function copiarPix() {
         // Se nao houver codigo Pix, nao faz nada.
         if (!pixGerado?.copiaECola) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -1127,28 +1408,28 @@ function Vendas({ API }) {
         try {
             // Escreve o codigo Pix na area de transferencia.
             await navigator.clipboard.writeText(pixGerado.copiaECola);
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("sucesso", "Código Pix copiado.");
         // Se o navegador bloquear a copia, mostra erro.
         } catch {
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("erro", "Não foi possível copiar o código Pix automaticamente.");
         }
     }
 
-    function cancelarPix() {
-        setPixCancelado(true);
-        setPixGerado(null);
-        setGerandoPix(false);
-        setErroPix("");
-        mostrarMensagem("sucesso", "Pix cancelado. Gere outro Pix quando quiser continuar.");
-    }
-
+    // Declara a função gerarNovoPix usada por esta página.
     function gerarNovoPix() {
+        // Verifica esta condição antes de continuar o fluxo.
         if (!valorComDesconto || salvando || vendaFinalizada) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Atualiza o estado por meio de setPixCancelado.
         setPixCancelado(false);
+        // Atualiza o estado por meio de setErroPix.
         setErroPix("");
+        // Executa mostrarMensagem nesta etapa do fluxo.
         mostrarMensagem("sucesso", "Gerando novo Pix.");
     }
 
@@ -1171,7 +1452,9 @@ function Vendas({ API }) {
         formData.append("valor_recebido", String(ehPix ? valorComDesconto.toFixed(2) : numeroDoCampo(valorRecebido)));
         // Adiciona a chave Pix da empresa para o backend gerar o pagamento.
         formData.append("chave_pix", chavePixEmpresa.trim());
+        // Executa append nesta etapa do fluxo.
         formData.append("chave_pix_empresa", chavePixEmpresa.trim());
+        // Executa append nesta etapa do fluxo.
         formData.append("pix_chave", chavePixEmpresa.trim());
         // Adiciona o status de pagamento.
         formData.append("status_pagamento", status);
@@ -1182,6 +1465,7 @@ function Vendas({ API }) {
 
         // Se houver arquivo, anexa o comprovante/NF.
         if (comprovante) {
+            // Executa append nesta etapa do fluxo.
             formData.append("comprovante", comprovante);
         }
 
@@ -1214,30 +1498,41 @@ function Vendas({ API }) {
 
         // Bloqueia envio se nenhum cliente foi selecionado.
         if (!clienteId) {
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("erro", "Selecione um cliente antes de salvar a venda.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
         // Bloqueia envio se nenhum veiculo valido foi selecionado.
         if (!veiculoSelecionado) {
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("erro", "Selecione um veículo antes de salvar a venda.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!formaPagamento) {
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("erro", "Selecione a forma de pagamento antes de salvar a venda.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
         // Bloqueia envio se faltar data, valor ou dados obrigatorios de pagamento.
         if (!dataVenda || !valorNumerico || (!ehPix && !numeroDoCampo(valorRecebido)) || (!ehPix && !status)) {
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("erro", "Preencha todos os campos obrigatórios da venda.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
         // Bloqueia desconto acima do limite permitido pela tela.
         if (descontoNumerico > 10) {
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("erro", "O desconto pode ser de no máximo 10%.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
@@ -1254,6 +1549,7 @@ function Vendas({ API }) {
 
         // Se a API nao retornou nada de Pix, informa que nao aplicou.
         if (!qrCode && !copiaECola) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
@@ -1263,30 +1559,43 @@ function Vendas({ API }) {
         return true;
     }
 
+    // Declara a função idVendaResposta usada por esta página.
     function idVendaResposta(dados) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return dados?.id_venda || dados?.ID_VENDA || dados?.id || dados?.ID || dados?.venda?.id_venda || dados?.venda?.id;
     }
 
+    // Declara a função buscarPixVendaGerada usada por esta página.
     async function buscarPixVendaGerada(dadosVenda) {
+        // Declara idVenda para uso neste fluxo.
         const idVenda = idVendaResposta(dadosVenda);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!idVenda) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
+        // Declara chavePix para uso neste fluxo.
         const chavePix = String(chavePixEmpresa || localStorage.getItem("chave_pix_empresa") || "").trim();
+        // Declara params para uso neste fluxo.
         const params = chavePix ? `?chave_pix=${encodeURIComponent(chavePix)}` : "";
+        // Declara respostaPix para uso neste fluxo.
         const respostaPix = await fetch(`${API}/pix_venda/${idVenda}${params}`, {
             method: "GET",
             headers: cabecalhoAutorizacao(),
             credentials: "include"
         });
+        // Declara dadosPix para uso neste fluxo.
         const dadosPix = await respostaPix.json().catch(() => ({}));
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!respostaPix.ok) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return aplicarPixDaVenda(dadosPix);
     }
 
@@ -1294,12 +1603,15 @@ function Vendas({ API }) {
     async function enviarVenda() {
         // Evita cadastrar a mesma venda novamente depois de finalizada.
         if (vendaFinalizada) {
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("sucesso", "Esta venda já foi cadastrada.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Para o fluxo se a validacao falhar.
         if (!validarVenda()) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -1330,51 +1642,75 @@ function Vendas({ API }) {
 
             // Se a API retornar erro, mostra mensagem e encerra.
             if (!resposta.ok) {
+                // Executa mostrarMensagem nesta etapa do fluxo.
                 mostrarMensagem("erro", dados.erro || dados.error || dados.mensagem || "Erro ao cadastrar venda.");
                 // Se o fluxo era Pix, mostra erro tambem na area do Pix.
                 if (ehPix) {
+                    // Atualiza o estado por meio de setErroPix.
                     setErroPix(dados.erro || dados.error || dados.mensagem || "Erro ao gerar Pix.");
                 }
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
             // Marca a venda como finalizada para bloquear novo envio.
             setVendaFinalizada(true);
+            // Atualiza o estado por meio de setStatus.
             setStatus(statusEmAndamento);
             // Mostra mensagem de sucesso da API ou texto padrao.
             mostrarMensagem("sucesso", dados.mensagem || "Venda cadastrada com sucesso.");
+            // Executa all nesta etapa do fluxo.
             await Promise.all([carregarVeiculos(), carregarPendenciasVenda()]);
 
+            // Verifica esta condição antes de continuar o fluxo.
             if (ehPix) {
+                // Declara pixAplicado para uso neste fluxo.
                 const pixAplicado = aplicarPixDaVenda(dados) || await buscarPixVendaGerada(dados);
 
+                // Verifica esta condição antes de continuar o fluxo.
                 if (pixAplicado) {
+                    // Atualiza o estado por meio de setClienteId.
                     setClienteId("");
+                    // Atualiza o estado por meio de setClienteAlteradoManualmente.
                     setClienteAlteradoManualmente(false);
+                    // Atualiza o estado por meio de setVeiculoId.
                     setVeiculoId("");
+                    // Atualiza o estado por meio de setValorVenda.
                     setValorVenda("");
+                    // Atualiza o estado por meio de setValorRecebido.
                     setValorRecebido("");
+                    // Atualiza o estado por meio de setDesconto.
                     setDesconto("");
+                    // Atualiza o estado por meio de setComentarios.
                     setComentarios("");
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
 
+                // Atualiza o estado por meio de setErroPix.
                 setErroPix("Venda salva, mas o QR Code Pix não foi retornado pela API.");
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
+            // Atualiza o estado por meio de setFormaPagamento.
             setFormaPagamento("");
+            // Executa limparFormularioVenda nesta etapa do fluxo.
             limparFormularioVenda();
         // Trata erro de conexao ou falha inesperada.
         } catch {
             // Se era geracao de Pix, mostra erro especifico.
             if (ehPix) {
+                // Atualiza o estado por meio de setErroPix.
                 setErroPix("Não foi possível conectar ao servidor para gerar o Pix.");
             }
+            // Executa mostrarMensagem nesta etapa do fluxo.
             mostrarMensagem("erro", "Não foi possível conectar ao servidor.");
         // Sempre desliga os estados de carregamento ao final.
         } finally {
+            // Atualiza o estado por meio de setSalvando.
             setSalvando(false);
+            // Atualiza o estado por meio de setGerandoPix.
             setGerandoPix(false);
         }
     }
@@ -1405,51 +1741,81 @@ function Vendas({ API }) {
                 </div>
             )}
 
+            {/* Agrupa esta seção de conteúdo. */}
             <section className={css.pendenciasBox}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.pendenciasTopo}>
+                    {/* Exibe o título desta seção. */}
                     <h2>Pendências de venda</h2>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Reservas aguardando conclusão</span>
                 </div>
 
+                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                 {carregandoPendencias && (
                     <p className={css.pendenciasEstado}>Carregando pendências...</p>
                 )}
 
+                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                 {!carregandoPendencias && erroPendencias && (
                     <p className={css.mensagemErro}>{erroPendencias}</p>
                 )}
 
+                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                 {!carregandoPendencias && !erroPendencias && pendenciasVenda.length === 0 && (
                     <p className={css.pendenciasEstado}>Nenhuma pendência de venda no momento.</p>
                 )}
 
+                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                 {!carregandoPendencias && !erroPendencias && pendenciasVenda.length > 0 && (
                     <div className={css.pendenciasLista}>
+                        {/* Percorre os dados para renderizar os itens desta área. */}
                         {pendenciasVenda.map((pendencia, indice) => {
+                            // Declara idVeiculoItem para uso neste fluxo.
                             const idVeiculoItem = idVeiculoPendencia(pendencia);
+                            // Declara statusVendaItem para uso neste fluxo.
                             const statusVendaItem = statusVendaVeiculo(pendencia);
+                            // Declara precisaConcluirItem para uso neste fluxo.
                             const precisaConcluirItem = precisaConcluirVendaVeiculo(pendencia) || statusVendaItem === "RESERVADO_PENDENTE_CONCLUSAO";
+                            // Declara mensagemVendaItem para uso neste fluxo.
                             const mensagemVendaItem = mensagemVendaVeiculo(pendencia) || textoValido(pendencia?.mensagem_venda) || textoValido(pendencia?.MENSAGEM_VENDA);
+                            // Declara nomeVeiculoItem para uso neste fluxo.
                             const nomeVeiculoItem = nomeVeiculoPendencia(pendencia) || `Veículo ${idVeiculoItem || indice + 1}`;
+                            // Declara nomeClienteItem para uso neste fluxo.
                             const nomeClienteItem = nomeClientePendencia(pendencia) || "-";
+                            // Declara idClienteItem para uso neste fluxo.
                             const idClienteItem = textoValido(pendencia?.id_usuario_reserva) || textoValido(pendencia?.ID_USUARIO_RESERVA) || "-";
+                            // Declara dataReservaItem para uso neste fluxo.
                             const dataReservaItem = formatarDataHora(textoValido(pendencia?.data_reserva) || textoValido(pendencia?.DATA_RESERVA));
+                            // Declara precoItem para uso neste fluxo.
                             const precoItem = Number(pendencia?.preco ?? pendencia?.valor_venda ?? 0);
 
+                            // Retorna o resultado desta função ou o conteúdo visual da página.
                             return (
                                 <article key={`${idVeiculoItem || "pendencia"}-${indice}`} className={css.pendenciaCard}>
+                                    {/* Agrupa os elementos desta parte da interface. */}
                                     <div className={css.pendenciaGrid}>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Veículo:</strong> {nomeVeiculoItem}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>ID veículo:</strong> {idVeiculoItem || "-"}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Preço:</strong> {formatarMoeda(precoItem)}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Cliente reservado:</strong> {nomeClienteItem}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>ID cliente:</strong> {idClienteItem}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Data reserva:</strong> {dataReservaItem}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Status:</strong> {textoStatusVendaPainel(statusVendaItem)}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Mensagem:</strong> {mensagemVendaItem || "-"}</p>
                                     </div>
 
+                                    {/* Agrupa os elementos desta parte da interface. */}
                                     <div className={css.pendenciaAcoes}>
+                                        {/* Exibe este botão de ação. */}
                                         <button
                                             type="button"
                                             className={css.botaoConcluirPendencia}
@@ -1458,12 +1824,14 @@ function Vendas({ API }) {
                                         >
                                             Concluir venda
                                         </button>
+                                        {/* Exibe este botão de ação. */}
                                         <button
                                             type="button"
                                             className={css.botaoCancelarPendencia}
                                             onClick={() => cancelarPendenciaReserva(idVeiculoItem)}
                                             disabled={!idVeiculoItem || cancelandoPendenciaId === String(idVeiculoItem)}
                                         >
+                                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                             {cancelandoPendenciaId === String(idVeiculoItem) ? "Cancelando..." : "Cancelar pendência"}
                                         </button>
                                     </div>
@@ -1480,16 +1848,19 @@ function Vendas({ API }) {
                 <section className={css.coluna}>
                     {/* Campo de selecao do cliente comprador. */}
                     <label className={css.campo}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Cliente</span>
                         {/* Select controlado pelo estado clienteId. */}
                         <select value={clienteId} onChange={atualizarClienteManual} disabled={carregandoClientes || clientes.length === 0}>
                             {/* Opcao inicial, mudando texto enquanto carrega. */}
                             <option value="">
+                                {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                 {carregandoClientes ? "Carregando clientes..." : "Selecione um cliente"}
                             </option>
                             {/* Cria uma opcao para cada cliente carregado. */}
                             {clientes.map((item) => (
                                 <option key={item.id_usuario || item.id} value={item.id_usuario || item.id}>
+                                    {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                     {item.nome || item.email || `Cliente ${item.id_usuario || item.id}`}
                                 </option>
                             ))}
@@ -1501,16 +1872,19 @@ function Vendas({ API }) {
 
                     {/* Campo de selecao do veiculo vendido. */}
                     <label className={css.campo}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Veículo vendido</span>
                         {/* Select controlado pelo estado veiculoId. */}
                         <select value={veiculoId} onChange={trocarVeiculo} disabled={carregandoVeiculos || veiculos.length === 0}>
                             {/* Opcao inicial, mudando texto enquanto carrega. */}
                             <option value="">
+                                {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                 {carregandoVeiculos ? "Carregando veículos..." : "Selecione um veículo"}
                             </option>
                             {/* Cria uma opcao para cada veiculo vendavel. */}
                             {veiculos.map((veiculo) => (
                                 <option key={idVeiculo(veiculo)} value={idVeiculo(veiculo)}>
+                                    {/* Percorre os dados para renderizar os itens desta área. */}
                                     {nomeVeiculo(veiculo)} - {textoStatusVenda(veiculo)}
                                 </option>
                             ))}
@@ -1520,11 +1894,14 @@ function Vendas({ API }) {
                     {/* Exibe erro de veiculos quando houver. */}
                     {erroVeiculos && <p className={css.mensagemErro}>{erroVeiculos}</p>}
 
+                    {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                     {veiculoSelecionadoReservado && (
                         <p className={css.avisoReserva}>
+                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                             {nomeReservaSelecionada
                                 ? `Este veículo está reservado para ${nomeReservaSelecionada}${precisaConcluirSelecionado ? " e precisa concluir a venda." : "."}`
                                 : `Este veículo está reservado${precisaConcluirSelecionado ? " e precisa concluir a venda." : "."}`}
+                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                             {mensagemVendaSelecionada ? ` ${mensagemVendaSelecionada}` : ""}
                         </p>
                     )}
@@ -1537,6 +1914,7 @@ function Vendas({ API }) {
                                 src={montarUrlImagem(API, veiculoSelecionado)}
                                 alt={nomeVeiculo(veiculoSelecionado)}
                                 onError={(e) => {
+                                    // Executa esta etapa do fluxo.
                                     e.currentTarget.src = "/IconCar.png";
                                 }}
                             />
@@ -1545,31 +1923,44 @@ function Vendas({ API }) {
                             <div className={css.veiculoInfo}>
                                 {/* Linha do modelo. */}
                                 <p>
+                                    {/* Renderiza o elemento strong nesta parte da página. */}
                                     <strong>Modelo:</strong>
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span>{veiculoSelecionado.modelo || "-"}</span>
                                 </p>
                                 {/* Linha da marca. */}
                                 <p>
+                                    {/* Renderiza o elemento strong nesta parte da página. */}
                                     <strong>Marca:</strong>
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span>{veiculoSelecionado.marca || "-"}</span>
                                 </p>
                                 {/* Linha da quilometragem formatada. */}
                                 <p>
+                                    {/* Renderiza o elemento strong nesta parte da página. */}
                                     <strong>Quilometragem:</strong>
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span>{formatarQuilometragem(veiculoSelecionado.quilometragem)}</span>
                                 </p>
                                 {/* Linha da cor. */}
                                 <p>
+                                    {/* Renderiza o elemento strong nesta parte da página. */}
                                     <strong>Cor:</strong>
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span>{veiculoSelecionado.cor || "-"}</span>
                                 </p>
+                                {/* Exibe esta mensagem ou informação. */}
                                 <p>
+                                    {/* Renderiza o elemento strong nesta parte da página. */}
                                     <strong>Status:</strong>
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span>{textoStatusVenda(veiculoSelecionado)}</span>
                                 </p>
                                 {/* Linha do preco de venda formatado. */}
                                 <p>
+                                    {/* Renderiza o elemento strong nesta parte da página. */}
                                     <strong>Preço de venda:</strong>
+                                    {/* Renderiza o elemento b nesta parte da página. */}
                                     <b>{formatarMoeda(veiculoSelecionado.preco)}</b>
                                 </p>
                             </div>
@@ -1578,7 +1969,9 @@ function Vendas({ API }) {
 
                     {/* Campo de texto livre para observacoes da venda. */}
                     <label className={`${css.campo} ${css.comentarios}`}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Comentários</span>
+                        {/* Renderiza o elemento textarea nesta parte da página. */}
                         <textarea
                             value={comentarios}
                             onChange={(e) => setComentarios(e.target.value)}
@@ -1594,9 +1987,11 @@ function Vendas({ API }) {
 
                     {/* Campo para escolher Pix ou parcelamento. */}
                     <label className={css.campo}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Forma de Pagamento</span>
                         {/* Select controlado pelo estado formaPagamento. */}
                         <select value={formaPagamento} onChange={(e) => setFormaPagamento(e.target.value)}>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="">Selecione a forma de pagamento</option>
                             {/* Renderiza as opcoes definidas no array formasPagamento. */}
                             {formasPagamento.map((item) => (
@@ -1610,11 +2005,13 @@ function Vendas({ API }) {
                         <div className={css.financiamento}>
                             {/* Card com valor atual da parcela e total financiado. */}
                             <div className={css.parcela}>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span>Valor da parcela</span>
                                 {/* Valor calculado da parcela selecionada. */}
                                 <strong>{formatarMoeda(valorParcelaParcelamento)}</strong>
                                 {/* Texto com quantidade, juros mensal e total. */}
                                 <small>
+                                    {/* Percorre os dados para renderizar os itens desta área. */}
                                     {parcelasFinanciamento} parcelas, {taxaJurosPercentual.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}% ao mês, total de {formatarMoeda(valorParcelaParcelamento * parcelasFinanciamento)}
                                 </small>
                                 {/* Abre o modal para escolher outra quantidade de parcelas. */}
@@ -1690,20 +2087,26 @@ function Vendas({ API }) {
                         <div className={css.pixBox}>
                             {/* Cabecalho da area Pix com valor final. */}
                             <div className={css.pixTopo}>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span>Pix da venda</span>
+                                {/* Renderiza o elemento strong nesta parte da página. */}
                                 <strong>{formatarMoeda(valorComDesconto)}</strong>
                             </div>
 
                             {/* Exibe erro especifico de Pix quando houver. */}
                             {erroPix && <p className={css.mensagemErro}>{erroPix}</p>}
 
+                            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                             {gerandoPix && !pixGerado && (
                                 <p className={css.pixEstado}>Gerando QR Code Pix e cópia e cola...</p>
                             )}
 
+                            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                             {!vendaFinalizada && !gerandoPix && !pixGerado && valorComDesconto > 0 && (
                                 <div className={css.pixEstado}>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p>{pixCancelado ? "Pix cancelado. Gere outro Pix para continuar." : "O backend vai gerar o QR Code Pix automaticamente."}</p>
+                                    {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                     {pixCancelado && (
                                         <button
                                             type="button"
@@ -1717,6 +2120,7 @@ function Vendas({ API }) {
                                 </div>
                             )}
 
+                            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                             {!vendaFinalizada && !gerandoPix && !pixGerado && !valorComDesconto && (
                                 <p className={css.pixEstado}>Informe o veículo ou o valor da venda para gerar o QR Code Pix.</p>
                             )}
@@ -1726,35 +2130,25 @@ function Vendas({ API }) {
                                 <div className={css.pixResultado}>
                                     {/* QR Code Pix retornado pela API. */}
                                     <div className={css.pixQrMoldura}>
+                                        {/* Exibe esta imagem na interface. */}
                                         <img src={pixGerado.qrCode} alt="QR Code Pix" />
+                                        {/* Renderiza o elemento span nesta parte da página. */}
                                         <span>Pix gerado</span>
                                     </div>
 
                                     {/* Campo somente leitura com o codigo Pix copia e cola. */}
                                     <label className={`${css.campo} ${css.pixCopiaCampo}`}>
+                                        {/* Renderiza o elemento span nesta parte da página. */}
                                         <span>Pix cópia e cola</span>
+                                        {/* Renderiza o elemento textarea nesta parte da página. */}
                                         <textarea value={pixGerado.copiaECola} readOnly />
                                     </label>
 
+                                    {/* Agrupa os elementos desta parte da interface. */}
                                     <div className={css.pixAcoes}>
+                                        {/* Exibe este botão de ação. */}
                                         <button type="button" className={css.botaoCopiarPix} onClick={copiarPix}>
                                             Copiar código
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={css.botaoConfirmarPix}
-                                            onClick={enviarVenda}
-                                            disabled={salvando || vendaFinalizada}
-                                        >
-                                            {vendaFinalizada ? "Venda confirmada" : salvando ? "Confirmando..." : "Confirmar venda"}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            className={css.botaoCancelarPix}
-                                            onClick={cancelarPix}
-                                            disabled={salvando || vendaFinalizada}
-                                        >
-                                            Cancelar Pix
                                         </button>
                                     </div>
                                 </div>
@@ -1764,6 +2158,7 @@ function Vendas({ API }) {
 
                     {/* Campo de data e hora da venda. */}
                     <label className={`${css.campo} ${css.campoDataHora}`}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Data e hora</span>
                         {/* Input controlado pelo estado dataVenda. */}
                         <input type="datetime-local" value={dataVenda} onChange={(e) => setDataVenda(e.target.value)} />
@@ -1773,6 +2168,7 @@ function Vendas({ API }) {
                     <div className={css.linhaDupla}>
                         {/* Campo visual para anexar comprovante ou nota fiscal. */}
                         <div className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Comprovante/NF</span>
                             {/* Input real de arquivo, escondido pelo CSS. */}
                             <input
@@ -1783,19 +2179,23 @@ function Vendas({ API }) {
                             />
                             {/* Label usado como botao para abrir o seletor de arquivo. */}
                             <label htmlFor="comprovante" className={css.botaoArquivo}>
+                                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                 + {comprovante?.name || "Anexar arquivo"}
                             </label>
                         </div>
 
                         {/* Campo somente leitura com a placa do veiculo escolhido. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Placa</span>
+                            {/* Exibe este campo de entrada de dados. */}
                             <input type="text" value={veiculoSelecionado?.placa || ""} readOnly />
                         </label>
                     </div>
 
                     {/* Campo monetario do valor bruto da venda. */}
                     <label className={css.campo}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Valor da Venda</span>
                         {/* Input com mascara de moeda brasileira. */}
                         <IMaskInput
@@ -1816,7 +2216,9 @@ function Vendas({ API }) {
 
                     {/* Campo numerico do percentual de desconto. */}
                     <label className={css.campo}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Desconto (%)</span>
+                        {/* Exibe este campo de entrada de dados. */}
                         <input
                             type="number"
                             min="0"
@@ -1830,12 +2232,15 @@ function Vendas({ API }) {
 
                     {/* Resumo mostrando o valor final depois do desconto. */}
                     <div className={css.resumoDesconto}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Valor com desconto</span>
+                        {/* Renderiza o elemento strong nesta parte da página. */}
                         <strong>{formatarMoeda(valorComDesconto)}</strong>
                     </div>
 
                     {/* Campo monetario do valor recebido. */}
                     <label className={css.campo}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Valor Recebido</span>
                         {/* No Pix, fica somente leitura porque o valor vem do total com desconto. */}
                         <IMaskInput
@@ -1859,7 +2264,9 @@ function Vendas({ API }) {
                     <div className={css.linhaStatus}>
                         {/* Select com o status atual do pagamento. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Status de Pagamento</span>
+                            {/* Exibe uma lista de opções para seleção. */}
                             <select
                                 value={status}
                                 onChange={(e) => setStatus(e.target.value)}
@@ -1878,10 +2285,12 @@ function Vendas({ API }) {
                 <div className={css.acoes}>
                     {/* Botao principal que envia o formulario. */}
                     <button type="submit" className={css.salvar} disabled={salvando || vendaFinalizada}>
+                        {/* Escolhe qual conteúdo exibir conforme a condição. */}
                         {vendaFinalizada ? "Venda salva" : salvando && ehPix ? "Gerando Pix..." : salvando ? "Salvando..." : "Salvar"}
                     </button>
                     {/* Botao secundario que volta para a tela de vendas/cancela. */}
                     <button type="button" className={css.cancelar} onClick={() => navigate("/dashboardAdmVendas")}>
+                        {/* Escolhe qual conteúdo exibir conforme a condição. */}
                         {vendaFinalizada ? "Voltar" : "Cancelar"}
                     </button>
                 </div>
@@ -1894,6 +2303,7 @@ function Vendas({ API }) {
                     <div className={css.modalParcelas}>
                         {/* Topo do modal com titulo e botao de fechar. */}
                         <div className={css.modalTopo}>
+                            {/* Exibe o título desta seção. */}
                             <h2 id="tituloParcelamento">Parcelamento</h2>
                             {/* Fecha o modal sem alterar a parcela. */}
                             <button type="button" onClick={() => setModalParcelasAberto(false)} aria-label="Fechar">
@@ -1903,7 +2313,9 @@ function Vendas({ API }) {
 
                         {/* Cabecalho da lista de opcoes de parcelas. */}
                         <div className={css.modalCabecalho}>
+                            {/* Renderiza o elemento strong nesta parte da página. */}
                             <strong>Parcelas</strong>
+                            {/* Renderiza o elemento strong nesta parte da página. */}
                             <strong>Total</strong>
                         </div>
 
@@ -1921,9 +2333,12 @@ function Vendas({ API }) {
                                 >
                                     {/* Lado esquerdo: quantidade de parcelas e valor de cada uma. */}
                                     <span>
+                                        {/* Renderiza o elemento b nesta parte da página. */}
                                         <b>
+                                            {/* Percorre os dados para renderizar os itens desta área. */}
                                             {String(opcao.quantidade).padStart(2, "0")}x de {formatarMoeda(opcao.valorParcela)}
                                         </b>
+                                        {/* Renderiza o elemento small nesta parte da página. */}
                                         <small>com juros</small>
                                     </span>
                                     {/* Lado direito: total pago naquela opcao. */}
@@ -1938,4 +2353,5 @@ function Vendas({ API }) {
     );
 }
 
+// Exporta esta página para que ela possa ser usada pelas rotas do sistema.
 export default Vendas;

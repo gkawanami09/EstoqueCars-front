@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import css from "./CadastroManutencao.module.css";
 // Importa o modal usado para confirmar exclusoes.
 import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao.jsx";
+// Importa recursos de ../components/Paginacao/Paginacao.
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Cria o formulario vazio de manutencao.
@@ -30,6 +31,7 @@ const itemInicial = {
 function extrairLista(dados, chaves) {
     // Se a propria resposta ja for uma lista, retorna ela.
     if (Array.isArray(dados)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return dados;
     }
 
@@ -37,6 +39,7 @@ function extrairLista(dados, chaves) {
     for (const chave of chaves) {
         // Se a chave existir e for lista, retorna essa lista.
         if (Array.isArray(dados?.[chave])) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return dados[chave];
         }
     }
@@ -144,6 +147,7 @@ function normalizarHistorico(registro) {
 function inputParaDataBr(valor) {
     // Se o campo estiver vazio, retorna vazio.
     if (!valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
@@ -154,6 +158,7 @@ function inputParaDataBr(valor) {
 
     // Se a data estiver incompleta, devolve o valor original.
     if (!ano || !mes || !dia) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return valor;
     }
 
@@ -170,6 +175,7 @@ function dataBrParaInput(valor) {
 
     // Se nao encontrar o padrao, deixa o input vazio.
     if (!partes) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
@@ -184,6 +190,7 @@ function dataBrParaDate(valor) {
 
     // Se a data nao estiver no padrao, retorna null.
     if (!partes) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return null;
     }
 
@@ -199,6 +206,7 @@ function dataBrParaDate(valor) {
 
 // Formata numero como moeda brasileira.
 function formatarMoeda(valor) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return Number(valor || 0).toLocaleString("pt-BR", {
         style: "currency",
         currency: "BRL"
@@ -207,18 +215,23 @@ function formatarMoeda(valor) {
 
 // Garante uma quantidade numerica valida para servicos da manutencao.
 function normalizarQuantidadeServico(valor) {
+    // Declara quantidade para uso neste fluxo.
     const quantidade = Number(valor || 1);
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return quantidade > 0 ? quantidade : 1;
 }
 
 // Monta o header Authorization quando existe token salvo.
 function cabecalhoAutorizacao() {
+    // Declara token para uso neste fluxo.
     const token = localStorage.getItem("access_token");
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
 // Monta headers para rotas que recebem JSON.
 function headersJsonAutenticado() {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return {
         "Content-Type": "application/json",
         ...(cabecalhoAutorizacao() || {})
@@ -232,9 +245,11 @@ async function lerRespostaJson(resposta) {
 
     // Se nao veio corpo na resposta, retorna objeto vazio.
     if (!texto) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return {};
     }
 
+    // Tenta executar a operação e permite tratar possíveis falhas.
     try {
         // Tenta converter o texto em JSON.
         return JSON.parse(texto);
@@ -293,8 +308,11 @@ function CadastroManutencao({ API }) {
 
     // Cria um mapa para achar servico rapido pelo id.
     const servicosPorId = useMemo(() => {
+        // Declara mapa para uso neste fluxo.
         const mapa = new Map();
+        // Executa forEach nesta etapa do fluxo.
         servicos.forEach((servico) => mapa.set(String(servico.id), servico));
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return mapa;
     }, [servicos]);
 
@@ -305,7 +323,9 @@ function CadastroManutencao({ API }) {
         // Se tiver termo, filtra; se nao tiver, mostra todos.
         const lista = termo
             ? veiculos.filter((veiculo) => {
+                // Declara campos para uso neste fluxo.
                 const campos = [veiculo.label, veiculo.placa, veiculo.modelo, veiculo.marca];
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return campos.some((campo) => String(campo || "").toLowerCase().includes(termo));
             })
             : veiculos;
@@ -321,11 +341,13 @@ function CadastroManutencao({ API }) {
 
         // Sem busca, retorna a lista completa.
         if (!termo) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return manutencoes;
         }
 
         // Procura o texto nos dados da manutencao e nos servicos.
         return manutencoes.filter((manutencao) => {
+            // Declara campos para uso neste fluxo.
             const campos = [
                 manutencao.marca,
                 manutencao.modelo,
@@ -341,6 +363,7 @@ function CadastroManutencao({ API }) {
                 ])
             ];
 
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return campos.some((campo) => String(campo || "").toLowerCase().includes(termo));
         });
     }, [buscaTexto, manutencoes]);
@@ -350,19 +373,24 @@ function CadastroManutencao({ API }) {
 
     // Mantem a pagina atual dentro do limite quando a lista muda.
     useEffect(() => {
+        // Verifica esta condição antes de continuar o fluxo.
         if (paginaAtual > totalPaginas) {
+            // Atualiza o estado por meio de setPaginaAtual.
             setPaginaAtual(totalPaginas);
         }
     }, [paginaAtual, totalPaginas]);
 
     // Mostra somente as manutencoes da pagina atual.
     const manutencoesPaginadas = useMemo(() => {
+        // Declara inicio para uso neste fluxo.
         const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return manutencoesFiltradas.slice(inicio, inicio + ITENS_POR_PAGINA);
     }, [manutencoesFiltradas, paginaAtual]);
 
     // Calcula o total do formulario antes de salvar.
     const totalFormulario = useMemo(() => {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return formulario.servicos.reduce((total, item) => {
             // Busca o servico escolhido pelo ID.
             const servico = servicosPorId.get(String(item.id_servico));
@@ -383,6 +411,7 @@ function CadastroManutencao({ API }) {
         // Limpa mensagem antiga antes de chamar a API.
         setMensagem(null);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota GET que lista todas as manutencoes.
             const resposta = await fetch(`${API}/listar_manutencao`, {
@@ -395,11 +424,14 @@ function CadastroManutencao({ API }) {
 
             // Trata erro vindo da API.
             if (!resposta.ok) {
+                // Declara texto para uso neste fluxo.
                 const texto = dados.mensagem || dados.erro || "";
 
                 // Se a API disser que nao existe nenhuma, a tabela fica vazia.
                 if (resposta.status === 404 && texto.toLowerCase().includes("nenhuma")) {
+                    // Atualiza o estado por meio de setManutencoes.
                     setManutencoes([]);
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
 
@@ -408,6 +440,7 @@ function CadastroManutencao({ API }) {
                     tipo: "erro",
                     texto: texto || "Não foi possível carregar as manutenções."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -427,6 +460,7 @@ function CadastroManutencao({ API }) {
 
     // Busca os veiculos para o autocomplete do agendamento.
     const carregarVeiculos = useCallback(async () => {
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Busca os carros cadastrados para escolher na manutencao.
             const resposta = await fetch(`${API}/listar_carro`, {
@@ -439,7 +473,9 @@ function CadastroManutencao({ API }) {
 
             // Se a API falhar, deixa a lista vazia.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setVeiculos.
                 setVeiculos([]);
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -458,6 +494,7 @@ function CadastroManutencao({ API }) {
 
         // Tenta cada rota de listagem ate uma funcionar.
         for (const rota of rotas) {
+            // Tenta executar a operação e permite tratar possíveis falhas.
             try {
                 // Chama a rota atual da tentativa.
                 const resposta = await fetch(`${API}${rota}`, {
@@ -470,8 +507,11 @@ function CadastroManutencao({ API }) {
 
                 // Se funcionar, salva os servicos e para o loop.
                 if (resposta.ok) {
+                    // Declara lista para uso neste fluxo.
                     const lista = extrairLista(dados, ["servicos", "servico", "servicos_cadastrados"]).map(normalizarServico);
+                    // Atualiza o estado por meio de setServicos.
                     setServicos(lista.filter((servico) => servico.id));
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
             } catch {
@@ -480,6 +520,7 @@ function CadastroManutencao({ API }) {
             }
         }
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Fallback usado pela sua API atual para listar servicos com filtro vazio.
             const resposta = await fetch(`${API}/buscar_servico`, {
@@ -493,8 +534,11 @@ function CadastroManutencao({ API }) {
 
             // Se a busca funcionar, usa a lista de servicos retornada.
             if (resposta.ok) {
+                // Declara lista para uso neste fluxo.
                 const lista = extrairLista(dados, ["servicos", "servico", "servicos_cadastrados"]).map(normalizarServico);
+                // Atualiza o estado por meio de setServicos.
                 setServicos(lista.filter((servico) => servico.id));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
         } catch {
@@ -510,12 +554,14 @@ function CadastroManutencao({ API }) {
     const carregarItens = useCallback(async (idManutencao) => {
         // Sem ID nao existe item para buscar.
         if (!idManutencao) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Liga carregamento da tabela de itens.
         setCarregandoItens(true);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota que lista os itens da manutencao.
             const resposta = await fetch(`${API}/listar_item_manutencao/${idManutencao}`, {
@@ -528,12 +574,16 @@ function CadastroManutencao({ API }) {
 
             // Trata erro da API.
             if (!resposta.ok) {
+                // Declara texto para uso neste fluxo.
                 const texto = dados.mensagem || dados.erro || "";
 
                 // Se nao tiver item cadastrado, apenas limpa a lista.
                 if (resposta.status === 404 && texto.toLowerCase().includes("nenhum")) {
+                    // Atualiza o estado por meio de setItens.
                     setItens([]);
+                    // Atualiza o estado por meio de setQuantidadesItens.
                     setQuantidadesItens({});
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
 
@@ -542,6 +592,7 @@ function CadastroManutencao({ API }) {
                     tipo: "erro",
                     texto: texto || "Não foi possível carregar os itens da manutenção."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -570,13 +621,17 @@ function CadastroManutencao({ API }) {
 
     // Carrega manutencoes, veiculos e servicos quando a tela abre.
     useEffect(() => {
+        // Executa carregarManutencoes nesta etapa do fluxo.
         carregarManutencoes();
+        // Executa carregarVeiculos nesta etapa do fluxo.
         carregarVeiculos();
+        // Executa carregarServicos nesta etapa do fluxo.
         carregarServicos();
     }, [carregarManutencoes, carregarServicos, carregarVeiculos]);
 
     // Atualiza um campo simples do formulario principal.
     function atualizarCampo(campo, valor) {
+        // Atualiza o estado por meio de setFormulario.
         setFormulario((dadosAtuais) => ({
             ...dadosAtuais,
             [campo]: valor
@@ -612,34 +667,47 @@ function CadastroManutencao({ API }) {
 
     // Atualiza um campo de um servico dentro do formulario.
     function atualizarServicoFormulario(index, campo, valor) {
+        // Atualiza o estado por meio de setFormulario.
         setFormulario((dadosAtuais) => ({
             ...dadosAtuais,
             servicos: (() => {
+                // Declara servicosAtualizados para uso neste fluxo.
                 const servicosAtualizados = dadosAtuais.servicos.map((servico, posicao) =>
                     posicao === index ? { ...servico, [campo]: valor } : servico
                 );
 
+                // Verifica esta condição antes de continuar o fluxo.
                 if (campo !== "id_servico" || !String(valor).trim()) {
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return servicosAtualizados;
                 }
 
+                // Declara posicaoDuplicada para uso neste fluxo.
                 const posicaoDuplicada = servicosAtualizados.findIndex((servico, posicao) =>
                     posicao !== index && String(servico.id_servico) === String(valor)
                 );
 
+                // Verifica esta condição antes de continuar o fluxo.
                 if (posicaoDuplicada === -1) {
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return servicosAtualizados;
                 }
 
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return servicosAtualizados
                     .map((servico, posicao) => {
+                        // Verifica esta condição antes de continuar o fluxo.
                         if (posicao !== posicaoDuplicada) {
+                            // Retorna o resultado desta função ou o conteúdo visual da página.
                             return servico;
                         }
 
+                        // Declara quantidadeAtual para uso neste fluxo.
                         const quantidadeAtual = normalizarQuantidadeServico(servico.quantidade);
+                        // Declara quantidadeRepetida para uso neste fluxo.
                         const quantidadeRepetida = normalizarQuantidadeServico(servicosAtualizados[index]?.quantidade);
 
+                        // Retorna o resultado desta função ou o conteúdo visual da página.
                         return {
                             ...servico,
                             quantidade: String(quantidadeAtual + quantidadeRepetida)
@@ -652,6 +720,7 @@ function CadastroManutencao({ API }) {
 
     // Adiciona uma nova linha de servico no formulario.
     function adicionarServicoFormulario() {
+        // Atualiza o estado por meio de setFormulario.
         setFormulario((dadosAtuais) => ({
             ...dadosAtuais,
             servicos: [...dadosAtuais.servicos, { id_servico: "", quantidade: "1" }]
@@ -660,6 +729,7 @@ function CadastroManutencao({ API }) {
 
     // Remove uma linha de servico do formulario.
     function removerServicoFormulario(index) {
+        // Atualiza o estado por meio de setFormulario.
         setFormulario((dadosAtuais) => ({
             ...dadosAtuais,
             servicos: dadosAtuais.servicos.filter((_, posicao) => posicao !== index)
@@ -668,25 +738,35 @@ function CadastroManutencao({ API }) {
 
     // Limpa o formulario principal e a mensagem.
     function limparFormulario() {
+        // Atualiza o estado por meio de setFormulario.
         setFormulario(formularioInicial());
+        // Atualiza o estado por meio de setBuscaVeiculo.
         setBuscaVeiculo("");
+        // Atualiza o estado por meio de setMensagem.
         setMensagem(null);
     }
 
     // Converte os servicos do formulario para o JSON esperado pela API.
     function montarServicosPayload() {
+        // Declara servicosAgrupados para uso neste fluxo.
         const servicosAgrupados = new Map();
 
+        // Executa forEach nesta etapa do fluxo.
         formulario.servicos
             .filter((servico) => String(servico.id_servico).trim())
             .forEach((servico) => {
+                // Declara idServico para uso neste fluxo.
                 const idServico = Number(servico.id_servico);
+                // Declara quantidade para uso neste fluxo.
                 const quantidade = normalizarQuantidadeServico(servico.quantidade);
+                // Declara quantidadeAtual para uso neste fluxo.
                 const quantidadeAtual = servicosAgrupados.get(idServico) || 0;
 
+                // Atualiza o estado por meio de set.
                 servicosAgrupados.set(idServico, quantidadeAtual + quantidade);
             });
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return Array.from(servicosAgrupados, ([id_servico, quantidade]) => ({
             id_servico,
             quantidade
@@ -705,10 +785,12 @@ function CadastroManutencao({ API }) {
 
         // Confere se os campos obrigatorios foram preenchidos.
         if (!String(formulario.id_veiculo).trim() || !formulario.data_manutencao || servicosPayload.length === 0) {
+            // Atualiza o estado por meio de setMensagem.
             setMensagem({
                 tipo: "erro",
                 texto: "Selecione um veículo da lista, informe a data e escolha pelo menos um serviço."
             });
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -733,6 +815,7 @@ function CadastroManutencao({ API }) {
         // Liga carregamento do botao de salvar.
         setSalvando(true);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Envia os dados para a API.
             const resposta = await fetch(rota, {
@@ -746,10 +829,12 @@ function CadastroManutencao({ API }) {
 
             // Se a API retornou erro, mostra na tela.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setMensagem.
                 setMensagem({
                     tipo: "erro",
                     texto: dados.erro || "Não foi possível salvar a manutenção."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -814,6 +899,7 @@ function CadastroManutencao({ API }) {
 
     // Abre o modal de confirmacao para excluir manutencao.
     function pedirExclusaoManutencao(idManutencao) {
+        // Atualiza o estado por meio de setConfirmacao.
         setConfirmacao({
             tipo: "manutencao",
             id: idManutencao,
@@ -830,6 +916,7 @@ function CadastroManutencao({ API }) {
         // Limpa mensagem antiga.
         setMensagem(null);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota DELETE do backend.
             const resposta = await fetch(`${API}/deletar_manutencao/${idManutencao}`, {
@@ -842,10 +929,12 @@ function CadastroManutencao({ API }) {
 
             // Mostra erro se o backend bloquear.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setMensagem.
                 setMensagem({
                     tipo: "erro",
                     texto: dados.erro || "Não foi possível excluir a manutenção."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -893,16 +982,19 @@ function CadastroManutencao({ API }) {
 
         // Precisa ter manutencao aberta e servico escolhido.
         if (!manutencaoSelecionada || !String(itemFormulario.id_servico).trim()) {
+            // Atualiza o estado por meio de setMensagem.
             setMensagem({
                 tipo: "erro",
                 texto: "Selecione uma manutenção e um serviço para adicionar."
             });
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Liga carregamento do botao adicionar item.
         setSalvandoItem(true);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Envia o novo item para a API.
             const resposta = await fetch(`${API}/adicionar_item_manutencao`, {
@@ -920,10 +1012,12 @@ function CadastroManutencao({ API }) {
 
             // Mostra erro se a API nao aceitar o item.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setMensagem.
                 setMensagem({
                     tipo: "erro",
                     texto: dados.erro || "Não foi possível adicionar o item."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -936,6 +1030,7 @@ function CadastroManutencao({ API }) {
             setItemFormulario(itemInicial);
             // Atualiza itens e total da tabela.
             await carregarItens(manutencaoSelecionada.id_manutencao);
+            // Executa carregarManutencoes nesta etapa do fluxo.
             await carregarManutencoes();
         } catch {
             // Erro de conexao.
@@ -958,13 +1053,16 @@ function CadastroManutencao({ API }) {
 
         // Valida se a quantidade foi preenchida e e maior que zero.
         if (!quantidade || Number(quantidade) <= 0) {
+            // Atualiza o estado por meio de setMensagem.
             setMensagem({
                 tipo: "erro",
                 texto: "Informe uma quantidade valida para atualizar o item."
             });
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota que edita a quantidade do item.
             const resposta = await fetch(`${API}/editar_item_manutencao/${idItem}`, {
@@ -978,10 +1076,12 @@ function CadastroManutencao({ API }) {
 
             // Mostra erro se a API recusou.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setMensagem.
                 setMensagem({
                     tipo: "erro",
                     texto: dados.erro || "Não foi possível editar o item."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -992,6 +1092,7 @@ function CadastroManutencao({ API }) {
             });
             // Recarrega itens e manutencoes para atualizar valores.
             await carregarItens(manutencaoSelecionada.id_manutencao);
+            // Executa carregarManutencoes nesta etapa do fluxo.
             await carregarManutencoes();
         } catch {
             // Erro de conexao.
@@ -1004,6 +1105,7 @@ function CadastroManutencao({ API }) {
 
     // Abre o modal para confirmar exclusao de item.
     function pedirExclusaoItem(idItem) {
+        // Atualiza o estado por meio de setConfirmacao.
         setConfirmacao({
             tipo: "item",
             id: idItem,
@@ -1020,6 +1122,7 @@ function CadastroManutencao({ API }) {
         // Limpa mensagem antiga.
         setMensagem(null);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota que exclui o item.
             const resposta = await fetch(`${API}/excluir_item_manutencao/${idItem}`, {
@@ -1032,10 +1135,12 @@ function CadastroManutencao({ API }) {
 
             // Mostra erro se a API bloquear.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setMensagem.
                 setMensagem({
                     tipo: "erro",
                     texto: dados.erro || "Não foi possível excluir o item."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -1048,6 +1153,7 @@ function CadastroManutencao({ API }) {
             setConfirmacao(null);
             // Atualiza itens e tabela principal.
             await carregarItens(manutencaoSelecionada.id_manutencao);
+            // Executa carregarManutencoes nesta etapa do fluxo.
             await carregarManutencoes();
         } catch {
             // Erro de conexao.
@@ -1072,16 +1178,19 @@ function CadastroManutencao({ API }) {
 
         // Obriga escolher um servico antes de consultar.
         if (!String(servicoHistorico).trim()) {
+            // Atualiza o estado por meio de setMensagem.
             setMensagem({
                 tipo: "erro",
                 texto: "Informe um serviço para consultar o histórico."
             });
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Liga carregamento do botao consultar.
         setCarregandoHistorico(true);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota do historico de reajuste do servico.
             const resposta = await fetch(`${API}/historico_servico/${servicoHistorico}`, {
@@ -1094,10 +1203,12 @@ function CadastroManutencao({ API }) {
 
             // Mostra erro quando nao existe historico ou a API falha.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setMensagem.
                 setMensagem({
                     tipo: "erro",
                     texto: dados.erro || dados.mensagem || "Nenhum histórico encontrado."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -1122,6 +1233,7 @@ function CadastroManutencao({ API }) {
 
         // Se a data estiver invalida, usa status de agendada.
         if (!dataAgendada) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return css.status_agendada;
         }
 
@@ -1132,11 +1244,13 @@ function CadastroManutencao({ API }) {
 
         // Se a data ja passou, aparece como realizada.
         if (dataAgendada < agora) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return css.status_realizada;
         }
 
         // Se esta dentro dos proximos sete dias, aparece como proxima.
         if (dataAgendada.getTime() - agora.getTime() <= seteDias) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return css.status_proxima;
         }
 
@@ -1151,11 +1265,13 @@ function CadastroManutencao({ API }) {
 
         // Data passada vira realizada.
         if (dataAgendada && dataAgendada < new Date()) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Realizada";
         }
 
         // Classe proxima vira texto "Proxima".
         if (classeStatus(data) === css.status_proxima) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Próxima";
         }
 
@@ -1169,16 +1285,21 @@ function CadastroManutencao({ API }) {
         <main className={css.container}>
             {/* Cabecalho da pagina. */}
             <header className={css.cabecalho}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div>
+                    {/* Exibe o título principal desta página. */}
                     <h1 className={css.titulo}>Manutenções</h1>
+                    {/* Exibe esta mensagem ou informação. */}
                     <p className={css.subtitulo}>Agende serviços, acompanhe itens e consulte o histórico de valores.</p>
                 </div>
 
+                {/* Exibe este botão de ação. */}
                 <button type="button" className={css.botaoSecundario} onClick={carregarManutencoes}>
                     Atualizar lista
                 </button>
             </header>
 
+            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
             {mensagem && (
                 <div
                    className={`${css.mensagem} ${
@@ -1186,29 +1307,44 @@ function CadastroManutencao({ API }) {
                     }`}
                     role="alert"
                 >
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Renderiza o elemento strong nesta parte da página. */}
                         <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atenção"}</strong>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>{mensagem.texto}</span>
                     </div>
+                    {/* Exibe este botão de ação. */}
                     <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
                         x
                     </button>
                 </div>
             )}
 
+            {/* Agrupa esta seção de conteúdo. */}
             <section className={css.areaFormulario}>
+                {/* Agrupa os campos e ações deste formulário. */}
                 <form className={css.formulario} onSubmit={salvarManutencao}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.formCabecalho}>
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div>
+                            {/* Exibe o título desta seção. */}
                             <h2>{formulario.id_manutencao ? "Editar agendamento" : "Novo agendamento"}</h2>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Escolha a data, o horário e os serviços que serão feitos no veículo.</span>
                         </div>
+                        {/* Renderiza o elemento strong nesta parte da página. */}
                         <strong>{formatarMoeda(totalFormulario)}</strong>
                     </div>
 
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.gridCampos}>
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div className={`${css.campo} ${css.campoAutocomplete}`}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Veículo</span>
+                            {/* Exibe este campo de entrada de dados. */}
                             <input
                                 type="text"
                                 value={buscaVeiculo}
@@ -1218,19 +1354,25 @@ function CadastroManutencao({ API }) {
                                 placeholder="Busque por placa, modelo ou marca"
                                 autoComplete="off"
                             />
+                            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                             {mostrarSugestoesVeiculos && (
                                 <div className={css.listaAutocomplete}>
+                                    {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                     {veiculosFiltrados.length > 0 ? (
                                         veiculosFiltrados.map((veiculo) => (
                                             <button
                                                 key={veiculo.id}
                                                 type="button"
                                                 onMouseDown={(e) => {
+                                                    // Executa preventDefault nesta etapa do fluxo.
                                                     e.preventDefault();
+                                                    // Executa selecionarVeiculo nesta etapa do fluxo.
                                                     selecionarVeiculo(veiculo);
                                                 }}
                                             >
+                                                {/* Renderiza o elemento strong nesta parte da página. */}
                                                 <strong>{veiculo.placa || "Sem placa"}</strong>
+                                                {/* Renderiza o elemento span nesta parte da página. */}
                                                 <span>{[veiculo.modelo, veiculo.marca].filter(Boolean).join(" - ") || veiculo.label}</span>
                                             </button>
                                         ))
@@ -1239,13 +1381,17 @@ function CadastroManutencao({ API }) {
                                     )}
                                 </div>
                             )}
+                            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                             {formulario.id_veiculo && (
                                 <small className={css.campoAjuda}>Veículo selecionado para este agendamento.</small>
                             )}
                         </div>
 
+                        {/* Relaciona um texto explicativo ao campo correspondente. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Data e hora</span>
+                            {/* Exibe este campo de entrada de dados. */}
                             <input
                                 type="datetime-local"
                                 value={formulario.data_manutencao}
@@ -1254,36 +1400,51 @@ function CadastroManutencao({ API }) {
                         </label>
                     </div>
 
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.listaServicos}>
+                        {/* Percorre os dados para renderizar os itens desta área. */}
                         {formulario.servicos.map((item, index) => {
+                            // Declara servico para uso neste fluxo.
                             const servico = servicosPorId.get(String(item.id_servico));
+                            // Declara subtotal para uso neste fluxo.
                             const subtotal = Number(servico?.valor || 0) * Number(item.quantidade || 0);
 
+                            // Retorna o resultado desta função ou o conteúdo visual da página.
                             return (
                                 <div key={`${item.id_servico}-${index}`} className={css.linhaServico}>
+                                    {/* Relaciona um texto explicativo ao campo correspondente. */}
                                     <label className={css.campo}>
+                                        {/* Renderiza o elemento span nesta parte da página. */}
                                         <span>Serviço</span>
+                                        {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                         {servicos.length > 0 ? (
                                             <select
                                                 value={item.id_servico}
                                                 onChange={(e) => atualizarServicoFormulario(index, "id_servico", e.target.value)}
                                             >
+                                                {/* Renderiza o elemento option nesta parte da página. */}
                                                 <option value="">Selecione</option>
+                                                {/* Percorre os dados para renderizar os itens desta área. */}
                                                 {servicos.map((servicoOpcao) => (
                                                     <option key={servicoOpcao.id} value={servicoOpcao.id}>
+                                                        {/* Percorre os dados para renderizar os itens desta área. */}
                                                         {servicoOpcao.nome} - {formatarMoeda(servicoOpcao.valor)}
                                                     </option>
                                                 ))}
                                             </select>
                                         ) : (
                                             <select value="" disabled>
+                                                {/* Renderiza o elemento option nesta parte da página. */}
                                                 <option>Nenhum serviço carregado</option>
                                             </select>
                                         )}
                                     </label>
 
+                                    {/* Relaciona um texto explicativo ao campo correspondente. */}
                                     <label className={css.campo}>
+                                        {/* Renderiza o elemento span nesta parte da página. */}
                                         <span>Quantidade</span>
+                                        {/* Exibe este campo de entrada de dados. */}
                                         <input
                                             type="number"
                                             min="1"
@@ -1292,11 +1453,15 @@ function CadastroManutencao({ API }) {
                                         />
                                     </label>
 
+                                    {/* Agrupa os elementos desta parte da interface. */}
                                     <div className={css.subtotalServico}>
+                                        {/* Renderiza o elemento span nesta parte da página. */}
                                         <span>Subtotal</span>
+                                        {/* Renderiza o elemento strong nesta parte da página. */}
                                         <strong>{formatarMoeda(subtotal)}</strong>
                                     </div>
 
+                                    {/* Exibe este botão de ação. */}
                                     <button
                                         type="button"
                                         className={css.botaoRemover}
@@ -1309,29 +1474,41 @@ function CadastroManutencao({ API }) {
                         })}
                     </div>
 
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.botoesFormulario}>
+                        {/* Exibe este botão de ação. */}
                         <button type="button" className={css.botaoSecundario} onClick={adicionarServicoFormulario}>
                             Adicionar serviço
                         </button>
+                        {/* Exibe este botão de ação. */}
                         <button type="button" className={css.botaoSecundario} onClick={limparFormulario}>
                             Limpar
                         </button>
+                        {/* Exibe este botão de ação. */}
                         <button type="submit" className={css.botaoPrimario} disabled={salvando}>
+                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                             {salvando ? "Salvando..." : formulario.id_manutencao ? "Salvar edição" : "Agendar manutenção"}
                         </button>
                     </div>
                 </form>
 
+                {/* Agrupa os campos e ações deste formulário. */}
                 <form className={css.painelHistorico} onSubmit={buscarHistorico}>
+                    {/* Exibe o título desta seção. */}
                     <h2>Histórico de preço</h2>
+                    {/* Relaciona um texto explicativo ao campo correspondente. */}
                     <label className={css.campo}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>Serviço</span>
+                        {/* Exibe uma lista de opções para seleção. */}
                         <select
                             value={servicoHistorico}
                             onChange={(e) => setServicoHistorico(e.target.value)}
                             disabled={servicos.length === 0}
                         >
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="">{servicos.length > 0 ? "Selecione um serviço" : "Nenhum serviço carregado"}</option>
+                            {/* Percorre os dados para renderizar os itens desta área. */}
                             {servicos.map((servico) => (
                                 <option key={servico.id} value={servico.id}>
                                     {servico.nome}
@@ -1339,14 +1516,20 @@ function CadastroManutencao({ API }) {
                             ))}
                         </select>
                     </label>
+                    {/* Exibe este botão de ação. */}
                     <button type="submit" className={css.botaoPrimario} disabled={carregandoHistorico || servicos.length === 0}>
+                        {/* Escolhe qual conteúdo exibir conforme a condição. */}
                         {carregandoHistorico ? "Buscando..." : "Consultar"}
                     </button>
 
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.listaHistorico}>
+                        {/* Percorre os dados para renderizar os itens desta área. */}
                         {historico.map((registro, index) => (
                             <div key={`${registro.data_alteracao}-${index}`} className={css.itemHistorico}>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span>{registro.data_alteracao}</span>
+                                {/* Renderiza o elemento strong nesta parte da página. */}
                                 <strong>{formatarMoeda(registro.valor_antigo)}</strong>
                             </div>
                         ))}
@@ -1354,24 +1537,33 @@ function CadastroManutencao({ API }) {
                 </form>
             </section>
 
+            {/* Agrupa esta seção de conteúdo. */}
             <section className={css.buscaAvancada}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.buscaTexto}>
+                    {/* Exibe esta imagem na interface. */}
                     <img src="/IconBusca.png" alt="Buscar" />
+                    {/* Exibe este campo de entrada de dados. */}
                     <input
                         type="text"
                         placeholder="Buscar por placa, modelo, marca, data ou serviço"
                         value={buscaTexto}
                         onChange={(e) => {
+                            // Atualiza o estado por meio de setBuscaTexto.
                             setBuscaTexto(e.target.value);
+                            // Atualiza o estado por meio de setPaginaAtual.
                             setPaginaAtual(1);
                         }}
                     />
                 </div>
+                {/* Exibe este botão de ação. */}
                 <button
                     type="button"
                     className={css.botaoSecundario}
                     onClick={() => {
+                        // Atualiza o estado por meio de setBuscaTexto.
                         setBuscaTexto("");
+                        // Atualiza o estado por meio de setPaginaAtual.
                         setPaginaAtual(1);
                     }}
                 >
@@ -1379,53 +1571,83 @@ function CadastroManutencao({ API }) {
                 </button>
             </section>
 
+            {/* Agrupa esta seção de conteúdo. */}
             <section className={css.tabelaContainer}>
+                {/* Exibe os dados em formato de tabela. */}
                 <table className={css.tabela}>
+                    {/* Renderiza o elemento thead nesta parte da página. */}
                     <thead>
+                    {/* Renderiza o elemento tr nesta parte da página. */}
                     <tr>
+                        {/* Renderiza o elemento th nesta parte da página. */}
                         <th>Veículo</th>
+                        {/* Renderiza o elemento th nesta parte da página. */}
                         <th>Placa</th>
+                        {/* Renderiza o elemento th nesta parte da página. */}
                         <th>Data</th>
+                        {/* Renderiza o elemento th nesta parte da página. */}
                         <th>Total</th>
+                        {/* Renderiza o elemento th nesta parte da página. */}
                         <th>Status</th>
+                        {/* Renderiza o elemento th nesta parte da página. */}
                         <th>Ações</th>
                     </tr>
                     </thead>
+                    {/* Renderiza o elemento tbody nesta parte da página. */}
                     <tbody>
+                    {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                     {carregando && (
                         <tr>
+                            {/* Renderiza o elemento td nesta parte da página. */}
                             <td colSpan="6" className={css.celulaVazia}>Carregando manutenções...</td>
                         </tr>
                     )}
 
+                    {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                     {!carregando && manutencoesFiltradas.length === 0 && (
                         <tr>
+                            {/* Renderiza o elemento td nesta parte da página. */}
                             <td colSpan="6" className={css.celulaVazia}>Nenhuma manutenção encontrada</td>
                         </tr>
                     )}
 
+                    {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                     {!carregando && manutencoesPaginadas.map((manutencao) => (
                         <tr key={manutencao.id_manutencao}>
+                            {/* Renderiza o elemento td nesta parte da página. */}
                             <td data-label="Veículo">
+                                {/* Renderiza o elemento strong nesta parte da página. */}
                                 <strong>{manutencao.modelo || "Veículo"}</strong>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span className={css.textoApoio}>{manutencao.marca}</span>
                             </td>
+                            {/* Renderiza o elemento td nesta parte da página. */}
                             <td data-label="Placa">{manutencao.placa || "-"}</td>
+                            {/* Renderiza o elemento td nesta parte da página. */}
                             <td data-label="Data">{manutencao.data || "-"}</td>
+                            {/* Renderiza o elemento td nesta parte da página. */}
                             <td data-label="Total" className={css.valor}>{formatarMoeda(manutencao.valor_total)}</td>
+                            {/* Renderiza o elemento td nesta parte da página. */}
                             <td data-label="Status">
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span className={`${css.status} ${classeStatus(manutencao.data)}`}>
+                                    {/* Percorre os dados para renderizar os itens desta área. */}
                                     {textoStatus(manutencao.data)}
                                 </span>
                             </td>
+                            {/* Renderiza o elemento td nesta parte da página. */}
                             <td data-label="Ações">
+                                {/* Agrupa os elementos desta parte da interface. */}
                                 <div className={css.acoes}>
+                                    {/* Exibe este botão de ação. */}
                                     <button type="button" className={css.btnDetalhes} onClick={() => selecionarManutencao(manutencao)}>
                                         Itens
                                     </button>
+                                    {/* Exibe este botão de ação. */}
                                     <button type="button" className={css.btnEditar} onClick={() => editarManutencao(manutencao)}>
                                         Editar
                                     </button>
+                                    {/* Exibe este botão de ação. */}
                                     <button type="button" className={css.btnExcluir} onClick={() => pedirExclusaoManutencao(manutencao.id_manutencao)}>
                                         Excluir
                                     </button>
@@ -1437,8 +1659,10 @@ function CadastroManutencao({ API }) {
                 </table>
             </section>
 
+            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
             {!carregando && manutencoesFiltradas.length > 0 && (
                 <div className={css.paginacaoArea}>
+                    {/* Renderiza o componente Paginacao nesta parte da página. */}
                     <Paginacao
                         paginaAtual={paginaAtual}
                         totalItens={manutencoesFiltradas.length}
@@ -1447,20 +1671,29 @@ function CadastroManutencao({ API }) {
                 </div>
             )}
 
+            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
             {manutencaoSelecionada && (
                 <section className={css.painelItens}>
+                    {/* Exibe o cabeçalho desta área. */}
                     <header className={css.painelItensCabecalho}>
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div>
+                            {/* Exibe o título desta seção. */}
                             <h2>Itens da manutenção</h2>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>{manutencaoSelecionada.modelo} {manutencaoSelecionada.placa ? `- ${manutencaoSelecionada.placa}` : ""}</span>
                         </div>
+                        {/* Exibe este botão de ação. */}
                         <button type="button" className={css.botaoSecundario} onClick={() => setManutencaoSelecionada(null)}>
                             Fechar
                         </button>
                     </header>
 
+                    {/* Agrupa os campos e ações deste formulário. */}
                     <form className={css.formItem} onSubmit={adicionarItem}>
+                        {/* Relaciona um texto explicativo ao campo correspondente. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Serviço</span>
                             {/* Renderiza o select com a lista de servicos disponiveis, ou desabilita caso a API ainda nao tenha carregado ou falhado. */}
                             {servicos.length > 0 ? (
@@ -1468,15 +1701,19 @@ function CadastroManutencao({ API }) {
                                     value={itemFormulario.id_servico}
                                     onChange={(e) => setItemFormulario((atual) => ({ ...atual, id_servico: e.target.value }))}
                                 >
+                                    {/* Renderiza o elemento option nesta parte da página. */}
                                     <option value="">Selecione</option>
+                                    {/* Percorre os dados para renderizar os itens desta área. */}
                                     {servicos.map((servico) => (
                                         <option key={servico.id} value={servico.id}>
+                                            {/* Percorre os dados para renderizar os itens desta área. */}
                                             {servico.nome} - {formatarMoeda(servico.valor)}
                                         </option>
                                     ))}
                                 </select>
                             ) : (
                                 <select value="" disabled>
+                                    {/* Renderiza o elemento option nesta parte da página. */}
                                     <option>Nenhum serviço carregado</option>
                                 </select>
                             )}
@@ -1484,7 +1721,9 @@ function CadastroManutencao({ API }) {
                         
                         {/* Campo para inputar a quantidade daquele servico que vai ser adicionado. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Quantidade</span>
+                            {/* Exibe este campo de entrada de dados. */}
                             <input
                                 type="number"
                                 min="1"
@@ -1495,27 +1734,37 @@ function CadastroManutencao({ API }) {
 
                         {/* Botao de submit do formulario para acionar a rota de adicao do item na API. Desativa enquanto carrega ou se nao tiver servico selecionavel. */}
                         <button type="submit" className={css.botaoPrimario} disabled={salvandoItem || servicos.length === 0}>
+                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                             {salvandoItem ? "Adicionando..." : "Adicionar item"}
                         </button>
                     </form>
 
                     {/* Container da tabela listando os itens ja adicionados na manutencao selecionada. */}
                     <div className={css.tabelaItensContainer}>
+                        {/* Exibe os dados em formato de tabela. */}
                         <table className={css.tabela}>
                             {/* Cabecalho da tabela dos servicos prestados naquela manutencao especifica. */}
                             <thead>
+                            {/* Renderiza o elemento tr nesta parte da página. */}
                             <tr>
+                                {/* Renderiza o elemento th nesta parte da página. */}
                                 <th>Serviço</th>
+                                {/* Renderiza o elemento th nesta parte da página. */}
                                 <th>Quantidade</th>
+                                {/* Renderiza o elemento th nesta parte da página. */}
                                 <th>Unitário</th>
+                                {/* Renderiza o elemento th nesta parte da página. */}
                                 <th>Total</th>
+                                {/* Renderiza o elemento th nesta parte da página. */}
                                 <th>Ações</th>
                             </tr>
                             </thead>
+                            {/* Renderiza o elemento tbody nesta parte da página. */}
                             <tbody>
                             {/* Mostra mensagem visual enquanto aguarda retorno da rota de listagem de itens da manutencao. */}
                             {carregandoItens && (
                                 <tr>
+                                    {/* Renderiza o elemento td nesta parte da página. */}
                                     <td colSpan="5" className={css.celulaVazia}>Carregando itens...</td>
                                 </tr>
                             )}
@@ -1523,6 +1772,7 @@ function CadastroManutencao({ API }) {
                             {/* Mostra mensagem indicando que a lista esta vazia, se a API retornou sem erros porem sem itens. */}
                             {!carregandoItens && itens.length === 0 && (
                                 <tr>
+                                    {/* Renderiza o elemento td nesta parte da página. */}
                                     <td colSpan="5" className={css.celulaVazia}>Nenhum item cadastrado</td>
                                 </tr>
                             )}
@@ -1535,6 +1785,7 @@ function CadastroManutencao({ API }) {
                                     
                                     {/* Imprime o input de alterar quantidade do servico diretamente na celula. */}
                                     <td data-label="Quantidade">
+                                        {/* Exibe este campo de entrada de dados. */}
                                         <input
                                             className={css.inputQuantidade}
                                             type="number"
@@ -1557,10 +1808,13 @@ function CadastroManutencao({ API }) {
                                     
                                     {/* Agrupa os botoes de acoes para salvar a nova qtde ou excluir definitivamente o item da manutencao. */}
                                     <td data-label="Ações">
+                                        {/* Agrupa os elementos desta parte da interface. */}
                                         <div className={css.acoes}>
+                                            {/* Exibe este botão de ação. */}
                                             <button type="button" className={css.btnEditar} onClick={() => editarItem(item.id_item)}>
                                                 Salvar
                                             </button>
+                                            {/* Exibe este botão de ação. */}
                                             <button type="button" className={css.btnExcluir} onClick={() => pedirExclusaoItem(item.id_item)}>
                                                 Excluir
                                             </button>
@@ -1574,6 +1828,7 @@ function CadastroManutencao({ API }) {
                 </section>
             )}
 
+            {/* Renderiza o componente ModalConfirmacao nesta parte da página. */}
             <ModalConfirmacao
                 aberto={Boolean(confirmacao)}
                 titulo={confirmacao?.titulo}
@@ -1582,12 +1837,17 @@ function CadastroManutencao({ API }) {
                 carregando={confirmandoAcao}
                 onCancelar={() => setConfirmacao(null)}
                 onConfirmar={() => {
+                    // Verifica esta condição antes de continuar o fluxo.
                     if (confirmacao?.tipo === "manutencao") {
+                        // Executa excluirManutencao nesta etapa do fluxo.
                         excluirManutencao(confirmacao.id);
+                        // Retorna o resultado desta função ou o conteúdo visual da página.
                         return;
                     }
 
+                    // Verifica esta condição antes de continuar o fluxo.
                     if (confirmacao?.tipo === "item") {
+                        // Executa excluirItem nesta etapa do fluxo.
                         excluirItem(confirmacao.id);
                     }
                 }}
@@ -1596,4 +1856,5 @@ function CadastroManutencao({ API }) {
     );
 }
 
+// Exporta esta página para que ela possa ser usada pelas rotas do sistema.
 export default CadastroManutencao;

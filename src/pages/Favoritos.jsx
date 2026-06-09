@@ -17,6 +17,7 @@ function cabecalhoAutorizacao() {
 
 // Descobre o ID do carro aceitando diferentes nomes possíveis vindos da API.
 function idCarro(carro) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return carro?.id || carro?.id_veiculo || carro?.ID_VEICULO || carro?.id_carro || carro?.ID_CARRO;
 }
 
@@ -51,6 +52,7 @@ async function listarFavoritos(API) {
 
     // Se a API respondeu com erro, dispara uma exceção com mensagem amigável.
     if (!resposta.ok) {
+        // Interrompe o fluxo informando o erro encontrado.
         throw new Error(dados.erro || dados.mensagem || "Não foi possível carregar seus favoritos.");
     }
 
@@ -74,6 +76,7 @@ async function alternarFavorito(API, idVeiculo) {
 
     // Se não foi sucesso, mostra mensagem da API ou uma mensagem padrão.
     if (!resposta.ok) {
+        // Interrompe o fluxo informando o erro encontrado.
         throw new Error(dados.erro || dados.mensagem || "Não foi possível atualizar este favorito.");
     }
 }
@@ -94,6 +97,7 @@ async function limparFavoritosApi(API) {
 
     // Se a API retornou erro, dispara exceção com mensagem adequada.
     if (!resposta.ok) {
+        // Interrompe o fluxo informando o erro encontrado.
         throw new Error(dados.erro || dados.mensagem || "Não foi possível limpar seus favoritos.");
     }
 }
@@ -124,16 +128,19 @@ function Favoritos({ API }) {
 
         // Se não houver imagem, retorna o ícone padrão.
         if (!imagem) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "/IconCar.png";
         }
 
         // Se a imagem já for uma URL completa, usa como veio.
         if (String(imagem).startsWith("http")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return imagem;
         }
 
         // Se o caminho começa com barra, junta direto com a URL base da API.
         if (String(imagem).startsWith("/")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return `${API}${imagem}`;
         }
 
@@ -167,6 +174,7 @@ function Favoritos({ API }) {
 
     // Carrega os favoritos quando a tela abre.
     useEffect(() => {
+        // Executa carregarFavoritos nesta etapa do fluxo.
         carregarFavoritos();
     }, [carregarFavoritos]);
 
@@ -177,6 +185,7 @@ function Favoritos({ API }) {
 
         // Se não houver termo, retorna todos os favoritos.
         if (!termo) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return favoritos;
         }
 
@@ -198,6 +207,7 @@ function Favoritos({ API }) {
 
         // Se não houver ID ou já houver remoção em andamento, não faz nada.
         if (!id || removendoId) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -225,6 +235,7 @@ function Favoritos({ API }) {
     async function limparFavoritos() {
         // Impede ação duplicada ou limpeza de uma lista vazia.
         if (limpandoFavoritos || favoritos.length === 0) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -258,17 +269,21 @@ function Favoritos({ API }) {
             <header className={css.cabecalho}>
                 {/* Área de texto do cabeçalho. */}
                 <div>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Área do cliente</span>
+                    {/* Exibe o título principal desta página. */}
                     <h1>Favoritos</h1>
                 </div>
                 {/* Botão para limpar todos os favoritos. */}
                 <div className={css.acoes_cabecalho}>
+                    {/* Exibe este botão de ação. */}
                     <button
                         type="button"
                         className={css.limpar_favoritos}
                         onClick={() => setConfirmarLimpeza(true)}
                         disabled={carregando || limpandoFavoritos || favoritos.length === 0}
                     >
+                        {/* Escolhe qual conteúdo exibir conforme a condição. */}
                         {limpandoFavoritos ? "Limpando..." : "Limpar favoritos"}
                     </button>
                 </div>
@@ -276,7 +291,9 @@ function Favoritos({ API }) {
 
             {/* Campo de busca dos favoritos. */}
             <div className={css.area_busca}>
+                {/* Exibe esta imagem na interface. */}
                 <img src="/IconBusca.png" alt="Buscar" className={css.icone_busca} />
+                {/* Exibe este campo de entrada de dados. */}
                 <input
                     type="text"
                     value={busca}
@@ -294,7 +311,9 @@ function Favoritos({ API }) {
             {/* Mostra mensagem quando não existe nenhum favorito salvo. */}
             {!carregando && !erro && favoritos.length === 0 && (
                 <div className={css.estado}>
+                    {/* Renderiza o elemento strong nesta parte da página. */}
                     <strong>Nenhum favorito encontrado.</strong>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Quando você favoritar um veículo, ele aparecerá aqui.</span>
                 </div>
             )}
@@ -302,7 +321,9 @@ function Favoritos({ API }) {
             {/* Mostra mensagem quando a busca não encontra favoritos. */}
             {!carregando && !erro && favoritos.length > 0 && favoritosFiltrados.length === 0 && (
                 <div className={css.estado}>
+                    {/* Renderiza o elemento strong nesta parte da página. */}
                     <strong>Nenhum favorito encontrado para esta busca.</strong>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Tente pesquisar por outra marca ou modelo.</span>
                 </div>
             )}
@@ -320,10 +341,12 @@ function Favoritos({ API }) {
                             <article key={id || nomeCarro(carro)} className={css.card}>
                                 {/* Área da imagem do carro. */}
                                 <div className={css.imagem_area}>
+                                    {/* Exibe esta imagem na interface. */}
                                     <img
                                         src={imagemCarro(carro)}
                                         alt={nomeCarro(carro)}
                                         onError={(evento) => {
+                                            // Executa esta etapa do fluxo.
                                             evento.currentTarget.src = "/IconCar.png";
                                         }}
                                     />
@@ -331,12 +354,19 @@ function Favoritos({ API }) {
 
                                 {/* Área com as informações do favorito. */}
                                 <div className={css.info}>
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span>Favorito</span>
+                                    {/* Exibe o título desta seção. */}
                                     <h2>{nomeCarro(carro)}</h2>
+                                    {/* Agrupa os elementos desta parte da interface. */}
                                     <div className={css.grade}>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Marca:</strong> {carro.marca || carro.MARCA || "-"}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Modelo:</strong> {carro.modelo || carro.MODELO || "-"}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Ano:</strong> {carro.ano_fabricacao || carro.ANO_FABRICACAO || "-"} / {carro.ano_modelo || carro.ANO_MODELO || "-"}</p>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p><strong>Preço:</strong> {formatarMoeda(carro.preco ?? carro.PRECO)}</p>
                                     </div>
                                 </div>
@@ -349,12 +379,14 @@ function Favoritos({ API }) {
                                             Ver detalhes
                                         </button>
                                     )}
+                                    {/* Exibe este botão de ação. */}
                                     <button
                                         type="button"
                                         className={css.remover}
                                         onClick={() => removerFavorito(carro)}
                                         disabled={!id || removendoId === String(id)}
                                     >
+                                        {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                         {removendoId === String(id) ? "Removendo..." : "Remover"}
                                     </button>
                                 </div>

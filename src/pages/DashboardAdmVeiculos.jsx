@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 // Importa o modal bonito usado para confirmar exclusao.
 import ModalConfirmacao from "../components/ModalConfirmacao/ModalConfirmacao.jsx";
+// Importa recursos de ../components/Paginacao/Paginacao.
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Componente da pagina de gerenciamento de veiculos do administrador.
@@ -29,23 +30,32 @@ function DashboardAdmVeiculos({ API }) {
     // Cria a funcao de navegacao entre rotas.
     const navigate = useNavigate();
 
+    // Declara a função cabecalhoAutorizacao usada por esta página.
     function cabecalhoAutorizacao() {
+        // Declara token para uso neste fluxo.
         const token = localStorage.getItem("access_token");
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return token ? { Authorization: `Bearer ${token}` } : undefined;
     }
 
+    // Declara a função mensagemErroExclusao usada por esta página.
     function mensagemErroExclusao(mensagem) {
+        // Declara texto para uso neste fluxo.
         const texto = String(mensagem || "");
+        // Declara textoNormalizado para uso neste fluxo.
         const textoNormalizado = texto.toLowerCase();
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (
             textoNormalizado.includes("fk_vendas_veiculo") ||
             textoNormalizado.includes("foreign key") ||
             textoNormalizado.includes("venda")
         ) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Este veículo já possui venda cadastrada e não pode ser excluído. Para manter o histórico financeiro, altere o status do veículo em vez de excluir.";
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return texto || "Erro ao excluir veículo.";
     }
 
@@ -56,12 +66,14 @@ function DashboardAdmVeiculos({ API }) {
         // Limpa erro antigo antes de tentar carregar de novo.
         setErro("");
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Cria os parametros da URL da busca.
             const params = new URLSearchParams();
 
             // Se tiver categoria selecionada, envia para o backend.
             if (categoria) {
+                // Executa append nesta etapa do fluxo.
                 params.append("categoria", categoria);
             }
 
@@ -80,7 +92,9 @@ function DashboardAdmVeiculos({ API }) {
 
             // Se a API respondeu erro, mostra a mensagem e para aqui.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setErro.
                 setErro(dados.erro || "Erro ao carregar veículos.");
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -97,6 +111,7 @@ function DashboardAdmVeiculos({ API }) {
 
     // Chama a API quando a tela abre e quando a categoria muda.
     useEffect(() => {
+        // Executa carregarCarros nesta etapa do fluxo.
         carregarCarros();
     }, [carregarCarros]);
 
@@ -107,6 +122,7 @@ function DashboardAdmVeiculos({ API }) {
         // Limpa mensagens antigas antes de excluir.
         setErro("");
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Faz a chamada DELETE para excluir o veiculo.
             const resposta = await fetch(`${API}/excluir_carro/${id}`, {
@@ -123,7 +139,9 @@ function DashboardAdmVeiculos({ API }) {
 
             // Se a API bloquear, por exemplo por manutencao vinculada, mostra erro.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setErro.
                 setErro(mensagemErroExclusao(dados.erro));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -147,6 +165,7 @@ function DashboardAdmVeiculos({ API }) {
 
         // Se nao digitou nada, mostra todos os carros.
         if (!termo) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return carros;
         }
 
@@ -173,14 +192,18 @@ function DashboardAdmVeiculos({ API }) {
 
     // Mantem a pagina atual dentro do limite quando a lista muda.
     useEffect(() => {
+        // Verifica esta condição antes de continuar o fluxo.
         if (paginaAtual > totalPaginas) {
+            // Atualiza o estado por meio de setPaginaAtual.
             setPaginaAtual(totalPaginas);
         }
     }, [paginaAtual, totalPaginas]);
 
     // Mostra somente os carros da pagina atual.
     const carrosPaginados = useMemo(() => {
+        // Declara inicio para uso neste fluxo.
         const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return carrosFiltrados.slice(inicio, inicio + ITENS_POR_PAGINA);
     }, [carrosFiltrados, paginaAtual]);
 
@@ -189,25 +212,35 @@ function DashboardAdmVeiculos({ API }) {
 
     // Formata o preco para moeda brasileira.
     function formatarPreco(valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return Number(valor || 0).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL"
         });
     }
 
+    // Declara a função textoValido usada por esta página.
     function textoValido(valor) {
+        // Verifica esta condição antes de continuar o fluxo.
         if (valor === null || valor === undefined) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "";
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return String(valor).trim();
     }
 
+    // Declara a função idUsuarioReserva usada por esta página.
     function idUsuarioReserva(carro) {
+        // Declara reserva para uso neste fluxo.
         const reserva = carro?.reserva || carro?.RESERVA || {};
+        // Declara usuarioReserva para uso neste fluxo.
         const usuarioReserva = reserva?.usuario || reserva?.USUARIO || carro?.usuario_reserva || carro?.USUARIO_RESERVA || {};
+        // Declara clienteReserva para uso neste fluxo.
         const clienteReserva = reserva?.cliente || reserva?.CLIENTE || carro?.cliente_reserva || carro?.CLIENTE_RESERVA || {};
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return (
             textoValido(carro?.id_usuario_reserva) ||
             textoValido(carro?.ID_USUARIO_RESERVA) ||
@@ -230,11 +263,16 @@ function DashboardAdmVeiculos({ API }) {
         );
     }
 
+    // Declara a função nomeUsuarioReserva usada por esta página.
     function nomeUsuarioReserva(carro) {
+        // Declara reserva para uso neste fluxo.
         const reserva = carro?.reserva || carro?.RESERVA || {};
+        // Declara usuarioReserva para uso neste fluxo.
         const usuarioReserva = reserva?.usuario || reserva?.USUARIO || carro?.usuario_reserva || carro?.USUARIO_RESERVA || {};
+        // Declara clienteReserva para uso neste fluxo.
         const clienteReserva = reserva?.cliente || reserva?.CLIENTE || carro?.cliente_reserva || carro?.CLIENTE_RESERVA || {};
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return (
             textoValido(carro?.nome_usuario_reserva) ||
             textoValido(carro?.NOME_USUARIO_RESERVA) ||
@@ -253,128 +291,188 @@ function DashboardAdmVeiculos({ API }) {
         );
     }
 
+    // Declara a função statusVendaCarro usada por esta página.
     function statusVendaCarro(carro) {
+        // Declara statusVenda para uso neste fluxo.
         const statusVenda = textoValido(carro?.status_venda) || textoValido(carro?.STATUS_VENDA) || textoValido(carro?.statusVenda);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (statusVenda) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return statusVenda.toUpperCase();
         }
 
+        // Declara statusEstoque para uso neste fluxo.
         const statusEstoque = String(carro?.status_estoque ?? "").toLowerCase();
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (statusEstoque === "2" || statusEstoque.includes("vend")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "VENDIDO";
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (statusEstoque === "3" || statusEstoque.includes("reserv") || statusEstoque.includes("indispon")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "RESERVADO_PENDENTE_CONCLUSAO";
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (statusEstoque === "1" || statusEstoque.includes("dispon") || statusEstoque.includes("estoque")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "DISPONIVEL";
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
+    // Declara a função precisaConcluirVendaCarro usada por esta página.
     function precisaConcluirVendaCarro(carro) {
+        // Declara indicadorApi para uso neste fluxo.
         const indicadorApi = carro?.precisa_concluir_venda ?? carro?.PRECISA_CONCLUIR_VENDA;
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (typeof indicadorApi === "boolean") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return indicadorApi;
         }
 
+        // Declara indicadorTexto para uso neste fluxo.
         const indicadorTexto = String(indicadorApi ?? "").trim().toLowerCase();
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (["1", "true", "sim", "s"].includes(indicadorTexto)) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return true;
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (["0", "false", "nao", "não", "n"].includes(indicadorTexto)) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return statusVendaCarro(carro) === "RESERVADO_PENDENTE_CONCLUSAO";
     }
 
+    // Declara a função mensagemVendaCarro usada por esta página.
     function mensagemVendaCarro(carro) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return textoValido(carro?.mensagem_venda) || textoValido(carro?.MENSAGEM_VENDA);
     }
 
+    // Declara a função tipoStatusEstoque usada por esta página.
     function tipoStatusEstoque(valor, carro) {
+        // Declara statusVenda para uso neste fluxo.
         const statusVenda = statusVendaCarro(carro);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (statusVenda === "VENDIDO") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "vendido";
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (statusVenda === "RESERVADO_PENDENTE_CONCLUSAO") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "reservado";
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (statusVenda === "DISPONIVEL") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "estoque";
         }
 
+        // Declara status para uso neste fluxo.
         const status = String(valor || "").toLowerCase();
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (status === "2" || status.includes("vend")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "vendido";
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (status === "3" || status.includes("reserv") || status.includes("indispon")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "reservado";
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "estoque";
     }
 
     // Escolhe a classe CSS correta para cada status.
     function classeStatusEstoque(valor, carro) {
+        // Declara tipoStatus para uso neste fluxo.
         const tipoStatus = tipoStatusEstoque(valor, carro);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (tipoStatus === "reservado") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return `${css.status} ${css.status_indisponivel}`;
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (tipoStatus === "vendido") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return `${css.status} ${css.status_vendido}`;
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${css.status} ${css.status_estoque}`;
     }
 
     // Define o texto que aparece dentro da etiqueta de status.
     function textoStatusEstoque(valor, carro) {
+        // Declara tipoStatus para uso neste fluxo.
         const tipoStatus = tipoStatusEstoque(valor, carro);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (tipoStatus === "reservado") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Reservado";
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (tipoStatus === "vendido") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Vendido";
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Disponível";
     }
 
+    // Declara a função textoComplementoStatus usada por esta página.
     function textoComplementoStatus(carro) {
+        // Verifica esta condição antes de continuar o fluxo.
         if (precisaConcluirVendaCarro(carro) || statusVendaCarro(carro) === "RESERVADO_PENDENTE_CONCLUSAO") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Precisa concluir venda";
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return mensagemVendaCarro(carro);
     }
 
+    // Declara a função textoClienteReserva usada por esta página.
     function textoClienteReserva(carro) {
+        // Declara nomeReserva para uso neste fluxo.
         const nomeReserva = nomeUsuarioReserva(carro);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (nomeReserva) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return nomeReserva;
         }
 
+        // Declara idReserva para uso neste fluxo.
         const idReserva = idUsuarioReserva(carro);
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return idReserva ? `Cliente ${idReserva}` : "-";
     }
 
@@ -448,7 +546,9 @@ function DashboardAdmVeiculos({ API }) {
                         className={css.input_busca}
                         value={busca}
                         onChange={(e) => {
+                            // Atualiza o estado por meio de setBusca.
                             setBusca(e.target.value);
+                            // Atualiza o estado por meio de setPaginaAtual.
                             setPaginaAtual(1);
                         }}
                     />
@@ -461,7 +561,9 @@ function DashboardAdmVeiculos({ API }) {
                         type="button"
                         className={`${css.botao_filtro} ${categoria === "" ? css.filtro_ativo : ""}`}
                         onClick={() => {
+                            // Atualiza o estado por meio de setCategoria.
                             setCategoria("");
+                            // Atualiza o estado por meio de setPaginaAtual.
                             setPaginaAtual(1);
                         }}
                     >
@@ -475,13 +577,16 @@ function DashboardAdmVeiculos({ API }) {
                             type="button"
                             className={`${css.botao_filtro} ${categoria === nomeCategoria ? css.filtro_ativo : ""}`}
                             onClick={() => {
+                                // Atualiza o estado por meio de setCategoria.
                                 setCategoria(nomeCategoria);
+                                // Atualiza o estado por meio de setPaginaAtual.
                                 setPaginaAtual(1);
                             }}
                         >
                             {nomeCategoria}
                         </button>
                     ))}
+                {/* Renderiza o elemento br nesta parte da página. */}
                 </section> <br />
 
                 {/* Area que envolve a tabela. */}
@@ -490,16 +595,27 @@ function DashboardAdmVeiculos({ API }) {
                     <table className={css.tabela}>
                         {/* Cabecalho da tabela. */}
                         <thead>
+                        {/* Renderiza o elemento tr nesta parte da página. */}
                         <tr>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Foto</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Modelo</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Marca</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Ano</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Km</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Cor</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Preço</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Status</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Cliente reservado</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Ações</th>
                         </tr>
                         </thead>
@@ -509,6 +625,7 @@ function DashboardAdmVeiculos({ API }) {
                         {/* Linha mostrada enquanto a API esta carregando. */}
                         {carregando && (
                             <tr>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td colSpan="10" className={css.celula_vazia}>
                                     Carregando veículos...
                                 </td>
@@ -518,6 +635,7 @@ function DashboardAdmVeiculos({ API }) {
                         {/* Linha mostrada quando nao existe nenhum carro para listar. */}
                         {!carregando && carrosFiltrados.length === 0 && (
                             <tr>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td colSpan="10" className={css.celula_vazia}>
                                     Nenhum veículo cadastrado
                                 </td>
@@ -529,6 +647,7 @@ function DashboardAdmVeiculos({ API }) {
                             <tr key={carro.id}>
                                 {/* Foto do carro. */}
                                 <td data-label="Foto">
+                                    {/* Exibe esta imagem na interface. */}
                                     <img
                                         src={`${API}${carro.imagem}`}
                                         alt={carro.modelo}
@@ -556,20 +675,26 @@ function DashboardAdmVeiculos({ API }) {
 
                                 {/* Etiqueta de status do estoque. */}
                                 <td data-label="Status" className={css.celula_status}>
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span className={classeStatusEstoque(carro.status_estoque, carro)}>
+                                        {/* Percorre os dados para renderizar os itens desta área. */}
                                         {textoStatusEstoque(carro.status_estoque, carro)}
                                     </span>
+                                    {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                     {textoComplementoStatus(carro) && (
                                         <small className={css.status_complemento}>{textoComplementoStatus(carro)}</small>
                                     )}
                                 </td>
 
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td data-label="Cliente reservado">
+                                    {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                     {tipoStatusEstoque(carro.status_estoque, carro) === "reservado" ? textoClienteReserva(carro) : "-"}
                                 </td>
 
                                 {/* Botoes de acao daquele carro. */}
                                 <td data-label="Ações">
+                                    {/* Agrupa os elementos desta parte da interface. */}
                                     <div className={css.acoes}>
                                         {/* Abre a tela de edicao do carro. */}
                                         <button
@@ -605,8 +730,10 @@ function DashboardAdmVeiculos({ API }) {
                     </table>
                 </section>
 
+                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                 {!carregando && carrosFiltrados.length > 0 && (
                     <div className={css.paginacao_area}>
+                        {/* Renderiza o componente Paginacao nesta parte da página. */}
                         <Paginacao
                             paginaAtual={paginaAtual}
                             totalItens={carrosFiltrados.length}
@@ -633,4 +760,3 @@ function DashboardAdmVeiculos({ API }) {
 
 // Exporta a tela para ser usada nas rotas do projeto.
 export default DashboardAdmVeiculos;
-

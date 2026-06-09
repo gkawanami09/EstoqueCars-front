@@ -9,12 +9,15 @@ import { useParams, useNavigate } from "react-router-dom";
 
 // Monta o header Authorization quando existe token salvo.
 function cabecalhoAutorizacao() {
+    // Declara token para uso neste fluxo.
     const token = localStorage.getItem("access_token");
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return token ? { Authorization: `Bearer ${token}` } : undefined;
 }
 
 // Monta headers para requisicoes JSON.
 function headersJsonAutenticado() {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return {
         "Content-Type": "application/json",
         ...(cabecalhoAutorizacao() || {})
@@ -51,6 +54,7 @@ function EdicaoServicos({ API }) {
     useEffect(() => {
         // Funcao interna que chama a API.
         async function buscarDados() {
+            // Tenta executar a operação e permite tratar possíveis falhas.
             try {
                 // Busca o servico pelo id da URL.
                 const resposta = await fetch(`${API}/servicos/${id}`, {
@@ -62,12 +66,19 @@ function EdicaoServicos({ API }) {
 
                 // Se a API deu certo, preenche os campos.
                 if (resposta.ok) {
+                    // Atualiza o estado por meio de setNomeServico.
                     setNomeServico(dados.nomeServico);
+                    // Atualiza o estado por meio de setCategoria.
                     setCategoria(dados.categoria);
+                    // Atualiza o estado por meio de setPreco.
                     setPreco(dados.preco);
+                    // Atualiza o estado por meio de setTempoEstimado.
                     setTempoEstimado(dados.tempoEstimado);
+                    // Atualiza o estado por meio de setDescricao.
                     setDescricao(dados.descricao);
+                    // Atualiza o estado por meio de setStatusServico.
                     setStatusServico(dados.statusServico);
+                    // Atualiza o estado por meio de setStatusDocumento.
                     setStatusDocumento(dados.statusDocumento);
                 } else {
                     // Se a API respondeu erro, mostra mensagem.
@@ -113,8 +124,11 @@ function EdicaoServicos({ API }) {
 
         // Se a API retornou erro, mostra o erro.
         if (!resposta.ok) {
+            // Declara dados para uso neste fluxo.
             const dados = await resposta.json();
+            // Atualiza o estado por meio de setErro.
             setErro(dados.erro || "Erro ao atualizar serviço.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -142,10 +156,14 @@ function EdicaoServicos({ API }) {
                     }`}
                     role="alert"
                 >
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Renderiza o elemento strong nesta parte da página. */}
                         <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Confira os dados"}</strong>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>{mensagem.texto}</span>
                     </div>
+                    {/* Exibe este botão de ação. */}
                     <button
                         type="button"
                         className={css.mensagem_fechar}
@@ -159,15 +177,19 @@ function EdicaoServicos({ API }) {
 
             {/* Formulario que envia a edicao. */}
             <form className={css.formulario} onSubmit={atualizar}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.gridSimples}>
                     {/* Select de status do serviço. */}
                     <div className={css.documento}>
+                        {/* Exibe uma lista de opções para seleção. */}
                         <select
                             className={css.selectPequeno}
                             value={statusServico}
                             onChange={(e) => setStatusServico(e.target.value)}
                         >
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="ativo">Status: Ativo</option>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="inativo">Status: Inativo</option>
                         </select>
                     </div>
@@ -181,18 +203,25 @@ function EdicaoServicos({ API }) {
 
                     {/* Linha com categoria e valor. */}
                     <div className={css.duplo}>
+                        {/* Exibe uma lista de opções para seleção. */}
                         <select
                             className={css.select}
                             value={categoria}
                             onChange={(e) => setCategoria(e.target.value)}
                         >
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="">Categoria do Serviço</option>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="mecanica">Mecânica</option>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="eletrica">Elétrica</option>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="estetica">Estética</option>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="revisao">Revisão</option>
                         </select>
 
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="Valor (R$)"
                             value={preco}
@@ -217,15 +246,19 @@ function EdicaoServicos({ API }) {
 
                     {/* Select de status de documento. */}
                     <div className={css.documento}>
+                        {/* Exibe uma lista de opções para seleção. */}
                         <select
                             className={css.selectPequeno}
                             value={statusDocumento}
                             onChange={(e) => setStatusDocumento(e.target.value)}
                         >
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="pendente">Documentação: Pendente</option>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option value="regular">Documentação: Ok</option>
                         </select>
 
+                        {/* Exibe este botão de ação. */}
                         <button type="button" className={css.anexar}>
                             Atualizar Documento
                         </button>
@@ -237,7 +270,9 @@ function EdicaoServicos({ API }) {
 
                 {/* Botões finais. */}
                 <div className={css.botoes}>
+                    {/* Exibe este botão de ação. */}
                     <button type="submit" className={css.salvar}>Salvar Alterações</button>
+                    {/* Exibe este botão de ação. */}
                     <button
                         type="button"
                         className={css.cancelar}

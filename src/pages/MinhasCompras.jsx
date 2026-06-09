@@ -5,6 +5,36 @@ import { useNavigate } from "react-router-dom";
 // Importa as classes CSS module desta página.
 import css from "./MinhasCompras.module.css";
 
+/*
+GUIA DETALHADO DOS ITENS DA SPRINT IMPLEMENTADOS NESTE ARQUIVO
+
+1. CRIAR PÁGINA "MINHAS COMPRAS"
+   - O componente MinhasCompras identifica o cliente que está logado.
+   - A função carregarCompras consulta as vendas pertencentes a esse cliente.
+   - Cada compra é exibida em um card com veículo, data, valor, forma de pagamento e status.
+
+2. EXIBIR O STATUS DE CADA COMPRA
+   - A função textoStatusPagamento transforma os códigos da API em "Pago" ou "Em andamento".
+   - A função compraEstaPagaExibicao também considera pagamentos confirmados nesta tela.
+   - O status final é exibido no topo de cada card e nos contadores de resumo da página.
+
+3. PERMITIR PAGAMENTO VIA PIX NAS PARCELAS
+   - A função carregarPixParcelas busca os dados Pix de cada parcela da venda.
+   - A interface mostra parcela, valor, vencimento, status, QR Code e Pix copia e cola.
+   - O cliente copia o Pix, realiza o pagamento e clica em "Confirmar pagamento".
+   - A função confirmarPagamentoPixParcela avisa o backend que a parcela foi paga.
+
+4. REGISTRAR AUTOMATICAMENTE A RECEITA APÓS O PAGAMENTO
+   - Depois da confirmação, registrarReceitaParcela cria uma entrada no financeiro.
+   - Para Pix à vista, registrarReceitaVendaPix executa o mesmo processo com o valor total.
+   - Antes de cadastrar, o sistema verifica se a receita já existe para evitar duplicação.
+
+IMPORTANTE:
+O front-end não consulta diretamente o banco para saber se o Pix realmente caiu.
+Neste fluxo, o registro da receita e a mudança de status acontecem quando o cliente
+clica no botão "Confirmar pagamento" e a API aceita a confirmação.
+*/
+
 // Monta o cabeçalho de autorização para chamadas autenticadas na API.
 function cabecalhoAutorizacao() {
     // Busca o token salvo no navegador.
@@ -20,6 +50,7 @@ function idPeloToken() {
 
     // Se não houver token ou ele não parecer um JWT, retorna vazio.
     if (!token || !token.includes(".")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
@@ -39,6 +70,7 @@ function idPeloToken() {
 function lerUsuarioLogado() {
     // Tenta converter o JSON do localStorage em objeto.
     try {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return JSON.parse(localStorage.getItem("usuario_logado") || localStorage.getItem("usuário_logado")) || {};
     } catch {
         // Se o JSON estiver inválido, retorna objeto vazio.
@@ -59,6 +91,7 @@ function formatarMoeda(valor) {
 function formatarData(valor) {
     // Se não houver valor, mostra hífen.
     if (!valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "-";
     }
 
@@ -69,7 +102,9 @@ function formatarData(valor) {
 
     // Se for ISO, reorganiza para dd/mm/yyyy sem depender de timezone.
     if (dataIso) {
+        // Declara os dados usados neste fluxo.
         const [, ano, mes, dia] = dataIso;
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${dia}/${mes}/${ano}`;
     }
 
@@ -86,11 +121,13 @@ function textoFormaPagamento(valor) {
 
     // Código 0 ou texto com Pix vira Pix.
     if (forma === "0" || forma.includes("pix")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Pix";
     }
 
     // Código 1 ou texto com parcela vira Parcelamento.
     if (forma === "1" || forma.includes("parcel")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Parcelamento";
     }
 
@@ -98,37 +135,44 @@ function textoFormaPagamento(valor) {
     return valor || "-";
 }
 
-// Converte o status de pagamento para texto amigável.
+// ITEM DA SPRINT: "Exibir o status de cada compra".
+// Converte o status recebido da API para o texto amigável mostrado no card da compra.
 function textoStatusPagamento(valor) {
-    // Normaliza o status para comparação.
+    // Converte número, texto ou valor vazio para uma string minúscula comparável.
     const status = String(valor ?? "").trim().toLowerCase();
 
-    // Código 0 ou texto pago vira Pago.
+    // Neste projeto, o código 0 representa pagamento concluído.
+    // A verificação por texto também aceita respostas como "pago" ou "Pagamento pago".
     if (status === "0" || status.includes("pago")) {
+        // Retorna o texto que será mostrado visualmente para uma compra concluída.
         return "Pago";
     }
 
-    // Código 1, andamento ou pendente vira Em andamento.
+    // O código 1 e textos com "andamento" ou "pendente" representam pagamento não concluído.
     if (status === "1" || status.includes("andamento") || status.includes("pendente")) {
+        // Retorna o texto que será mostrado enquanto ainda existe pagamento pendente.
         return "Em andamento";
     }
 
-    // Se não reconhecer, mostra o valor original ou hífen.
+    // Se a API enviar outro status, ele é mostrado como veio para não esconder informação.
     return valor || "-";
 }
 
 // Descobre o ID da venda/compra aceitando diferentes campos da API.
 function idVendaCompra(compra) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return compra?.id_venda || compra?.ID_VENDA || compra?.id || compra?.ID;
 }
 
 // Descobre o ID do veículo relacionado à compra.
 function idVeiculoCompra(compra) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return compra?.id_veiculo || compra?.ID_VEICULO || compra?.id_carro || compra?.ID_CARRO;
 }
 
 // Monta o nome do veículo comprado.
 function nomeVeiculoCompra(compra) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return compra?.veiculo || compra?.nome_veiculo || compra?.modelo || compra?.nome || "Veículo";
 }
 
@@ -184,43 +228,62 @@ function parcelaEstaPaga(parcela) {
 
 // Retorna o texto de situação da parcela.
 function textoSituacaoParcela(parcela) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return parcelaEstaPaga(parcela) ? "Pago" : "Pendente";
 }
 
 // Cria uma chave única para controlar o estado de uma parcela Pix.
 function chaveParcelaPix(idVenda, parcela) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return `${idVenda}-${parcela?.id || parcela?.numero || "parcela"}`;
 }
 
+// Declara a função dataAtualParaApi usada por esta página.
 function dataAtualParaApi() {
+    // Declara hoje para uso neste fluxo.
     const hoje = new Date();
+    // Declara ano para uso neste fluxo.
     const ano = hoje.getFullYear();
+    // Declara mes para uso neste fluxo.
     const mes = String(hoje.getMonth() + 1).padStart(2, "0");
+    // Declara dia para uso neste fluxo.
     const dia = String(hoje.getDate()).padStart(2, "0");
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return `${ano}-${mes}-${dia}`;
 }
 
+// Declara a função valorParaNumero usada por esta página.
 function valorParaNumero(valor) {
+    // Declara texto para uso neste fluxo.
     const texto = String(valor ?? "").trim();
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!texto) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return 0;
     }
 
+    // Declara normalizado para uso neste fluxo.
     const normalizado = texto.includes(",")
         ? texto.replace(/\./g, "").replace(",", ".")
         : texto;
 
+    // Declara numero para uso neste fluxo.
     const numero = Number(normalizado);
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return Number.isFinite(numero) ? numero : 0;
 }
 
+// Declara a função transacaoPareceFinanceira usada por esta página.
 function transacaoPareceFinanceira(transacao) {
+    // Verifica esta condição antes de continuar o fluxo.
     if (!transacao || typeof transacao !== "object") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return false;
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return Boolean(
         transacao.id_financeiro ||
         transacao.ID_FINANCEIRO ||
@@ -234,7 +297,9 @@ function transacaoPareceFinanceira(transacao) {
     );
 }
 
+// Declara a função pagamentoRegistrouReceita usada por esta página.
 function pagamentoRegistrouReceita(dados) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return Boolean(
         dados?.receita_registrada ||
         dados?.financeiro_registrado ||
@@ -250,68 +315,105 @@ function pagamentoRegistrouReceita(dados) {
     );
 }
 
+// Declara comprasPagasLocalStorage para uso neste fluxo.
 const comprasPagasLocalStorage = "estoquecars_compras_pagas_confirmadas";
+// Declara parcelasPagasLocalStorage para uso neste fluxo.
 const parcelasPagasLocalStorage = "estoquecars_parcelas_pix_pagas_confirmadas";
+// Declara comprasCanceladasLocalStorage para uso neste fluxo.
 const comprasCanceladasLocalStorage = "estoquecars_compras_pix_canceladas";
+// Declara parcelasCanceladasLocalStorage para uso neste fluxo.
 const parcelasCanceladasLocalStorage = "estoquecars_parcelas_pix_canceladas";
+// Declara receitasRegistradasLocalStorage para uso neste fluxo.
 const receitasRegistradasLocalStorage = "estoquecars_receitas_pix_registradas";
+// Declara receitasFinanceiroIdsLocalStorage para uso neste fluxo.
 const receitasFinanceiroIdsLocalStorage = "estoquecars_receitas_pix_financeiro_ids";
 
+// Declara a função lerListaLocalStorage usada por esta página.
 function lerListaLocalStorage(chave) {
+    // Tenta executar a operação e permite tratar possíveis falhas.
     try {
+        // Declara lista para uso neste fluxo.
         const lista = JSON.parse(localStorage.getItem(chave) || "[]");
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return Array.isArray(lista) ? lista.map(String) : [];
     } catch {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return [];
     }
 }
 
+// Declara a função itemExisteNoLocalStorage usada por esta página.
 function itemExisteNoLocalStorage(chave, id) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return lerListaLocalStorage(chave).includes(String(id));
 }
 
+// Declara a função salvarItemLocalStorage usada por esta página.
 function salvarItemLocalStorage(chave, id) {
+    // Declara lista para uso neste fluxo.
     const lista = lerListaLocalStorage(chave);
+    // Declara texto para uso neste fluxo.
     const texto = String(id);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!lista.includes(texto)) {
+        // Atualiza o estado por meio de setItem.
         localStorage.setItem(chave, JSON.stringify([...lista, texto]));
     }
 }
 
+// Declara a função removerItemLocalStorage usada por esta página.
 function removerItemLocalStorage(chave, id) {
+    // Declara texto para uso neste fluxo.
     const texto = String(id);
+    // Declara lista para uso neste fluxo.
     const lista = lerListaLocalStorage(chave).filter((item) => item !== texto);
+    // Atualiza o estado por meio de setItem.
     localStorage.setItem(chave, JSON.stringify(lista));
 }
 
+// Declara a função lerObjetoLocalStorage usada por esta página.
 function lerObjetoLocalStorage(chave) {
+    // Tenta executar a operação e permite tratar possíveis falhas.
     try {
+        // Declara objeto para uso neste fluxo.
         const objeto = JSON.parse(localStorage.getItem(chave) || "{}");
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return objeto && typeof objeto === "object" && !Array.isArray(objeto) ? objeto : {};
     } catch {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return {};
     }
 }
 
+// Declara a função salvarValorObjetoLocalStorage usada por esta página.
 function salvarValorObjetoLocalStorage(chave, id, valor) {
+    // Verifica esta condição antes de continuar o fluxo.
     if (!id || !valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return;
     }
 
+    // Atualiza o estado por meio de setItem.
     localStorage.setItem(chave, JSON.stringify({
         ...lerObjetoLocalStorage(chave),
         [String(id)]: String(valor)
     }));
 }
 
+// Declara a função removerValorObjetoLocalStorage usada por esta página.
 function removerValorObjetoLocalStorage(chave, id) {
+    // Declara objeto para uso neste fluxo.
     const objeto = lerObjetoLocalStorage(chave);
+    // Executa esta etapa do fluxo.
     delete objeto[String(id)];
+    // Atualiza o estado por meio de setItem.
     localStorage.setItem(chave, JSON.stringify(objeto));
 }
 
+// Declara a função idFinanceiroResposta usada por esta página.
 function idFinanceiroResposta(dados) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return dados?.id_financeiro ||
         dados?.ID_FINANCEIRO ||
         dados?.financeiro?.id_financeiro ||
@@ -328,11 +430,15 @@ function idFinanceiroResposta(dados) {
         dados?.transacao?.id;
 }
 
+// Declara a função idFinanceiroTransacao usada por esta página.
 function idFinanceiroTransacao(transacao) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return transacao?.id_financeiro || transacao?.ID_FINANCEIRO || transacao?.id || transacao?.ID;
 }
 
+// Declara a função normalizarTextoBusca usada por esta página.
 function normalizarTextoBusca(valor) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return String(valor || "")
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
@@ -340,156 +446,231 @@ function normalizarTextoBusca(valor) {
         .toLowerCase();
 }
 
+// Declara a função valorFinanceiroNumero usada por esta página.
 function valorFinanceiroNumero(transacao) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return valorParaNumero(transacao?.valor ?? transacao?.VALOR ?? transacao?.valor_financeiro ?? transacao?.VALOR_FINANCEIRO);
 }
 
+// Declara a função buscarIdsReceitasFinanceiras usada por esta página.
 async function buscarIdsReceitasFinanceiras(API, { descricaoReceita = "", idVenda = "", valor = 0 } = {}) {
+    // Declara resposta para uso neste fluxo.
     const resposta = await fetch(`${API}/listar_financeiro`, {
         method: "GET",
         headers: cabecalhoAutorizacao(),
         credentials: "include"
     });
+    // Declara dados para uso neste fluxo.
     const dados = await lerRespostaJson(resposta);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!resposta.ok) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
+    // Declara lista para uso neste fluxo.
     const lista = Array.isArray(dados)
         ? dados
         : dados.transacoes || dados.financeiro || [];
+    // Declara descricaoEsperada para uso neste fluxo.
     const descricaoEsperada = normalizarTextoBusca(descricaoReceita);
+    // Declara codigoVenda para uso neste fluxo.
     const codigoVenda = idVenda ? normalizarTextoBusca(`codigo da venda: ${idVenda}`) : "";
+    // Declara vendaNumero para uso neste fluxo.
     const vendaNumero = idVenda ? normalizarTextoBusca(`venda #${idVenda}`) : "";
+    // Declara valorEsperado para uso neste fluxo.
     const valorEsperado = valorParaNumero(valor);
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return lista.filter((transacao) => {
+        // Declara tipo para uso neste fluxo.
         const tipo = String(transacao?.tipo || transacao?.TIPO_TEXTO || "").trim().toLowerCase();
+        // Declara descricao para uso neste fluxo.
         const descricao = normalizarTextoBusca(transacao?.descricao || transacao?.DESCRICAO);
+        // Declara ehReceita para uso neste fluxo.
         const ehReceita = tipo === "entrada" || tipo === "receita" || tipo === "0" || tipo === "";
+        // Declara bateDescricao para uso neste fluxo.
         const bateDescricao = Boolean(descricaoEsperada && descricao === descricaoEsperada) ||
             Boolean(codigoVenda && descricao.includes(codigoVenda)) ||
             Boolean(vendaNumero && descricao.includes(vendaNumero));
+        // Declara bateValor para uso neste fluxo.
         const bateValor = !valorEsperado || Math.abs(valorFinanceiroNumero(transacao) - valorEsperado) < 0.01;
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return ehReceita && bateDescricao && bateValor;
     }).map(idFinanceiroTransacao).filter(Boolean);
 }
 
+// Declara a função excluirReceitaFinanceira usada por esta página.
 async function excluirReceitaFinanceira(API, chaveReceita, { descricaoReceita = "", idVenda = "", valor = 0 } = {}) {
+    // Declara idsReceitas para uso neste fluxo.
     const idsReceitas = lerObjetoLocalStorage(receitasFinanceiroIdsLocalStorage);
+    // Declara idsFinanceiros para uso neste fluxo.
     const idsFinanceiros = [
         idsReceitas[chaveReceita],
         ...await buscarIdsReceitasFinanceiras(API, { descricaoReceita, idVenda, valor })
     ].filter(Boolean);
 
+    // Percorre os itens necessários para executar esta etapa.
     for (const idFinanceiro of [...new Set(idsFinanceiros)]) {
+        // Declara resposta para uso neste fluxo.
         const resposta = await fetch(`${API}/excluir_financeiro/${idFinanceiro}`, {
             method: "DELETE",
             headers: cabecalhoAutorizacao(),
             credentials: "include"
         });
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!resposta.ok && resposta.status !== 404) {
+            // Declara dados para uso neste fluxo.
             const dados = await lerRespostaJson(resposta);
+            // Interrompe o fluxo informando o erro encontrado.
             throw new Error(dados.erro || dados.mensagem || "Pagamento cancelado, mas não foi possível remover a receita do financeiro.");
         }
     }
 
+    // Executa removerItemLocalStorage nesta etapa do fluxo.
     removerItemLocalStorage(receitasRegistradasLocalStorage, chaveReceita);
+    // Executa removerValorObjetoLocalStorage nesta etapa do fluxo.
     removerValorObjetoLocalStorage(receitasFinanceiroIdsLocalStorage, chaveReceita);
 }
 
+// Declara a função lerRespostaJson usada por esta página.
 async function lerRespostaJson(resposta) {
+    // Declara texto para uso neste fluxo.
     const texto = await resposta.text();
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!texto) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return {};
     }
 
+    // Tenta executar a operação e permite tratar possíveis falhas.
     try {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return JSON.parse(texto);
     } catch {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return {};
     }
 }
 
+// Declara a função dataCompraParaOrdenacao usada por esta página.
 function dataCompraParaOrdenacao(compra) {
+    // Declara valor para uso neste fluxo.
     const valor = compra?.data_venda ?? compra?.DATA_VENDA ?? compra?.data ?? compra?.DATA ?? "";
+    // Declara texto para uso neste fluxo.
     const texto = String(valor).trim();
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!texto) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return 0;
     }
 
+    // Declara data para uso neste fluxo.
     const data = new Date(texto);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!Number.isNaN(data.getTime())) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return data.getTime();
     }
 
+    // Declara dataBr para uso neste fluxo.
     const dataBr = texto.match(/^(\d{2})\/(\d{2})\/(\d{4})/);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (dataBr) {
+        // Declara os dados usados neste fluxo.
         const [, dia, mes, ano] = dataBr;
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return new Date(Number(ano), Number(mes) - 1, Number(dia)).getTime();
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return 0;
 }
 
+// Declara a função ordenarComprasCronologicamente usada por esta página.
 function ordenarComprasCronologicamente(compras) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return [...compras].sort((a, b) => {
+        // Declara dataA para uso neste fluxo.
         const dataA = dataCompraParaOrdenacao(a);
+        // Declara dataB para uso neste fluxo.
         const dataB = dataCompraParaOrdenacao(b);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (dataA !== dataB) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return dataA - dataB;
         }
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return String(idVendaCompra(a) || "").localeCompare(String(idVendaCompra(b) || ""), "pt-BR", { numeric: true });
     });
 }
 
+// Declara a função aplicarPagamentoLocal usada por esta página.
 function aplicarPagamentoLocal(compra) {
+    // Declara idVenda para uso neste fluxo.
     const idVenda = idVendaCompra(compra);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (idVenda && itemExisteNoLocalStorage(comprasCanceladasLocalStorage, idVenda)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return { ...compra, status_pagamento: 1, STATUS_PAGAMENTO: 1 };
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!idVenda || !itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return compra;
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 };
 }
 
+// Declara a função aplicarParcelaPagaLocal usada por esta página.
 function aplicarParcelaPagaLocal(idVenda, parcela) {
+    // Declara chaveParcela para uso neste fluxo.
     const chaveParcela = parcela?.id || `${idVenda}-${parcela?.numero || "sem-numero"}`;
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (chaveParcela && itemExisteNoLocalStorage(parcelasCanceladasLocalStorage, chaveParcela)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return { ...parcela, situacao: 0 };
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!chaveParcela || !itemExisteNoLocalStorage(parcelasPagasLocalStorage, chaveParcela)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return parcela;
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return { ...parcela, situacao: 1 };
 }
 
+// Declara a função confirmarStatusPagamentoVenda usada por esta página.
 async function confirmarStatusPagamentoVenda(API, idVenda) {
+    // Verifica esta condição antes de continuar o fluxo.
     if (!idVenda) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return {};
     }
 
+    // Declara body para uso neste fluxo.
     const body = JSON.stringify({
         status_pagamento: 0,
         STATUS_PAGAMENTO: 0,
         status: 0
     });
+    // Declara rotas para uso neste fluxo.
     const rotas = [
         { metodo: "POST", url: `${API}/confirmar_pagamento_pix_venda/${idVenda}` },
         { metodo: "POST", url: `${API}/pagar_venda_pix/${idVenda}` },
@@ -498,8 +679,11 @@ async function confirmarStatusPagamentoVenda(API, idVenda) {
         { metodo: "PUT", url: `${API}/editar_venda/${idVenda}` }
     ];
 
+    // Percorre os itens necessários para executar esta etapa.
     for (const rota of rotas) {
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Declara resposta para uso neste fluxo.
             const resposta = await fetch(rota.url, {
                 method: rota.metodo,
                 headers: {
@@ -509,9 +693,12 @@ async function confirmarStatusPagamentoVenda(API, idVenda) {
                 credentials: "include",
                 body
             });
+            // Declara dados para uso neste fluxo.
             const dados = await lerRespostaJson(resposta);
 
+            // Verifica esta condição antes de continuar o fluxo.
             if (resposta.ok) {
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return dados;
             }
         } catch {
@@ -519,10 +706,17 @@ async function confirmarStatusPagamentoVenda(API, idVenda) {
         }
     }
 
+    // Interrompe o fluxo informando o erro encontrado.
     throw new Error("Não foi possível confirmar o pagamento na API.");
 }
 
-// Componente principal da página Minhas compras.
+//Quando o pagamento é confirmado, o backend retorna um JSON dizendo que 
+// deu certo. Nesse JSON vem o status_pagamento: 0, o id_venda, se a receita 
+// foi registrada e o id_financeiro. Aí o front usa esse retorno para atualizar 
+// a compra na tela como paga e mostrar que a receita já foi registrada.
+
+// Sprint: Criar página Minhas Compras.
+// Este componente reúne a listagem das compras, os status e as opções de pagamento do cliente.
 function MinhasCompras({ API }) {
     // Cria a função para navegar para outras páginas.
     const navigate = useNavigate();
@@ -531,13 +725,16 @@ function MinhasCompras({ API }) {
     // Descobre o ID do usuário pelo objeto salvo ou pelo token.
     const idUsuario = usuario.id_usuario || usuario.id_user || usuario.id || usuario.ID_USUARIO || idPeloToken();
 
-    // Guarda a lista de compras do usuário.
+    // estados usados para criar e controlar a página "Minhas Compras".
+    // Guarda a lista usada para criar os cards da página.
+    // Quando setCompras é chamado, o React atualiza automaticamente a lista exibida.
     const [compras, setCompras] = useState([]);
     // Controla o carregamento inicial da lista.
     const [carregando, setCarregando] = useState(true);
     // Guarda erro geral da página.
     const [erro, setErro] = useState("");
-    // Guarda as parcelas Pix por ID da venda.
+    // Guarda as parcelas Pix separadas pelo ID da venda.
+    // Exemplo: pixParcelas[54] contém todas as parcelas Pix da venda 54.
     const [pixParcelas, setPixParcelas] = useState({});
     // Controla carregamento de Pix das parcelas por venda.
     const [carregandoPixParcelas, setCarregandoPixParcelas] = useState({});
@@ -545,7 +742,7 @@ function MinhasCompras({ API }) {
     const [erroPixParcelas, setErroPixParcelas] = useState({});
     // Guarda mensagens de sucesso de Pix das parcelas por venda.
     const [mensagemPixParcelas, setMensagemPixParcelas] = useState({});
-    // Controla qual parcela está sendo marcada como paga.
+    // Controla qual parcela está sendo confirmada para desabilitar o botão durante a requisição.
     const [pagandoPixParcelas, setPagandoPixParcelas] = useState({});
     // Guarda qual parcela Pix está selecionada em cada venda.
     const [parcelaPixSelecionada, setParcelaPixSelecionada] = useState({});
@@ -557,6 +754,7 @@ function MinhasCompras({ API }) {
     const [erroPixVendas, setErroPixVendas] = useState({});
     // Guarda mensagens de sucesso de Pix de venda à vista por venda.
     const [mensagemPixVendas, setMensagemPixVendas] = useState({});
+    // Declara os dados usados neste fluxo.
     const [pagandoPixVendas, setPagandoPixVendas] = useState({});
     // Controla qual compra está aberta para mostrar Pix ou parcelas.
     const [compraAbertaId, setCompraAbertaId] = useState("");
@@ -565,6 +763,7 @@ function MinhasCompras({ API }) {
     function montarUrlArquivo(valor) {
         // Se não houver valor, retorna vazio.
         if (!valor) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "";
         }
 
@@ -573,11 +772,13 @@ function MinhasCompras({ API }) {
 
         // Se já for URL completa ou base64/data URL, usa como veio.
         if (caminho.startsWith("http") || caminho.startsWith("data:")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return caminho;
         }
 
         // Se vier com barra inicial, concatena direto com a API.
         if (caminho.startsWith("/")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return `${API}${caminho}`;
         }
 
@@ -587,6 +788,7 @@ function MinhasCompras({ API }) {
 
     // Monta a URL do comprovante de uma compra.
     function comprovanteCompra(compra) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return montarUrlArquivo(compra?.comprovante || compra?.comprovante_url || compra?.arquivo_comprovante);
     }
 
@@ -598,13 +800,23 @@ function MinhasCompras({ API }) {
         return chavePix ? `?chave_pix=${encodeURIComponent(chavePix)}` : "";
     }
 
-    // Carrega as compras do usuário tentando rotas conhecidas da API.
+    //A página MinhasCompras pega o usuário logado, busca na API as compras desse usuário 
+    // e salva no estado compras. Depois ela usa essa lista para montar os cards na tela, 
+    // mostrando veículo, valor, forma de pagamento, parcelas e status. Também é nessa página
+    //  que aparecem os Pix das parcelas e os botões de confirmar ou cancelar pagamento.
+    // SPRINt Criar página Minhas Compras
+    // Carrega somente as compras do usuário logado para montar o conteúdo da página.
     const carregarCompras = useCallback(async () => {
-        // Se não houver ID do usuário, não dá para buscar compras.
+        // A API precisa do ID para devolver apenas as compras pertencentes ao cliente logado.
+        // Sem esse ID, a página interrompe a busca para não exibir compras de outro usuário.
         if (!idUsuario) {
+            // Garante que nenhuma compra antiga continue aparecendo sem um usuário identificado.
             setCompras([]);
+            // Finaliza o indicador de carregamento porque a consulta não será realizada.
             setCarregando(false);
+            // Informa ao cliente por que suas compras não puderam ser buscadas.
             setErro("Não foi possível identificar o usuário logado.");
+            // Encerra a função antes de fazer qualquer requisição sem identificação.
             return;
         }
 
@@ -613,36 +825,47 @@ function MinhasCompras({ API }) {
         // Limpa erros antigos.
         setErro("");
 
-        // Rotas alternativas para compatibilidade com diferentes nomes no backend.
+        // Estas são três versões conhecidas da rota de compras.
+        // A página testa as alternativas porque diferentes versões do backend podem usar nomes diferentes.
         const rotas = [
+            // Primeira opção: consulta as vendas cadastradas para o usuário.
             `/listar_vendas_usuario?id_usuario=${encodeURIComponent(idUsuario)}`,
+            // Segunda opção: consulta uma possível rota específica de compras do usuário.
             `/listar_compras_usuario?id_usuario=${encodeURIComponent(idUsuario)}`,
+            // Terceira opção: consulta a rota alternativa chamada minhas_compras.
             `/minhas_compras?id_usuario=${encodeURIComponent(idUsuario)}`
         ];
 
-        // Tenta cada rota até encontrar uma resposta válida.
+        // Percorre as rotas em ordem e para assim que uma delas devolver uma resposta válida.
         for (const rota of rotas) {
+            // Tenta executar a operação e permite tratar possíveis falhas.
             try {
                 // Faz a requisição para a rota atual.
                 const resposta = await fetch(`${API}${rota}`, {
+                    // GET é usado porque esta operação somente consulta as compras.
                     method: "GET",
+                    // Envia o token para o backend confirmar que o usuário está autenticado.
                     headers: cabecalhoAutorizacao(),
+                    // Permite o envio de cookies de autenticação junto com a requisição.
                     credentials: "include"
                 });
 
                 // Se a rota não respondeu sucesso, tenta a próxima.
                 if (!resposta.ok) {
+                    // Avança para o próximo item da repetição.
                     continue;
                 }
 
                 // Converte a resposta em JSON.
                 const dados = await lerRespostaJson(resposta);
-                // Aceita lista direta ou dentro de propriedades comuns.
+                // Algumas APIs devolvem um array direto; outras colocam o array dentro de compras, vendas ou pedidos.
                 const lista = Array.isArray(dados)
+                    // Se a própria resposta já for uma lista, usa essa lista diretamente.
                     ? dados
+                    // Caso contrário, procura a lista dentro dos nomes conhecidos ou usa uma lista vazia.
                     : dados.compras || dados.vendas || dados.pedidos || [];
 
-                // Salva a lista de compras preservando pagamentos confirmados nesta tela.
+                // Normaliza confirmações locais, ordena cronologicamente e atualiza os cards exibidos.
                 setCompras(Array.isArray(lista) ? ordenarComprasCronologicamente(lista.map(aplicarPagamentoLocal)) : []);
                 // Desliga o carregamento.
                 setCarregando(false);
@@ -661,10 +884,13 @@ function MinhasCompras({ API }) {
         setCarregando(false);
     }, [API, idUsuario]);
 
-    // Carrega os Pix das parcelas de uma venda.
+    // ITEM DA SPRINT: "Permitir pagamento via Pix nas parcelas".
+    // Busca no backend o QR Code, o código copia e cola, o valor e o status de cada parcela.
     const carregarPixParcelas = useCallback(async (idVenda) => {
-        // Se não houver ID ou as parcelas já foram carregadas, não faz nada.
+        // O ID informa ao backend de qual venda queremos as parcelas.
+        // Se elas já estiverem no estado, evita uma requisição repetida.
         if (!idVenda || pixParcelas[idVenda]?.length) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -675,10 +901,13 @@ function MinhasCompras({ API }) {
 
         // Tenta buscar os Pix das parcelas.
         try {
-            // Faz a requisição para listar Pix das parcelas.
+            // Solicita os dados Pix de todas as parcelas relacionadas à venda escolhida.
             const resposta = await fetch(`${API}/listar_pix_parcelas/${idVenda}`, {
+                // GET somente consulta os dados Pix, sem alterar a parcela.
                 method: "GET",
+                // Envia o token de autenticação do cliente.
                 headers: cabecalhoAutorizacao(),
+                // Envia também os cookies usados pela sessão.
                 credentials: "include"
             });
             // Converte a resposta para JSON.
@@ -686,23 +915,32 @@ function MinhasCompras({ API }) {
 
             // Trata erro retornado pela API.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setErroPixParcelas.
                 setErroPixParcelas((estado) => ({
                     ...estado,
                     [idVenda]: dados.erro || dados.mensagem || "Erro ao carregar Pix das parcelas."
                 }));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
-            // Aceita a lista em vários formatos de resposta.
+            // Localiza a lista mesmo que o backend use nomes diferentes na resposta.
             const lista = Array.isArray(dados)
+                // Usa diretamente a resposta quando ela já for um array.
                 ? dados
+                // Procura as parcelas em diferentes propriedades aceitas pelo sistema.
                 : dados.parcelas || dados.pix_parcelas || dados.faturas || dados.itens || [];
 
-            // Salva as parcelas normalizadas no estado.
+            // Converte todas as parcelas para o mesmo formato e salva por ID da venda.
+            // Ao atualizar pixParcelas, a área visual de pagamento parcelado é renderizada.
             setPixParcelas((estado) => ({
+                // Mantém as parcelas Pix que pertencem às outras vendas.
                 ...estado,
+                // Salva a lista carregada dentro da chave correspondente ao ID desta venda.
                 [idVenda]: Array.isArray(lista)
+                    // Normaliza cada parcela e aplica pagamentos já confirmados localmente.
                     ? lista.map((parcela) => aplicarParcelaPagaLocal(idVenda, normalizarParcelaPix(parcela)))
+                    // Se a resposta não contiver uma lista válida, salva uma lista vazia.
                     : []
             }));
         } catch {
@@ -724,18 +962,22 @@ function MinhasCompras({ API }) {
 
         // Se não houver venda ou ela não for Pix à vista, não faz nada.
         if (!idVenda || !ehVendaPixAVista(compra)) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Verifica se o Pix já foi carregado.
         const pixJaCarregado = pixVendas[idVenda];
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda)) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Se não for recarregamento forçado e já tiver Pix, não busca novamente.
         if (!forcar && (pixJaCarregado?.qrcode || pixJaCarregado?.copiaCola)) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -744,7 +986,9 @@ function MinhasCompras({ API }) {
 
         // Se a compra já contém Pix e não foi forçado, salva e encerra.
         if (!forcar && (pixDaCompra.qrcode || pixDaCompra.copiaCola)) {
+            // Atualiza o estado por meio de setPixVendas.
             setPixVendas((estado) => ({ ...estado, [idVenda]: pixDaCompra }));
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -766,11 +1010,14 @@ function MinhasCompras({ API }) {
 
             // Trata resposta de erro da API.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setPixVendas.
                 setPixVendas((estado) => ({ ...estado, [idVenda]: null }));
+                // Atualiza o estado por meio de setErroPixVendas.
                 setErroPixVendas((estado) => ({
                     ...estado,
                     [idVenda]: dados.erro || dados.mensagem || "Pix indisponível para esta compra."
                 }));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -790,6 +1037,7 @@ function MinhasCompras({ API }) {
 
     // Busca as compras quando a página abre.
     useEffect(() => {
+        // Executa carregarCompras nesta etapa do fluxo.
         carregarCompras();
     }, [carregarCompras]);
 
@@ -802,11 +1050,13 @@ function MinhasCompras({ API }) {
 
             // Para venda parcelada, carrega os Pix das parcelas se ainda não carregou.
             if (ehVendaParcelada(compra) && idVenda && !pixParcelas[idVenda]?.length && !carregandoPixParcelas[idVenda]) {
+                // Executa carregarPixParcelas nesta etapa do fluxo.
                 carregarPixParcelas(idVenda);
             }
 
             // Para venda Pix à vista, carrega o Pix da compra se ainda não carregou.
             if (ehVendaPixAVista(compra) && idVenda && pixVendas[idVenda] === undefined && !carregandoPixVendas[idVenda]) {
+                // Executa carregarPixVenda nesta etapa do fluxo.
                 carregarPixVenda(compra);
             }
         });
@@ -816,6 +1066,7 @@ function MinhasCompras({ API }) {
     async function copiarPixVenda(codigo, idVenda) {
         // Se não houver código Pix, não faz nada.
         if (!codigo) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -835,74 +1086,118 @@ function MinhasCompras({ API }) {
             setErroPixVendas((estado) => ({ ...estado, [idVenda]: "Não foi possível copiar o Pix automaticamente." }));
         }
     }
+    
+//Cria a função no front chamada "RegistrarReceitaViaPix"onde nela vai chamar a API 
+// através da rota do CadastroFinanceiro e lá vai verificar os dados, se os dados forem
+// correspondidos vai vir para o front e vai ver se os dados retornados são os mesmos e assim vai finalizar.
+// Registra no financeiro a receita de uma compra Pix à vista confirmada pelo cliente.
 async function registrarReceitaVendaPix(idVenda, compra) {
+    // Cria uma chave única para impedir que a mesma venda gere duas receitas.
     const chaveReceita = `venda-${idVenda}`;
 
-    // Impede duplicação no localStorage
+    // Se esta receita já foi registrada nesta máquina, encerra sem duplicar.
     if (itemExisteNoLocalStorage(receitasRegistradasLocalStorage, chaveReceita)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return;
     }
 
+    // Monta a descrição que aparecerá na página financeira.
     const descricaoReceita =
         `Receita automática - Venda #${idVenda} - ${nomeVeiculoCompra(compra)}`;
 
+    // Descobre o valor realmente recebido aceitando os diferentes campos retornados pela API.
     const valorVenda = valorParaNumero(
+        // Primeiro tenta usar o valor recebido em letras minúsculas.
         compra?.valor_recebido ??
+        // Depois tenta o mesmo campo em letras maiúsculas.
         compra?.VALOR_RECEBIDO ??
+        // Se necessário, usa o valor da venda em letras minúsculas.
         compra?.valor_venda ??
+        // Depois tenta o valor da venda em letras maiúsculas.
         compra?.VALOR_VENDA ??
+        // Por último, tenta o campo alternativo valor_total.
         compra?.valor_total
     );
 
+    // Sem venda ou valor válido não é seguro cadastrar uma receita.
     if (!idVenda || !valorVenda) {
+        // Interrompe o fluxo informando o erro encontrado.
         throw new Error(
             "Pagamento confirmado, mas não foi possível montar a receita financeira."
         );
     }
 
-    // VERIFICA SE JÁ EXISTE NO BANCO
+    // Consulta o financeiro antes do cadastro para evitar receita duplicada no banco.
     const receitasExistentes = await buscarIdsReceitasFinanceiras(API, {
+        // Compara a descrição esperada com as descrições existentes.
         descricaoReceita,
+        // Compara também o número da venda.
         idVenda,
+        // Compara o valor para reduzir o risco de encontrar outra receita.
         valor: valorVenda
     });
 
-    // Se já existir, salva no localStorage e NÃO cria novamente
+    // Se a receita já existir, apenas guarda a referência local e encerra.
     if (receitasExistentes.length > 0) {
+        // Executa salvarValorObjetoLocalStorage nesta etapa do fluxo.
         salvarValorObjetoLocalStorage(
+            // Define em qual objeto local o ID financeiro será guardado.
             receitasFinanceiroIdsLocalStorage,
+            // Usa a chave exclusiva desta venda.
             chaveReceita,
+            // Guarda o primeiro ID financeiro encontrado no banco.
             receitasExistentes[0]
         );
 
+        // Executa salvarItemLocalStorage nesta etapa do fluxo.
         salvarItemLocalStorage(
+            // Define a lista local de receitas já registradas.
             receitasRegistradasLocalStorage,
+            // Marca esta venda como já registrada.
             chaveReceita
         );
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return;
     }
+    
+//Cria a função no front chamada "RegistrarReceitaViaPix"onde nela vai chamar a API 
+// através da rota do CadastroFinanceiro e lá vai verificar os dados, se os dados forem
+// correspondidos vai vir para o front e vai ver se os dados retornados são os mesmos e assim vai finalizar.
 
-    // CADASTRA SOMENTE SE NÃO EXISTIR
+    // Envia uma nova entrada para o financeiro somente quando ela ainda não existe.
     const resposta = await fetch(`${API}/cadastro_financeiro`, {
+        // POST cria uma nova transação financeira.
         method: "POST",
         headers: {
+            // Informa que o corpo enviado está no formato JSON.
             "Content-Type": "application/json",
+            // Acrescenta o token de autenticação.
             ...cabecalhoAutorizacao()
         },
+        // Envia os cookies da sessão.
         credentials: "include",
+        // Envia tipo entrada, veículo, data, descrição e valor da receita.
         body: JSON.stringify({
+            // "entrada" informa que o dinheiro entrou no caixa da empresa.
             tipo: "entrada",
+            // Relaciona a receita ao veículo comprado.
             id_veiculo: idVeiculoCompra(compra) || null,
+            // Registra a data atual como data da confirmação.
             data: dataAtualParaApi(),
+            // Registra uma descrição que identifica venda e veículo.
             descricao: descricaoReceita,
+            // Registra o valor total recebido nesta compra à vista.
             valor: valorVenda
         })
     });
 
+    // Lê os dados retornados mesmo quando a API responder sem um JSON válido.
     const dados = await resposta.json().catch(() => ({}));
 
+    // O código 409 significa que o backend detectou uma receita já existente.
     if (!resposta.ok && resposta.status !== 409) {
+        // Interrompe o fluxo informando o erro encontrado.
         throw new Error(
             dados.erro ||
             dados.mensagem ||
@@ -910,6 +1205,7 @@ async function registrarReceitaVendaPix(idVenda, compra) {
         );
     }
 
+    // Recupera o ID financeiro retornado ou procura o registro recém-criado.
     const idFinanceiro =
         idFinanceiroResposta(dados) ||
         (await buscarIdsReceitasFinanceiras(API, {
@@ -918,44 +1214,67 @@ async function registrarReceitaVendaPix(idVenda, compra) {
             valor: valorVenda
         }))[0];
 
+    // Guarda o ID financeiro para permitir remover a receita caso o pagamento seja cancelado.
     salvarValorObjetoLocalStorage(
+        // Seleciona o armazenamento dos IDs financeiros.
         receitasFinanceiroIdsLocalStorage,
+        // Usa a chave que representa esta venda.
         chaveReceita,
+        // Salva o ID da receita cadastrada no financeiro.
         idFinanceiro
     );
 
+    // Marca localmente que a receita desta venda já foi registrada.
     salvarItemLocalStorage(
+        // Seleciona a lista de receitas já registradas.
         receitasRegistradasLocalStorage,
+        // Marca a receita desta venda como concluída.
         chaveReceita
     );
 }
 
+    // Confirma a compra Pix à vista e chama o cadastro automático da receita.
     async function confirmarPagamentoPixVenda(idVenda, compra) {
+        // Verifica esta condição antes de continuar o fluxo.
         if (!idVenda) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Atualiza o estado por meio de setErroPixVendas.
         setErroPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
+        // Atualiza o estado por meio de setMensagemPixVendas.
         setMensagemPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
+        // Atualiza o estado por meio de setPagandoPixVendas.
         setPagandoPixVendas((estado) => ({ ...estado, [idVenda]: true }));
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Declara statusAtualizado para uso neste fluxo.
             let statusAtualizado = true;
 
+            // Tenta executar a operação e permite tratar possíveis falhas.
             try {
+                // Executa confirmarStatusPagamentoVenda nesta etapa do fluxo.
                 await confirmarStatusPagamentoVenda(API, idVenda);
             } catch {
+                // Executa esta etapa do fluxo.
                 statusAtualizado = false;
             }
 
+            // Depois de confirmar o pagamento, registra automaticamente a entrada no financeiro.
             await registrarReceitaVendaPix(idVenda, compra);
+            // Executa removerItemLocalStorage nesta etapa do fluxo.
             removerItemLocalStorage(comprasCanceladasLocalStorage, idVenda);
+            // Executa salvarItemLocalStorage nesta etapa do fluxo.
             salvarItemLocalStorage(comprasPagasLocalStorage, idVenda);
+            // Atualiza o estado por meio de setCompras.
             setCompras((estado) => estado.map((item) => (
                 String(idVendaCompra(item)) === String(idVenda)
                     ? { ...item, status_pagamento: 0, STATUS_PAGAMENTO: 0 }
                     : item
             )));
+            // Atualiza o estado por meio de setMensagemPixVendas.
             setMensagemPixVendas((estado) => ({
                 ...estado,
                 [idVenda]: statusAtualizado
@@ -963,40 +1282,53 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                     : "Pagamento confirmado nesta tela e receita registrada. A API de status não respondeu."
             }));
         } catch (erroAtual) {
+            // Atualiza o estado por meio de setErroPixVendas.
             setErroPixVendas((estado) => ({
                 ...estado,
                 [idVenda]: erroAtual.message || "Não foi possível confirmar o pagamento."
             }));
         } finally {
+            // Atualiza o estado por meio de setPagandoPixVendas.
             setPagandoPixVendas((estado) => ({ ...estado, [idVenda]: false }));
         }
     }
 
+    // Declara a função cancelarPagamentoPixVenda usada por esta página.
     async function cancelarPagamentoPixVenda(idVenda, compra) {
+        // Verifica esta condição antes de continuar o fluxo.
         if (!idVenda) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Atualiza o estado por meio de setErroPixVendas.
         setErroPixVendas((estado) => ({ ...estado, [idVenda]: "" }));
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Executa excluirReceitaFinanceira nesta etapa do fluxo.
             await excluirReceitaFinanceira(API, `venda-${idVenda}`, {
                 descricaoReceita: `Receita automática - Venda #${idVenda} - ${nomeVeiculoCompra(compra)}`,
                 idVenda,
                 valor: valorParaNumero(compra?.valor_recebido ?? compra?.VALOR_RECEBIDO ?? compra?.valor_venda ?? compra?.VALOR_VENDA ?? compra?.valor_total)
             });
+            // Executa removerItemLocalStorage nesta etapa do fluxo.
             removerItemLocalStorage(comprasPagasLocalStorage, idVenda);
+            // Executa salvarItemLocalStorage nesta etapa do fluxo.
             salvarItemLocalStorage(comprasCanceladasLocalStorage, idVenda);
+            // Atualiza o estado por meio de setCompras.
             setCompras((estado) => estado.map((item) => (
                 String(idVendaCompra(item)) === String(idVenda)
                     ? { ...item, status_pagamento: 1, STATUS_PAGAMENTO: 1 }
                     : item
             )));
+            // Atualiza o estado por meio de setMensagemPixVendas.
             setMensagemPixVendas((estado) => ({
                 ...estado,
                 [idVenda]: "Pagamento Pix cancelado. A receita foi removida do financeiro."
             }));
         } catch (erroAtual) {
+            // Atualiza o estado por meio de setErroPixVendas.
             setErroPixVendas((estado) => ({
                 ...estado,
                 [idVenda]: erroAtual.message || "Não foi possível cancelar o pagamento no financeiro."
@@ -1004,28 +1336,42 @@ async function registrarReceitaVendaPix(idVenda, compra) {
         }
     }
 
+    // Declara a função cancelarPagamentoPixParcela usada por esta página.
     async function cancelarPagamentoPixParcela(idVenda, parcela, compra) {
+        // Declara chaveParcela para uso neste fluxo.
         const chaveParcela = parcela?.id || `${idVenda}-${parcela?.numero || "sem-numero"}`;
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!idVenda || !chaveParcela) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Atualiza o estado por meio de setErroPixParcelas.
         setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Declara numeroParcela para uso neste fluxo.
             const numeroParcela = parcela?.numero || "-";
+            // Declara descricaoReceita para uso neste fluxo.
             const descricaoReceita = `Receita automática - Venda #${idVenda} - Parcela ${numeroParcela} - ${nomeVeiculoCompra(compra)}`;
 
+            // Executa excluirReceitaFinanceira nesta etapa do fluxo.
             await excluirReceitaFinanceira(API, `parcela-${chaveParcela}`, {
                 descricaoReceita,
                 idVenda,
                 valor: parcela?.valor
             });
+            // Executa removerItemLocalStorage nesta etapa do fluxo.
             removerItemLocalStorage(parcelasPagasLocalStorage, chaveParcela);
+            // Executa removerItemLocalStorage nesta etapa do fluxo.
             removerItemLocalStorage(comprasPagasLocalStorage, idVenda);
+            // Executa salvarItemLocalStorage nesta etapa do fluxo.
             salvarItemLocalStorage(parcelasCanceladasLocalStorage, chaveParcela);
+            // Executa salvarItemLocalStorage nesta etapa do fluxo.
             salvarItemLocalStorage(comprasCanceladasLocalStorage, idVenda);
+            // Atualiza o estado por meio de setPixParcelas.
             setPixParcelas((estado) => ({
                 ...estado,
                 [idVenda]: (estado[idVenda] || []).map((item) => (
@@ -1034,16 +1380,19 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                         : item
                 ))
             }));
+            // Atualiza o estado por meio de setCompras.
             setCompras((estado) => estado.map((compraAtual) => (
                 String(idVendaCompra(compraAtual)) === String(idVenda)
                     ? { ...compraAtual, status_pagamento: 1, STATUS_PAGAMENTO: 1 }
                     : compraAtual
             )));
+            // Atualiza o estado por meio de setMensagemPixParcelas.
             setMensagemPixParcelas((estado) => ({
                 ...estado,
                 [idVenda]: "Pagamento da parcela cancelado. A receita foi removida do financeiro."
             }));
         } catch (erroAtual) {
+            // Atualiza o estado por meio de setErroPixParcelas.
             setErroPixParcelas((estado) => ({
                 ...estado,
                 [idVenda]: erroAtual.message || "Não foi possível cancelar a parcela no financeiro."
@@ -1051,73 +1400,121 @@ async function registrarReceitaVendaPix(idVenda, compra) {
         }
     }
 
+    // Registrar automaticamente a receita após o pagamento
+    // Registra no financeiro somente o valor da parcela Pix que acabou de ser paga.
     async function registrarReceitaParcela(idVenda, parcela, compra) {
+        // Cria uma identificação exclusiva para esta receita.
+        // Exemplo: "parcela-123" permite saber que a receita da parcela 123 já foi cadastrada.
         const chaveReceita = `parcela-${parcela?.id || `${idVenda}-${parcela?.numero || "sem-numero"}`}`;
 
+        // Evita cadastrar novamente uma parcela já registrada por esta tela.
         if (itemExisteNoLocalStorage(receitasRegistradasLocalStorage, chaveReceita)) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Converte o valor da parcela para número antes de enviar ao financeiro.
         const valorParcela = valorParaNumero(parcela?.valor);
 
+        // Interrompe o cadastro quando faltam dados obrigatórios.
         if (!idVenda || !valorParcela) {
+            // Interrompe o fluxo informando o erro encontrado.
             throw new Error("Parcela paga, mas não foi possível montar a receita financeira.");
         }
 
+        // Obtém o número da parcela e o nome do veículo para criar uma descrição compreensível.
         const numeroParcela = parcela?.numero || "-";
+        // Declara veiculo para uso neste fluxo.
         const veiculo = nomeVeiculoCompra(compra);
+        // Esta descrição permite identificar no financeiro qual venda, parcela e veículo geraram a receita.
         const descricaoReceita = `Receita automática - Venda #${idVenda} - Parcela ${numeroParcela} - ${veiculo}`;
+        // Cadastra a parcela paga como uma nova entrada financeira.
         const resposta = await fetch(`${API}/cadastro_financeiro`, {
+            // POST solicita a criação de uma nova receita financeira.
             method: "POST",
             headers: {
+                // Informa ao backend que os dados enviados são JSON.
                 "Content-Type": "application/json",
+                // Envia o token do usuário autenticado.
                 ...cabecalhoAutorizacao()
             },
+            // Inclui os cookies da sessão na requisição.
             credentials: "include",
+            // O objeto enviado cria uma receita do tipo "entrada":
+            // id_veiculo relaciona o lançamento ao carro vendido;
+            // data informa quando a parcela foi confirmada;
+            // descricao identifica venda, parcela e veículo;
+            // valor registra somente o valor desta parcela, não o valor total da compra.
             body: JSON.stringify({
+                // Define o lançamento como dinheiro entrando no caixa.
                 tipo: "entrada",
+                // Relaciona o lançamento ao veículo comprado.
                 id_veiculo: idVeiculoCompra(compra) || null,
+                // Registra a data em que o cliente confirmou o pagamento.
                 data: dataAtualParaApi(),
+                // Identifica venda, parcela e veículo no histórico financeiro.
                 descricao: descricaoReceita,
+                // Registra apenas o valor da parcela confirmada.
                 valor: valorParcela
             })
         });
+        // Lê a resposta para validar o cadastro e recuperar o ID financeiro.
         const dados = await resposta.json().catch(() => ({}));
 
+        // Aceita conflito 409 porque ele indica que a receita já estava cadastrada.
         if (!resposta.ok && resposta.status !== 409) {
+            // Interrompe o fluxo informando o erro encontrado.
             throw new Error(dados.erro || dados.mensagem || "Parcela paga, mas a receita não foi registrada no financeiro.");
         }
 
+        // Recupera o ID da receita criada para permitir futuras operações, como cancelamento.
         const idFinanceiro = idFinanceiroResposta(dados) || (await buscarIdsReceitasFinanceiras(API, {
+            // Procura pela mesma descrição criada para esta parcela.
             descricaoReceita,
+            // Restringe a busca ao número desta venda.
             idVenda,
+            // Confirma também que o valor encontrado é o valor da parcela.
             valor: valorParcela
         }))[0];
+        // Guarda o vínculo entre a parcela e o registro financeiro.
         salvarValorObjetoLocalStorage(receitasFinanceiroIdsLocalStorage, chaveReceita, idFinanceiro);
+        // Marca esta receita como registrada para evitar duplicação.
         salvarItemLocalStorage(receitasRegistradasLocalStorage, chaveReceita);
+        // Retorna a resposta para quem confirmou o pagamento.
         return dados;
     }
 
+
+    // Declara a função copiarPixParcela usada por esta página.
     async function copiarPixParcela(codigo, idVenda) {
+        // Sem código Pix não existe conteúdo para copiar.
         if (!codigo) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Limpa mensagens antigas antes de tentar uma nova cópia.
         setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
+        // Atualiza o estado por meio de setMensagemPixParcelas.
         setMensagemPixParcelas((estado) => ({ ...estado, [idVenda]: "" }));
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Usa a área de transferência do navegador para copiar o Pix copia e cola.
             await navigator.clipboard.writeText(codigo);
+            // Orienta o cliente a pagar no aplicativo bancário e depois confirmar nesta tela.
             setMensagemPixParcelas((estado) => ({
                 ...estado,
                 [idVenda]: "Pix copiado. Depois de pagar, clique em Confirmar pagamento."
             }));
         } catch {
+            // Atualiza o estado por meio de setErroPixParcelas.
             setErroPixParcelas((estado) => ({ ...estado, [idVenda]: "Não foi possível copiar o Pix automaticamente." }));
         }
     }
 
-    // Confirma o pagamento Pix de uma parcela e tenta marcar a parcela como paga.
+    // ITEM DA SPRINT: "Permitir pagamento via Pix nas parcelas".
+    // Confirma o Pix da parcela, atualiza seu status e registra a receita correspondente.
     async function confirmarPagamentoPixParcela(idVenda, parcela, compra) {
         // Cria uma chave única para controlar o botão desta parcela.
         const chave = chaveParcelaPix(idVenda, parcela);
@@ -1132,17 +1529,23 @@ async function registrarReceitaVendaPix(idVenda, compra) {
         try {
             // Se a parcela não tem ID ou já está paga, apenas informa.
             if (!parcela?.id || parcelaEstaPaga(parcela)) {
+                // Atualiza o estado por meio de setMensagemPixParcelas.
                 setMensagemPixParcelas((estado) => ({
                     ...estado,
                     [idVenda]: "Esta parcela já está paga."
                 }));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
-            // Chama a API para marcar a parcela como paga.
+            // Envia o ID específico da parcela para o backend.
+            // Esta chamada altera a situação da parcela de pendente para paga.
             const resposta = await fetch(`${API}/pagar_parcela_pix/${parcela.id}`, {
+                // POST solicita que o backend confirme esta parcela.
                 method: "POST",
+                // Envia a autenticação necessária para alterar o pagamento.
                 headers: cabecalhoAutorizacao(),
+                // Inclui cookies da sessão.
                 credentials: "include"
             });
             // Converte a resposta para JSON.
@@ -1150,56 +1553,85 @@ async function registrarReceitaVendaPix(idVenda, compra) {
 
             // Se a API retornou erro, dispara exceção.
             if (!resposta.ok) {
+                // Interrompe o fluxo informando o erro encontrado.
                 throw new Error(dados.erro || dados.mensagem || "Não foi possível marcar a parcela como paga.");
             }
 
+            // Algumas versões do backend já criam a receita junto com a confirmação.
+            // Se a resposta informar que isso não ocorreu, o front chama registrarReceitaParcela.
             if (!pagamentoRegistrouReceita(dados)) {
+                // Executa registrarReceitaParcela nesta etapa do fluxo.
                 await registrarReceitaParcela(idVenda, parcela, compra);
             }
 
+            // Remove marcações antigas de cancelamento e grava localmente que a parcela foi confirmada.
+            // Isso mantém a interface correta mesmo antes de uma nova consulta ao backend.
             removerItemLocalStorage(parcelasCanceladasLocalStorage, parcela.id || `${idVenda}-${parcela.numero || "sem-numero"}`);
+            // Executa removerItemLocalStorage nesta etapa do fluxo.
             removerItemLocalStorage(comprasCanceladasLocalStorage, idVenda);
+            // Executa salvarItemLocalStorage nesta etapa do fluxo.
             salvarItemLocalStorage(parcelasPagasLocalStorage, parcela.id || `${idVenda}-${parcela.numero || "sem-numero"}`);
 
-            // Atualiza a situação da parcela no estado local.
+            // Cria uma nova lista em que somente a parcela confirmada recebe situação paga.
             const parcelasAtualizadas = (pixParcelas[idVenda] || []).map((item) => (
+                // Compara cada item da lista com a parcela que acabou de ser confirmada.
                 String(item.id) === String(parcela.id)
+                    // Quando encontra a parcela, troca sua situação para paga.
                     ? { ...item, situacao: dados.situacao_parcela ?? 1 }
+                    // Mantém as demais parcelas sem alterações.
                     : item
             ));
+            // Verifica se, depois desta confirmação, todas as parcelas da compra estão pagas.
             const compraQuitadaLocalmente = parcelasAtualizadas.length > 0 && parcelasAtualizadas.every(parcelaEstaPaga);
 
+            // Salva a nova situação no estado para atualizar imediatamente a tela.
             setPixParcelas((estado) => ({
+                // Preserva os dados Pix de todas as outras vendas.
                 ...estado,
+                // Atualiza somente as parcelas desta venda.
                 [idVenda]: (estado[idVenda] || []).map((item) => (
+                    // Localiza a parcela que foi confirmada.
                     String(item.id) === String(parcela.id)
+                        // Atualiza sua situação para paga.
                         ? { ...item, situacao: dados.situacao_parcela ?? 1 }
+                        // Mantém as outras parcelas como estavam.
                         : item
                 ))
             }));
 
-            // Se a API informou que a compra foi quitada, marca a compra como paga.
+            // A compra inteira só recebe status "Pago" quando todas as parcelas estiverem quitadas.
             if (dados.compra_quitada || compraQuitadaLocalmente) {
+                // Guarda a quitação para manter o status correto no navegador.
                 salvarItemLocalStorage(comprasPagasLocalStorage, idVenda);
 
+                // Tenta executar a operação e permite tratar possíveis falhas.
                 try {
+                    // Tenta também atualizar o status geral da venda no backend.
                     await confirmarStatusPagamentoVenda(API, idVenda);
                 } catch {
                     // A compra fica paga localmente mesmo quando a API de status nao existe.
                 }
 
+                // Atualiza o objeto da compra para o código 0, que representa "Pago".
                 setCompras((estado) => estado.map((compra) => (
+                    // Encontra na lista a compra que acabou de ser quitada.
                     String(idVendaCompra(compra)) === String(idVenda)
+                        // Atualiza os dois formatos possíveis de status para o código Pago.
                         ? { ...compra, status_pagamento: 0, STATUS_PAGAMENTO: 0 }
+                        // Mantém as demais compras sem alterações.
                         : compra
                 )));
             }
 
             // Mostra mensagem de sucesso conforme a compra esteja quitada ou não.
             setMensagemPixParcelas((estado) => ({
+                // Mantém mensagens de outras vendas.
                 ...estado,
+                // Define a mensagem mostrada apenas nesta venda.
                 [idVenda]: dados.compra_quitada || compraQuitadaLocalmente
+                    // Informa quitação quando todas as parcelas foram pagas.
                     ? "Todas as parcelas foram pagas. Compra quitada e receita registrada."
+                    // Informa apenas a confirmação quando ainda existem parcelas pendentes.
                     : "Parcela marcada como paga e receita registrada."
             }));
         } catch (erroAtual) {
@@ -1214,27 +1646,42 @@ async function registrarReceitaVendaPix(idVenda, compra) {
         }
     }
 
-    // Escolhe a classe CSS do status de pagamento.
+    // ITEM DA SPRINT: "Exibir o status de cada compra".
+    // Escolhe a cor visual do status: paga ou em andamento.
     function classeStatusPagamento(valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return textoStatusPagamento(valor) === "Pago" ? css.compra_pago : css.compra_andamento;
     }
 
+    // Declara a função alternarCompra usada por esta página.
     function alternarCompra(idVenda, pagamentoConcluido) {
+        // Verifica esta condição antes de continuar o fluxo.
         if (!idVenda || pagamentoConcluido) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Atualiza o estado por meio de setCompraAbertaId.
         setCompraAbertaId((idAtual) => String(idAtual) === String(idVenda) ? "" : String(idVenda));
     }
 
+    // Decide o status exibido considerando API, confirmações locais e parcelas pagas.
     function compraEstaPagaExibicao(compra) {
+        // Descobre qual venda está sendo analisada.
         const idVenda = idVendaCompra(compra);
+        // Obtém as parcelas já carregadas desta venda.
         const parcelas = idVenda ? pixParcelas[idVenda] || [] : [];
 
+        // Um cancelamento confirmado localmente tem prioridade e mantém a compra em andamento.
         if (idVenda && itemExisteNoLocalStorage(comprasCanceladasLocalStorage, idVenda)) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return false;
         }
 
+        // Considera a compra paga quando qualquer uma destas condições for verdadeira:
+        // 1. a API já devolveu status Pago;
+        // 2. o pagamento foi confirmado localmente;
+        // 3. a compra é parcelada e todas as parcelas carregadas estão pagas.
         return textoStatusPagamento(compra.status_pagamento ?? compra.STATUS_PAGAMENTO) === "Pago" ||
             itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda) ||
             (ehVendaParcelada(compra) && parcelas.length > 0 && parcelas.every(parcelaEstaPaga));
@@ -1246,26 +1693,40 @@ async function registrarReceitaVendaPix(idVenda, compra) {
         <main className={css.pagina}>
             {/* Cabeçalho com título da página. */}
             <header className={css.cabecalho}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Área do cliente</span>
+                    {/* Exibe o título principal desta página. */}
                     <h1>Minhas compras</h1>
                 </div>
             </header>
 
-            {/* Cards de resumo das compras. */}
+            {/* ITEM DA SPRINT: "Exibir o status de cada compra". Resumo totaliza compras pagas e em andamento. */}
+            {/* Abre a seção visual que contém os três contadores da página. */}
             <section className={css.resumo}>
+                {/* Primeiro card apresenta a quantidade total de compras encontradas. */}
                 <article>
+                    {/* Texto que identifica o primeiro contador. */}
                     <span>Total de compras</span>
+                    {/* Exibe o tamanho completo da lista de compras. */}
                     <strong>{compras.length}</strong>
                 </article>
+                {/* Segundo card apresenta quantas compras estão totalmente pagas. */}
                 <article>
+                    {/* Texto que identifica o contador de compras pagas. */}
                     <span>Pagas</span>
+                    {/* Filtra a lista usando a regra de pagamento e conta os resultados. */}
                     <strong>{compras.filter(compraEstaPagaExibicao).length}</strong>
                 </article>
+                {/* Terceiro card apresenta quantas compras ainda possuem pagamento pendente. */}
                 <article>
+                    {/* Texto que identifica o contador de compras em andamento. */}
                     <span>Em andamento</span>
+                    {/* Mantém as compras que não estão pagas e conta os resultados. */}
                     <strong>{compras.filter((compra) => !compraEstaPagaExibicao(compra)).length}</strong>
                 </article>
+            {/* Fecha a seção de resumo dos status. */}
             </section>
 
             {/* Estado exibido durante carregamento. */}
@@ -1276,7 +1737,9 @@ async function registrarReceitaVendaPix(idVenda, compra) {
             {/* Estado exibido quando ocorreu erro ao carregar compras. */}
             {!carregando && erro && (
                 <div className={css.estado}>
+                    {/* Renderiza o elemento strong nesta parte da página. */}
                     <strong>Não foi possível carregar suas compras agora.</strong>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>{erro}</span>
                 </div>
             )}
@@ -1284,7 +1747,9 @@ async function registrarReceitaVendaPix(idVenda, compra) {
             {/* Estado vazio quando o usuário ainda não possui compras. */}
             {!carregando && !erro && compras.length === 0 && (
                 <div className={css.estado}>
+                    {/* Renderiza o elemento strong nesta parte da página. */}
                     <strong>Você ainda não possui compras registradas.</strong>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Quando uma venda for cadastrada no seu nome, ela aparecerá aqui.</span>
                 </div>
             )}
@@ -1322,13 +1787,17 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                         const pixVenda = pixVendas[idVenda] || null;
                         // Lê carregamento do Pix da venda à vista.
                         const carregandoPixVenda = carregandoPixVendas[idVenda];
+                        // Declara pagandoPixVenda para uso neste fluxo.
                         const pagandoPixVenda = Boolean(pagandoPixVendas[idVenda]);
                         // Lê erro do Pix da venda à vista.
                         const erroPixVenda = erroPixVendas[idVenda];
                         // Lê mensagem do Pix da venda à vista.
                         const mensagemPixVenda = mensagemPixVendas[idVenda];
+                        // Declara compraCanceladaLocalmente para uso neste fluxo.
                         const compraCanceladaLocalmente = itemExisteNoLocalStorage(comprasCanceladasLocalStorage, idVenda);
+                        // Declara compraPagaLocalmente para uso neste fluxo.
                         const compraPagaLocalmente = itemExisteNoLocalStorage(comprasPagasLocalStorage, idVenda) && !compraCanceladaLocalmente;
+                        // Declara temParcelaPagaLocalmente para uso neste fluxo.
                         const temParcelaPagaLocalmente = parcelasComPix.some((parcela) => (
                             itemExisteNoLocalStorage(parcelasPagasLocalStorage, parcela.id || `${idVenda}-${parcela.numero || "sem-numero"}`) &&
                             !itemExisteNoLocalStorage(parcelasCanceladasLocalStorage, parcela.id || `${idVenda}-${parcela.numero || "sem-numero"}`)
@@ -1337,6 +1806,8 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                         const compraQuitadaParcelas = vendaParcelada && parcelasComPix.length > 0 && parcelasComPix.every(parcelaEstaPaga);
                         // Se todas as parcelas estão pagas ou a compra foi confirmada localmente, considera a compra paga.
                         const compraPaga = compraEstaPagaExibicao(compra);
+                        // Define o código final mostrado no card:
+                        // cancelada localmente = 1/Em andamento; paga = 0/Pago; senão usa o status da API.
                         const statusPagamentoCompra = compraCanceladaLocalmente ? 1 : compraPaga ? 0 : (compra.status_pagamento ?? compra.STATUS_PAGAMENTO);
                         // Compra concluída não abre detalhes de pagamento.
                         const pagamentoConcluido = textoStatusPagamento(statusPagamentoCompra) === "Pago";
@@ -1344,6 +1815,7 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                         const compraAberta = String(compraAbertaId) === String(idVenda);
                         // Mostra detalhes somente quando a compra ainda não foi concluída.
                         const podeAbrirPagamento = !pagamentoConcluido || compraPagaLocalmente || temParcelaPagaLocalmente;
+                        // Declara mostrarDetalhesPagamento para uso neste fluxo.
                         const mostrarDetalhesPagamento = compraAberta && podeAbrirPagamento;
                         // Recupera o índice salvo da parcela selecionada.
                         const indiceSalvoPix = Number(parcelaPixSelecionada[idVenda] ?? 0);
@@ -1353,8 +1825,11 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                             : 0;
                         // Seleciona a parcela Pix atual.
                         const parcelaPixAtual = parcelasComPix[indiceParcelaPix];
+                        // Declara chaveParcelaAtual para uso neste fluxo.
                         const chaveParcelaAtual = parcelaPixAtual?.id || `${idVenda}-${parcelaPixAtual?.numero || "sem-numero"}`;
+                        // Declara parcelaAtualCanceladaLocalmente para uso neste fluxo.
                         const parcelaAtualCanceladaLocalmente = itemExisteNoLocalStorage(parcelasCanceladasLocalStorage, chaveParcelaAtual);
+                        // Declara parcelaAtualPagaLocalmente para uso neste fluxo.
                         const parcelaAtualPagaLocalmente = itemExisteNoLocalStorage(
                             parcelasPagasLocalStorage,
                             chaveParcelaAtual
@@ -1373,36 +1848,54 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                                 role={podeAbrirPagamento ? "button" : undefined}
                                 tabIndex={podeAbrirPagamento ? 0 : undefined}
                                 onKeyDown={(evento) => {
+                                    // Verifica esta condição antes de continuar o fluxo.
                                     if (evento.key === "Enter" || evento.key === " ") {
+                                        // Executa preventDefault nesta etapa do fluxo.
                                         evento.preventDefault();
+                                        // Executa alternarCompra nesta etapa do fluxo.
                                         alternarCompra(idVenda, !podeAbrirPagamento);
                                     }
                                 }}
                             >
-                                {/* Topo do card com nome do veículo e status. */}
+                                {/* ITEM DA SPRINT: "Exibir o status de cada compra". Mostra o status individual no topo do card. */}
+                                {/* Abre o cabeçalho do card que reúne veículo e status da compra. */}
                                 <div className={css.topo_compra}>
+                                    {/* Agrupa o rótulo e o nome do veículo comprado. */}
                                     <div>
+                                        {/* Informa que o texto abaixo representa o veículo. */}
                                         <span>Veículo</span>
+                                        {/* Exibe o nome do veículo relacionado à compra. */}
                                         <h2>{nomeVeiculoCompra(compra)}</h2>
                                     </div>
+                                    {/* Aplica a cor correspondente e abre o texto visual do status. */}
                                     <strong className={`${css.status_compra} ${classeStatusPagamento(statusPagamentoCompra)}`}>
+                                        {/* Converte o código final para o texto "Pago" ou "Em andamento". */}
                                         {textoStatusPagamento(statusPagamentoCompra)}
+                                    {/* Fecha o texto visual do status. */}
                                     </strong>
+                                {/* Fecha o cabeçalho do card da compra. */}
                                 </div>
 
                                 {/* Dados principais da compra. */}
                                 <div className={css.grade_compra}>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Data:</strong> {formatarData(compra.data_venda ?? compra.DATA_VENDA)}</p>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Pagamento:</strong> {textoFormaPagamento(compra.forma_pagamento ?? compra.FORMA_PAGAMENTO)}</p>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Valor:</strong> {formatarMoeda(valor)}</p>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Recebido:</strong> {formatarMoeda(recebido)}</p>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Parcelas:</strong> {parcelas || "À vista"}</p>
                                 </div>
 
                                 {/* Ações gerais da compra. */}
                                 <div className={css.acoes_compra} onClick={(evento) => evento.stopPropagation()}>
+                                    {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                     {podeAbrirPagamento && (
                                         <button type="button" onClick={() => alternarCompra(idVenda, !podeAbrirPagamento)}>
+                                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                             {compraAberta ? "Ocultar pagamento" : "Ver pagamento"}
                                         </button>
                                     )}
@@ -1423,6 +1916,7 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                                 {/* Mensagem de compra parcelada totalmente quitada. */}
                                 {vendaParcelada && idVenda && compraQuitadaParcelas && compraAberta && (
                                     <div className={css.area_pix_parcelas}>
+                                        {/* Exibe esta mensagem ou informação. */}
                                         <p className={css.sucesso_pix_parcelas}>
                                             Compra paga por completo. Todas as parcelas foram quitadas.
                                         </p>
@@ -1432,15 +1926,20 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                                 {/* Área de Pix para compras à vista. */}
                                 {vendaPixAVista && idVenda && mostrarDetalhesPagamento && (
                                     <div className={css.area_pix_parcelas} onClick={(evento) => evento.stopPropagation()}>
+                                        {/* Agrupa os elementos desta parte da interface. */}
                                         <div className={css.topo_pix_parcelas}>
+                                            {/* Agrupa os elementos desta parte da interface. */}
                                             <div>
+                                                {/* Renderiza o elemento span nesta parte da página. */}
                                                 <span>Pagamento à vista</span>
+                                                {/* Renderiza o elemento h3 nesta parte da página. */}
                                                 <h3>Pix da compra</h3>
                                             </div>
                                         </div>
 
                                         {/* Mensagens do Pix da venda à vista. */}
                                         {erroPixVenda && <p className={css.erro_pix_parcelas}>{erroPixVenda}</p>}
+                                        {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                         {mensagemPixVenda && <p className={css.sucesso_pix_parcelas}>{mensagemPixVenda}</p>}
 
                                         {/* Estado de carregamento do Pix da compra. */}
@@ -1456,7 +1955,9 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                                         {/* Conteúdo do Pix da venda à vista. */}
                                         {pixVenda && (
                                             <div className={css.pix_conteudo_unico}>
+                                                {/* Agrupa os elementos desta parte da interface. */}
                                                 <div className={css.pix_qrcode_area}>
+                                                    {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                                     {pixVenda.qrcode ? (
                                                         <img src={montarUrlArquivo(pixVenda.qrcode)} alt={`QR Code Pix da compra ${idVenda || ""}`} />
                                                     ) : (
@@ -1464,22 +1965,30 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                                                     )}
                                                 </div>
 
+                                                {/* Relaciona um texto explicativo ao campo correspondente. */}
                                                 <label className={css.pix_copia_cola}>
+                                                    {/* Renderiza o elemento span nesta parte da página. */}
                                                     <span>Pix cópia e cola</span>
+                                                    {/* Renderiza o elemento textarea nesta parte da página. */}
                                                     <textarea value={pixVenda.copiaCola || ""} readOnly />
+                                                    {/* Agrupa os elementos desta parte da interface. */}
                                                     <div className={css.acoes_pix_parcela}>
+                                                        {/* Exibe este botão de ação. */}
                                                         <button type="button" onClick={() => copiarPixVenda(pixVenda.copiaCola, idVenda)}>
                                                             Copiar Pix
                                                         </button>
+                                                        {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                                         {!compraPagaLocalmente && (
                                                             <button
                                                                 type="button"
                                                                 onClick={() => confirmarPagamentoPixVenda(idVenda, compra)}
                                                                 disabled={pagandoPixVenda || compraPaga}
                                                             >
+                                                                {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                                                 {pagandoPixVenda ? "Confirmando..." : "Confirmar pagamento"}
                                                             </button>
                                                         )}
+                                                        {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                                         {compraPagaLocalmente && (
                                                             <button
                                                                 type="button"
@@ -1497,18 +2006,28 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                                     </div>
                                 )}
 
-                                {/* Área de Pix para compras parceladas ainda não quitadas. */}
+                                {/* ITEM DA SPRINT: "Permitir pagamento via Pix nas parcelas". Área completa de pagamento parcelado. */}
+                                {/* A área só aparece para venda parcelada identificada e quando o cliente abriu o pagamento. */}
                                 {vendaParcelada && idVenda && mostrarDetalhesPagamento && (
+                                    /* Abre a área Pix e impede que cliques internos fechem o card. */
                                     <div className={css.area_pix_parcelas} onClick={(evento) => evento.stopPropagation()}>
+                                        {/* Abre o cabeçalho da área de pagamento parcelado. */}
                                         <div className={css.topo_pix_parcelas}>
+                                            {/* Agrupa o tipo e o título do pagamento. */}
                                             <div>
+                                                {/* Informa que esta área pertence a uma compra parcelada. */}
                                                 <span>Pagamento parcelado</span>
+                                                {/* Identifica que os dados exibidos são os Pix das parcelas. */}
                                                 <h3>Pix das parcelas</h3>
+                                            {/* Fecha o agrupamento do título. */}
                                             </div>
+                                        {/* Fecha o cabeçalho da área Pix. */}
                                         </div>
 
                                         {/* Mensagens do Pix das parcelas. */}
+                                        {/* Mostra a mensagem de erro somente quando existir erro nesta venda. */}
                                         {erroPix && <p className={css.erro_pix_parcelas}>{erroPix}</p>}
+                                        {/* Mostra a mensagem de sucesso somente quando existir mensagem nesta venda. */}
                                         {mensagemPix && <p className={css.sucesso_pix_parcelas}>{mensagemPix}</p>}
 
                                         {/* Estado de carregamento das parcelas Pix. */}
@@ -1523,57 +2042,92 @@ async function registrarReceitaVendaPix(idVenda, compra) {
 
                                         {/* Conteúdo da parcela Pix selecionada. */}
                                         {parcelasComPix.length > 0 && parcelaPixAtual && (
+                                            /* Abre o conteúdo quando existem parcelas e uma delas está selecionada. */
                                             <div className={css.pix_parcela_unica}>
+                                                {/* Relaciona o texto "Escolha a parcela" ao campo select. */}
                                                 <label className={css.seletor_pix_parcela} htmlFor={`pix-parcela-${idVenda}`}>
+                                                    {/* Explica ao cliente o que deve ser escolhido. */}
                                                     <span>Escolha a parcela</span>
+                                                    {/* Guarda qual parcela o cliente escolheu para visualizar e pagar. */}
+                                                    {/* O ID liga o campo ao label, value mantém a escolha e onChange salva a nova parcela. */}
                                                     <select
                                                         id={`pix-parcela-${idVenda}`}
                                                         value={indiceParcelaPix}
                                                         onChange={(evento) => setParcelaPixSelecionada((estado) => ({
+                                                            /* Mantém as escolhas feitas nas outras vendas. */
                                                             ...estado,
+                                                            /* Salva o novo índice selecionado para esta venda. */
                                                             [idVenda]: Number(evento.target.value)
                                                         }))}
                                                     >
+                                                        {/* Percorre todas as parcelas para criar as opções do seletor. */}
                                                         {parcelasComPix.map((parcela, indice) => (
+                                                            /* Cada opção mostra número, valor e vencimento da parcela. */
                                                             <option key={parcela.id || parcela.numero || indice} value={indice}>
+                                                                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                                                                 Parcela {parcela.numero || indice + 1} - {formatarMoeda(parcela.valor)} - vence em {parcela.vencimento || "-"}
                                                             </option>
                                                         ))}
+                                                    {/* Fecha o seletor das parcelas. */}
                                                     </select>
+                                                {/* Fecha o campo de seleção de parcela. */}
                                                 </label>
 
                                                 {/* Resumo da parcela selecionada. */}
+                                                {/* Abre o resumo que apresenta os principais dados da parcela atual. */}
                                                 <div className={css.pix_resumo_parcela}>
+                                                    {/* Primeiro bloco apresenta número e valor da parcela. */}
                                                     <div>
+                                                        {/* Exibe o número da parcela selecionada. */}
                                                         <span>Parcela {parcelaPixAtual.numero || "-"}</span>
+                                                        {/* Exibe o valor da parcela formatado em reais. */}
                                                         <strong>{formatarMoeda(parcelaPixAtual.valor)}</strong>
                                                     </div>
+                                                    {/* Segundo bloco apresenta a data de vencimento. */}
                                                     <div>
+                                                        {/* Identifica que o texto abaixo é o vencimento. */}
                                                         <span>Vencimento</span>
+                                                        {/* Exibe o vencimento ou hífen quando ele não foi informado. */}
                                                         <strong>{parcelaPixAtual.vencimento || "-"}</strong>
                                                     </div>
+                                                    {/* Terceiro bloco apresenta o status individual da parcela. */}
                                                     <div>
+                                                        {/* Identifica que o texto abaixo é o status. */}
                                                         <span>Status</span>
+                                                        {/* Aplica cor de paga ou pendente conforme a situação da parcela. */}
                                                         <strong className={parcelaEstaPaga(parcelaPixAtual) ? css.parcela_paga : css.parcela_pendente}>
+                                                            {/* Converte a situação da parcela para "Pago" ou "Pendente". */}
                                                             {textoSituacaoParcela(parcelaPixAtual)}
                                                         </strong>
                                                     </div>
+                                                {/* Fecha o resumo da parcela selecionada. */}
                                                 </div>
 
-                                                {/* QR Code e código copia e cola da parcela. */}
+                                                {/* Exibe o QR Code, o Pix copia e cola e os botões para confirmar ou cancelar a parcela. */}
+                                                {/* Abre a área com as informações usadas para realizar o pagamento Pix. */}
                                                 <div className={css.pix_conteudo_unico}>
+                                                    {/* Abre o espaço visual reservado para o QR Code. */}
                                                     <div className={css.pix_qrcode_area}>
+                                                        {/* Verifica se a API forneceu uma imagem de QR Code. */}
                                                         {parcelaPixAtual.qrcode ? (
+                                                            /* Quando existe QR Code, monta sua URL e exibe a imagem. */
                                                             <img src={montarUrlArquivo(parcelaPixAtual.qrcode)} alt={`QR Code Pix da parcela ${parcelaPixAtual.numero || ""}`} />
                                                         ) : (
+                                                            /* Quando não existe QR Code, informa que ele está indisponível. */
                                                             <span>QR Code indisponível</span>
                                                         )}
+                                                    {/* Fecha o espaço do QR Code. */}
                                                     </div>
 
+                                                    {/* Abre o campo que mostra o código Pix copia e cola. */}
                                                     <label className={css.pix_copia_cola}>
+                                                        {/* Identifica o conteúdo do campo de texto. */}
                                                         <span>Pix cópia e cola</span>
+                                                        {/* Exibe o código Pix sem permitir edição manual. */}
                                                         <textarea value={parcelaPixAtual.copiaCola || ""} readOnly />
+                                                        {/* Abre o grupo de botões relacionados ao pagamento desta parcela. */}
                                                         <div className={css.acoes_pix_parcela}>
+                                                            {/* Botão que envia o código Pix para a área de transferência. */}
                                                             <button
                                                                 type="button"
                                                                 onClick={() => copiarPixParcela(parcelaPixAtual.copiaCola, idVenda)}
@@ -1581,20 +2135,25 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                                                             >
                                                                 Copiar Pix
                                                             </button>
+                                                            {/* Só mostra o botão de confirmação enquanto a parcela estiver pendente. */}
                                                             {!parcelaEstaPaga(parcelaPixAtual) && (
+                                                                /* Este botão inicia confirmação, atualização do status e registro da receita. */
                                                                 <button
                                                                     type="button"
                                                                     onClick={() => confirmarPagamentoPixParcela(idVenda, parcelaPixAtual, compra)}
                                                                     disabled={pagandoPixAtual}
                                                                 >
+                                                                    {/* Durante a requisição mostra Confirmando; fora dela mostra Confirmar pagamento. */}
                                                                     {pagandoPixAtual ? "Confirmando..." : "Confirmar pagamento"}
                                                                 </button>
                                                             )}
+                                                            {/* Se a API informou pagamento, mostra um botão Pago desabilitado. */}
                                                             {parcelaEstaPaga(parcelaPixAtual) && !parcelaAtualPagaLocalmente && (
                                                                 <button type="button" disabled>
                                                                     Pago
                                                                 </button>
                                                             )}
+                                                            {/* Se o pagamento foi confirmado nesta tela, permite cancelar a confirmação. */}
                                                             {parcelaAtualPagaLocalmente && (
                                                                 <button
                                                                     type="button"
@@ -1605,11 +2164,16 @@ async function registrarReceitaVendaPix(idVenda, compra) {
                                                                     Cancelar pagamento
                                                                 </button>
                                                             )}
+                                                        {/* Fecha o grupo de ações da parcela. */}
                                                         </div>
+                                                    {/* Fecha o campo Pix copia e cola. */}
                                                     </label>
+                                                {/* Fecha a área completa de pagamento Pix. */}
                                                 </div>
+                                            {/* Fecha o conteúdo da parcela selecionada. */}
                                             </div>
                                         )}
+                                    {/* Fecha a área Pix das parcelas. */}
                                     </div>
                                 )}
                             </article>

@@ -6,6 +6,7 @@ import Input from "../components/Input/Input.jsx";
 import { useCallback, useEffect, useMemo, useState } from "react";
 // Importa o input com mascara para campos de valor e porcentagem.
 import { IMaskInput } from "react-imask";
+// Importa recursos de ../components/Paginacao/Paginacao.
 import Paginacao, { ITENS_POR_PAGINA } from "../components/Paginacao/Paginacao";
 
 // Estado inicial do formulario de cadastro de servico.
@@ -103,6 +104,7 @@ function normalizarValor(valor) {
 
     // Se nao existe valor, retorna vazio.
     if (!texto) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
@@ -111,6 +113,7 @@ function normalizarValor(valor) {
 
     // Quando tem ponto e virgula, assume ponto como milhar e virgula como decimal.
     if (somenteNumero.includes(",") && somenteNumero.includes(".")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return somenteNumero.replace(/\./g, "").replace(",", ".");
     }
 
@@ -163,9 +166,11 @@ async function lerResposta(resposta) {
 
     // Se nao veio corpo, retorna objeto vazio.
     if (!texto) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return {};
     }
 
+    // Tenta executar a operação e permite tratar possíveis falhas.
     try {
         // Tenta converter o texto em JSON.
         return JSON.parse(texto);
@@ -188,16 +193,19 @@ function montarPayloadBusca(filtrosBusca) {
 
     // Se descricao foi preenchida, adiciona ao payload.
     if (String(filtrosBusca.descricao).trim()) {
+        // Executa esta etapa do fluxo.
         payload.descricao = filtrosBusca.descricao.trim();
     }
 
     // Se ID foi preenchido, converte para numero e adiciona ao payload.
     if (String(filtrosBusca.id_servico).trim()) {
+        // Executa esta etapa do fluxo.
         payload.id_servico = Number(filtrosBusca.id_servico);
     }
 
     // Se valor foi preenchido, normaliza e adiciona ao payload.
     if (String(filtrosBusca.valor_unitario).trim()) {
+        // Executa esta etapa do fluxo.
         payload.valor_unitario = normalizarValor(filtrosBusca.valor_unitario);
     }
 
@@ -212,6 +220,7 @@ function formatarMoeda(valor) {
 
     // Se nao for numero valido, retorna zero formatado.
     if (!Number.isFinite(numero)) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "R$ 0,00";
     }
 
@@ -265,9 +274,11 @@ function CadastroServicos({ API }) {
         setCarregando(true);
         // Limpa a mensagem antiga quando a busca deve avisar o usuario.
         if (mostrarMensagem) {
+            // Atualiza o estado por meio de setMensagem.
             setMensagem(null);
         }
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota de busca de servicos.
             const resposta = await fetch(`${API}/buscar_servico`, {
@@ -290,6 +301,7 @@ function CadastroServicos({ API }) {
                 setServicos([]);
                 // Mostra mensagem se a busca pediu mensagem ou se nao for 404.
                 if (mostrarMensagem || resposta.status !== 404) {
+                    // Executa exibirMensagem nesta etapa do fluxo.
                     exibirMensagem("erro", obterMensagemErro(dados, "Serviço não encontrado."));
                 }
                 // Interrompe a funcao.
@@ -305,6 +317,7 @@ function CadastroServicos({ API }) {
 
             // Opcionalmente mostra quantos resultados foram encontrados.
             if (mostrarMensagem) {
+                // Executa exibirMensagem nesta etapa do fluxo.
                 exibirMensagem("sucesso", `${lista.length} serviço(s) encontrado(s).`);
             }
         } catch {
@@ -327,14 +340,18 @@ function CadastroServicos({ API }) {
 
     // Mantem a pagina atual valida quando a lista muda de tamanho.
     useEffect(() => {
+        // Verifica esta condição antes de continuar o fluxo.
         if (paginaAtual > totalPaginas) {
+            // Atualiza o estado por meio de setPaginaAtual.
             setPaginaAtual(totalPaginas);
         }
     }, [paginaAtual, totalPaginas]);
 
     // Exibe apenas os servicos da pagina atual.
     const servicosPaginados = useMemo(() => {
+        // Declara inicio para uso neste fluxo.
         const inicio = (paginaAtual - 1) * ITENS_POR_PAGINA;
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return servicos.slice(inicio, inicio + ITENS_POR_PAGINA);
     }, [servicos, paginaAtual]);
 
@@ -371,13 +388,17 @@ function CadastroServicos({ API }) {
 
         // Valida preenchimento obrigatorio.
         if (!formulario.nome_servico.trim() || !String(formulario.valor).trim()) {
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("erro", "O nome do serviço e o valor são obrigatórios.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Valida se o valor e positivo.
         if (!valorPositivo(formulario.valor)) {
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("erro", "O valor do serviço deve ser maior que zero.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -391,6 +412,7 @@ function CadastroServicos({ API }) {
         // Liga carregamento do botao salvar.
         setSalvando(true);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota de cadastro de servico.
             const resposta = await fetch(`${API}/cadastrar_servico`, {
@@ -409,7 +431,9 @@ function CadastroServicos({ API }) {
 
             // Trata erro HTTP ou erro no corpo.
             if (!resposta.ok || dados.erro) {
+                // Executa exibirMensagem nesta etapa do fluxo.
                 exibirMensagem("erro", obterMensagemErro(dados, "Não foi possível cadastrar o serviço."));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -458,18 +482,23 @@ function CadastroServicos({ API }) {
 
         // Se nao existe servico em edicao, nao faz nada.
         if (!editandoId) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Valida campos obrigatorios.
         if (!edicao.nome_servico.trim() || !String(edicao.valor).trim()) {
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("erro", "Por favor, adicione todos os campos.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Valida valor positivo.
         if (!valorPositivo(edicao.valor)) {
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("erro", "O valor do serviço deve ser maior que zero.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -482,6 +511,7 @@ function CadastroServicos({ API }) {
         // Liga carregamento do botao de salvar edicao.
         setSalvando(true);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Chama a rota de atualizar servico.
             const resposta = await fetch(`${API}/atualizar_servico/${editandoId}`, {
@@ -500,7 +530,9 @@ function CadastroServicos({ API }) {
 
             // Trata erro da API.
             if (!resposta.ok || dados.erro) {
+                // Executa exibirMensagem nesta etapa do fluxo.
                 exibirMensagem("erro", obterMensagemErro(dados, "Não foi possível atualizar o serviço."));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -533,62 +565,91 @@ function CadastroServicos({ API }) {
 
     // Exclui o servico; o backend deve bloquear se ele estiver em manutencoes.
     async function deletarServico(servico) {
+        // Atualiza o estado por meio de setExcluindoId.
         setExcluindoId(servico.id_servico);
+        // Atualiza o estado por meio de setConfirmacao.
         setConfirmacao(null);
+        // Atualiza o estado por meio de setMensagem.
         setMensagem(null);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Declara resposta para uso neste fluxo.
             const resposta = await fetch(`${API}/deletar_servico/${servico.id_servico}`, {
                 method: "DELETE",
                 headers: criarHeadersAutenticados(),
                 credentials: "include"
             });
 
+            // Declara dados para uso neste fluxo.
             const dados = await lerResposta(resposta);
 
+            // Verifica esta condição antes de continuar o fluxo.
             if (!resposta.ok || dados.erro) {
+                // Executa exibirMensagem nesta etapa do fluxo.
                 exibirMensagem("erro", obterMensagemErro(dados, "Não foi possível excluir o serviço."));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("sucesso", dados.mensagem || "Serviço excluído com sucesso.");
+            // Atualiza o estado por meio de setServicos.
             setServicos((listaAtual) => listaAtual.filter((item) => item.id_servico !== servico.id_servico));
+            // Verifica esta condição antes de continuar o fluxo.
             if (editandoId === servico.id_servico) {
+                // Executa cancelarEdicao nesta etapa do fluxo.
                 cancelarEdicao();
             }
         } catch {
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("erro", "Não foi possível conectar ao servidor para excluir o serviço.");
         } finally {
+            // Atualiza o estado por meio de setExcluindoId.
             setExcluindoId(null);
         }
     }
 
     // Reajusta todos os servicos ou apenas um, dependendo do id selecionado.
     async function reajustarServicos(e) {
+        // Executa preventDefault nesta etapa do fluxo.
         e.preventDefault();
+        // Atualiza o estado por meio de setMensagem.
         setMensagem(null);
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!String(reajuste.porcentagem).trim()) {
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("erro", "A porcentagem de reajuste e obrigatoria.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (!valorPositivo(reajuste.porcentagem)) {
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("erro", "A porcentagem deve ser maior que zero.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
+        // Declara payload para uso neste fluxo.
         const payload = {
             porcentagem: normalizarValor(reajuste.porcentagem)
         };
 
+        // Verifica esta condição antes de continuar o fluxo.
         if (String(reajuste.id_servico).trim()) {
+            // Executa esta etapa do fluxo.
             payload.id_servico = Number(reajuste.id_servico);
         }
 
+        // Atualiza o estado por meio de setReajustando.
         setReajustando(true);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
+            // Declara resposta para uso neste fluxo.
             const resposta = await fetch(`${API}/reajustar_servicos`, {
                 method: "PUT",
                 headers: criarHeadersJson(),
@@ -596,36 +657,54 @@ function CadastroServicos({ API }) {
                 body: JSON.stringify(payload)
             });
 
+            // Declara dados para uso neste fluxo.
             const dados = await lerResposta(resposta);
 
+            // Verifica esta condição antes de continuar o fluxo.
             if (!resposta.ok || dados.erro) {
+                // Executa exibirMensagem nesta etapa do fluxo.
                 exibirMensagem("erro", obterMensagemErro(dados, "Não foi possível reajustar os serviços."));
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("sucesso", dados.mensagem || "Serviços reajustados com sucesso.");
+            // Atualiza o estado por meio de setReajuste.
             setReajuste(REAJUSTE_INICIAL);
+            // Executa buscarServicos nesta etapa do fluxo.
             buscarServicos(filtros, false);
         } catch {
+            // Executa exibirMensagem nesta etapa do fluxo.
             exibirMensagem("erro", "Não foi possível conectar ao servidor para reajustar os serviços.");
         } finally {
+            // Atualiza o estado por meio de setReajustando.
             setReajustando(false);
         }
     }
 
+    // Declara a função limparFiltros usada por esta página.
     function limparFiltros() {
+        // Atualiza o estado por meio de setFiltros.
         setFiltros(FILTROS_INICIAIS);
+        // Atualiza o estado por meio de setPaginaAtual.
         setPaginaAtual(1);
+        // Executa buscarServicos nesta etapa do fluxo.
         buscarServicos(FILTROS_INICIAIS, false);
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return (
         <main className={css.container}>
+            {/* Agrupa os elementos desta parte da interface. */}
             <div className={css.cabecalho}>
+                {/* Exibe o título principal desta página. */}
                 <h1 className={css.titulo}>Cadastro de Serviços</h1>
+                {/* Exibe esta mensagem ou informação. */}
                 <p className={css.subtitulo}>Cadastre, consulte, edite, exclua e reajuste os serviços da oficina.</p>
             </div>
 
+            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
             {mensagem && (
                 <div
                    className={`${css.mensagem} ${
@@ -633,10 +712,14 @@ function CadastroServicos({ API }) {
                     }`}
                     role="alert"
                 >
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Renderiza o elemento strong nesta parte da página. */}
                         <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Confira os dados"}</strong>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>{mensagem.texto}</span>
                     </div>
+                    {/* Exibe este botão de ação. */}
                     <button
                         type="button"
                         className={css.mensagem_fechar}
@@ -648,16 +731,24 @@ function CadastroServicos({ API }) {
                 </div>
             )}
 
+            {/* Agrupa esta seção de conteúdo. */}
             <section className={css.painel}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.painelCabecalho}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Exibe o título desta seção. */}
                         <h2 className={css.painelTitulo}>Novo serviço</h2>
+                        {/* Exibe esta mensagem ou informação. */}
                         <p>Informe o nome e o valor do serviço.</p>
                     </div>
                 </div>
 
+                {/* Agrupa os campos e ações deste formulário. */}
                 <form className={css.formularioInterno} onSubmit={salvar}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.duplo}>
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="Nome do Serviço"
                             value={formulario.nome_servico}
@@ -666,6 +757,7 @@ function CadastroServicos({ API }) {
                             required
                         />
 
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="Valor"
                             {...MASCARA_VALOR}
@@ -677,31 +769,46 @@ function CadastroServicos({ API }) {
                         />
                     </div> 
 
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.botoes}>
+                        {/* Exibe este botão de ação. */}
                         <button type="button" className={css.cancelar} onClick={limparFormulario}>
                             Limpar
                         </button>
+                        {/* Exibe este botão de ação. */}
                         <button type="submit" className={css.salvar} disabled={salvando}>
+                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                             {salvando ? "Salvando..." : "Salvar Serviço"}
                         </button>
                     </div>
                 </form>
             </section>
 
+            {/* Agrupa esta seção de conteúdo. */}
             <section className={css.painel}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.painelCabecalho}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Exibe o título desta seção. */}
                         <h2 className={css.painelTitulo}>Buscar serviços</h2>
+                        {/* Exibe esta mensagem ou informação. */}
                         <p>Pesquise por nome do serviço ou valor unitário.</p>
                     </div>
                 </div>
 
+                {/* Agrupa os campos e ações deste formulário. */}
                 <form className={css.formularioInterno} onSubmit={(e) => {
+                    // Executa preventDefault nesta etapa do fluxo.
                     e.preventDefault();
+                    // Atualiza o estado por meio de setPaginaAtual.
                     setPaginaAtual(1);
+                    // Executa buscarServicos nesta etapa do fluxo.
                     buscarServicos(filtros);
                 }}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.filtros}>
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="Descrição"
                             value={filtros.descricao}
@@ -709,14 +816,19 @@ function CadastroServicos({ API }) {
                             placeholder="Ex: alinhamento"
                         />
 
+                        {/* Relaciona um texto explicativo ao campo correspondente. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Serviço</span>
+                            {/* Exibe uma lista de opções para seleção. */}
                             <select
                                 className={css.select}
                                 value={filtros.id_servico}
                                 onChange={(e) => atualizarFiltro("id_servico", e.target.value)}
                             >
+                                {/* Renderiza o elemento option nesta parte da página. */}
                                 <option value="">Todos os serviços</option>
+                                {/* Percorre os dados para renderizar os itens desta área. */}
                                 {servicos.map((servico) => (
                                     <option key={servico.id_servico} value={servico.id_servico}>
                                         {servico.descricao}
@@ -725,6 +837,7 @@ function CadastroServicos({ API }) {
                             </select>
                         </label>
 
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="Valor unitário"
                             {...MASCARA_VALOR}
@@ -735,27 +848,39 @@ function CadastroServicos({ API }) {
                         />
                     </div> 
 
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.botoes}>
+                        {/* Exibe este botão de ação. */}
                         <button type="button" className={css.cancelar} onClick={limparFiltros}>
                             Limpar busca
                         </button>
+                        {/* Exibe este botão de ação. */}
                         <button type="submit" className={css.salvar} disabled={carregando}>
+                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                             {carregando ? "Buscando..." : "Buscar"}
                         </button>
                     </div>
                 </form>
             </section>
 
+            {/* Agrupa esta seção de conteúdo. */}
             <section className={css.painel}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.painelCabecalho}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Exibe o título desta seção. */}
                         <h2 className={css.painelTitulo}>Reajustar valores</h2>
+                        {/* Exibe esta mensagem ou informação. */}
                         <p>Informe apenas a porcentagem para reajustar todos, ou escolha um serviço específico.</p>
                     </div>
                 </div> 
 
+                {/* Agrupa os campos e ações deste formulário. */}
                 <form className={css.formularioInterno} onSubmit={reajustarServicos}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.duplo}>
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="Porcentagem"
                             {...MASCARA_PORCENTAGEM}
@@ -766,14 +891,19 @@ function CadastroServicos({ API }) {
                             required
                         />
 
+                        {/* Relaciona um texto explicativo ao campo correspondente. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Serviço especifico</span>
+                            {/* Exibe uma lista de opções para seleção. */}
                             <select
                                 className={css.select}
                                 value={reajuste.id_servico}
                                 onChange={(e) => atualizarReajuste("id_servico", e.target.value)}
                             >
+                                {/* Renderiza o elemento option nesta parte da página. */}
                                 <option value="">Todos os serviços</option>
+                                {/* Percorre os dados para renderizar os itens desta área. */}
                                 {servicos.map((servico) => (
                                     <option key={servico.id_servico} value={servico.id_servico}>
                                         {servico.descricao}
@@ -783,25 +913,36 @@ function CadastroServicos({ API }) {
                         </label>
                     </div>
 
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.botoes}>
+                        {/* Exibe este botão de ação. */}
                         <button type="submit" className={css.salvar} disabled={reajustando}>
+                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                             {reajustando ? "Reajustando..." : "Aplicar reajuste"}
                         </button>
                     </div>
                 </form>
             </section>
 
+            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
             {editandoId && (
                 <section className={css.painel}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.painelCabecalho}>
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div>
+                            {/* Exibe o título desta seção. */}
                             <h2 className={css.painelTitulo}>Editar serviço #{editandoId}</h2>
+                            {/* Exibe esta mensagem ou informação. */}
                             <p>Atualize as informações do serviço selecionado.</p>
                         </div>
                     </div>
 
+                    {/* Agrupa os campos e ações deste formulário. */}
                     <form className={css.formularioInterno} onSubmit={atualizarServico}>
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div className={css.duplo}>
+                            {/* Renderiza o componente Input nesta parte da página. */}
                             <Input
                                 label="Nome do Serviço"
                                 value={edicao.nome_servico}
@@ -809,6 +950,7 @@ function CadastroServicos({ API }) {
                                 required
                             />
 
+                            {/* Renderiza o componente Input nesta parte da página. */}
                             <Input
                                 label="Valor"
                                 {...MASCARA_VALOR}
@@ -819,11 +961,15 @@ function CadastroServicos({ API }) {
                             />
                         </div>
 
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div className={css.botoes}>
+                            {/* Exibe este botão de ação. */}
                             <button type="button" className={css.cancelar} onClick={cancelarEdicao}>
                                 Cancelar
                             </button>
+                            {/* Exibe este botão de ação. */}
                             <button type="submit" className={css.salvar} disabled={salvando}>
+                                {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                 {salvando ? "Atualizando..." : "Salvar alterações"}
                             </button>
                         </div>
@@ -831,17 +977,25 @@ function CadastroServicos({ API }) {
                 </section>
             )}
 
+            {/* Agrupa esta seção de conteúdo. */}
             <section className={css.painel}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.painelCabecalho}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Exibe o título desta seção. */}
                         <h2 className={css.painelTitulo}>Serviços cadastrados</h2>
+                        {/* Exibe esta mensagem ou informação. */}
                         <p>{servicos.length} registro(s) carregado(s).</p>
                     </div>
+                    {/* Exibe este botão de ação. */}
                     <button
                         type="button"
                         className={css.botaoSecundario}
                         onClick={() => {
+                            // Atualiza o estado por meio de setPaginaAtual.
                             setPaginaAtual(1);
+                            // Executa buscarServicos nesta etapa do fluxo.
                             buscarServicos(FILTROS_INICIAIS);
                         }}
                     >
@@ -849,36 +1003,56 @@ function CadastroServicos({ API }) {
                     </button>
                 </div>
 
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.tabelaArea}>
+                    {/* Escolhe qual conteúdo exibir conforme a condição. */}
                     {servicos.length > 0 ? (
                         <table className={css.tabela}>
+                            {/* Renderiza o elemento thead nesta parte da página. */}
                             <thead>
+                                {/* Renderiza o elemento tr nesta parte da página. */}
                                 <tr>
+                                    {/* Renderiza o elemento th nesta parte da página. */}
                                     <th>ID</th>
+                                    {/* Renderiza o elemento th nesta parte da página. */}
                                     <th>Serviço</th>
+                                    {/* Renderiza o elemento th nesta parte da página. */}
                                     <th>Valor</th>
+                                    {/* Renderiza o elemento th nesta parte da página. */}
                                     <th>Reajuste</th>
+                                    {/* Renderiza o elemento th nesta parte da página. */}
                                     <th>Ações</th>
                                 </tr>
                             </thead>
+                            {/* Renderiza o elemento tbody nesta parte da página. */}
                             <tbody>
+                                {/* Percorre os dados para renderizar os itens desta área. */}
                                 {servicosPaginados.map((servico) => (
                                     <tr key={servico.id_servico}>
+                                        {/* Renderiza o elemento td nesta parte da página. */}
                                         <td data-label="ID">{servico.id_servico}</td>
+                                        {/* Renderiza o elemento td nesta parte da página. */}
                                         <td data-label="Serviço">{servico.descricao}</td>
+                                        {/* Renderiza o elemento td nesta parte da página. */}
                                         <td data-label="Valor">{formatarMoeda(servico.valor_unitario)}</td>
+                                        {/* Renderiza o elemento td nesta parte da página. */}
                                         <td data-label="Reajuste">{Number(servico.valor_porcentagem || 0).toFixed(2)}%</td>
+                                        {/* Renderiza o elemento td nesta parte da página. */}
                                         <td data-label="Ações">
+                                            {/* Agrupa os elementos desta parte da interface. */}
                                             <div className={css.acoesLinha}>
+                                                {/* Exibe este botão de ação. */}
                                                 <button type="button" onClick={() => iniciarEdicao(servico)}>
                                                     Editar
                                                 </button>
+                                                {/* Exibe este botão de ação. */}
                                                 <button
                                                     type="button"
                                                     className={css.botaoPerigo}
                                                     onClick={() => pedirConfirmacaoExclusao(servico)}
                                                     disabled={excluindoId === servico.id_servico}
                                                 >
+                                                    {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                                     {excluindoId === servico.id_servico ? "Excluindo..." : "Excluir"}
                                                 </button>
                                             </div>
@@ -889,13 +1063,16 @@ function CadastroServicos({ API }) {
                         </table>
                     ) : (
                         <div className={css.vazio}>
+                            {/* Escolhe qual conteúdo exibir conforme a condição. */}
                             {carregando ? "Carregando serviços..." : "Nenhum serviço encontrado."}
                         </div>
                     )}
                 </div>
 
+                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                 {!carregando && servicos.length > 0 && (
                     <div className={css.paginacaoArea}>
+                        {/* Renderiza o componente Paginacao nesta parte da página. */}
                         <Paginacao
                             paginaAtual={paginaAtual}
                             totalItens={servicos.length}
@@ -905,8 +1082,10 @@ function CadastroServicos({ API }) {
                 )}
             </section>
 
+            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
             {confirmacao && (
                 <div className={css.modalFundo} role="presentation" onClick={cancelarConfirmacao}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div
                         className={css.modal}
                         role="dialog"
@@ -914,26 +1093,35 @@ function CadastroServicos({ API }) {
                         aria-labelledby="titulo-confirmacao"
                         onClick={(e) => e.stopPropagation()}
                     >
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div className={css.modalIcone}>!</div>
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div>
+                            {/* Exibe o título desta seção. */}
                             <h2 id="titulo-confirmacao" className={css.modalTitulo}>
                                 Excluir serviço
                             </h2>
+                            {/* Exibe esta mensagem ou informação. */}
                             <p className={css.modalTexto}>
+                                {/* Renderiza o elemento strong nesta parte da página. */}
                                 Deseja excluir o serviço <strong>{confirmacao.descricao}</strong>?
                             </p>
                         </div>
 
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div className={css.modalAcoes}>
+                            {/* Exibe este botão de ação. */}
                             <button type="button" className={css.modalCancelar} onClick={cancelarConfirmacao}>
                                 Cancelar
                             </button>
+                            {/* Exibe este botão de ação. */}
                             <button
                                 type="button"
                                 className={css.modalConfirmar}
                                 onClick={() => deletarServico(confirmacao)}
                                 disabled={excluindoId === confirmacao.id_servico}
                             >
+                                {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                 {excluindoId === confirmacao.id_servico ? "Excluindo..." : "Excluir"}
                             </button>
                         </div>
@@ -944,4 +1132,5 @@ function CadastroServicos({ API }) {
     );
 }
 
+// Exporta esta página para que ela possa ser usada pelas rotas do sistema.
 export default CadastroServicos;

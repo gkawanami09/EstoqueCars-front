@@ -27,16 +27,19 @@ function cabecalhoAutorizacao() {
 function montarUrlLogo(API, url) {
     // Se nao houver URL, retorna vazio.
     if (!url) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
     // Corrige URLs antigas que apontavam para um servidor generico.
     if (String(url).includes("seu-servidor.com/uploads/")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${API}/uploads/${String(url).split("/uploads/")[1]}?v=${Date.now()}`;
     }
 
     // Se a URL vier como caminho absoluto do servidor, junta com a base da API.
     if (String(url).startsWith("/")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${API}${url}?v=${Date.now()}`;
     }
 
@@ -46,6 +49,7 @@ function montarUrlLogo(API, url) {
 
 // Remove tudo que nao for numero de um texto.
 function somenteNumeros(valor) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return String(valor || "").replace(/\D/g, "");
 }
 
@@ -76,6 +80,7 @@ function aplicarCores(corPrimaria, corSecundaria, fonte) {
 function salvarLogoSite(url) {
     // Se nao houver URL, nao faz nada.
     if (!url) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return;
     }
 
@@ -105,6 +110,7 @@ function salvarChavePixSite(chavePix) {
 
 // Converte um valor de taxa para numero.
 function numeroDaTaxa(valor) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return Number(String(valor ?? "").replace(",", "."));
 }
 
@@ -183,7 +189,9 @@ function DashboardAdmConfiguracoes({ API }) {
 
                 // Trata resposta de erro da API.
                 if (!resposta.ok) {
+                    // Atualiza o estado por meio de setErro.
                     setErro(dados.erro || "Erro ao carregar configurações.");
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
                     return;
                 }
 
@@ -195,6 +203,7 @@ function DashboardAdmConfiguracoes({ API }) {
                 setPreviewLogo(usandoPadrao ? TEMA_PADRAO.logo : logoUrl);
                 // Se nao esta usando padrao, propaga a logo salva para o app.
                 if (!usandoPadrao) {
+                    // Executa salvarLogoSite nesta etapa do fluxo.
                     salvarLogoSite(logoUrl);
                 }
                 // Reseta a flag local de voltar para logo padrao.
@@ -242,6 +251,7 @@ function DashboardAdmConfiguracoes({ API }) {
 
     // Aplica cores e fonte sempre que o usuario altera algum valor visual.
     useEffect(() => {
+        // Executa aplicarCores nesta etapa do fluxo.
         aplicarCores(corPrimaria, corSecundaria, fonte);
     }, [corPrimaria, corSecundaria, fonte]);
 
@@ -256,6 +266,7 @@ function DashboardAdmConfiguracoes({ API }) {
 
         // Se existe arquivo, cria uma URL temporaria para preview.
         if (arquivo) {
+            // Atualiza o estado por meio de setPreviewLogo.
             setPreviewLogo(URL.createObjectURL(arquivo));
         }
     }
@@ -318,12 +329,15 @@ function DashboardAdmConfiguracoes({ API }) {
         formData.append("email_contato", email);
         // Adiciona a chave Pix em campos alternativos aceitos pela API.
         formData.append("chave_pix", chavePix.trim());
+        // Executa append nesta etapa do fluxo.
         formData.append("chave_pix_empresa", chavePix.trim());
+        // Executa append nesta etapa do fluxo.
         formData.append("pix_chave", chavePix.trim());
         // Normaliza a taxa antes de salvar.
         const taxaParaSalvar = taxaJurosConfigurada(taxaJuros);
         // Adiciona a taxa em dois nomes possiveis de campo.
         formData.append("taxa_juro", String(taxaParaSalvar).replace(",", "."));
+        // Executa append nesta etapa do fluxo.
         formData.append("taxa_juros", String(taxaParaSalvar).replace(",", "."));
         // Adiciona a cor primaria.
         formData.append("cor_primaria", corPrimaria);
@@ -336,6 +350,7 @@ function DashboardAdmConfiguracoes({ API }) {
         try {
             // Se o usuario selecionou uma logo, adiciona o arquivo.
             if (logo) {
+                // Executa append nesta etapa do fluxo.
                 formData.append("logo", logo);
             }
 
@@ -351,7 +366,9 @@ function DashboardAdmConfiguracoes({ API }) {
 
             // Trata erro retornado pela API.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setErro.
                 setErro(dados.erro || "Erro ao salvar configurações.");
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -377,7 +394,9 @@ function DashboardAdmConfiguracoes({ API }) {
                 setPreviewLogo(logoAtualizada);
                 // Se o usuario escolheu padrao, volta para a logo padrao.
                 if (usarLogoPadrao) {
+                    // Executa voltarLogoPadraoSite nesta etapa do fluxo.
                     voltarLogoPadraoSite();
+                    // Atualiza o estado por meio de setPreviewLogo.
                     setPreviewLogo(TEMA_PADRAO.logo);
                 } else {
                     // Caso contrario, salva a logo enviada.
@@ -402,6 +421,7 @@ function DashboardAdmConfiguracoes({ API }) {
     return (
         // Container principal da pagina.
         <main className={css.container}>
+            {/* Exibe o título principal desta página. */}
             <h1 className={css.titulo}>Configurações da Plataforma</h1>
 
             {/* Mensagem de sucesso ou aviso. */}
@@ -420,9 +440,11 @@ function DashboardAdmConfiguracoes({ API }) {
 
             {/* Formulario principal de configuracoes. */}
             <form className={css.formulario} onSubmit={salvar}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.grid}>
                     {/* Coluna esquerda com logo, cores e fonte. */}
                     <div className={css.esquerda}>
+                        {/* Exibe o título desta seção. */}
                         <h2>Logo</h2>
 
                         {/* Preview da logo atual. */}
@@ -433,10 +455,12 @@ function DashboardAdmConfiguracoes({ API }) {
                         {/* Campo de upload da logo. */}
                         <input type="file" accept="image/*" onChange={alterarLogo} />
 
+                        {/* Exibe o título desta seção. */}
                         <h2>Cores</h2>
 
                         {/* Inputs de cor primaria e secundaria. */}
                         <div className={css.duplo}>
+                            {/* Renderiza o componente Input nesta parte da página. */}
                             <Input
                                 label="Cor primária"
                                 type="color"
@@ -444,6 +468,7 @@ function DashboardAdmConfiguracoes({ API }) {
                                 onChange={(e) => setCorPrimaria(e.target.value)}
                             />
 
+                            {/* Renderiza o componente Input nesta parte da página. */}
                             <Input
                                 label="Cor secundária"
                                 type="color"
@@ -452,6 +477,7 @@ function DashboardAdmConfiguracoes({ API }) {
                             />
                         </div>
 
+                        {/* Exibe o título desta seção. */}
                         <h2>Fonte</h2>
 
                         {/* Select de fonte visual do site. */}
@@ -460,22 +486,28 @@ function DashboardAdmConfiguracoes({ API }) {
                             value={fonte}
                             onChange={(e) => setFonte(e.target.value)}
                         >
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option>Arial</option>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option>Roboto</option>
+                            {/* Renderiza o elemento option nesta parte da página. */}
                             <option>Montserrat</option>
                         </select>
                     </div>
 
                     {/* Coluna direita com dados da empresa, Pix e juros. */}
                     <div className={css.direita}>
+                        {/* Exibe o título desta seção. */}
                         <h2>Dados da Empresa</h2>
 
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="Nome"
                             value={nomeEmpresa}
                             onChange={(e) => setNomeEmpresa(e.target.value)}
                         />
 
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="CNPJ"
                             value={cnpj}
@@ -484,8 +516,10 @@ function DashboardAdmConfiguracoes({ API }) {
                             onChange={(e) => setCnpj(formatarCnpj(e.target.value))}
                         />
 
+                        {/* Exibe o título desta seção. */}
                         <h2>Contato</h2>
 
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="E-mail"
                             type="email"
@@ -493,6 +527,7 @@ function DashboardAdmConfiguracoes({ API }) {
                             onChange={(e) => setEmail(e.target.value)}
                         />
 
+                        {/* Renderiza o componente Input nesta parte da página. */}
                         <Input
                             label="Telefone"
                             value={telefone}
@@ -500,11 +535,14 @@ function DashboardAdmConfiguracoes({ API }) {
                             onChange={(e) => setTelefone(e.target.value)}
                         />
 
+                        {/* Exibe o título desta seção. */}
                         <h2>Pix da Empresa</h2>
 
                         {/* Campo da chave Pix usada nas vendas. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Chave Pix</span>
+                            {/* Exibe este campo de entrada de dados. */}
                             <input
                                 type="text"
                                 value={chavePix}
@@ -513,11 +551,14 @@ function DashboardAdmConfiguracoes({ API }) {
                             />
                         </label>
 
+                        {/* Exibe o título desta seção. */}
                         <h2>Juros da Empresa</h2>
 
                         {/* Campo da taxa mensal de juros. */}
                         <label className={css.campo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Taxa mensal (%)</span>
+                            {/* Exibe este campo de entrada de dados. */}
                             <input
                                 type="number"
                                 min="0"
@@ -534,10 +575,13 @@ function DashboardAdmConfiguracoes({ API }) {
 
                 {/* Botoes de restaurar padrao e salvar. */}
                 <div className={css.botoes}>
+                    {/* Exibe este botão de ação. */}
                     <button className={css.botaoPadrao} type="button" onClick={voltarPadrao} disabled={salvando || carregando}>
                         Voltar ao padrão
                     </button>
+                    {/* Exibe este botão de ação. */}
                     <button className={css.salvar} type="submit" disabled={salvando || carregando}>
+                        {/* Escolhe qual conteúdo exibir conforme a condição. */}
                         {salvando ? "Salvando..." : "Salvar"}
                     </button>
                 </div>

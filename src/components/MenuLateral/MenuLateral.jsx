@@ -58,8 +58,12 @@ function MenuLateral({ aberto = false, aoNavegar }) {
                     Favoritos
                 </button>
 
+                {/* ITEM DA SPRINT: "Criar página Minhas Compras". */}
+                {/* Cria o botão do menu que navega o cliente para a rota /minhasCompras. */}
                 <button type="button" className={classeItem("/minhascompras")} onClick={() => navegar("/minhasCompras")}>
+                    {/* Exibe o ícone visual da opção Minhas compras. */}
                     <img src="/IconCar.png" alt="Minhas compras" className={css.icone_img} />
+                    {/* Exibe o nome da página dentro do botão. */}
                     Minhas compras
                 </button>
 

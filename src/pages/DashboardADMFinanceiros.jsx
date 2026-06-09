@@ -16,6 +16,7 @@ function cabecalhoAutorizacao() {
 
 // Descobre o ID da transação aceitando nomes diferentes vindos da API.
 function idTransacao(transacao) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return transacao?.id_financeiro || transacao?.id || transacao?.ID_FINANCEIRO;
 }
 
@@ -26,11 +27,13 @@ function normalizarTipo(valor, tipoCodigo) {
 
     // Reconhece saída por texto.
     if (texto === "saida" || texto === "saída" || texto === "despesa") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "saida";
     }
 
     // Reconhece entrada por texto.
     if (texto === "entrada" || texto === "receita") {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "entrada";
     }
 
@@ -49,6 +52,7 @@ function normalizarTransacao(transacao) {
         tipo: normalizarTipo(transacao?.tipo || transacao?.TIPO_TEXTO, tipoCodigo),
         data: transacao?.data || transacao?.data_financeiro || transacao?.DATA_FINANCEIRO || "",
         descricao: transacao?.descricao || transacao?.DESCRICAO || "",
+        idVeiculo: transacao?.id_veiculo || transacao?.ID_VEICULO || transacao?.id_carro || transacao?.ID_CARRO || "",
         veiculo: transacao?.veiculo || transacao?.VEICULO || transacao?.nome_veiculo || transacao?.NOME_VEICULO || "",
         valor: Number(transacao?.valor ?? transacao?.VALOR ?? 0)
     };
@@ -58,6 +62,7 @@ function normalizarTransacao(transacao) {
 function dataParaTela(valor) {
     // Se não houver data, mostra hífen.
     if (!valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "-";
     }
 
@@ -68,7 +73,9 @@ function dataParaTela(valor) {
 
     // Se for ISO, troca para dd/mm/yyyy.
     if (dataIso) {
+        // Declara os dados usados neste fluxo.
         const [, ano, mes, dia] = dataIso;
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${dia}/${mes}/${ano}`;
     }
 
@@ -80,6 +87,7 @@ function dataParaTela(valor) {
 function dataParaFiltro(valor) {
     // Se não houver data, não participa do filtro de período.
     if (!valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return null;
     }
 
@@ -90,6 +98,7 @@ function dataParaFiltro(valor) {
 
     // Garante que a data está no formato esperado.
     if (partes.length !== 3 || partes.some((parte) => !Number.isFinite(parte))) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return null;
     }
 
@@ -101,6 +110,7 @@ function dataParaFiltro(valor) {
 function transacaoDentroPeriodo(transacao, periodo) {
     // Período vazio significa todos os registros.
     if (!periodo) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return true;
     }
 
@@ -109,6 +119,7 @@ function transacaoDentroPeriodo(transacao, periodo) {
 
     // Se o período não for válido, não bloqueia a transação.
     if (!Number.isFinite(dias) || dias <= 0) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return true;
     }
 
@@ -117,15 +128,18 @@ function transacaoDentroPeriodo(transacao, periodo) {
 
     // Sem data válida, a transação fica fora de filtros por período.
     if (!dataTransacao) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return false;
     }
 
     // Normaliza a data de hoje sem horário.
     const hoje = new Date();
+    // Atualiza o estado por meio de setHours.
     hoje.setHours(0, 0, 0, 0);
 
     // Calcula a primeira data permitida.
     const dataInicio = new Date(hoje);
+    // Atualiza o estado por meio de setDate.
     dataInicio.setDate(dataInicio.getDate() - dias);
 
     // Mantém apenas transações entre a data inicial e hoje.
@@ -133,20 +147,69 @@ function transacaoDentroPeriodo(transacao, periodo) {
 }
 // Descobre o ID do veículo aceitando nomes diferentes da API.
 function idVeiculo(carro) {
-    return carro?.id || carro?.id_veiculo || carro?.ID_VEICULO;
+    // Retorna o resultado desta função ou o conteúdo visual da página.
+    return carro?.id || carro?.id_veiculo || carro?.ID_VEICULO || carro?.id_carro || carro?.ID_CARRO;
 }
 
 // Monta o nome exibido para um veículo.
 function nomeVeiculo(carro) {
     // Lê marca, modelo e placa aceitando campos maiúsculos ou minúsculos.
     const marca = carro?.marca || carro?.MARCA;
+    // Declara modelo para uso neste fluxo.
     const modelo = carro?.modelo || carro?.MODELO;
+    // Declara placa para uso neste fluxo.
     const placa = carro?.placa || carro?.PLACA;
     // Junta marca e modelo quando existirem.
     const nome = [marca, modelo].filter(Boolean).join(" ");
 
     // Junta nome e placa em uma label única.
     return [nome || "Veículo", placa].filter(Boolean).join(" - ");
+}
+
+// Extrai o ID da venda de descrições automáticas como "Venda #54".
+function idVendaDescricao(descricao) {
+    // Retorna o resultado desta função ou o conteúdo visual da página.
+    return String(descricao || "").match(/venda\s*#(\d+)/i)?.[1] || "";
+}
+
+// Usa os vínculos disponíveis para encontrar o veículo relacionado à transação.
+function nomeVeiculoTransacao(transacao, veiculos, vendas) {
+    // Verifica esta condição antes de continuar o fluxo.
+    if (transacao?.veiculo) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
+        return transacao.veiculo;
+    }
+
+    // Declara idVenda para uso neste fluxo.
+    const idVenda = idVendaDescricao(transacao?.descricao);
+    // Declara vendaRelacionada para uso neste fluxo.
+    const vendaRelacionada = idVenda
+        ? vendas.find((venda) => String(venda?.id_venda || venda?.ID_VENDA || venda?.id || "") === String(idVenda))
+        : null;
+    // Declara nomeNaVenda para uso neste fluxo.
+    const nomeNaVenda = vendaRelacionada?.veiculo || vendaRelacionada?.nome_veiculo || vendaRelacionada?.NOME_VEICULO || vendaRelacionada?.modelo || vendaRelacionada?.MODELO;
+    // Declara idRelacionado para uso neste fluxo.
+    const idRelacionado = transacao?.idVeiculo || vendaRelacionada?.id_veiculo || vendaRelacionada?.ID_VEICULO || vendaRelacionada?.id_carro || vendaRelacionada?.ID_CARRO;
+
+    // Verifica esta condição antes de continuar o fluxo.
+    if (nomeNaVenda) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
+        return nomeNaVenda;
+    }
+
+    // Verifica esta condição antes de continuar o fluxo.
+    if (!idRelacionado) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
+        return "";
+    }
+
+    // Declara veiculoRelacionado para uso neste fluxo.
+    const veiculoRelacionado = veiculos.find(
+        (carro) => String(idVeiculo(carro)) === String(idRelacionado)
+    );
+
+    // Retorna o resultado desta função ou o conteúdo visual da página.
+    return veiculoRelacionado ? nomeVeiculo(veiculoRelacionado) : "";
 }
 
 // Extrai e converte o preço do veículo.
@@ -168,6 +231,7 @@ function precoVeiculo(carro) {
 function nomePeriodo(periodo) {
     // Período vazio representa todos os registros.
     if (!periodo) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "Todo o período";
     }
 
@@ -185,6 +249,8 @@ function DashboardADMFinanceiros({ API }) {
     const [tipo, setTipo] = useState("todos");
     // Guarda os veículos usados no select do formulário.
     const [veiculos, setVeiculos] = useState([]);
+    // Guarda vendas para relacionar receitas automáticas ao veículo vendido.
+    const [vendas, setVendas] = useState([]);
     // Controla o carregamento da lista de veículos.
     const [carregandoVeiculos, setCarregandoVeiculos] = useState(false);
     // Guarda as transações financeiras listadas.
@@ -225,30 +291,36 @@ function DashboardADMFinanceiros({ API }) {
 
         // Aplica todos os filtros no proprio front para nao depender da API.
         return transacoes.filter((transacao) => {
+            // Declara veiculoTransacao para uso neste fluxo.
+            const veiculoTransacao = nomeVeiculoTransacao(transacao, veiculos, vendas);
+
             // Filtra por tipo quando receitas ou despesas estiver selecionado.
             if (tipo !== "todos" && transacao.tipo !== tipo) {
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return false;
             }
 
             // Filtra por periodo selecionado.
             if (!transacaoDentroPeriodo(transacao, periodo)) {
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return false;
             }
 
             // Se nao houver busca, os filtros de tipo/periodo ja bastam.
             if (!termo) {
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return true;
             }
 
             // Procura o termo nos principais campos da transacao.
             return [
                 transacao.descricao,
-                transacao.veiculo,
+                veiculoTransacao,
                 dataParaTela(transacao.data),
                 transacao.tipo === "entrada" ? "receita entrada" : "despesa saida"
             ].join(" ").toLowerCase().includes(termo);
         });
-    }, [busca, periodo, tipo, transacoes]);
+    }, [busca, periodo, tipo, transacoes, veiculos, vendas]);
 
     // Filtra apenas por periodo para alimentar os cards principais.
     const transacoesDoPeriodo = useMemo(() => (
@@ -257,15 +329,22 @@ function DashboardADMFinanceiros({ API }) {
 
     // Calcula o resumo do periodo no front, garantindo que o filtro de periodo funcione.
     const resumoPeriodo = useMemo(() => {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return transacoesDoPeriodo.reduce((total, transacao) => {
+            // Verifica esta condição antes de continuar o fluxo.
             if (transacao.tipo === "entrada") {
+                // Executa esta etapa do fluxo.
                 total.receitas += Number(transacao.valor || 0);
             } else {
+                // Executa esta etapa do fluxo.
                 total.despesas += Number(transacao.valor || 0);
             }
 
+            // Executa esta etapa do fluxo.
             total.saldo = total.receitas - total.despesas;
+            // Executa esta etapa do fluxo.
             total.lucro_liquido = total.saldo;
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return total;
         }, { receitas: 0, despesas: 0, saldo: 0, lucro_liquido: 0 });
     }, [transacoesDoPeriodo]);
@@ -276,6 +355,7 @@ function DashboardADMFinanceiros({ API }) {
         return transacoesFiltradas.reduce((total, transacao) => {
             // Entradas somam em receitas.
             if (transacao.tipo === "entrada") {
+                // Executa esta etapa do fluxo.
                 total.receitas += Number(transacao.valor || 0);
             } else {
                 // Saídas somam em despesas.
@@ -308,6 +388,7 @@ function DashboardADMFinanceiros({ API }) {
 
             // Se a lista falhou, interrompe com erro.
             if (!respostaLista.ok) {
+                // Interrompe o fluxo informando o erro encontrado.
                 throw new Error(dadosLista.erro || dadosLista.mensagem || "Não foi possível carregar as transações.");
             }
 
@@ -331,18 +412,24 @@ function DashboardADMFinanceiros({ API }) {
 
     // Recarrega o financeiro ao abrir a tela ou mudar filtros de API.
     useEffect(() => {
+        // Executa carregarFinanceiro nesta etapa do fluxo.
         carregarFinanceiro();
     }, [carregarFinanceiro]);
     // Esconde automaticamente a mensagem de sucesso depois de 6 segundos.
     useEffect(() => {
+        // Verifica esta condição antes de continuar o fluxo.
         if (!mensagem) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return undefined;
         }
 
+        // Declara temporizador para uso neste fluxo.
         const temporizador = setTimeout(() => {
+            // Atualiza o estado por meio de setMensagem.
             setMensagem("");
         }, 6000);
 
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return () => clearTimeout(temporizador);
     }, [mensagem]);
 
@@ -366,6 +453,7 @@ function DashboardADMFinanceiros({ API }) {
 
                 // Se deu certo, salva a lista em formato aceito.
                 if (resposta.ok) {
+                    // Atualiza o estado por meio de setVeiculos.
                     setVeiculos(Array.isArray(dados) ? dados : dados.veiculos || dados.carros || []);
                 }
             } finally {
@@ -378,8 +466,72 @@ function DashboardADMFinanceiros({ API }) {
         carregarVeiculos();
     }, [API]);
 
+    // Carrega as vendas para preencher o veículo de receitas que trazem apenas "Venda #ID".
+    useEffect(() => {
+        // Declara a função carregarVendas usada por esta página.
+        async function carregarVendas() {
+            // Tenta executar a operação e permite tratar possíveis falhas.
+            try {
+                // Declara respostaUsuarios para uso neste fluxo.
+                const respostaUsuarios = await fetch(`${API}/listar_usuario`, {
+                    method: "GET",
+                    headers: cabecalhoAutorizacao(),
+                    credentials: "include"
+                });
+                // Declara dadosUsuarios para uso neste fluxo.
+                const dadosUsuarios = await respostaUsuarios.json().catch(() => []);
+
+                // Verifica esta condição antes de continuar o fluxo.
+                if (!respostaUsuarios.ok) {
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
+                    return;
+                }
+
+                // Declara usuarios para uso neste fluxo.
+                const usuarios = Array.isArray(dadosUsuarios)
+                    ? dadosUsuarios
+                    : dadosUsuarios.usuarios || dadosUsuarios.clientes || [];
+                // Declara vendasPorUsuario para uso neste fluxo.
+                const vendasPorUsuario = await Promise.all(usuarios.map(async (usuario) => {
+                    // Declara idUsuario para uso neste fluxo.
+                    const idUsuario = usuario?.id_usuario || usuario?.ID_USUARIO || usuario?.id || usuario?.ID;
+
+                    // Verifica esta condição antes de continuar o fluxo.
+                    if (!idUsuario) {
+                        // Retorna o resultado desta função ou o conteúdo visual da página.
+                        return [];
+                    }
+
+                    // Declara respostaVendas para uso neste fluxo.
+                    const respostaVendas = await fetch(`${API}/listar_vendas_usuario?id_usuario=${encodeURIComponent(idUsuario)}`, {
+                        method: "GET",
+                        headers: cabecalhoAutorizacao(),
+                        credentials: "include"
+                    });
+                    // Declara dadosVendas para uso neste fluxo.
+                    const dadosVendas = await respostaVendas.json().catch(() => []);
+
+                    // Retorna o resultado desta função ou o conteúdo visual da página.
+                    return respostaVendas.ok
+                        ? (Array.isArray(dadosVendas) ? dadosVendas : dadosVendas.vendas || [])
+                        : [];
+                }));
+
+                // Atualiza o estado por meio de setVendas.
+                setVendas(vendasPorUsuario.flat());
+            } catch {
+                // Atualiza o estado por meio de setVendas.
+                setVendas([]);
+            }
+        }
+
+        // Executa carregarVendas nesta etapa do fluxo.
+        carregarVendas();
+    }, [API]);
+
     // Formata valores monetários em reais.
     function formatarMoeda(valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return Number(valor || 0).toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL"
@@ -388,11 +540,13 @@ function DashboardADMFinanceiros({ API }) {
 
     // Converte o tipo interno para texto de exibição.
     function formatarTipo(valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return valor === "entrada" ? "Receita" : "Despesa";
     }
 
     // Atualiza um campo específico do formulário.
     function atualizarFormulario(campo, valor) {
+        // Atualiza o estado por meio de setFormulario.
         setFormulario((dadosAtuais) => ({
             ...dadosAtuais,
             [campo]: valor
@@ -417,8 +571,11 @@ function DashboardADMFinanceiros({ API }) {
 
     // Reseta todos os filtros para o padrão.
     function limparFiltros() {
+        // Atualiza o estado por meio de setBusca.
         setBusca("");
+        // Atualiza o estado por meio de setPeriodo.
         setPeriodo("30");
+        // Atualiza o estado por meio de setTipo.
         setTipo("todos");
     }
 
@@ -466,6 +623,7 @@ function DashboardADMFinanceiros({ API }) {
     function fecharModal() {
         // Impede fechar enquanto está salvando.
         if (salvando) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -481,7 +639,9 @@ function DashboardADMFinanceiros({ API }) {
             descricao: "",
             valor: ""
         });
+        // Atualiza o estado por meio de setErroModal.
         setErroModal("");
+        // Atualiza o estado por meio de setMensagemModal.
         setMensagemModal("");
     }
 
@@ -495,7 +655,9 @@ function DashboardADMFinanceiros({ API }) {
 
         // Valida os campos obrigatórios.
         if (!formulario.data || !formulario.descricao.trim() || !valorNumerico) {
+            // Atualiza o estado por meio de setErroModal.
             setErroModal("Preencha data, descrição e valor para salvar.");
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -536,11 +698,13 @@ function DashboardADMFinanceiros({ API }) {
 
             // Se a API retornou erro, interrompe com mensagem.
             if (!resposta.ok) {
+                // Interrompe o fluxo informando o erro encontrado.
                 throw new Error(dados.erro || dados.mensagem || "Não foi possível salvar a transação.");
             }
 
             // Mantem a modal aberta para mostrar a mensagem no proprio formulario.
             setTransacaoEditando(null);
+            // Atualiza o estado por meio de setFormulario.
             setFormulario({
                 tipo: formulario.tipo,
                 id_veiculo: "",
@@ -565,6 +729,7 @@ function DashboardADMFinanceiros({ API }) {
     async function excluirTransacao() {
         // Se não houver transação selecionada, não faz nada.
         if (!transacaoParaExcluir?.id) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -588,6 +753,7 @@ function DashboardADMFinanceiros({ API }) {
 
             // Se a API retornou erro, interrompe com mensagem.
             if (!resposta.ok) {
+                // Interrompe o fluxo informando o erro encontrado.
                 throw new Error(dados.erro || dados.mensagem || "Não foi possível excluir a transação.");
             }
 
@@ -612,14 +778,19 @@ function DashboardADMFinanceiros({ API }) {
         <main className={css.pagina}>
             {/* Cabeçalho da área financeira. */}
             <header className={css.cabecalho}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Área administrativa</span>
+                    {/* Exibe o título principal desta página. */}
                     <h1>Financeiro</h1>
+                    {/* Exibe esta mensagem ou informação. */}
                     <p>Controle receitas, despesas, saldo e lucro líquido por período.</p>
                 </div>
 
                 {/* Ações principais do topo. */}
                 <div className={css.acoes_topo}>
+                    {/* Exibe este botão de ação. */}
                     <button type="button" className={css.botao_nova} onClick={() => abrirCadastro("entrada")}>
                         Nova transação
                     </button>
@@ -628,42 +799,59 @@ function DashboardADMFinanceiros({ API }) {
 
             {/* Cards com resumo financeiro do período. */}
             <section className={css.resumo}>
+                {/* Exibe este botão de ação. */}
                 <button
                     type="button"
                     className={`${css.card_resumo} ${css.card_receita} ${tipo === "entrada" ? css.card_ativo : ""}`}
                     onClick={() => setTipo(tipo === "entrada" ? "todos" : "entrada")}
                 >
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Receitas do período</span>
+                    {/* Renderiza o elemento strong nesta parte da página. */}
                     <strong>{formatarMoeda(resumoPeriodo.receitas)}</strong>
                 </button>
 
+                {/* Exibe este botão de ação. */}
                 <button
                     type="button"
                     className={`${css.card_resumo} ${css.card_despesas} ${tipo === "saida" ? css.card_ativo : ""}`}
                     onClick={() => setTipo(tipo === "saida" ? "todos" : "saida")}
                 >
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Despesas do período</span>
+                    {/* Renderiza o elemento strong nesta parte da página. */}
                     <strong>{formatarMoeda(resumoPeriodo.despesas)}</strong>
                 </button>
 
+                {/* Exibe um item em formato de card. */}
                 <article className={`${css.card_resumo} ${css.card_saldo}`}>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Saldo financeiro</span>
+                    {/* Renderiza o elemento strong nesta parte da página. */}
                     <strong>{formatarMoeda(resumoPeriodo.saldo)}</strong>
                 </article>
 
+                {/* Exibe um item em formato de card. */}
                 <article className={`${css.card_resumo} ${css.card_mes}`}>
+                    {/* Renderiza o elemento span nesta parte da página. */}
                     <span>Lucro líquido</span>
+                    {/* Renderiza o elemento strong nesta parte da página. */}
                     <strong>{formatarMoeda(resumoPeriodo.lucro_liquido)}</strong>
                 </article>
             </section>
 
             {/* Painel de filtros da tabela. */}
             <section className={css.painel_filtros}>
+                {/* Agrupa os elementos desta parte da interface. */}
                 <div className={css.filtros_cabecalho}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Renderiza o elemento strong nesta parte da página. */}
                         <strong>{nomePeriodo(periodo)}</strong>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         <span>{transacoesFiltradas.length} transação{transacoesFiltradas.length === 1 ? "" : "ões"} na lista</span>
                     </div>
+                    {/* Exibe este botão de ação. */}
                     <button type="button" onClick={limparFiltros}>
                         Limpar filtros
                     </button>
@@ -671,8 +859,11 @@ function DashboardADMFinanceiros({ API }) {
 
                 {/* Campos de busca, período e tipo. */}
                 <div className={css.filtros}>
+                    {/* Relaciona um texto explicativo ao campo correspondente. */}
                     <label className={css.campo_busca}>
+                        {/* Exibe esta imagem na interface. */}
                         <img src="/IconBusca.png" alt="Buscar" />
+                        {/* Exibe este campo de entrada de dados. */}
                         <input
                             type="text"
                             placeholder="Buscar por descrição, data ou tipo"
@@ -681,26 +872,35 @@ function DashboardADMFinanceiros({ API }) {
                         />
                     </label>
 
+                    {/* Exibe uma lista de opções para seleção. */}
                     <select
                         className={`${css.select_filtro} ${css.select_periodo}`}
                         value={periodo}
                         onChange={(evento) => setPeriodo(evento.target.value)}
                         aria-label="Período"
                     >
+                        {/* Renderiza o elemento option nesta parte da página. */}
                         <option value="30">Últimos 30 dias</option>
+                        {/* Renderiza o elemento option nesta parte da página. */}
                         <option value="15">Últimos 15 dias</option>
+                        {/* Renderiza o elemento option nesta parte da página. */}
                         <option value="7">Últimos 7 dias</option>
+                        {/* Renderiza o elemento option nesta parte da página. */}
                         <option value="">Todo o período</option>
                     </select>
 
+                    {/* Exibe uma lista de opções para seleção. */}
                     <select
                         className={css.select_filtro}
                         value={tipo}
                         onChange={(evento) => setTipo(evento.target.value)}
                         aria-label="Tipo"
                     >
+                        {/* Renderiza o elemento option nesta parte da página. */}
                         <option value="todos">Todos os tipos</option>
+                        {/* Renderiza o elemento option nesta parte da página. */}
                         <option value="entrada">Receitas</option>
+                        {/* Renderiza o elemento option nesta parte da página. */}
                         <option value="saida">Despesas</option>
                     </select>
                 </div>
@@ -708,33 +908,48 @@ function DashboardADMFinanceiros({ API }) {
 
             {/* Resumo calculado somente com os itens visíveis na tabela. */}
             <section className={css.resumo_visivel}>
+                {/* Renderiza o elemento span nesta parte da página. */}
                 <span>Receitas visíveis: <strong>{formatarMoeda(totaisVisiveis.receitas)}</strong></span>
+                {/* Renderiza o elemento span nesta parte da página. */}
                 <span>Despesas visíveis: <strong>{formatarMoeda(totaisVisiveis.despesas)}</strong></span>
+                {/* Renderiza o elemento span nesta parte da página. */}
                 <span>Resultado visível: <strong>{formatarMoeda(totaisVisiveis.receitas - totaisVisiveis.despesas)}</strong></span>
             </section>
 
             {/* Mensagens de erro e sucesso. */}
             {!modalAberto && erro && <p className={css.mensagem_erro}>{erro}</p>}
+            {/* Renderiza este conteúdo somente quando a condição for atendida. */}
             {!modalAberto && mensagem && <p className={css.mensagem_sucesso}>{mensagem}</p>}
 
             {/* Tabela de transações financeiras. */}
             <section className={css.tabela_container}>
+                {/* Exibe os dados em formato de tabela. */}
                 <table className={css.tabela}>
+                    {/* Renderiza o elemento thead nesta parte da página. */}
                     <thead>
+                        {/* Renderiza o elemento tr nesta parte da página. */}
                         <tr>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Data</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Descrição</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Veículo</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Tipo</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Valor</th>
+                            {/* Renderiza o elemento th nesta parte da página. */}
                             <th>Ações</th>
                         </tr>
                     </thead>
 
+                    {/* Renderiza o elemento tbody nesta parte da página. */}
                     <tbody>
                         {/* Linha de carregamento da tabela. */}
                         {carregando && (
                             <tr>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td colSpan="6" className={css.estado_vazio}>
                                     Carregando transações...
                                 </td>
@@ -744,36 +959,50 @@ function DashboardADMFinanceiros({ API }) {
                         {/* Linhas das transações filtradas. */}
                         {!carregando && transacoesFiltradas.map((transacao) => (
                             <tr key={transacao.id}>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td data-label="Data">{dataParaTela(transacao.data)}</td>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td data-label="Descrição">{transacao.descricao}</td>
-                                <td data-label="Veículo">{transacao.veiculo || "-"}</td>
+                                {/* Renderiza o elemento td nesta parte da página. */}
+                                <td data-label="Veículo">{nomeVeiculoTransacao(transacao, veiculos, vendas) || "-"}</td>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td data-label="Tipo">
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span className={`${css.status} ${transacao.tipo === "entrada" ? css.entrada : css.saida}`}>
+                                        {/* Percorre os dados para renderizar os itens desta área. */}
                                         {formatarTipo(transacao.tipo)}
                                     </span>
                                 </td>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td
                                     data-label="Valor"
                                     className={transacao.tipo === "entrada" ? css.valor_entrada : css.valor_saida}
                                 >
+                                    {/* Percorre os dados para renderizar os itens desta área. */}
                                     {formatarMoeda(transacao.valor)}
                                 </td>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td data-label="Ações">
+                                    {/* Agrupa os elementos desta parte da interface. */}
                                     <div className={css.acoes}>
+                                        {/* Exibe este botão de ação. */}
                                         <button
                                             type="button"
                                             className={css.botao_editar}
                                             aria-label="Editar transação"
                                             onClick={() => abrirEdicao(transacao)}
                                         >
+                                            {/* Exibe esta imagem na interface. */}
                                             <img src="/Editar.png" alt="" />
                                         </button>
+                                        {/* Exibe este botão de ação. */}
                                         <button
                                             type="button"
                                             className={css.botao_excluir}
                                             aria-label="Excluir transação"
                                             onClick={() => setTransacaoParaExcluir(transacao)}
                                         >
+                                            {/* Exibe esta imagem na interface. */}
                                             <img src="/Exculir.png" alt="" />
                                         </button>
                                     </div>
@@ -784,6 +1013,7 @@ function DashboardADMFinanceiros({ API }) {
                         {/* Linha vazia quando não há resultado. */}
                         {!carregando && transacoesFiltradas.length === 0 && (
                             <tr>
+                                {/* Renderiza o elemento td nesta parte da página. */}
                                 <td colSpan="6" className={css.estado_vazio}>
                                     Nenhuma transação encontrada.
                                 </td>
@@ -796,26 +1026,38 @@ function DashboardADMFinanceiros({ API }) {
             {/* Modal de cadastro ou edição de transação. */}
             {modalAberto && (
                 <div className={css.modal_overlay}>
+                    {/* Agrupa os campos e ações deste formulário. */}
                     <form className={css.modal} onSubmit={salvarTransacao}>
+                        {/* Exibe o cabeçalho desta área. */}
                         <header className={css.modal_cabecalho}>
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span>{transacaoEditando ? "Editar registro" : "Novo registro"}</span>
+                                {/* Exibe o título desta seção. */}
                                 <h2>{transacaoEditando ? "Editar transação" : "Nova transação"}</h2>
                             </div>
+                            {/* Exibe este botão de ação. */}
                             <button type="button" onClick={fecharModal} disabled={salvando} aria-label="Fechar modal">
                                 ×
                             </button>
                         </header>
 
+                        {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                         {erroModal && <p className={`${css.mensagem_erro} ${css.mensagem_modal}`}>{erroModal}</p>}
+                        {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                         {mensagemModal && <p className={`${css.mensagem_sucesso} ${css.mensagem_modal}`}>{mensagemModal}</p>}
 
                         {/* Campos do formulário financeiro. */}
                         <div className={css.modal_conteudo}>
+                            {/* Renderiza o elemento fieldset nesta parte da página. */}
                             <fieldset className={css.grupo_tipo}>
+                                {/* Renderiza o elemento legend nesta parte da página. */}
                                 <legend>Tipo</legend>
 
+                                {/* Agrupa os elementos desta parte da interface. */}
                                 <div className={css.opcoes_tipo}>
+                                    {/* Exibe este botão de ação. */}
                                     <button
                                         type="button"
                                         className={`${css.botao_tipo} ${css.botao_entrada} ${formulario.tipo === "entrada" ? css.tipo_ativo : ""}`}
@@ -824,6 +1066,7 @@ function DashboardADMFinanceiros({ API }) {
                                         Receita
                                     </button>
 
+                                    {/* Exibe este botão de ação. */}
                                     <button
                                         type="button"
                                         className={`${css.botao_tipo} ${css.botao_saida} ${formulario.tipo === "saida" ? css.tipo_ativo : ""}`}
@@ -834,26 +1077,36 @@ function DashboardADMFinanceiros({ API }) {
                                 </div>
                             </fieldset>
 
+                            {/* Relaciona um texto explicativo ao campo correspondente. */}
                             <label className={css.campo_modal}>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span>Veículo relacionado</span>
+                                {/* Exibe uma lista de opções para seleção. */}
                                 <select
                                     value={formulario.id_veiculo}
                                     onChange={(evento) => selecionarVeiculo(evento.target.value)}
                                     disabled={carregandoVeiculos}
                                 >
+                                    {/* Renderiza o elemento option nesta parte da página. */}
                                     <option value="">
+                                        {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                         {carregandoVeiculos ? "Carregando veículos..." : "Selecione um veículo, se tiver relação"}
                                     </option>
+                                    {/* Percorre os dados para renderizar os itens desta área. */}
                                     {veiculos.map((carro) => (
                                         <option key={idVeiculo(carro)} value={idVeiculo(carro)}>
+                                            {/* Percorre os dados para renderizar os itens desta área. */}
                                             {nomeVeiculo(carro)}
                                         </option>
                                     ))}
                                 </select>
                             </label>
 
+                            {/* Relaciona um texto explicativo ao campo correspondente. */}
                             <label className={css.campo_modal}>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span>Data</span>
+                                {/* Exibe este campo de entrada de dados. */}
                                 <input
                                     type="date"
                                     value={formulario.data}
@@ -862,8 +1115,11 @@ function DashboardADMFinanceiros({ API }) {
                                 />
                             </label>
 
+                            {/* Relaciona um texto explicativo ao campo correspondente. */}
                             <label className={css.campo_modal}>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span>Descrição</span>
+                                {/* Exibe este campo de entrada de dados. */}
                                 <input
                                     type="text"
                                     value={formulario.descricao}
@@ -873,8 +1129,11 @@ function DashboardADMFinanceiros({ API }) {
                                 />
                             </label>
 
+                            {/* Relaciona um texto explicativo ao campo correspondente. */}
                             <label className={css.campo_modal}>
+                                {/* Renderiza o elemento span nesta parte da página. */}
                                 <span>Valor</span>
+                                {/* Exibe este campo de entrada de dados. */}
                                 <input
                                     type="number"
                                     min="0"
@@ -889,9 +1148,12 @@ function DashboardADMFinanceiros({ API }) {
 
                         {/* Botões do modal. */}
                         <footer className={css.modal_botoes}>
+                            {/* Exibe este botão de ação. */}
                             <button type="submit" className={css.botao_salvar} disabled={salvando}>
+                                {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                 {salvando ? "Salvando..." : "Salvar"}
                             </button>
+                            {/* Exibe este botão de ação. */}
                             <button type="button" className={css.botao_cancelar} onClick={fecharModal} disabled={salvando}>
                                 Cancelar
                             </button>

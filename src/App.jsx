@@ -15,6 +15,8 @@ import CarrosCaminhonetes from "./pages/CarrosCaminhonetes.jsx";
 import CarrosSUV from "./pages/CarrosSUV.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import MinhaConta from "./pages/MinhaConta.jsx";
+// ITEM DA SPRINT: "Criar página Minhas Compras".
+// Importa o componente para que o roteador consiga renderizar a página quando sua URL for acessada.
 import MinhasCompras from "./pages/MinhasCompras.jsx";
 import Favoritos from "./pages/Favoritos.jsx";
 import DashboardAdm from "./pages/DashboardAdm.jsx";
@@ -71,7 +73,10 @@ function App({ API }) {
             <Route path="/Dashboard" element={<Dashboard API={API} />} />
             <Route path="/minhaConta" element={<MinhaConta API={API} />} />
             <Route path="/favoritos" element={<Favoritos API={API} />} />
+            {/* ITEM DA SPRINT: "Criar página Minhas Compras". */}
+            {/* Registra a URL principal usada pelo botão do menu para abrir o componente MinhasCompras. */}
             <Route path="/minhasCompras" element={<MinhasCompras API={API} />} />
+            {/* Registra uma URL alternativa com hífen apontando para a mesma página. */}
             <Route path="/minhas-compras" element={<MinhasCompras API={API} />} />
             <Route path="/dashboardAdm" element={<DashboardAdm  API={API} />} />
             <Route path="/dashboardAdmVeiculos" element={<DashboardAdmVeiculos API={API} />} />

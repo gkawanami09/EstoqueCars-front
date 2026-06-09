@@ -17,6 +17,7 @@ const usuarioVazio = {
 
 // Le o usuario salvo no localStorage depois do login.
 function lerUsuarioLogado() {
+    // Tenta executar a operação e permite tratar possíveis falhas.
     try {
         // Tenta converter o JSON salvo no navegador.
         return JSON.parse(localStorage.getItem("usuario_logado")) || usuarioVazio;
@@ -33,9 +34,11 @@ function idPeloToken() {
 
     // Token JWT precisa ter pontos.
     if (!token || !token.includes(".")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
+    // Tenta executar a operação e permite tratar possíveis falhas.
     try {
         // Decodifica a parte do payload do JWT.
         const payload = JSON.parse(atob(token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/")));
@@ -51,16 +54,19 @@ function idPeloToken() {
 function montarUrlFoto(API, valor) {
     // Sem valor, nao tem foto.
     if (!valor) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
     // Se ja veio URL completa, usa direto.
     if (String(valor).startsWith("http")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return valor;
     }
 
     // Se veio caminho com barra, coloca a URL da API antes.
     if (String(valor).startsWith("/")) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `${API}${valor}`;
     }
 
@@ -70,24 +76,34 @@ function montarUrlFoto(API, valor) {
 
 // Aplica mascara visual de telefone sem alterar o valor salvo.
 function formatarTelefone(valor) {
+    // Declara numeros para uso neste fluxo.
     const numeros = String(valor || "").replace(/\D/g, "").slice(0, 11);
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (!numeros) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return "";
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (numeros.length <= 2) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `(${numeros}`;
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (numeros.length <= 6) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `(${numeros.slice(0, 2)}) ${numeros.slice(2)}`;
     }
 
+    // Verifica esta condição antes de continuar o fluxo.
     if (numeros.length <= 10) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 6)}-${numeros.slice(6)}`;
     }
 
+    // Retorna o resultado desta função ou o conteúdo visual da página.
     return `(${numeros.slice(0, 2)}) ${numeros.slice(2, 7)}-${numeros.slice(7)}`;
 }
 
@@ -139,6 +155,7 @@ function MinhaConta({ API }) {
 
     // Atualiza um campo do formulario.
     function atualizarCampo(campo, valor) {
+        // Atualiza o estado por meio de setFormulario.
         setFormulario((atual) => ({ ...atual, [campo]: valor }));
     }
 
@@ -156,6 +173,7 @@ function MinhaConta({ API }) {
 
     // Volta os campos para o valor salvo.
     function limparFormulario() {
+        // Atualiza o estado por meio de setFormulario.
         setFormulario({
             nome: usuarioBase.nome || "",
             email: usuarioBase.email || "",
@@ -198,19 +216,23 @@ function MinhaConta({ API }) {
 
         // Sem ID nao da para chamar a rota.
         if (!idUsuario) {
+            // Atualiza o estado por meio de setMensagem.
             setMensagem({
                 tipo: "erro",
                 texto: "Não foi possível identificar sua conta. Faça login novamente."
             });
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
         // Nome e email sao obrigatorios.
         if (!formulario.nome.trim() || !formulario.email.trim()) {
+            // Atualiza o estado por meio de setMensagem.
             setMensagem({
                 tipo: "erro",
                 texto: "Informe pelo menos nome e e-mail."
             });
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -227,17 +249,20 @@ function MinhaConta({ API }) {
 
         // Senha so e enviada quando o usuario digitou uma nova.
         if (formulario.senha.trim()) {
+            // Executa append nesta etapa do fluxo.
             formData.append("senha", formulario.senha);
         }
 
         // Foto so e enviada quando o usuario escolheu arquivo.
         if (foto) {
+            // Executa append nesta etapa do fluxo.
             formData.append("foto_perfil", foto);
         }
 
         // Liga carregamento do botao.
         setSalvando(true);
 
+        // Tenta executar a operação e permite tratar possíveis falhas.
         try {
             // Busca token para enviar no Authorization.
             const token = localStorage.getItem("access_token");
@@ -253,10 +278,12 @@ function MinhaConta({ API }) {
 
             // Se a API retornou erro, mostra na tela.
             if (!resposta.ok) {
+                // Atualiza o estado por meio de setMensagem.
                 setMensagem({
                     tipo: "erro",
                     texto: dados.erro || "Não foi possível atualizar sua conta."
                 });
+                // Retorna o resultado desta função ou o conteúdo visual da página.
                 return;
             }
 
@@ -293,67 +320,102 @@ function MinhaConta({ API }) {
     return (
         // Container principal.
         <div className={css.layout_minha_conta}>
+            {/* Abre o conteúdo principal desta página. */}
             <main className={css.conteudo_principal}>
+                {/* Exibe o cabeçalho desta área. */}
                 <header className={css.cabecalho}>
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div>
+                        {/* Exibe o título principal desta página. */}
                         <h1 className={css.titulo}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             Minha <span className={css.destaque_vermelho}>conta</span>
                         </h1>
+                        {/* Exibe esta mensagem ou informação. */}
                         <p className={css.subtitulo}>Gerencie suas informações pessoais e segurança</p>
                     </div>
                 </header>
 
+                {/* Renderiza este conteúdo somente quando a condição for atendida. */}
                 {mensagem && (
                     <div className={`${css.mensagem} ${mensagem.tipo === "sucesso" ? css.mensagem_sucesso : css.mensagem_erro}`}>
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div>
+                            {/* Renderiza o elemento strong nesta parte da página. */}
                             <strong>{mensagem.tipo === "sucesso" ? "Tudo certo" : "Atencao"}</strong>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>{mensagem.texto}</span>
                         </div>
+                        {/* Exibe este botão de ação. */}
                         <button type="button" onClick={() => setMensagem(null)} aria-label="Fechar mensagem">
                             x
                         </button>
                     </div>
                 )}
 
+                {/* Agrupa os campos e ações deste formulário. */}
                 <form className={css.container_cards} onSubmit={salvar}>
+                    {/* Agrupa esta seção de conteúdo. */}
                     <section className={css.card_topo}>
+                        {/* Agrupa os elementos desta parte da interface. */}
                         <div className={css.info_usuario_topo}>
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.avatar_grande}>
+                                {/* Exibe esta imagem na interface. */}
                                 <img
                                     src={previewFoto || fotoPerfil}
                                     alt="Avatar"
                                     className={css.img_avatar}
                                     onError={(e) => {
+                                        // Verifica esta condição antes de continuar o fluxo.
                                         if (tentativaFoto < fotosPossiveis.length - 1) {
+                                            // Atualiza o estado por meio de setTentativaFoto.
                                             setTentativaFoto((atual) => atual + 1);
+                                            // Retorna o resultado desta função ou o conteúdo visual da página.
                                             return;
                                         }
 
+                                        // Executa esta etapa do fluxo.
                                         e.currentTarget.src = "/IconPerfil.png";
                                     }}
                                 />
                             </div>
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.dados_usuario}>
+                                {/* Exibe o título desta seção. */}
                                 <h2>{formulario.nome || "Usuário"}</h2>
+                                {/* Exibe esta mensagem ou informação. */}
                                 <p>{formulario.email || "E-mail não informado"}</p>
+                                {/* Exibe esta mensagem ou informação. */}
                                 <p>{formatarTelefone(formulario.telefone) || "Telefone não informado"}</p>
                             </div>
                         </div>
+                        {/* Relaciona um texto explicativo ao campo correspondente. */}
                         <label className={css.alterar_foto_area}>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>Alterar foto de perfil</span>
+                            {/* Exibe este campo de entrada de dados. */}
                             <input type="file" accept="image/*" onChange={selecionarFoto} />
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.box_foto_placeholder}>
+                                {/* Exibe esta imagem na interface. */}
                                 <img src="/IconAddFotoPerfil.png" alt="Adicionar foto" className={css.icone_add_foto} />
                             </div>
                         </label>
                     </section>
 
+                    {/* Agrupa os elementos desta parte da interface. */}
                     <div className={css.cards_inferiores}>
+                        {/* Agrupa esta seção de conteúdo. */}
                         <section className={css.card_form}>
+                            {/* Exibe o título desta seção. */}
                             <h2 className={css.titulo_card}>Informações pessoais</h2>
 
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.grupo_input}>
+                                {/* Relaciona um texto explicativo ao campo correspondente. */}
                                 <label>Nome completo</label>
+                                {/* Exibe este campo de entrada de dados. */}
                                 <input
                                     type="text"
                                     value={formulario.nome}
@@ -363,8 +425,11 @@ function MinhaConta({ API }) {
                                 />
                             </div>
 
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.grupo_input}>
+                                {/* Relaciona um texto explicativo ao campo correspondente. */}
                                 <label>E-mail</label>
+                                {/* Exibe este campo de entrada de dados. */}
                                 <input
                                     type="email"
                                     value={formulario.email}
@@ -374,8 +439,11 @@ function MinhaConta({ API }) {
                                 />
                             </div>
 
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.grupo_input}>
+                                {/* Relaciona um texto explicativo ao campo correspondente. */}
                                 <label>Telefone</label>
+                                {/* Renderiza o componente IMaskInput nesta parte da página. */}
                                 <IMaskInput
                                     mask="(00) 00000-0000"
                                     unmask={true}
@@ -385,8 +453,11 @@ function MinhaConta({ API }) {
                                 />
                             </div>
 
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.grupo_input}>
+                                {/* Relaciona um texto explicativo ao campo correspondente. */}
                                 <label>CPF</label>
+                                {/* Renderiza o componente IMaskInput nesta parte da página. */}
                                 <IMaskInput
                                     mask="000.000.000-00"
                                     unmask={true}
@@ -397,12 +468,18 @@ function MinhaConta({ API }) {
                             </div>
                         </section>
 
+                        {/* Agrupa esta seção de conteúdo. */}
                         <section className={css.card_form}>
+                            {/* Exibe o título desta seção. */}
                             <h2 className={`${css.titulo_card} ${css.destaque_vermelho}`}>Segurança</h2>
 
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.grupo_input}>
+                                {/* Relaciona um texto explicativo ao campo correspondente. */}
                                 <label>Nova senha</label>
+                                {/* Agrupa os elementos desta parte da interface. */}
                                 <div className={css.input_com_icone}>
+                                    {/* Exibe este campo de entrada de dados. */}
                                     <input
                                         type="password"
                                         value={formulario.senha}
@@ -410,15 +487,20 @@ function MinhaConta({ API }) {
                                         className={css.input_padrao}
                                         placeholder="Deixe vazio para manter a atual"
                                     />
+                                    {/* Exibe esta imagem na interface. */}
                                     <img src="/IconCadeado.png" alt="Cadeado" className={css.cadeado} />
                                 </div>
                             </div>
 
+                            {/* Agrupa os elementos desta parte da interface. */}
                             <div className={css.area_botoes}>
+                                {/* Exibe este botão de ação. */}
                                 <button type="button" className={css.botao_cancelar} onClick={limparFormulario}>
                                     Cancelar
                                 </button>
+                                {/* Exibe este botão de ação. */}
                                 <button type="submit" className={css.botao_salvar} disabled={salvando}>
+                                    {/* Escolhe qual conteúdo exibir conforme a condição. */}
                                     {salvando ? "Salvando..." : "Salvar alterações"}
                                 </button>
                             </div>
@@ -430,4 +512,5 @@ function MinhaConta({ API }) {
     );
 }
 
+// Exporta esta página para que ela possa ser usada pelas rotas do sistema.
 export default MinhaConta;

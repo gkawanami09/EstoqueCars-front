@@ -22,6 +22,7 @@ function usuarioPodeFavoritar() {
 
     // Se não existe usuário salvo, ele não pode favoritar.
     if (!usuarioSalvo) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return false;
     }
 
@@ -63,6 +64,7 @@ async function alternarFavorito(API, idVeiculo) {
 
     // Se a resposta não foi sucesso, mostra a mensagem da API ou uma mensagem padrão.
     if (!resposta.ok) {
+        // Interrompe o fluxo informando o erro encontrado.
         throw new Error(dados.erro || dados.mensagem || "Não foi possível atualizar este favorito.");
     }
 }
@@ -108,6 +110,7 @@ function Dashboard({ API }) {
 
     // Lê o status de estoque do carro aceitando diferentes nomes de campo da API.
     function statusEstoqueCarro(carro) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return carro?.status_estoque ?? carro?.STATUS_ESTOQUE ?? carro?.statusEstoque ?? carro?.status ?? "";
     }
 
@@ -118,16 +121,19 @@ function Dashboard({ API }) {
 
         // Identifica carros em estoque por código ou texto.
         if (status === "1" || status.includes("estoque") || (status.includes("dispon") && !status.includes("indispon"))) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "estoque";
         }
 
         // Identifica carros vendidos por código ou texto.
         if (status === "2" || status.includes("vend")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "vendido";
         }
 
         // Identifica carros indisponíveis por código ou texto.
         if (status === "3" || status.includes("indispon")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "indisponivel";
         }
 
@@ -142,11 +148,13 @@ function Dashboard({ API }) {
 
         // Texto exibido para veículo vendido.
         if (status === "vendido") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Vendido";
         }
 
         // Texto exibido para veículo indisponível.
         if (status === "indisponivel") {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Indisponível";
         }
 
@@ -176,6 +184,7 @@ function Dashboard({ API }) {
 
             // Se uma categoria foi escolhida, adiciona ela na URL.
             if (categoria) {
+                // Executa append nesta etapa do fluxo.
                 params.append("categoria", categoria);
             }
 
@@ -216,6 +225,7 @@ function Dashboard({ API }) {
 
     // Executa a busca de carros quando o componente abre ou quando a função muda.
     useEffect(() => {
+        // Executa carregarCarros nesta etapa do fluxo.
         carregarCarros();
     }, [carregarCarros]);
 
@@ -254,6 +264,7 @@ function Dashboard({ API }) {
 
     // Volta para a primeira página quando a busca ou categoria mudam.
     useEffect(() => {
+        // Atualiza o estado por meio de setPaginaAtual.
         setPaginaAtual(1);
     }, [busca, categoria]);
 
@@ -261,6 +272,7 @@ function Dashboard({ API }) {
     useEffect(() => {
         // Se a página atual passou do limite, volta para a última página disponível.
         if (paginaAtual > totalPaginas) {
+            // Atualiza o estado por meio de setPaginaAtual.
             setPaginaAtual(totalPaginas);
         }
     }, [paginaAtual, totalPaginas]);
@@ -308,11 +320,13 @@ function Dashboard({ API }) {
 
         // Retorna Automático quando vier código 1 ou texto contendo "auto".
         if (cambio === "1" || cambio.includes("auto")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Automático";
         }
 
         // Retorna Manual quando vier código 2 ou texto contendo "manual".
         if (cambio === "2" || cambio.includes("manual")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "Manual";
         }
 
@@ -322,6 +336,7 @@ function Dashboard({ API }) {
 
     // Descobre o ID do carro aceitando vários nomes possíveis vindos da API.
     function idCarro(carro) {
+        // Retorna o resultado desta função ou o conteúdo visual da página.
         return carro?.id || carro?.id_carro || carro?.id_veiculo || carro?.ID_VEICULO || carro?.ID_CARRO;
     }
 
@@ -332,6 +347,7 @@ function Dashboard({ API }) {
 
         // Se não houver ID ou já houver favoritando em andamento, não faz nada.
         if (!id || favoritandoId) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return;
         }
 
@@ -365,16 +381,19 @@ function Dashboard({ API }) {
 
         // Se não tiver imagem, usa o ícone padrão.
         if (!imagem) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return "/IconCar.png";
         }
 
         // Se já for URL completa, usa do jeito que veio.
         if (String(imagem).startsWith("http")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return imagem;
         }
 
         // Se vier com barra inicial, junta com a base da API.
         if (String(imagem).startsWith("/")) {
+            // Retorna o resultado desta função ou o conteúdo visual da página.
             return `${API}${imagem}`;
         }
 
@@ -392,6 +411,7 @@ function Dashboard({ API }) {
                 <header className={css.cabecalho}>
                     {/* Título de boas-vindas com o nome do usuário. */}
                     <h1 className={css.titulo_boas_vindas}>
+                        {/* Renderiza o elemento span nesta parte da página. */}
                         Bem-vindo, <span className={css.nome_usuario}>{nomeUsuario}</span>
                     </h1>
                     {/* Área visual do usuário no canto do cabeçalho. */}
@@ -453,7 +473,9 @@ function Dashboard({ API }) {
                     {/* Mostra mensagem vazia quando terminou de carregar e não encontrou carros. */}
                     {!carregando && !erro && carrosFiltrados.length === 0 && (
                         <div className={css.estado_lista}>
+                            {/* Renderiza o elemento strong nesta parte da página. */}
                             <strong>{mensagemListaVazia.titulo}</strong>
+                            {/* Renderiza o elemento span nesta parte da página. */}
                             <span>{mensagemListaVazia.texto}</span>
                         </div>
                     )}
@@ -469,7 +491,9 @@ function Dashboard({ API }) {
                                         type="button"
                                         className={`${css.botao_favorito} ${carroEstaFavoritado(carro) ? css.favorito_ativo : ""}`}
                                         onClick={(evento) => {
+                                            // Executa stopPropagation nesta etapa do fluxo.
                                             evento.stopPropagation();
+                                            // Executa favoritarCarro nesta etapa do fluxo.
                                             favoritarCarro(carro);
                                         }}
                                         disabled={favoritandoId === String(idCarro(carro))}
@@ -477,6 +501,7 @@ function Dashboard({ API }) {
                                         aria-label={carroEstaFavoritado(carro) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                                         title={carroEstaFavoritado(carro) ? "Remover dos favoritos" : "Adicionar aos favoritos"}
                                     >
+                                        {/* Renderiza o elemento span nesta parte da página. */}
                                         <span aria-hidden="true">{carroEstaFavoritado(carro) ? "♥" : "♡"}</span>
                                     </button>
                                 )}
@@ -485,6 +510,7 @@ function Dashboard({ API }) {
                                     src={imagemCarro(carro)}
                                     alt={carro.modelo || "Veículo"}
                                     onError={(evento) => {
+                                        // Executa esta etapa do fluxo.
                                         evento.currentTarget.src = "/IconCar.png";
                                     }}
                                 />
@@ -494,23 +520,32 @@ function Dashboard({ API }) {
                             <div className={css.info_carro}>
                                 {/* Título do carro e selo de status. */}
                                 <div className={css.titulo_status}>
+                                    {/* Exibe o título desta seção. */}
                                     <h2>{carro.modelo || carro.nome || "Veículo"}</h2>
+                                    {/* Renderiza o elemento span nesta parte da página. */}
                                     <span className={`${css.status_veiculo} ${classeStatusEstoque(carro)}`}>
+                                        {/* Percorre os dados para renderizar os itens desta área. */}
                                         {textoStatusEstoque(carro)}
                                     </span>
                                 </div>
                                 {/* Grade com dados principais do veículo. */}
                                 <div className={css.grade_info}>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Marca:</strong> {carro.marca || "-"}</p>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Ano:</strong> {carro.ano_fabricacao || "-"} / {carro.ano_modelo || "-"}</p>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Câmbio:</strong> {formatarCambio(carro.cambio)}</p>
+                                    {/* Exibe esta mensagem ou informação. */}
                                     <p><strong>Cor:</strong> {carro.cor || "-"}</p>
                                 </div>
                             </div>
 
                             {/* Área com preço e botão de detalhes. */}
                             <div className={css.area_preco}>
+                                {/* Renderiza o elemento strong nesta parte da página. */}
                                 <strong>{formatarPreco(carro.preco)}</strong>
+                                {/* Exibe este botão de ação. */}
                                 <button
                                     type="button"
                                     onClick={() => navigate(`/detalhesVeiculos/${idCarro(carro)}`)}
@@ -525,6 +560,7 @@ function Dashboard({ API }) {
                 {/* Mostra a paginação somente quando há carros filtrados para navegar. */}
                 {!carregando && !erro && carrosFiltrados.length > 0 && (
                     <div className={css.paginacao_area}>
+                        {/* Renderiza o componente Paginacao nesta parte da página. */}
                         <Paginacao
                             paginaAtual={paginaAtual}
                             totalItens={carrosFiltrados.length}
